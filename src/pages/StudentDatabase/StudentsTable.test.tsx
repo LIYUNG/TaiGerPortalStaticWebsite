@@ -11,7 +11,7 @@ vi.mock('material-react-table', () => ({
         options: {}
     })),
     createMRTColumnHelper: vi.fn(() => ({
-        accessor: vi.fn((key: string, opts: unknown) => ({
+        accessor: vi.fn((key: string, opts: Record<string, unknown>) => ({
             accessorKey: key,
             ...opts
         }))

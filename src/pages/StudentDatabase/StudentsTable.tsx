@@ -3,7 +3,8 @@ import { Link as LinkDom } from 'react-router-dom';
 import {
     MaterialReactTable,
     useMaterialReactTable,
-    createMRTColumnHelper
+    createMRTColumnHelper,
+    type MRT_RowData
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '@components/table';
 import { useTranslation } from 'react-i18next';
@@ -26,24 +27,25 @@ import { TopToolbar } from '@components/table/students-table/TopToolbar';
 import EditAttributesSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
 import { is_User_Archived } from '../Utils/util_functions';
 import EditUserListSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
+import type { IStudentResponse } from '@taiger-common/model';
 
-const columnHelper = createMRTColumnHelper();
+const columnHelper = createMRTColumnHelper<MRT_RowData>();
 
 interface StudentsTableProps {
     isLoading: boolean;
     data: Record<string, unknown>[];
     submitUpdateAgentlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: React.SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => void;
     submitUpdateEditorlist: (
         e: React.SyntheticEvent,
-        updateEditorList: unknown,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => void;
     submitUpdateAttributeslist: (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateAttributesList: unknown,
         student_id: string
     ) => void;
@@ -64,7 +66,10 @@ export const StudentsTable = ({
 }: StudentsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
+    const tableConfig = getTableConfig(
+        { tableHeadStyle: customTableStyles.tableHeadCellStyle },
+        isLoading
+    );
     const [isArchivLoading, setIsArchivLoading] = useState(false);
     const [shouldInform, setShouldInform] = useState(false);
     const [studentsAgentEditor, setStudentsAgentEditor] = useState({
@@ -146,8 +151,8 @@ export const StudentsTable = ({
     };
 
     const submitUpdateAgentlistLocal = (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: React.SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => {
         table.resetRowSelection();
@@ -157,7 +162,7 @@ export const StudentsTable = ({
 
     const submitUpdateEditorlistLocal = (
         e: React.SyntheticEvent,
-        updateEditorList: unknown,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => {
         table.resetRowSelection();
@@ -280,9 +285,7 @@ export const StudentsTable = ({
         })
     ];
 
-    const handleExportRows = (
-        rows: { original: Record<string, unknown> }[]
-    ) => {
+    const handleExportRows = (rows: unknown[]) => {
         console.log(columns);
         const csvConfig = mkConfig({
             fieldSeparator: ',',
@@ -290,19 +293,25 @@ export const StudentsTable = ({
             useKeysAsHeaders: true
         });
 
-        const rowData = rows.map(
-            (row: { original: Record<string, unknown> }) => {
-                return {
-                    ...columns.map((column) => row.original[column.accessorKey])
-                };
-            }
+        const typedRows = rows as { original: Record<string, unknown> }[];
+        const rowData = typedRows.map((row) => {
+            const rowObj: Record<string, unknown> = {};
+            columns.forEach((column) => {
+                const key = column.accessorKey as string;
+                if (key) {
+                    rowObj[key] = row.original[key];
+                }
+            });
+            return rowObj;
+        });
+        const csv = generateCsv(csvConfig)(
+            rowData as Record<string, string | number | boolean | null>[]
         );
-        const csv = generateCsv(csvConfig)(rowData);
         download(csvConfig)(csv);
     };
 
     const table = useMaterialReactTable({
-        ...tableConfig,
+        ...(tableConfig as Record<string, unknown>),
         columns,
         state: { isLoading },
         data: data || []
@@ -320,68 +329,59 @@ export const StudentsTable = ({
         />
     );
 
-    const student = table.getSelectedRowModel().rows?.map(
-        ({
-            original: {
-                _id,
-                firstname,
-                lastname,
-                agents,
-                editors,
-                attributes,
-                archiv
-            }
-        }: {
-            original: {
-                _id: string;
-                firstname: string;
-                lastname: string;
-                agents: unknown[];
-                editors: unknown[];
-                attributes: { name: string }[];
-                archiv: boolean;
-            };
-        }) => ({
-            _id,
-            firstname,
-            lastname,
-            agents,
-            editors,
-            attributes,
-            archiv
-        })
-    )?.[0];
+    const student = table.getSelectedRowModel().rows?.map((row) => {
+        const orig = row.original as Record<string, unknown>;
+        return {
+            _id: orig._id as string,
+            firstname: orig.firstname as string,
+            lastname: orig.lastname as string,
+            agents: orig.agents as unknown[],
+            editors: orig.editors as unknown[],
+            attributes: orig.attributes as { name: string }[],
+            archiv: orig.archiv as boolean
+        };
+    })?.[0] as
+        | {
+              _id: string;
+              firstname: string;
+              lastname: string;
+              agents: unknown[];
+              editors: unknown[];
+              attributes: { name: string }[];
+              archiv: boolean;
+          }
+        | undefined;
 
     return (
         <>
             <MaterialReactTable table={table} />
-            {studentsAgentEditor.showAgentPage ? (
+            {studentsAgentEditor.showAgentPage && student ? (
                 <EditUserListSubpage
                     onHide={setAgentModalhide}
                     show={studentsAgentEditor.showAgentPage}
-                    student={student}
+                    student={student as unknown as IStudentResponse}
                     submitUpdateList={submitUpdateAgentlistLocal}
                     variant="agent"
                 />
             ) : null}
-            {studentsAgentEditor.showEditorPage ? (
+            {studentsAgentEditor.showEditorPage && student ? (
                 <EditUserListSubpage
                     onHide={setEditorModalhide}
                     show={studentsAgentEditor.showEditorPage}
-                    student={student}
+                    student={student as unknown as IStudentResponse}
                     submitUpdateList={submitUpdateEditorlistLocal}
                     variant="editor"
                 />
             ) : null}
-            {studentsAgentEditor.showAttributesPage ? (
+            {studentsAgentEditor.showAttributesPage && student ? (
                 <EditAttributesSubpage
                     onHide={setAttributeModalhide}
                     show={studentsAgentEditor.showAttributesPage}
-                    student={student}
+                    student={student as unknown as IStudentResponse}
                     submitUpdateAttributeslist={submitUpdateAttributeslistLocal}
                 />
             ) : null}
-            {studentsAgentEditor.showArchivModalPage ? (
+            {studentsAgentEditor.showArchivModalPage && student ? (
                 <Dialog
                     aria-labelledby="contained-modal-title-vcenter"
                     onClose={setArchivModalhide}
@@ -392,7 +392,11 @@ export const StudentsTable = ({
                             ns: 'common',
                             studentName: `${student.firstname} ${student.lastname}`,
                             status: `${
-                                is_User_Archived(student)
+                                is_User_Archived(
+                                    student as unknown as Parameters<
+                                        typeof is_User_Archived
+                                    >[0]
+                                )
                                     ? t('Active')
                                     : t('Archive', { ns: 'common' })
                             }`
@@ -420,7 +424,11 @@ export const StudentsTable = ({
                             onClick={() =>
                                 updateStudentArchivStatusLocal(
                                     student._id,
-                                    !is_User_Archived(student),
+                                    !is_User_Archived(
+                                        student as unknown as Parameters<
+                                            typeof is_User_Archived
+                                        >[0]
+                                    ),
                                     shouldInform
                                 )
                             }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import 'react-datasheet-grid/dist/style.css';
 import { is_TaiGer_AdminAgent, is_TaiGer_role } from '@taiger-common/core';
+import type { IUser, IStudentResponse } from '@taiger-common/model';
 import MessageIcon from '@mui/icons-material/Message';
 
 import { convertDate } from '@utils/contants';
@@ -17,8 +18,28 @@ import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import type { SelectChangeEvent } from '@mui/material';
 
+interface CourseAnalysisState {
+    error: string;
+    isLoaded: boolean;
+    sheets: Record<string, ProgramSheet>;
+    sheetNames: string[];
+    success: boolean;
+    student: IStudentResponse | null;
+    excel_file: Record<string, unknown>;
+    studentId: string;
+    file: string;
+    isDownloading: boolean;
+    LastModified: string;
+    res_status: number;
+    res_modal_status: number;
+    res_modal_message: string;
+    factor?: number;
+    timestamp?: string;
+}
+
 import { GeneralCourseAnalysisComponent } from './components/GeneralCourseAnalysisComponent';
 import { CourseAnalysisComponent } from './components/CourseAnalysisComponent';
+import type { ProgramSheet } from './components/utils';
 
 export default function CourseAnalysisV2() {
     const { user_id } = useParams();
@@ -26,10 +47,10 @@ export default function CourseAnalysisV2() {
     const { user } = useAuth();
     const [value, setValue] = useState(0);
     const [sheetName, setSheetName] = useState('General');
-    const [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState<CourseAnalysisState>({
         error: '',
         isLoaded: false,
-        sheets: {},
+        sheets: {} as Record<string, ProgramSheet>,
         sheetNames: [],
         success: false,
         student: null,
@@ -46,31 +67,33 @@ export default function CourseAnalysisV2() {
         const downloadFn = window.location.href.includes('internal')
             ? WidgetanalyzedFileV2Download
             : analyzedFileV2Download; // Get the full URI
-        downloadFn(user_id).then(
+        downloadFn(user_id ?? '').then(
             (resp) => {
-                const { success, json, student } = resp.data;
-                if (success) {
-                    const timestamp = json['timestamp'];
+                const { success } = resp.data;
+                const json = (resp.data as Record<string, unknown>).json as Record<string, unknown> | undefined;
+                const student = (resp.data as Record<string, unknown>).student as IStudentResponse | undefined;
+                if (success && json) {
+                    const timestamp = json['timestamp'] as string | undefined;
                     delete json['timestamp'];
-                    const factor = json['factor'];
+                    const factor = json['factor'] as number | undefined;
                     delete json['factor'];
                     setStatedata((prevState) => ({
                         ...prevState,
                         sheetNames: Object.keys(json),
-                        sheets: json,
+                        sheets: json as unknown as Record<string, ProgramSheet>,
                         factor,
-                        student,
+                        student: student ?? null,
                         isLoaded: true,
                         timestamp
                     }));
                     setSheetName('General');
                 } else {
-                    const { statusText } = resp;
+                    const { statusText } = resp as { statusText?: string };
                     setStatedata((state) => ({
                         ...state,
                         isLoaded: true,
-                        res_modal_status: status,
-                        res_modal_message: statusText
+                        res_modal_status: resp.status,
+                        res_modal_message: statusText ?? ''
                     }));
                 }
             },
@@ -147,12 +170,12 @@ export default function CourseAnalysisV2() {
                     {appConfig.companyName}
                 </Link>
                 {!window.location.href.includes('internal') &&
-                is_TaiGer_role(user) ? (
+                is_TaiGer_role(user as IUser) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                            statedata.student?._id?.toString(),
+                            statedata.student?._id?.toString() ?? '',
                             DEMO.PROFILE_HASH
                         )}`}
                         underline="hover"
@@ -177,7 +200,7 @@ export default function CourseAnalysisV2() {
                     <Link
                         color="inherit"
                         component={LinkDom}
-                        to={`${DEMO.COURSES_INPUT_LINK(statedata.student?._id?.toString())}`}
+                        to={`${DEMO.COURSES_INPUT_LINK(statedata.student?._id?.toString() ?? '')}`}
                         underline="hover"
                     >
                         {t('My Courses')}
@@ -191,13 +214,13 @@ export default function CourseAnalysisV2() {
                 <Typography color="text.primary" sx={{ pt: 2 }} variant="h6">
                     {t('Courses Analysis')}
                 </Typography>
-                {is_TaiGer_AdminAgent(user) ? (
+                {is_TaiGer_AdminAgent(user as IUser) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
                         sx={{ mr: 1 }}
                         to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
-                            statedata.student._id.toString()
+                            statedata.student?._id?.toString() ?? ''
                         )}`}
                         underline="hover"
                     >
@@ -216,24 +239,24 @@ export default function CourseAnalysisV2() {
                 <GeneralCourseAnalysisComponent
                     onProgramSelect={handleProgramSelect}
                     sheets={statedata.sheets}
-                    student={statedata.student}
+                    student={statedata.student!}
                 />
             ) : null}
             {sheetName !== 'General' ? (
                 <CourseAnalysisComponent
                     currentProgram={value}
-                    factor={statedata.factor}
+                    factor={statedata.factor as number}
                     onBackToOverview={handleBackToOverview}
                     onProgramChange={handleProgramChange}
                     programs={statedata.sheetNames.filter(
                         (name) => name !== 'General'
                     )}
                     sheet={statedata.sheets?.[sheetName]}
-                    student={statedata.student}
+                    student={statedata.student!}
                 />
             ) : null}
             {t('Last update', { ns: 'common' })}{' '}
-            {convertDate(statedata.timestamp)}
+            {convertDate(statedata.timestamp ?? '')}
         </Box>
     );
 }

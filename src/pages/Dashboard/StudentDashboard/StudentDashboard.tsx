@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import EventIcon from '@mui/icons-material/Event';
@@ -22,6 +22,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
 import type { Application } from '@/api/types';
+import type { IUser } from '@taiger-common/model';
 import type { IStudentResponse } from '@taiger-common/model';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
@@ -56,7 +57,14 @@ const StudentDashboard = ({
 }: StudentDashboardProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [studentDashboardState, setStudentDashboardState] = useState({
+    const [studentDashboardState, setStudentDashboardState] = useState<{
+        error: string;
+        student: IStudentResponse;
+        itemheight: number;
+        data: never[];
+        res_status: number;
+        success?: boolean;
+    }>({
         error: '',
         student: std,
         itemheight: 20,
@@ -64,7 +72,7 @@ const StudentDashboard = ({
         res_status: 0
     });
     const { studentId: stdIdParam } = useParams();
-    const studentId = is_TaiGer_Student(user) ? user._id : stdIdParam;
+    const studentId = user && is_TaiGer_Student(user as IUser) ? user._id : stdIdParam;
     const {
         data: student,
         archiv,
@@ -72,15 +80,15 @@ const StudentDashboard = ({
     } = useApplicationStudent(studentId);
 
     const removeBanner = (
-        e: React.MouseEvent<HTMLElement>,
+        e: SyntheticEvent,
         notification_key: string
     ) => {
         e.preventDefault();
         const temp_student = student;
         if (temp_student && temp_student.notification) {
-            temp_student.notification[`${notification_key}`] = true;
+            (temp_student.notification as Record<string, boolean>)[`${notification_key}`] = true;
         }
-        setStudentDashboardState({ student: temp_student });
+        setStudentDashboardState((prev) => ({ ...prev, student: temp_student! }));
         updateBanner(notification_key).then(
             (resp) => {
                 const { success } = resp.data;
@@ -119,12 +127,12 @@ const StudentDashboard = ({
     }
 
     const hasUpcomingAppointment = false;
-    const read_thread = <RespondedThreads student={student} />;
+    const read_thread = <RespondedThreads student={student!} />;
 
     const student_tasks = (
         <StudentTasksResponsive
             isCoursesFilled={isCoursesFilled}
-            student={student}
+            student={student!}
         />
     );
 
@@ -440,7 +448,7 @@ const StudentDashboard = ({
                     </Grid>
                 ) : null}
                 <Grid item md={12} xs={12}>
-                    {needGraduatedApplicantsButStudentNotGraduated(student) ? (
+                    {student && needGraduatedApplicantsButStudentNotGraduated(student) ? (
                         <Card sx={{ border: '4px solid red' }}>
                             <Alert severity="warning">
                                 {t(
@@ -452,7 +460,7 @@ const StudentDashboard = ({
                                 &nbsp;:&nbsp;
                             </Alert>
                             {needGraduatedApplicantsPrograms(
-                                student.applications
+                                student.applications as Application[]
                             )?.map((app) => (
                                 <ListItem key={app.programId?._id?.toString()}>
                                     <Link
@@ -473,10 +481,10 @@ const StudentDashboard = ({
                     ) : null}
                 </Grid>
                 <Grid item md={12} xs={12}>
-                    <ProgramLanguageNotMatchedBanner student={student} />
+                    <ProgramLanguageNotMatchedBanner student={student!} />
                 </Grid>
                 <EnglishCertificateExpiredBeforeDeadlineBanner
-                    student={student}
+                    student={student as unknown as Record<string, unknown>}
                 />
                 <Grid item md={8} xs={12}>
                     <Card style={{ border: '4px solid red' }}>
@@ -545,7 +553,7 @@ const StudentDashboard = ({
                                                         color="inherit"
                                                         component={LinkDom}
                                                         to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
-                                                            student?._id?.toString()
+                                                            student?._id?.toString() ?? ''
                                                         )}?tab=timeslots`}
                                                         underline="hover"
                                                     >
@@ -619,13 +627,13 @@ const StudentDashboard = ({
                 </Grid>
             </Grid>
             <Grid container spacing={2} sx={{ mt: 0 }}>
-                {student.applications
+                {student?.applications
                     ?.filter((app: Application) => isProgramDecided(app))
                     .map((application, idx) => (
                         <Grid item key={idx} lg={3} md={4} sm={6} xs={12}>
                             <ApplicationProgressCard
-                                application={application}
-                                student={student}
+                                application={application as unknown as Record<string, unknown>}
+                                student={student as unknown as Record<string, unknown>}
                             />
                         </Grid>
                     ))}

@@ -214,9 +214,10 @@ export const GenericCardContent = ({
     config,
     lead,
     isEditing,
-    formData,
+    formData: rawFormData,
     onFieldChange
 }: GenericCardContentProps) => {
+    const formData = (rawFormData ?? {}) as Record<string, string>;
     const { t } = useTranslation();
     if (!isEditing) {
         return (

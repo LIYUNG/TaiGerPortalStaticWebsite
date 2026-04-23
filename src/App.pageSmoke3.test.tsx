@@ -46,18 +46,18 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         Navigate: () => null,
-        NavLink: forwardRef((props: unknown, ref: unknown) =>
+        NavLink: forwardRef((props: Record<string, unknown>, ref: unknown) =>
             createElement(
                 'a',
-                { href: props.to ?? '', ref, ...props },
-                props.children
+                { href: (props as { to?: string }).to ?? '', ref, ...props },
+                (props as { children?: ReactNode }).children
             )
         ),
-        Link: forwardRef((props: unknown, ref: unknown) =>
+        Link: forwardRef((props: Record<string, unknown>, ref: unknown) =>
             createElement(
                 'a',
-                { href: props.to ?? '', ref, ...props },
-                props.children
+                { href: (props as { to?: string }).to ?? '', ref, ...props },
+                (props as { children?: ReactNode }).children
             )
         ),
         useLocation: () => ({
@@ -670,8 +670,8 @@ describe('Tier 3 – Communications pages smoke tests', () => {
             () =>
                 import(
                     '@pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage'
-                )
-        );
+                ) as Promise<{ default: ComponentType<unknown> }>
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -679,31 +679,31 @@ describe('Tier 3 – Communications pages smoke tests', () => {
 
 describe('Tier 3 – Documentation pages smoke tests', () => {
     test('DocsApplication renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/index'));
+        const C = lazy(() => import('@pages/Documentation/index')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('InternaldocsPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/internal_index'));
+        const C = lazy(() => import('@pages/Documentation/internal_index')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocsPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/SingleDoc'));
+        const C = lazy(() => import('@pages/Documentation/SingleDoc')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocsInternalPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/SingleInternalDoc'));
+        const C = lazy(() => import('@pages/Documentation/SingleInternalDoc')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocCreatePage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/DocCreatePage'));
+        const C = lazy(() => import('@pages/Documentation/DocCreatePage')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -711,7 +711,7 @@ describe('Tier 3 – Documentation pages smoke tests', () => {
     test('InternalDocCreatePage renders', async () => {
         const C = lazy(
             () => import('@pages/Documentation/InternalDocCreatePage')
-        );
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { Link as LinkDom, useParams } from 'react-router-dom';
+import { OutputData } from '@editorjs/editorjs';
 
 import SingleDocEdit from './SingleDocEdit';
 import ErrorPage from '../Utils/ErrorPage';
@@ -17,9 +18,23 @@ interface SingleDocProps {
     item?: string;
 }
 
+interface SingleDocState {
+    error: string;
+    author: string;
+    isLoaded: boolean;
+    success: boolean;
+    editorState: OutputData | null;
+    isEdit: boolean;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    document_title: string;
+    category: string;
+}
+
 const SingleDoc = (props: SingleDocProps) => {
     const { documentation_id } = useParams();
-    const [singleDocState, setSingleDocState] = useState({
+    const [singleDocState, setSingleDocState] = useState<SingleDocState>({
         error: '',
         author: '',
         isLoaded: false,
@@ -28,7 +43,9 @@ const SingleDoc = (props: SingleDocProps) => {
         isEdit: false,
         res_status: 0,
         res_modal_message: '',
-        res_modal_status: 0
+        res_modal_status: 0,
+        document_title: '',
+        category: ''
     });
     useEffect(() => {
         getDocumentation(documentation_id).then(
@@ -44,19 +61,18 @@ const SingleDoc = (props: SingleDocProps) => {
                     return;
                 }
                 if (success) {
-                    let initialEditorState = null;
-                    const author = data?.author;
-                    if (data?.text) {
+                    let initialEditorState: OutputData | null = null;
+                    const author = data.author ?? '';
+                    if (data.text) {
                         initialEditorState = JSON.parse(data.text);
                     } else {
-                        initialEditorState = {};
+                        initialEditorState = {} as OutputData;
                     }
-                    // initialEditorState = JSON.parse(data.text);
                     setSingleDocState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        document_title: data?.title,
-                        category: data?.category,
+                        document_title: data.title ?? '',
+                        category: data.category ?? '',
                         editorState: initialEditorState,
                         author,
                         success: success,
@@ -70,11 +86,11 @@ const SingleDoc = (props: SingleDocProps) => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setSingleDocState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: (error as Error).message ?? '',
                     res_status: 500
                 }));
             }
@@ -109,10 +125,10 @@ const SingleDoc = (props: SingleDocProps) => {
                     setSingleDocState((prevState) => ({
                         ...prevState,
                         success,
-                        document_title: data.title,
-                        editorState,
-                        isEdit: !singleDocState.isEdit,
-                        author: data.author,
+                        document_title: data.title ?? '',
+                        editorState: editorState as OutputData | null,
+                        isEdit: !prevState.isEdit,
+                        author: data.author ?? '',
                         isLoaded: true,
                         res_modal_status: status
                     }));
@@ -126,13 +142,16 @@ const SingleDoc = (props: SingleDocProps) => {
                     }));
                 }
             },
-            (error) => {
-                setSingleDocState({ error });
+            (error: unknown) => {
+                setSingleDocState((prevState) => ({
+                    ...prevState,
+                    error: (error as Error).message ?? ''
+                }));
             }
         );
         setSingleDocState((prevState) => ({
             ...prevState,
-            in_edit_mode: false
+            isEdit: false
         }));
     };
 
@@ -185,21 +204,18 @@ const SingleDoc = (props: SingleDocProps) => {
                         to={`${DEMO.DOCS_ROOT_LINK(singleDocState.category)}`}
                         underline="hover"
                     >
-                        {documentation_categories[singleDocState.category]}
+                        {documentation_categories[singleDocState.category as keyof typeof documentation_categories]}
                     </Link>
                     <Typography color="text.primary">
                         {singleDocState.document_title}
                     </Typography>
                 </Breadcrumbs>
                 <SingleDocEdit
-                    author={singleDocState.author}
                     category={singleDocState.category}
-                    document={document}
                     document_title={singleDocState.document_title}
                     editorState={singleDocState.editorState}
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={handleClickSave}
-                    isLoaded={isLoaded}
                 />
             </>
         );
@@ -228,7 +244,11 @@ const SingleDoc = (props: SingleDocProps) => {
                         to={`${DEMO.DOCS_ROOT_LINK(singleDocState.category)}`}
                         underline="hover"
                     >
-                        {documentation_categories[singleDocState.category]}
+                        {
+                            documentation_categories[
+                                singleDocState.category as keyof typeof documentation_categories
+                            ]
+                        }
                     </Link>
                     <Typography color="text.primary">
                         {singleDocState.document_title}
@@ -237,10 +257,11 @@ const SingleDoc = (props: SingleDocProps) => {
                 <DocPageView
                     author={singleDocState.author}
                     category={singleDocState.category}
-                    document={document}
-                    document_title={singleDocState.document_title}
-                    editorState={singleDocState.editorState}
+                    editorState={
+                        singleDocState.editorState ?? ({} as OutputData)
+                    }
                     handleClickEditToggle={handleClickEditToggle}
+                    handleClickSave={() => {}}
                 />
             </>
         );

@@ -21,6 +21,7 @@ import {
 
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { IUser } from '@taiger-common/model';
+import type { CreateUserFromLeadLead } from '@pages/CRM/components/CreateUserFromLeadModal';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
 import { request } from '@/api';
@@ -34,6 +35,11 @@ import {
     updateCRMLead,
     updateCRMLeadNote
 } from '@/api';
+
+interface StatusMenuState {
+    anchorEl: HTMLElement | null;
+    row: Record<string, unknown> | null;
+}
 
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -61,10 +67,6 @@ import { TabTitle } from '../Utils/TabTitle';
 type LeadTagObject = { id?: string; tag: string };
 type LeadNoteObject = { id?: string; note: string; createdAt?: string };
 type StatusMenuRow = { status?: string; [key: string]: unknown };
-type StatusMenuState = {
-    anchorEl: HTMLElement | null;
-    row: StatusMenuRow | null;
-};
 type DealRecord = Record<string, unknown>;
 type MeetingItem = {
     id: string;
@@ -531,7 +533,7 @@ const LeadPage = () => {
         { id: string; status: string; closedAt?: string }
     >({
         mutationFn: async ({ id, status, closedAt }) => {
-            await updateCRMDeal(id, {
+            await updateCRMDeal(id as string, {
                 status,
                 ...(status === 'closed' && closedAt ? { closedAt } : {})
             });
@@ -806,7 +808,7 @@ const LeadPage = () => {
                     <CreateUserFromLeadModal
                         lead={selectedLead || {}}
                         onClose={handleCloseCreateUserModal}
-                        onSuccess={handleUserCreated}
+                        onSuccess={handleUserCreated as unknown as () => void}
                         open={showCreateUserModal}
                     />
                     <DealModal
@@ -836,7 +838,9 @@ const LeadPage = () => {
                     />
                     <StatusMenu
                         anchorEl={statusMenu.anchorEl}
-                        currentStatus={statusMenu.row?.status}
+                        currentStatus={
+                            statusMenu.row?.status as string | undefined
+                        }
                         onChoose={(s: string) => {
                             const id = getDealId(statusMenu.row);
                             updateStatusMutation.mutate(

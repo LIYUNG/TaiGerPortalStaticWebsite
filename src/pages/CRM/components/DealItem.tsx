@@ -18,6 +18,10 @@ import type { TFunction } from 'i18next';
 import type { CRMDealItem } from '@taiger-common/model';
 import { isTerminalStatus, getStatusColor } from './statusUtils';
 
+/** Helper to safely read an arbitrary key from the deal record */
+const getDealValue = (deal: CRMDealItem, key: string): unknown =>
+    (deal as Record<string, unknown>)[key];
+
 interface DealItemProps {
     deal: CRMDealItem;
     t: TFunction;
@@ -43,7 +47,8 @@ const DealItem = ({
         { key: 'closedAt', status: 'closed' },
         { key: 'canceledAt', status: 'canceled' }
     ];
-    const events = items.filter((it) => Boolean(deal?.[it.key]));
+    const dealStatus = String(deal?.status ?? '');
+    const events = items.filter((it) => Boolean(getDealValue(deal, it.key)));
     const [open, setOpen] = useState(false);
     const hasTimeline = events.length > 0;
 
@@ -89,7 +94,7 @@ const DealItem = ({
                 >
                     <Tooltip
                         title={
-                            isTerminalStatus(deal?.status)
+                            isTerminalStatus(dealStatus)
                                 ? t('common.noNextStep', {
                                       ns: 'crm',
                                       defaultValue: 'No next step'
@@ -102,15 +107,15 @@ const DealItem = ({
                     >
                         <span onClick={(e) => e.stopPropagation()}>
                             <Chip
-                                clickable={!isTerminalStatus(deal?.status)}
-                                color={getStatusColor(deal?.status)}
+                                clickable={!isTerminalStatus(dealStatus)}
+                                color={getStatusColor(dealStatus) as 'info' | 'warning' | 'success' | 'error' | 'default'}
                                 disabled={
-                                    isUpdating || isTerminalStatus(deal?.status)
+                                    isUpdating || isTerminalStatus(dealStatus)
                                 }
                                 icon={<StatusIcon fontSize="small" />}
-                                label={t(`deals.statusLabels.${deal?.status}`, {
+                                label={t(`deals.statusLabels.${dealStatus}`, {
                                     ns: 'crm',
-                                    defaultValue: deal?.status || 'N/A'
+                                    defaultValue: dealStatus || 'N/A'
                                 })}
                                 onClick={(
                                     e: React.MouseEvent<HTMLDivElement>
@@ -123,27 +128,27 @@ const DealItem = ({
                             />
                         </span>
                     </Tooltip>
-                    {(deal?.closedAt || deal?.closedDate) && (
+                    {!!(getDealValue(deal, 'closedAt') || getDealValue(deal, 'closedDate')) && (
                         <Typography
                             sx={{ color: 'text.secondary' }}
                             variant="body2"
                         >
                             {new Date(
-                                deal.closedAt || deal.closedDate
+                                String(getDealValue(deal, 'closedAt') || getDealValue(deal, 'closedDate'))
                             ).toLocaleDateString()}
                         </Typography>
                     )}
-                    {deal?.dealSizeNtd && (
+                    {!!getDealValue(deal, 'dealSizeNtd') && (
                         <Typography sx={{ fontWeight: 600 }} variant="body2">
-                            NTD {Number(deal.dealSizeNtd).toLocaleString()}
+                            NTD {Number(getDealValue(deal, 'dealSizeNtd')).toLocaleString()}
                         </Typography>
                     )}
-                    {deal?.note && (
+                    {!!getDealValue(deal, 'note') && (
                         <Typography
                             sx={{ color: 'text.primary' }}
                             variant="body2"
                         >
-                            {deal.note}
+                            {String(getDealValue(deal, 'note'))}
                         </Typography>
                     )}
                 </Box>
@@ -198,7 +203,7 @@ const DealItem = ({
                         <Stack spacing={1.25}>
                             {events.map((it, idx2) => {
                                 const colorKey = getStatusColor(it.status);
-                                const date = new Date(deal[it.key]);
+                                const date = new Date(String(getDealValue(deal, it.key)));
                                 const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                                 return (
                                     <Stack
@@ -238,9 +243,7 @@ const DealItem = ({
                                                         colorKey === 'default'
                                                             ? theme.palette
                                                                   .grey[500]
-                                                            : theme.palette[
-                                                                  colorKey
-                                                              ].main
+                                                            : (theme.palette as unknown as Record<string, { main: string }>)[colorKey].main
                                                 }}
                                             />
                                             <Box
@@ -270,9 +273,7 @@ const DealItem = ({
                                                         colorKey === 'default'
                                                             ? theme.palette.text
                                                                   .secondary
-                                                            : theme.palette[
-                                                                  colorKey
-                                                              ].main
+                                                            : (theme.palette as unknown as Record<string, { main: string }>)[colorKey].main
                                                 }}
                                                 variant="body2"
                                             >

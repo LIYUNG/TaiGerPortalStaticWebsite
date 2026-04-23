@@ -28,6 +28,7 @@ import {
 } from '@mui/material';
 import { ArrowBack, School, Search, Public } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -37,6 +38,18 @@ import { useProgramsOverview } from '@hooks/useProgramsOverview';
 import { useSchoolsDistribution } from '@hooks/useSchoolsDistribution';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
+
+interface SchoolDistributionItem {
+    school?: string;
+    country?: string;
+    city?: string;
+    programCount: number;
+}
+
+interface ProgramsOverviewData {
+    totalSchools: number;
+    totalPrograms: number;
+}
 
 const SchoolDistributionPage = () => {
     const { user } = useAuth();
@@ -49,21 +62,23 @@ const SchoolDistributionPage = () => {
 
     // Fetch all schools from dedicated endpoint
     const {
-        data: allSchools,
+        data: allSchoolsRaw,
         isLoading: schoolsLoading,
         isError: schoolsError,
         error: schoolsErrorMsg
     } = useSchoolsDistribution();
+    const allSchools = allSchoolsRaw as SchoolDistributionItem[];
 
     // Fetch overview for totalPrograms and totalSchools
-    const { data: overview, isLoading: overviewLoading } =
+    const { data: overviewRaw, isLoading: overviewLoading } =
         useProgramsOverview();
+    const overview = overviewRaw as unknown as ProgramsOverviewData | undefined;
 
     // All hooks must be called before any conditional returns
     // Get unique countries for filter
     const countries = useMemo(() => {
         const uniqueCountries = [
-            ...new Set(allSchools.map((s) => s.country).filter(Boolean))
+            ...new Set(allSchools.map((s) => s.country).filter((c): c is string => Boolean(c)))
         ];
         return uniqueCountries.sort();
     }, [allSchools]);
@@ -110,7 +125,7 @@ const SchoolDistributionPage = () => {
     TabTitle(t('Schools Distribution', { ns: 'common' }));
 
     // Conditional returns AFTER all hooks
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

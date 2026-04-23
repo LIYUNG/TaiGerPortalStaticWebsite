@@ -38,7 +38,29 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
-import type { IDocumentationWithId } from '@taiger-common/model';
+import type { IDocumentationWithId, IUser } from '@taiger-common/model';
+import type { OutputData } from '@editorjs/editorjs';
+import type { SelectChangeEvent } from '@mui/material';
+
+interface DocCreatePageState {
+    error: string;
+    isLoaded: boolean;
+    data: null;
+    success: boolean;
+    documentlists: IDocumentationWithId[];
+    doc_id_toBeDelete: string;
+    doc_title_toBeDelete: string;
+    doc_title: string;
+    category: string;
+    SetDeleteDocModel: boolean;
+    isEdit: boolean;
+    expand: boolean;
+    editorState: OutputData | null;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    [key: string]: unknown;
+}
 
 interface DocCreatePageProps {
     item?: string;
@@ -48,7 +70,7 @@ interface DocCreatePageProps {
 const DocCreatePage = (props: DocCreatePageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [DocCreatePageState, setDocCreatePage] = useState({
+    const [DocCreatePageState, setDocCreatePage] = useState<DocCreatePageState>({
         error: '',
         isLoaded: false,
         data: null,
@@ -61,7 +83,7 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         SetDeleteDocModel: false,
         isEdit: false,
         expand: true,
-        editorState: '',
+        editorState: null,
         res_status: 0,
         res_modal_message: '',
         res_modal_status: 0
@@ -76,7 +98,7 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                     setDocCreatePage((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        documentlists: data,
+                        documentlists: (data ?? []) as IDocumentationWithId[],
                         success: success,
                         res_status: status
                     }));
@@ -88,18 +110,18 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setDocCreatePage((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_status: 500
                 }));
             }
         );
     }, []);
 
-    const handleChange_doc_title = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_doc_title = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { value } = e.target;
         setDocCreatePage((prevState) => ({
             ...prevState,
@@ -114,9 +136,9 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         }));
     };
 
-    const handleChange_category = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_category = (e: SelectChangeEvent<unknown>) => {
         e.preventDefault();
-        const { value } = e.target;
+        const value = e.target.value as string;
         setDocCreatePage((prevState) => ({
             ...prevState,
             category: value
@@ -155,16 +177,16 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                     setDocCreatePage((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setDocCreatePage((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -172,7 +194,7 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         );
     };
 
-    const openDeleteDocModalWindow = (doc: IDocumentationWithId) => {
+    const openDeleteDocModalWindow = (doc: { _id: string; title: string }) => {
         setDocCreatePage((prevState) => ({
             ...prevState,
             doc_id_toBeDelete: doc._id,
@@ -196,8 +218,8 @@ const DocCreatePage = (props: DocCreatePageProps) => {
     };
 
     const handleClickSave = (
-        e: React.MouseEvent<HTMLElement>,
-        editorState: unknown
+        e: React.MouseEvent,
+        editorState: OutputData
     ) => {
         e.preventDefault();
         // Editorjs. editorState is in JSON form
@@ -216,12 +238,14 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                     const documentlists_temp = [
                         ...DocCreatePageState.documentlists
                     ];
-                    documentlists_temp.push(data);
+                    if (data) {
+                        documentlists_temp.push(data as IDocumentationWithId);
+                    }
                     setDocCreatePage((prevState) => ({
                         ...prevState,
                         success,
                         documentlists: documentlists_temp,
-                        editorState: '',
+                        editorState: null,
                         isEdit: !DocCreatePageState.isEdit,
                         isLoaded: true,
                         res_modal_status: status
@@ -231,16 +255,16 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                     setDocCreatePage((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setDocCreatePage((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -260,7 +284,7 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         }));
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -285,12 +309,11 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         return sections[`${cat}`].map(
             (document: IDocumentationWithId, i: number) => (
                 <DocumentsListItems
-                    document={document}
+                    document={document as { _id: string; title: string }}
                     idx={i}
                     key={i}
                     openDeleteDocModalWindow={openDeleteDocModalWindow}
                     path="/docs/search"
-                    user={user}
                 />
             )
         );
@@ -361,8 +384,6 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                         editorState={DocCreatePageState.editorState}
                         handleClickEditToggle={handleClickEditToggle}
                         handleClickSave={handleClickSave}
-                        // readOnlyMode={readOnlyMode}
-                        role={props.role}
                     />
                 </Card>
             ) : (
@@ -371,14 +392,14 @@ const DocCreatePage = (props: DocCreatePageProps) => {
                         <Grid item key={i} lg={4} md={6} xl={3} xs={12}>
                             <Card>
                                 <Typography sx={{ m: 2 }} variant="h6">
-                                    {documentation_categories[`${catego}`]}
+                                    {documentation_categories[catego as keyof typeof documentation_categories]}
                                 </Typography>
                                 {document_list(catego)}
                             </Card>
                         </Grid>
                     ))}
                     <Grid item xs={12}>
-                        {is_TaiGer_AdminAgent(user) ? (
+                        {is_TaiGer_AdminAgent(user as IUser) ? (
                             <Button
                                 color="primary"
                                 onClick={handleClick}

@@ -67,28 +67,26 @@ const BaseDocumentStudentView = ({
     const updateDocLink = (link: string, key: string) => {
         updateDocumentationHelperLink(link, key, 'base-documents').then(
             (resp) => {
-                const { helper_link, success } = resp.data;
+                const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        base_docs_link: helper_link,
-                        success: success,
                         res_modal_status: status
                     }));
                 } else {
                     const { message } = resp.data;
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setBaseDocumentStudentViewState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: (error as Error).message ?? '',
                     res_modal_message: '',
                     res_modal_status: 500
                 }));
@@ -102,9 +100,9 @@ const BaseDocumentStudentView = ({
         return <Loading />;
     }
     const profile_wtih_doc_link_list_key = Object.keys(PROFILE_NAME);
-    const object_init = {};
-    const object_message = {};
-    const object_time_init = {};
+    const object_init: Record<string, { status: DocumentStatusType; link: string; document_name?: string }> = {};
+    const object_message: Record<string, string> = {};
+    const object_time_init: Record<string, string> = {};
     profile_wtih_doc_link_list_key.forEach((key) => {
         object_init[key] = { status: DocumentStatusType.Missing, link: '' };
         object_message[key] = '';
@@ -113,15 +111,15 @@ const BaseDocumentStudentView = ({
     // TODO: what if baseDocumentStudentViewState.student.profile[i].name key not in base_docs_link[i].key?
     if (base_docs_link) {
         base_docs_link.forEach((baseDoc: IBasedocumentationslinkWithId) => {
-            if (object_init[baseDoc.key]) {
-                object_init[baseDoc.key].link = baseDoc.link;
+            if (baseDoc.key && object_init[baseDoc.key]) {
+                object_init[baseDoc.key].link = baseDoc.link ?? '';
             }
         });
     }
     if (baseDocumentStudentViewState.student.profile) {
         baseDocumentStudentViewState.student.profile.forEach(
             (profile: IUserProfileItem) => {
-                const document_split = profile.path.replace(/\\/g, '/');
+                const document_split = (profile.path ?? '').replace(/\\/g, '/');
                 const document_name = document_split.split('/')[1];
 
                 switch (profile.status) {
@@ -139,7 +137,7 @@ const BaseDocumentStudentView = ({
                 }
 
                 object_message[profile.name] = profile.feedback || '';
-                object_time_init[profile.name] = profile.updatedAt;
+                object_time_init[profile.name] = profile.updatedAt ? String(profile.updatedAt) : '';
             }
         );
     }
@@ -147,8 +145,8 @@ const BaseDocumentStudentView = ({
         (category, i) => (
             <MyDocumentCard
                 category={category}
-                docName={PROFILE_NAME[category]}
-                document_name={object_init[category].document_name}
+                docName={PROFILE_NAME[category as keyof typeof PROFILE_NAME] ?? ''}
+                document_name={object_init[category].document_name ?? ''}
                 isLoaded={baseDocumentStudentViewState.isLoaded[category]}
                 key={i + 1}
                 link={object_init[category].link}

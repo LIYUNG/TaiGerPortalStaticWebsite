@@ -7,6 +7,7 @@ import {
     type MouseEvent,
     type RefObject
 } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -317,6 +318,87 @@ const DocModificationThreadPage = ({
         }));
     };
 
+    const submitMessageMutation = useMutation({
+        mutationFn: ({
+            threadId,
+            studentId,
+            formData
+        }: {
+            threadId: string;
+            studentId: Parameters<typeof SubmitMessageWithAttachment>[1];
+            formData: FormData;
+        }) => SubmitMessageWithAttachment(threadId, studentId, formData),
+        onMutate: () => {
+            setDocModificationThreadPageState((prevState) => ({
+                ...prevState,
+                buttonDisabled: true,
+                in_edit_mode: false
+            }));
+        },
+        onSuccess: (resp) => {
+            const { success, data } = resp;
+            const status = 200;
+            const nextMessages = data?.messages ?? [];
+
+            if (success) {
+                setDocModificationThreadPageState((prevState) => ({
+                    ...prevState,
+                    success,
+                    file: null,
+                    editorState: {},
+                    thread: {
+                        ...prevState.thread,
+                        messages: nextMessages
+                    },
+                    isLoaded: true,
+                    buttonDisabled: false,
+                    accordionKeys:
+                        nextMessages.length > 0
+                            ? [
+                                  ...prevState.accordionKeys,
+                                  nextMessages.length - 1
+                              ]
+                            : prevState.accordionKeys,
+                    res_modal_status: status,
+                    res_modal_message: ''
+                }));
+            } else {
+                const errorText = resp.message ?? 'Submission failed.';
+                setSeverity('error');
+                setMessage(errorText);
+                setOpenSnackbar(true);
+                setDocModificationThreadPageState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true
+                }));
+            }
+        },
+        onError: (error: unknown) => {
+            const snackbarText =
+                error instanceof Error
+                    ? error.message
+                    : String(error ?? 'Submission failed.');
+            setSeverity('error');
+            setMessage(
+                snackbarText.trim() !== ''
+                    ? snackbarText
+                    : 'Submission failed.'
+            );
+            setOpenSnackbar(true);
+            setDocModificationThreadPageState((prevState) => ({
+                ...prevState,
+                isLoaded: true,
+                error: String(error ?? '')
+            }));
+        },
+        onSettled: () => {
+            setDocModificationThreadPageState((prevState) => ({
+                ...prevState,
+                buttonDisabled: false
+            }));
+        }
+    });
+
     const handleClickSave = (
         e: MouseEvent<HTMLElement>,
         editorState: unknown
@@ -328,10 +410,6 @@ const DocModificationThreadPage = ({
             setOpenSnackbar(true);
             return;
         }
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            buttonDisabled: true
-        }));
         const message = JSON.stringify(editorState);
         const formData = new FormData();
 
@@ -343,62 +421,14 @@ const DocModificationThreadPage = ({
 
         formData.append('message', message);
 
-        SubmitMessageWithAttachment(
-            documentsthreadId ?? '',
-            docModificationThreadPageState.thread.student_id?._id,
+        submitMessageMutation.mutate({
+            threadId: documentsthreadId ?? '',
+            studentId: docModificationThreadPageState.thread
+                .student_id?._id as Parameters<
+                typeof SubmitMessageWithAttachment
+            >[1],
             formData
-        ).then(
-            (resp) => {
-                const { success, data } = resp;
-                const status = 200;
-                const nextMessages = data?.messages ?? [];
-
-                if (success) {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        success,
-                        file: null,
-                        editorState: {},
-                        thread: {
-                            ...prevState.thread,
-                            messages: nextMessages
-                        },
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        accordionKeys:
-                            nextMessages.length > 0
-                                ? [
-                                      ...prevState.accordionKeys,
-                                      nextMessages.length - 1
-                                  ]
-                                : prevState.accordionKeys,
-                        res_modal_status: status,
-                        res_modal_message: ''
-                    }));
-                } else {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        res_modal_message: resp.message ?? 'Submission failed.',
-                        res_modal_status: 400
-                    }));
-                }
-            },
-            (error: unknown) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error: String(error ?? ''),
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            in_edit_mode: false
-        }));
+        });
     };
 
     // function generatePDF() {

@@ -207,7 +207,7 @@ const mockStudent = {
 
 const defaultProps = {
     survey_link: [],
-    base_docs_link: '',
+    base_docs_link: [],
     data: mockStudent as never,
     audit: [],
     refetch: vi.fn()

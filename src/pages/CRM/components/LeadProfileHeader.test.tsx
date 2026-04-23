@@ -12,8 +12,10 @@ vi.mock('@pages/CRM/components/statusUtils', () => ({
     isTerminalStatus: vi.fn(() => false)
 }));
 
-const t = (key: string) => key;
-const baseLead = {
+import type { TFunction } from 'i18next';
+
+const t = ((key: string) => key) as unknown as TFunction;
+const baseLead: Record<string, unknown> = {
     fullName: 'Jane Doe',
     status: 'open',
     gender: 'female',
@@ -135,7 +137,7 @@ describe('LeadProfileHeader', () => {
         render_({
             ...baseProps,
             hasPortalUser: true,
-            lead: { ...baseLead, status: 'open', userId: 'user-1' }
+            lead: { ...baseLead, status: 'open', userId: 'user-1' } as Record<string, unknown>
         });
         expect(
             screen.queryByText('actions.createUserAccount')

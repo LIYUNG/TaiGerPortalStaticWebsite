@@ -18,6 +18,7 @@ import {
     Tab,
     Tooltip
 } from '@mui/material';
+import type { ChipOwnProps } from '@mui/material/Chip';
 import {
     Schedule as ScheduleIcon,
     FiberManualRecord as StatusIcon,
@@ -25,7 +26,7 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { CRMLeadItem } from '@taiger-common/model';
+import type { IUser, CRMLeadItem } from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -63,10 +64,11 @@ const LeadDashboard = () => {
             queryClient.invalidateQueries({ queryKey: ['crm/leads'] })
     });
 
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const leads: CRMLeadItem[] = data?.data?.data || [];
+    const leads: CRMLeadItem[] =
+        (data as { data?: { data?: CRMLeadItem[] } })?.data?.data || [];
     const allLeads = leads.filter((lead) => lead.status !== 'migrated');
 
     const openLeads = allLeads.filter(
@@ -203,11 +205,11 @@ const LeadDashboard = () => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 },
-                title: cell.getValue()
+                title: cell.getValue<string>()
             }),
             Cell: ({ cell }) => (
                 <Typography fontWeight="medium" noWrap variant="body2">
-                    {cell.getValue()}
+                    {cell.getValue<string>()}
                 </Typography>
             )
         },
@@ -218,7 +220,9 @@ const LeadDashboard = () => {
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
+                    <Typography variant="body2">
+                        {cell.getValue<string>()}
+                    </Typography>
                 </Stack>
             )
         },
@@ -239,7 +243,7 @@ const LeadDashboard = () => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 },
-                title: cell.getValue()
+                title: cell.getValue<string>()
             }),
             Cell: ({ cell }) => (
                 <Stack
@@ -250,7 +254,7 @@ const LeadDashboard = () => {
                 >
                     <SchoolIcon color="action" fontSize="small" />
                     <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
-                        {cell.getValue()}
+                        {cell.getValue<string>()}
                     </Typography>
                 </Stack>
             )
@@ -283,11 +287,11 @@ const LeadDashboard = () => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 },
-                title: cell.getValue()
+                title: cell.getValue<string>()
             }),
             Cell: ({ cell }) => (
                 <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
-                    {cell.getValue() || '—'}
+                    {cell.getValue<string>() || '—'}
                 </Typography>
             )
         },
@@ -299,7 +303,9 @@ const LeadDashboard = () => {
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <ScheduleIcon color="action" fontSize="small" />
                     <Typography variant="body2">
-                        {new Date(cell.getValue()).toLocaleDateString()}
+                        {new Date(
+                            cell.getValue<string>()
+                        ).toLocaleDateString()}
                     </Typography>
                 </Stack>
             )
@@ -451,7 +457,7 @@ const LeadDashboard = () => {
                             sx: { cursor: 'pointer' }
                         })}
                         muiTableHeadCellProps={{ sx: { px: 1 } }}
-                        muiTablePaginationProps={{
+                        muiPaginationProps={{
                             rowsPerPageOptions: [10, 15, 25, 50, 100] // include 15 in the selector
                         }}
                         state={{ isLoading }}

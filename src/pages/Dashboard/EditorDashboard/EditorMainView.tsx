@@ -34,13 +34,21 @@ import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type { FrequencyDistributionTask } from '../../Utils/util_functions';
+
+interface SortedDateFreqPair {
+    name: string;
+    active: number;
+    potentials: number;
+}
 
 const EditorMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
-        useStudentsV3({ editors: user._id, archiv: false });
+        useStudentsV3({ editors: user!._id, archiv: false });
     const { data: myStudentsThreads, isLoading: isLoadingThreads } =
         useMyStudentsThreads(
             user?._id
@@ -56,22 +64,22 @@ const EditorMainView = () => {
     const { data: tasksOverview } = useTasksOverview();
 
     const { data: dataIsManager } = useQuery(
-        getIsManagerQuery({ userId: user._id })
+        getIsManagerQuery({ userId: user!._id })
     );
 
     if (isLoadingThreads || isLoadingMyStudents) {
         return <Loading />;
     }
 
-    const refactored_threads = open_tasks_v2(myStudentsThreads.threads);
+    const refactored_threads = open_tasks_v2(myStudentsThreads.threads as IDocumentthreadPopulated[]);
 
     const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
-            open_task.file_type
+            open_task.file_type ?? ''
         )
-            ? open_task.outsourced_user_id?.some(
+            ? (open_task.outsourced_user_id as { _id: string }[] | undefined)?.some(
                   (outsourcedUser: { _id: string }) =>
-                      outsourcedUser._id.toString() === user._id
+                      outsourcedUser._id.toString() === user!._id
               )
             : true
     );
@@ -80,16 +88,16 @@ const EditorMainView = () => {
         (open_task) => open_task.show && !open_task.isFinalVersion
     );
 
-    const task_distribution = open_tasks_withMyEssay_arr
+    const task_distribution: FrequencyDistributionTask[] = open_tasks_withMyEssay_arr
         .filter(({ isFinalVersion }) => isFinalVersion !== true)
         .map(({ deadline, file_type, show, isPotentials }) => {
-            return { deadline, file_type, show, isPotentials };
+            return { deadline: deadline as string | undefined, file_type, show, isPotentials: isPotentials as boolean | undefined };
         });
     const open_distr = frequencyDistribution(task_distribution);
 
     const sort_date = Object.keys(open_distr).sort();
 
-    const sorted_date_freq_pair = [];
+    const sorted_date_freq_pair: SortedDateFreqPair[] = [];
     sort_date.forEach((date) => {
         sorted_date_freq_pair.push({
             name: `${date}`,
@@ -101,12 +109,12 @@ const EditorMainView = () => {
     const myStudents = fetchedMyStudents;
 
     const unreplied_task = open_tasks_withMyEssay_arr?.filter((open_task) =>
-        is_new_message_status(user, open_task)
+        is_new_message_status(user!, open_task as never)
     );
 
     const follow_up_task = open_tasks_withMyEssay_arr?.filter(
         (open_task) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user!, open_task as never) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
@@ -164,7 +172,7 @@ const EditorMainView = () => {
                     </Typography>
                 </Card>
             </Grid>
-            {dataIsManager?.data?.isManager ? (
+            {(dataIsManager as { data?: { isManager?: boolean } } | undefined)?.data?.isManager ? (
                 <Grid item md={12} xs={12}>
                     <Card sx={{ p: 2 }}>
                         <Typography fontWeight="bold">
@@ -219,7 +227,7 @@ const EditorMainView = () => {
                             will be potentially active when they decided.
                         </Typography>
                         <TasksDistributionBarChart
-                            data={sorted_date_freq_pair}
+                            data={sorted_date_freq_pair as unknown as Record<string, string | number>[]}
                             k="name"
                             value1="active"
                             value2="potentials"

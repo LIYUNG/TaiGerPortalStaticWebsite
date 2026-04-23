@@ -479,13 +479,13 @@ export const updateArchivUser = ({
     });
 
 // Student APIs
-export const updateAgents = (agentsId: string[], studentId: StudentId) =>
+export const updateAgents = (agentsId: Record<string, boolean>, studentId: StudentId) =>
     request.post<UpdateStudentAgentsResponse>(
         `/api/students/${studentId}/agents`,
         agentsId
     );
 
-export const updateEditors = (editorsId: string[], studentId: StudentId) =>
+export const updateEditors = (editorsId: Record<string, boolean>, studentId: StudentId) =>
     request.post<UpdateStudentEditorsResponse>(
         `/api/students/${studentId}/editors`,
         editorsId

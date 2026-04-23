@@ -16,6 +16,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import type { Row } from '@tanstack/react-table';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -81,7 +82,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 width: 150,
                 renderCell: (params) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                        params.row.student_id,
+                        String(params.row.student_id ?? ''),
                         DEMO.PROFILE_HASH
                     )}`;
                     return (
@@ -92,7 +93,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                                 }
                             >
                                 {params.row.flag_by_user_id?.includes(
-                                    user._id.toString()
+                                    user?._id.toString() ?? ''
                                 ) ? (
                                     <StarRoundedIcon
                                         color={
@@ -110,11 +111,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
                             <Link
                                 component={LinkDom}
                                 target="_blank"
-                                title={params.value}
+                                title={params.value as string}
                                 to={linkUrl}
                                 underline="hover"
                             >
-                                {params.value}
+                                {params.value as string}
                             </Link>
                         </>
                     );
@@ -277,11 +278,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 minWidth: 380,
                 renderCell: (params) => {
                     const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
-                        params.row.thread_id
+                        params.row.thread_id as string
                     )}`;
 
                     const programCountry =
-                        params.row?.program_id?.country || params.row?.country;
+                        (params.row?.program_id as { country?: string } | undefined)?.country || (params.row?.country as string | undefined);
                     const isNonApprovalCountry = programCountry
                         ? !APPROVAL_COUNTRIES.includes(
                               String(programCountry).toLowerCase()
@@ -343,11 +344,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
                             <Link
                                 component={LinkDom}
                                 target="_blank"
-                                title={params.value}
+                                title={params.value as string}
                                 to={linkUrl}
                                 underline="hover"
                             >
-                                {params.value}
+                                {params.value as string}
                             </Link>
                         </>
                     );
@@ -461,7 +462,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.new_message_tasks}
+                    rows={props.new_message_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
@@ -474,7 +475,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.fav_message_tasks}
+                    rows={props.fav_message_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
@@ -487,12 +488,12 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.followup_tasks}
+                    rows={props.followup_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
-                <Alert severity={is_TaiGer_role(user) ? 'info' : 'warning'}>
-                    {is_TaiGer_role(user)
+                <Alert severity={is_TaiGer_role(user as IUser) ? 'info' : 'warning'}>
+                    {is_TaiGer_role(user as IUser)
                         ? 'Waiting inputs. No action needed'
                         : 'Please provide input as soon as possible'}
                 </Alert>
@@ -504,7 +505,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.pending_progress_tasks}
+                    rows={props.pending_progress_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={5} value={value}>
@@ -517,7 +518,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.closed_tasks}
+                    rows={props.closed_tasks ?? []}
                 />
                 <Typography variant="body2">
                     {t(
@@ -536,7 +537,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     }}
                     columns={memoizedColumns}
                     isLoading={props.isLoading}
-                    rows={props.all_active_message_tasks}
+                    rows={props.all_active_message_tasks ?? []}
                 />
             </CustomTabPanel>
         </>
