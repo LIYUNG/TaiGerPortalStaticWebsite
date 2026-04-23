@@ -253,7 +253,7 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | # | Target folder | R1 | R2 | R3 | R4 | R5 | R6 | a11y | Done | PR/commit |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | `ApplicationLockControl/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 2 | `ApplicationProgressCard/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 2 | `ApplicationProgressCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 3 | `AuthProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 4 | `AuthWrapper/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 5 | `Banner/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
