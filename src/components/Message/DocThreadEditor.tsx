@@ -333,7 +333,7 @@ const DocThreadEditor = ({
                     >
                         <Typography variant="caption">
                             Max 3 files • Supported: PDF, DOCX, JPG • Max 2MB
-                            total
+                            total/ 1MB each file
                         </Typography>
                     </Alert>
                 ) : null}
