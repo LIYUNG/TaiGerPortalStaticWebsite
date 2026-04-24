@@ -256,7 +256,7 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 2 | `ApplicationProgressCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 3 | `AuthProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 4 | `AuthWrapper/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 5 | `Banner/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 5 | `Banner/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 6 | `BreadcrumbsNavigation/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 7 | `Buttons/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 8 | `Calendar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
