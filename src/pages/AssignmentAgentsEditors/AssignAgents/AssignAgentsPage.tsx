@@ -16,13 +16,13 @@ import DEMO from '@store/constant';
 import NoAgentsStudentsCard from '@pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { IStudentResponse } from '@taiger-common/model';
-import { FormEvent } from 'react';
+import { SyntheticEvent } from 'react';
 
 interface NoAgentsTableProps {
     students: IStudentResponse[];
     submitUpdateAgentlist: (
-        e: FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => void;
 }
@@ -56,6 +56,7 @@ const NoAgentsTable = ({
                         {students.map((student, i) => (
                             <NoAgentsStudentsCard
                                 key={i}
+                                isArchivPage={false}
                                 student={student}
                                 submitUpdateAgentlist={submitUpdateAgentlist}
                             />

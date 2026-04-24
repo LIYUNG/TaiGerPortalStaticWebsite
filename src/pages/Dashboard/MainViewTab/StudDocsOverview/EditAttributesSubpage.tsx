@@ -64,7 +64,7 @@ interface Props {
     student: IStudentResponse;
     submitUpdateAttributeslist: (
         e: React.MouseEvent<HTMLElement>,
-        updateAttributesList: unknown,
+        updateAttributesList: string[],
         student_id: string
     ) => void;
 }

@@ -36,18 +36,18 @@ import { is_User_Archived } from '../../../Utils/util_functions';
 export interface StudentsAgentEditorProps {
     student: IStudentResponse;
     submitUpdateAgentlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => void;
     submitUpdateEditorlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => void;
     submitUpdateAttributeslist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAttributesList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateAttributesList: string[],
         student_id: string
     ) => void;
     updateStudentArchivStatus: (
@@ -162,8 +162,8 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateAgentlistHandler = (
-        e: React.SyntheticEvent,
-        updateAgentList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => {
         submitUpdateAgentlist(e, updateAgentList, student_id);
@@ -171,8 +171,8 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateEditorlistHandler = (
-        e: React.SyntheticEvent,
-        updateEditorList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => {
         setEditorModalhide();
@@ -180,8 +180,8 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateAttributeslistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAttributesList: unknown,
+        e: React.MouseEvent<HTMLElement>,
+        updateAttributesList: string[],
         student_id: string
     ) => {
         setAttributeModalhide();
@@ -245,7 +245,7 @@ const StudentsAgentEditor = ({
                 title={student.archiv === true ? 'Closed' : 'Open'}
             >
                 <TableCell>
-                    {is_TaiGer_role(user) && !props.isArchivPage ? (
+                    {user && is_TaiGer_role(user) ? (
                         <>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}

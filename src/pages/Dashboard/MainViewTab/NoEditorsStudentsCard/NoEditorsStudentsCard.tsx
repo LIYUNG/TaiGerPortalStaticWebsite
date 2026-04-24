@@ -1,4 +1,4 @@
-import { MouseEvent, useState, type FormEvent } from 'react';
+import { MouseEvent, useState, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -17,7 +17,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
-import { IStudentResponse } from '@/api';
+import type { IStudentResponse } from '@taiger-common/model';
 import { type IUserAttribute, type IAgentWithId } from '@taiger-common/model';
 import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
 
@@ -25,8 +25,8 @@ interface NoEditorsStudentsCardProps {
     student: IStudentResponse;
     isArchivPage?: boolean;
     submitUpdateEditorlist: (
-        e: FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
+        e: SyntheticEvent,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => void;
 }
@@ -67,8 +67,8 @@ const NoEditorsStudentsCard = ({
     };
 
     const submitUpdateEditorlistHandler = (
-        e: FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
+        e: SyntheticEvent,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => {
         e.preventDefault();
@@ -80,7 +80,7 @@ const NoEditorsStudentsCard = ({
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user) && !isArchivPage ? (
+                    {user && is_TaiGer_role(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -122,9 +122,9 @@ const NoEditorsStudentsCard = ({
                         </Link>
                     </TableCell>
                     <TableCell>
-                        {student.attributes?.map((att: IUserAttribute) => (
+                        {student.attributes?.map((att: IUserAttribute, i) => (
                             <Tooltip
-                                key={att._id}
+                                key={`${att.name}-${i}`}
                                 title={`${att.name}: ${
                                     ATTRIBUTES[att.value - 1].definition
                                 }`}
@@ -169,11 +169,11 @@ const NoEditorsStudentsCard = ({
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_role(user) &&
+                {user &&
+                is_TaiGer_role(user) &&
                 noEditorsStudentsCardState.showEditorPage ? (
                     <EditUserListSubpage
                         onHide={setEditorModalhide}
-                        setmodalhide={setEditorModalhide}
                         show={noEditorsStudentsCardState.showEditorPage}
                         student={student}
                         submitUpdateList={submitUpdateEditorlistHandler}

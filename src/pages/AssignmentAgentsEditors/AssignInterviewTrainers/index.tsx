@@ -7,13 +7,19 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import AssignInterviewTrainersPage from './AssignInterviewTrainersPage';
+import type { IInterviewWithId } from '@taiger-common/model';
+
+interface InterviewTrainersLoaderData {
+    data?: {
+        data?: IInterviewWithId[];
+    };
+}
 const AssignInterviewTrainers = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const {
-        data: { data: interviews }
-    } = useLoaderData();
-    if (!is_TaiGer_role(user)) {
+    const loaderData = useLoaderData() as InterviewTrainersLoaderData;
+    const interviews = loaderData?.data?.data ?? [];
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     return (

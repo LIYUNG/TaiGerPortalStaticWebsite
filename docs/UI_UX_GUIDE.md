@@ -68,6 +68,10 @@ Concrete before → after from the codebase:
 
 If a design truly needs a non-palette color (e.g., a brand accent for a one-off illustration), add it to `paletteLight.ts` + `paletteDark.ts` first as a named token.
 
+**Exception — third-party brand logos:** SVG paths reproducing an official brand logo (Google, Microsoft, Apple, LinkedIn, GitHub, …) may hardcode the brand's official hex colors (e.g., Google's `#4285F4` / `#34A853` / `#FBBC05` / `#EA4335`) because those colors are dictated by the brand's visual-identity guidelines. The same applies to brand-specified `gradient` stops.
+
+**Exception — user-facing color pickers:** content-creation palettes passed as configuration to rich-text editors, color-picker plugins, or charting libraries (e.g., EditorJS `ColorPlugin` / `Marker` `colorCollections: ['#FF0000', '#00FF00', ...]`) may hardcode color values. These lists populate a UI the *end-user* picks from; they are not our app's chrome and are not bound to our theme.
+
 ### R2. Spacing — theme units, not px
 
 ✅ Do

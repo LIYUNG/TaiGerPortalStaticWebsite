@@ -34,7 +34,7 @@ const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
         students: fetchedAllStudents || []
     });
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

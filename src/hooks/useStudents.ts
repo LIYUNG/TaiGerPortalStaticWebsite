@@ -19,7 +19,7 @@ interface UseStudentsProps {
 
 function useStudents(props: UseStudentsProps) {
     const [studentsState, setStudentsState] = useState({
-        error: '' as unknown,
+        error: '',
         students: props.students,
         updateAgentList: {} as Record<string, unknown>,
         updateEditorList: {} as Record<string, unknown>,
@@ -40,7 +40,7 @@ function useStudents(props: UseStudentsProps) {
 
     const submitUpdateAgentlist = (
         e: React.FormEvent,
-        updateAgentList: unknown,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ): void => {
         e.preventDefault();
@@ -49,7 +49,7 @@ function useStudents(props: UseStudentsProps) {
 
     const submitUpdateEditorlist = (
         e: React.FormEvent,
-        updateEditorList: unknown,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ): void => {
         e.preventDefault();
@@ -58,19 +58,19 @@ function useStudents(props: UseStudentsProps) {
 
     const submitUpdateAttributeslist = (
         e: React.FormEvent,
-        updateEditorList: unknown,
+        updateAttributesList: string[],
         student_id: string
     ): void => {
         e.preventDefault();
-        UpdateAttributeslist(e, updateEditorList, student_id);
+        UpdateAttributeslist(e, updateAttributesList, student_id);
     };
 
     const UpdateAgentlist = (
         _e: React.FormEvent,
-        updateAgentList: unknown,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ): void => {
-        updateAgents(updateAgentList as string[], student_id)
+        updateAgents(updateAgentList, student_id)
             .then((resp: unknown) => {
                 const r = resp as {
                     data: {
@@ -107,7 +107,7 @@ function useStudents(props: UseStudentsProps) {
             .catch((error: unknown) => {
                 setStudentsState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -156,7 +156,7 @@ function useStudents(props: UseStudentsProps) {
             .catch((error: unknown) => {
                 setStudentsState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -165,10 +165,10 @@ function useStudents(props: UseStudentsProps) {
 
     const UpdateAttributeslist = (
         _e: React.FormEvent,
-        updateAttributesList: unknown,
+        updateAttributesList: string[],
         student_id: string
     ): void => {
-        updateAttributes(updateAttributesList as string[], student_id)
+        updateAttributes(updateAttributesList, student_id)
             .then((resp: unknown) => {
                 const r = resp as {
                     data: {
@@ -205,7 +205,7 @@ function useStudents(props: UseStudentsProps) {
             .catch((error: unknown) => {
                 setStudentsState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -254,7 +254,7 @@ function useStudents(props: UseStudentsProps) {
             (error: unknown) => {
                 setStudentsState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -304,7 +304,7 @@ function useStudents(props: UseStudentsProps) {
             .catch((error: unknown) => {
                 setStudentsState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));

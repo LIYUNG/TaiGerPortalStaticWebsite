@@ -1,4 +1,3 @@
-import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -37,21 +36,9 @@ interface UpdateArchivSuccessResponse {
     status?: number;
 }
 
-const noopSubmitAgentList = (
-    _e: FormEvent<HTMLFormElement>,
-    _updateAgentList: unknown,
-    _student_id: string
-) => {};
-const noopSubmitEditorList = (
-    _e: React.SyntheticEvent,
-    _updateEditorList: unknown,
-    _student_id: string
-) => {};
-const noopSubmitAttributesList = (
-    _e: FormEvent<HTMLFormElement>,
-    _updateAttributesList: unknown,
-    _student_id: string
-) => {};
+const noopSubmitAgentList = () => {};
+const noopSubmitEditorList = () => {};
+const noopSubmitAttributesList = () => {};
 
 const ArchivStudents = () => {
     const { user } = useAuth();
@@ -83,7 +70,7 @@ const ArchivStudents = () => {
     >({
         mutationFn: ({ studentId, isArchived, shouldInform }) =>
             updateArchivStudents(studentId, isArchived, shouldInform),
-        onSuccess: (resp, _variables) => {
+        onSuccess: (resp) => {
             const success = resp.data?.success;
             const status = resp.status ?? 0;
             if (success) {

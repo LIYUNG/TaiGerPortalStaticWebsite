@@ -1279,9 +1279,10 @@ export const showFieldAlert = (program: IProgramWithId): void => {
         return;
     }
     const pattern = /^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+    const applicationDeadline = program.application_deadline?.trim();
     if (
-        !program.application_deadline?.toLowerCase()?.includes('rolling') &&
-        !pattern.test(program.application_deadline)
+        !applicationDeadline?.toLowerCase()?.includes('rolling') &&
+        (!applicationDeadline || !pattern.test(applicationDeadline))
     ) {
         alert(
             'Please fill the application deadline correctly: Format: MM-DD or Rolling'
@@ -1689,7 +1690,7 @@ export const c1_mrt: MRT_ColumnDef<IDocRowData>[] = [
         Cell: (params) => {
             const { row } = params;
             const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                row.original.student_id,
+                row.original.student_id ?? '',
                 DEMO.PROFILE_HASH
             )}`;
             return (
@@ -1857,7 +1858,7 @@ export const c1_mrt: MRT_ColumnDef<IDocRowData>[] = [
         Cell: (params) => {
             const { row } = params;
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
-                row.original.thread_id
+                row.original.thread_id ?? ''
             )}`;
 
             // Check country from multiple possible locations
@@ -2016,7 +2017,7 @@ export const c1 = [
             [key: string]: unknown;
         }) => {
             const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                params.row.student_id,
+                params.row.student_id ?? '',
                 DEMO.PROFILE_HASH
             )}`;
             return (
@@ -2096,7 +2097,7 @@ export const c1 = [
             [key: string]: unknown;
         }) => {
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
-                params.row.thread_id
+                params.row.thread_id ?? ''
             )}`;
             // Primary use isApplicationLocked, fallback to isProgramLocked for backward compatibility
             const isLocked =

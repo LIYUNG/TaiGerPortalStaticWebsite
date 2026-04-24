@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import {
     Button,
     Dialog,
@@ -14,41 +14,50 @@ import {
 } from '@mui/material';
 import i18next from 'i18next';
 import { Role } from '@taiger-common/core';
+import { addUser } from '@/api';
+
+type AddUserPayload = Parameters<typeof addUser>[0];
+type RoleValue = (typeof Role)[keyof typeof Role];
+type AddUserFormData = Partial<AddUserPayload> & { role: RoleValue | string };
 
 export interface AddUserModalProps {
     addUserModalState: boolean;
     cloaseAddUserModal: () => void;
-    AddUserSubmit: (
-        e: FormEvent<HTMLFormElement>,
-        user_information: {
-            firstname: string;
-            lastname: string;
-            email: string;
-            role?: string;
-        }
-    ) => void;
+    AddUserSubmit: (user_information: AddUserPayload) => void;
     isloading?: boolean;
     selected_user_id?: string;
 }
 
 const AddUserModal = (props: AddUserModalProps) => {
-    const [addUserModal, setAddUserModal] = useState({
+    const [addUserModal, setAddUserModal] = useState<{
+        user_information: AddUserFormData;
+    }>({
         user_information: { role: Role.Student }
     });
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        const user_information_temp = { ...addUserModal.user_information };
-        user_information_temp[e.target.name] = e.target.value;
+
+    const setUserInfoField = <K extends keyof AddUserFormData>(
+        key: K,
+        value: AddUserFormData[K]
+    ) => {
         setAddUserModal((prevState) => ({
             ...prevState,
-            user_information: user_information_temp
+            user_information: {
+                ...prevState.user_information,
+                [key]: value
+            }
         }));
     };
-    const AddUserSubmit = (
-        e: FormEvent<HTMLFormElement>,
-        user_information: { firstname: string; lastname: string; email: string }
-    ) => {
-        e.preventDefault();
+
+    const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const fieldName = e.target.name as keyof AddUserFormData;
+        setUserInfoField(fieldName, e.target.value);
+    };
+
+    const handleRoleChange = (e: SelectChangeEvent<string>) => {
+        setUserInfoField('role', e.target.value);
+    };
+
+    const handleSubmit = (user_information: AddUserFormData) => {
         if (
             !user_information.firstname ||
             !user_information.lastname ||
@@ -56,7 +65,7 @@ const AddUserModal = (props: AddUserModalProps) => {
         ) {
             /* empty */
         } else {
-            props.AddUserSubmit(e, user_information);
+            props.AddUserSubmit(user_information as AddUserPayload);
         }
     };
 
@@ -71,9 +80,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('First Name (English)')}
                     name="firstname"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        handleChange(e)
-                    }
+                    onChange={handleTextChange}
                     placeholder="Shiao-Ming"
                     required
                     sx={{ mb: 2 }}
@@ -83,9 +90,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('Last Name (English)')}
                     name="lastname"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        handleChange(e)
-                    }
+                    onChange={handleTextChange}
                     placeholder="Chen"
                     required
                     sx={{ mb: 2 }}
@@ -95,9 +100,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('名 (中文)')}
                     name="firstname_chinese"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        handleChange(e)
-                    }
+                    onChange={handleTextChange}
                     placeholder="小明"
                     required
                     sx={{ mb: 2 }}
@@ -107,9 +110,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('姓 (中文)')}
                     name="lastname_chinese"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        handleChange(e)
-                    }
+                    onChange={handleTextChange}
                     placeholder="陳"
                     required
                     sx={{ mb: 2 }}
@@ -122,9 +123,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                         label={i18next.t('Role')}
                         labelId="Role"
                         name="role"
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                            handleChange(e)
-                        }
+                        onChange={handleRoleChange}
                         value={
                             addUserModal.user_information?.role || Role.Student
                         }
@@ -154,12 +153,15 @@ const AddUserModal = (props: AddUserModalProps) => {
                             labelId="Application Count"
                             name="applying_program_count"
                             onChange={(e: SelectChangeEvent<string>) =>
-                                handleChange(e as ChangeEvent<HTMLInputElement>)
+                                setUserInfoField(
+                                    'applying_program_count',
+                                    Number(e.target.value)
+                                )
                             }
-                            value={
+                            value={String(
                                 addUserModal.user_information
-                                    ?.applying_program_count || '0'
-                            }
+                                    ?.applying_program_count ?? 0
+                            )}
                         >
                             <MenuItem value="0">
                                 {i18next.t('Please Select')}
@@ -181,9 +183,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('Email Address')}
                     name="email"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        handleChange(e)
-                    }
+                    onChange={handleTextChange}
                     placeholder="chung.ming.wang@gmail.com"
                     required
                     sx={{ mb: 2 }}
@@ -199,9 +199,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                         !addUserModal.user_information.email ||
                         props.isloading
                     }
-                    onClick={(e) =>
-                        AddUserSubmit(e, addUserModal.user_information)
-                    }
+                    onClick={() => handleSubmit(addUserModal.user_information)}
                     variant="contained"
                 >
                     {props.isloading

@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type SyntheticEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Tabs,
@@ -33,7 +33,11 @@ const UsersTable = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const [userTableState, setUserTableState] = useState({
+    const [userTableState, setUserTableState] = useState<{
+        addUserModalState: boolean;
+        users: null;
+        selected_user_id?: string;
+    }>({
         addUserModalState: false,
         users: null
     });
@@ -43,7 +47,14 @@ const UsersTable = () => {
         setValue(newValue);
     };
 
-    const { data: usersCount } = useQuery(getUsersCountQuery());
+    const { data: usersCountRaw } = useQuery(getUsersCountQuery());
+    const usersCount = (usersCountRaw ?? {}) as {
+        studentCount?: number;
+        agentCount?: number;
+        editorCount?: number;
+        externalCount?: number;
+        adminCount?: number;
+    };
 
     const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
         mutationFn: (user_information: Parameters<typeof addUser>[0]) =>
@@ -79,19 +90,11 @@ const UsersTable = () => {
         }));
     };
 
-    const AddUserSubmit = (
-        _e: FormEvent<HTMLFormElement>,
-        user_information: {
-            firstname: string;
-            lastname: string;
-            email: string;
-            role?: string;
-        }
-    ) => {
+    const AddUserSubmit = (user_information: Parameters<typeof addUser>[0]) => {
         addUserMutation(user_information);
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(t('User List', { ns: 'common' }));

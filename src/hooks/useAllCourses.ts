@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getAllCourses } from '@/api';
-import type { GetAllCoursesResponse, IAllCourse } from '@taiger-common/model';
+import type { GetAllCoursesResponse } from '@taiger-common/model';
 
 /**
  * Fetches all courses from course database.
  */
 export function useAllCourses() {
-    const result = useQuery<GetAllCoursesResponse, Error, IAllCourse[]>({
+    const result = useQuery<
+        GetAllCoursesResponse,
+        Error,
+        NonNullable<GetAllCoursesResponse['data']>
+    >({
         queryKey: ['all-courses/all'],
         queryFn: () => getAllCourses(),
         staleTime: 1000 * 60 * 5, // 5 minutes

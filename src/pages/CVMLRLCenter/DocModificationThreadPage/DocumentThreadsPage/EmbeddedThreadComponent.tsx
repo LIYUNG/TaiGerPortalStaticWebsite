@@ -26,6 +26,11 @@ import { useTranslation } from 'react-i18next';
 import Loading from '@components/Loading/Loading';
 import { useRef } from 'react';
 import { useAuth } from '@components/AuthProvider';
+import {
+    GetMessagesThreadResponse,
+    IProgramWithId,
+    IStudentResponseDef
+} from '@taiger-common/model';
 
 export const EmbeddedThreadComponent = ({
     setThreadId
@@ -39,7 +44,7 @@ export const EmbeddedThreadComponent = ({
     const scrollableRef = useRef(null);
     const { t } = useTranslation();
 
-    const { data, isLoading, error } = useQuery(
+    const { data, isLoading, error } = useQuery<GetMessagesThreadResponse>(
         getMessagThreadQuery(documentsthreadId ?? '')
     );
 
@@ -49,17 +54,20 @@ export const EmbeddedThreadComponent = ({
     if (error) {
         return <ErrorPage />;
     }
-    const thread = data?.data?.data;
-    const deadline = data?.data?.deadline;
-    const agents = data?.data?.agents;
-    const conflict_list = data?.data?.conflict_list;
-    const editors = data?.data?.editors;
-    const threadAuditLog = data?.data?.threadAuditLog;
-    const similarThreads = data?.data?.similarThreads;
-    const studentName = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    const schoolName = thread.program_id?.school;
-    const programName = thread.program_id?.program_name;
-    const file_type = thread.file_type;
+    const response = data?.data as unknown as GetMessagesThreadResponse;
+    const thread = response.data;
+    const deadline = response.deadline;
+    const agents = response.agents;
+    const conflict_list = response.conflict_list;
+    const editors = response.editors;
+    const threadAuditLog = response.threadAuditLog;
+    const similarThreads = response.similarThreads;
+    const student = thread?.student_id as IStudentResponseDef;
+    const studentName = `${student?.firstname} ${student?.lastname}`;
+    const program = thread?.program_id as IProgramWithId;
+    const schoolName = program?.school;
+    const programName = program?.program_name;
+    const file_type = thread?.file_type;
     return (
         <>
             <Box
@@ -92,25 +100,23 @@ export const EmbeddedThreadComponent = ({
                         <Link
                             component={LinkDom}
                             to={DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                thread.student_id._id,
+                                student?._id,
                                 DEMO.PROFILE_HASH
                             )}
                             underline="none"
                         >
                             <Avatar
                                 {...stringAvatar(studentName)}
-                                src={thread.student_id?.pictureUrl}
+                                src={student?.pictureUrl}
                             />
                         </Link>
                     </Tooltip>
-                    {thread.program_id ? (
+                    {program ? (
                         <Box>
                             <Link
                                 component={LinkDom}
                                 title={schoolName}
-                                to={DEMO.SINGLE_PROGRAM_LINK(
-                                    thread.program_id._id
-                                )}
+                                to={DEMO.SINGLE_PROGRAM_LINK(program?._id)}
                             >
                                 <Typography
                                     fontWeight="bold"
@@ -157,7 +163,7 @@ export const EmbeddedThreadComponent = ({
                             component={LinkDom}
                             sx={{ mr: 1 }}
                             to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
-                                thread.student_id._id
+                                student?._id
                             )}`}
                             underline="hover"
                         >

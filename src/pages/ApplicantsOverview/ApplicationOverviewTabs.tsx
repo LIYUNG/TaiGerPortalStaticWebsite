@@ -63,10 +63,7 @@ const ApplicationOverviewTabs = ({
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: stds as unknown as Array<{
-            _id: string;
-            [key: string]: unknown;
-        }>
+        students: stds
     });
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
