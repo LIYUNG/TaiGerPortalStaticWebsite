@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getProgramV2 } from '@/api';
-import type { GetProgramV2Response } from '@/api';
+import { GetProgramResponse } from '@taiger-common/model/dist/types';
 
 /**
  * Fetches one program with related metadata by id.
  */
 export function useProgram(programId: string) {
-    const result = useQuery<GetProgramV2Response>({
+    const result = useQuery<GetProgramResponse>({
         queryKey: ['programs', programId],
         queryFn: () => getProgramV2(programId),
         enabled: !!programId,

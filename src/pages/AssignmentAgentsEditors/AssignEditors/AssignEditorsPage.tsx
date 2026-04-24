@@ -15,6 +15,7 @@ import NoEditorsStudentsCard from '@pages/Dashboard/MainViewTab/NoEditorsStudent
 import { appConfig } from '../../../config';
 import DEMO from '@store/constant';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const NoEditorsTableHeader = () => {
     const { t } = useTranslation();
@@ -38,8 +39,8 @@ const NoEditorsTableHeader = () => {
 interface AssignEditorsPageProps {
     students: IStudentResponse[];
     submitUpdateEditorlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
+        e: React.SyntheticEvent,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => void;
 }

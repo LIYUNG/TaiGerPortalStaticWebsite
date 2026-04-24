@@ -77,24 +77,9 @@ src/hooks/useAllCourses.ts(14,9): error TS2769: No overload matches this call.
           Types of property 'updatedBy' are incompatible.
             Type 'string | objectOutputType<{ _id: ZodOptional<ZodString>; }, ZodTypeAny, "passthrough"> | undefined' is not assignable to type 'string | ObjectId | IUser'.
               Type 'undefined' is not assignable to type 'string | ObjectId | IUser'.
-src/hooks/useProgram.ts(4,15): error TS2724: '"@/api"' has no exported member named 'GetProgramV2Response'. Did you mean 'ProgramResponse'?
-src/hooks/useStudents.ts(56,29): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, boolean>'.
-src/hooks/useStudents.ts(73,22): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'Record<string, boolean>'.
-  Index signature for type 'string' is missing in type 'string[]'.
-src/pages/ArchivStudent/index.tsx(169,21): error TS2322: Type '(_e: FormEvent<HTMLFormElement>, _updateAgentList: unknown, _student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateAgentList: Record<string, boolean>, student_id: string) => void'.
-  Types of parameters '_e' and 'e' are incompatible.
-    Type 'SyntheticEvent<Element, Event>' is not assignable to type 'FormEvent<HTMLFormElement>'.
-      Types of property 'currentTarget' are incompatible.
-        Type 'EventTarget & Element' is not assignable to type 'EventTarget & HTMLFormElement'.
-          Type 'EventTarget & Element' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 148 more.
-src/pages/ArchivStudent/index.tsx(171,21): error TS2322: Type '(_e: FormEvent<HTMLFormElement>, _updateAttributesList: unknown, _student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateAttributesList: unknown, student_id: string) => void'.
-  Types of parameters '_e' and 'e' are incompatible.
-    Type 'SyntheticEvent<Element, Event>' is not assignable to type 'FormEvent<HTMLFormElement>'.
-      Types of property 'currentTarget' are incompatible.
-        Type 'EventTarget & Element' is not assignable to type 'EventTarget & HTMLFormElement'.
-          Type 'EventTarget & Element' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 148 more.
-src/pages/AssignmentAgentsEditors/AssignAgents/AssignAgentsPage.tsx(57,30): error TS2741: Property 'isArchivPage' is missing in type '{ key: number; student: IStudentResponseDef; submitUpdateAgentlist: (e: FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => void; }' but required in type 'NoAgentsStudentsCardProps'.
-src/pages/AssignmentAgentsEditors/AssignEditors/AssignEditorsPage.tsx(39,15): error TS2304: Cannot find name 'IStudentResponse'.
+src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(321,29): error TS2322: Type '(e: React.FormEvent, updateAttributesList: string[], student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateAttributesList: unknown, student_id: string) => void'.
+  Types of parameters 'updateAttributesList' and 'updateAttributesList' are incompatible.
+    Type 'unknown' is not assignable to type 'string[]'.
 src/pages/AssignmentAgentsEditors/AssignEssayWriters/AssignEssayWritersPage.tsx(90,26): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: { _id: string; student_id: string | IStudentResponseDef; ... 11 more ...; essayReviewerIds?: { ...; }[] | undefined; }[]; }) => { ...; } | { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: { _id: string; student_id: string | IStudentResponseDef; ... 11 more ...; essayReviewerIds?: { ...; }[] | undefined; }[]; }>'.
   Type '(prevState: { error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: { _id: string; student_id: string | IStudentResponseDef; ... 11 more ...; essayReviewerIds?: { ...; }[] | undefined; }[]; }) => { ...; } | { ...; }' is not assignable to type '(prevState: { error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: { _id: string; student_id: string | IStudentResponseDef; ... 11 more ...; essayReviewerIds?: { ...; }[] | undefined; }[]; }) => { ...; }'.
     Type '{ isLoaded: true; essayDocumentThreads: ({ _id: string; student_id: string | IStudentResponseDef; file_type: string; updatedAt?: Date | undefined; isFinalVersion?: boolean | undefined; ... 8 more ...; essayReviewerIds?: { ...; }[] | undefined; } | { ...; } | undefined)[]; success: true; res_modal_status: number; err...' is not assignable to type '{ error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: { _id: string; student_id: string | IStudentResponseDef; ... 11 more ...; essayReviewerIds?: { _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; a...'.
@@ -601,6 +586,9 @@ src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(61,56): error TS18048: 'b.a
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(63,19): error TS18048: 'a.editors' is possibly 'undefined'.
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(63,38): error TS18048: 'b.editors' is possibly 'undefined'.
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(104,49): error TS2339: Property 'data' does not exist on type '{}'.
+src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(112,21): error TS2322: Type '(e: React.FormEvent, updateAttributesList: string[], student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateAttributesList: unknown, student_id: string) => void'.
+  Types of parameters 'updateAttributesList' and 'updateAttributesList' are incompatible.
+    Type 'unknown' is not assignable to type 'string[]'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(145,52): error TS2345: Argument of type 'OpenTaskRow' is not assignable to parameter of type 'IDocumentthread & { latest_message_left_by_id?: string | undefined; }'.
   Type 'OpenTaskRow' is not assignable to type 'IDocumentthread'.
     Types of property 'student_id' are incompatible.
@@ -649,30 +637,6 @@ src/pages/Dashboard/MainViewTab/AgentTasks/ReadyToSubmitTasksCard.tsx(104,26): e
 src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.tsx(39,33): error TS18048: 'application.studentId' is possibly 'undefined'.
 src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.tsx(43,30): error TS18048: 'application.studentId' is possibly 'undefined'.
 src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.tsx(44,30): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard.tsx(73,38): error TS2345: Argument of type '{ _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: { name: string; value: number; }[] | undefined; profile?: { name: string; required: boolean; updatedAt?: Date | undefined; path?: string | undefined; status?: string | undefined; feedback?: string | undefined; ...' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard.tsx(124,34): error TS2345: Argument of type '{ _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: { name: string; value: number; }[] | undefined; profile?: { name: string; required: boolean; updatedAt?: Date | undefined; path?: string | undefined; status?: string | undefined; feedback?: string | undefined; ...' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard.tsx(131,25): error TS2322: Type '(e: FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => void' is not assignable to type '((e: SyntheticEvent<Element, Event>, updateList: Record<string, boolean>, entityId: string) => void) | ((e: SyntheticEvent<Element, Event>, updateList: Record<...>, entityId: string) => void) | ((e: SyntheticEvent<...>, updateList: Record<...>, entityId: string) => void)'.
-  Type '(e: FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateList: Record<string, boolean>, entityId: string) => void'.
-    Types of parameters 'e' and 'e' are incompatible.
-      Type 'SyntheticEvent<Element, Event>' is not assignable to type 'FormEvent<HTMLFormElement>'.
-        Types of property 'currentTarget' are incompatible.
-          Type 'EventTarget & Element' is not assignable to type 'EventTarget & HTMLFormElement'.
-            Type 'EventTarget & Element' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 148 more.
-src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.tsx(20,10): error TS2724: '"@/api"' has no exported member named 'IStudentResponse'. Did you mean 'StudentResponseFull'?
-src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.tsx(83,37): error TS2345: Argument of type '{ _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: { name: string; value: number; }[] | undefined; profile?: { name: string; required: boolean; updatedAt?: Date | undefined; path?: string | undefined; status?: string | undefined; feedback?: string | undefined; ...' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.tsx(127,42): error TS2339: Property '_id' does not exist on type 'IUserAttribute'.
-src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.tsx(172,33): error TS2345: Argument of type '{ _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: { name: string; value: number; }[] | undefined; profile?: { name: string; required: boolean; updatedAt?: Date | undefined; path?: string | undefined; status?: string | undefined; feedback?: string | undefined; ...' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.tsx(179,25): error TS2322: Type '(e: FormEvent<HTMLFormElement>, updateEditorList: unknown, student_id: string) => void' is not assignable to type '((e: SyntheticEvent<Element, Event>, updateList: Record<string, boolean>, entityId: string) => void) | ((e: SyntheticEvent<Element, Event>, updateList: Record<...>, entityId: string) => void) | ((e: SyntheticEvent<...>, updateList: Record<...>, entityId: string) => void)'.
-  Type '(e: FormEvent<HTMLFormElement>, updateEditorList: unknown, student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateList: Record<string, boolean>, entityId: string) => void'.
-    Types of parameters 'e' and 'e' are incompatible.
-      Type 'SyntheticEvent<Element, Event>' is not assignable to type 'FormEvent<HTMLFormElement>'.
-        Types of property 'currentTarget' are incompatible.
-          Type 'EventTarget & Element' is not assignable to type 'EventTarget & HTMLFormElement'.
-            Type 'EventTarget & Element' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 148 more.
 src/pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard.tsx(237,25): error TS2322: Type '{ _id: string; student_id: string | IStudentResponseDef; file_type: string; updatedAt?: Date | undefined; isFinalVersion?: boolean | undefined; program_id?: string | ... 1 more ... | undefined; ... 7 more ...; essayReviewerIds?: { ...; }[] | undefined; }' is not assignable to type 'EssayDocumentThreadForWriters'.
   Types of property 'program_id' are incompatible.
     Type 'string | { school: string; program_name: string; _id: string; isArchiv?: boolean | undefined; isLocked?: boolean | undefined; programSubjects?: string[] | undefined; degree?: string | undefined; ... 71 more ...; vcId?: string | undefined; } | undefined' is not assignable to type '{ school?: string | undefined; program_name?: string | undefined; degree?: string | undefined; semester?: string | undefined; } | undefined'.
@@ -1246,6 +1210,9 @@ src/pages/StudentDatabase/index.tsx(31,9): error TS2322: Type 'IStudentResponseD
   Type 'undefined' is not assignable to type 'IStudentResponseDef[]'.
 src/pages/StudentDatabase/index.tsx(34,25): error TS2345: Argument of type '{ _id: string; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: { name: string; value: number; }[] | undefined; profile?: { name: string; required: boolean; updatedAt?: Date | undefined; path?: string | undefined; status?: string | undefined; feedback?: string | undefined; ...' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
+src/pages/StudentDatabase/index.tsx(81,17): error TS2322: Type '(e: React.FormEvent, updateAttributesList: string[], student_id: string) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, updateAttributesList: unknown, student_id: string) => void'.
+  Types of parameters 'updateAttributesList' and 'updateAttributesList' are incompatible.
+    Type 'unknown' is not assignable to type 'string[]'.
 src/pages/StudentDatabase/Meetings/MeetingCard.tsx(148,49): error TS2345: Argument of type 'string | Date' is not assignable to parameter of type 'string | null | undefined'.
   Type 'Date' is not assignable to type 'string'.
 src/pages/StudentDatabase/Meetings/MeetingCard.tsx(195,21): error TS2769: No overload matches this call.
@@ -1416,13 +1383,13 @@ src/pages/UniAssist/index.tsx(23,28): error TS2345: Argument of type '{ _id: str
   Type 'null' is not assignable to type 'IUser'.
 src/pages/UniAssist/index.tsx(49,45): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'IStudentResponseDef'.
 src/pages/UniAssist/index.tsx(65,40): error TS2322: Type 'unknown' is not assignable to type 'IStudentResponseDef'.
-src/pages/Utils/checking-functions.tsx(125,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(126,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(135,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(136,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(145,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(146,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
-src/pages/Utils/checking-functions.tsx(197,29): error TS2345: Argument of type 'string | Date | string[] | undefined' is not assignable to parameter of type 'AppPrefValue'.
+src/pages/Utils/checking-functions.tsx(128,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(129,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(138,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(139,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(148,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(149,21): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/pages/Utils/checking-functions.tsx(203,29): error TS2345: Argument of type 'string | Date | string[] | undefined' is not assignable to parameter of type 'AppPrefValue'.
   Type 'Date' is not assignable to type 'AppPrefValue'.
     Type 'Date' is missing the following properties from type 'string[]': length, pop, push, concat, and 29 more.
 src/reportWebVitals.ts(1,36): error TS2307: Cannot find module 'web-vitals' or its corresponding type declarations.

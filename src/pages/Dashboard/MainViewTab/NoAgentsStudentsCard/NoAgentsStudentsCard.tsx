@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent, useState } from 'react';
+import { MouseEvent, useState, type SyntheticEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Button,
@@ -21,8 +21,8 @@ interface NoAgentsStudentsCardProps {
     student: IStudentResponse;
     isArchivPage: boolean;
     submitUpdateAgentlist: (
-        e: FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => void;
 }
@@ -57,8 +57,8 @@ const NoAgentsStudentsCard = ({
     };
 
     const submitUpdateAgentlistHandler = (
-        e: FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => {
         e.preventDefault();
@@ -70,7 +70,7 @@ const NoAgentsStudentsCard = ({
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_Admin(user) && !isArchivPage ? (
+                    {user && is_TaiGer_Admin(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -121,11 +121,11 @@ const NoAgentsStudentsCard = ({
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_Admin(user) &&
+                {user &&
+                is_TaiGer_Admin(user) &&
                 noAgentsStudentsCardState.showAgentPage ? (
                     <EditUserListSubpage
                         onHide={setAgentModalhide}
-                        setmodalhide={setAgentModalhide}
                         show={noAgentsStudentsCardState.showAgentPage}
                         student={student}
                         submitUpdateList={submitUpdateAgentlistHandler}

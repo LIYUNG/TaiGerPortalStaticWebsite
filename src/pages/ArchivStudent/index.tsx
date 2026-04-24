@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -38,17 +38,17 @@ interface UpdateArchivSuccessResponse {
 }
 
 const noopSubmitAgentList = (
-    _e: FormEvent<HTMLFormElement>,
-    _updateAgentList: unknown,
+    _e: SyntheticEvent,
+    _updateAgentList: Record<string, boolean>,
     _student_id: string
 ) => {};
 const noopSubmitEditorList = (
-    _e: React.SyntheticEvent,
-    _updateEditorList: unknown,
+    _e: SyntheticEvent,
+    _updateEditorList: Record<string, boolean>,
     _student_id: string
 ) => {};
 const noopSubmitAttributesList = (
-    _e: FormEvent<HTMLFormElement>,
+    _e: SyntheticEvent,
     _updateAttributesList: unknown,
     _student_id: string
 ) => {};
