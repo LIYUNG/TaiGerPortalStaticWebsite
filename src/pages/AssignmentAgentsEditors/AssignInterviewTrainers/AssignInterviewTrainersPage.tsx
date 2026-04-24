@@ -80,38 +80,42 @@ const AssignInterviewTrainersPage = ({
 
                 const { data, success } = resp.data;
                 const { status } = resp;
+                const normalizedStatus = status ?? 0;
+                const normalizedSuccess = success === true;
 
                 setState((prevState) => {
-                    if (success) {
+                    if (normalizedSuccess && data) {
                         const updatedInterviews = prevState.interviews.map(
                             (interview: IInterviewWithId) =>
                                 interview._id === interview_id
-                                    ? data
+                                    ? (data as IInterviewWithId)
                                     : interview
                         );
                         return {
                             ...prevState,
                             isLoaded: true,
                             interviews: updatedInterviews,
-                            success,
-                            res_modal_status: status
+                            success: true,
+                            res_modal_status: normalizedStatus
                         };
                     } else {
                         return {
                             ...prevState,
                             isLoaded: true,
-                            res_modal_message: resp.data.message,
-                            res_modal_status: status
+                            res_modal_message: resp.data.message ?? '',
+                            res_modal_status: normalizedStatus
                         };
                     }
                 });
-            } catch (error) {
+            } catch (error: unknown) {
+                const message =
+                    error instanceof Error ? error.message : String(error ?? '');
                 setState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: message,
                     res_modal_status: 500,
-                    res_modal_message: error.message || ''
+                    res_modal_message: message
                 }));
             }
         },
@@ -120,8 +124,8 @@ const AssignInterviewTrainersPage = ({
 
     const handleSubmit = useCallback(
         (
-            e: React.FormEvent<HTMLFormElement>,
-            updateTrainerList: unknown,
+            e: React.SyntheticEvent,
+            updateTrainerList: Record<string, boolean>,
             interview_id: string
         ) => {
             e.preventDefault();

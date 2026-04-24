@@ -46,7 +46,7 @@ interface StudentsTableProps {
     ) => void;
     submitUpdateAttributeslist: (
         e: React.SyntheticEvent,
-        updateAttributesList: unknown,
+        updateAttributesList: string[],
         student_id: string
     ) => void;
     updateStudentArchivStatus: (

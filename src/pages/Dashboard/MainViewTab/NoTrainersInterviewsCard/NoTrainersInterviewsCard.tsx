@@ -28,8 +28,8 @@ interface NoTrainersInterviewsCardProps {
     isArchivPage?: boolean;
     isSubmitting?: boolean;
     submitUpdateInterviewTrainerlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateTrainerList: unknown,
+        e: React.SyntheticEvent,
+        updateTrainerList: Record<string, boolean>,
         interview_id: string
     ) => void;
 }
@@ -67,8 +67,8 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
     };
 
     const submitUpdateInterviewTrainerlist = (
-        e: React.FormEvent<HTMLFormElement>,
-        updateTrainerList: unknown,
+        e: React.SyntheticEvent,
+        updateTrainerList: Record<string, boolean>,
         interview_id: string
     ) => {
         e.preventDefault();
@@ -86,7 +86,7 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user as IUser) && !props.isArchivPage ? (
+                    {user && is_TaiGer_role(user as IUser) && !props.isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -164,7 +164,8 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_role(user as IUser) &&
+                {user &&
+                is_TaiGer_role(user as IUser) &&
                 noTrainersInterviewsCardState.showTrainerPage ? (
                     <EditInterviewTrainersSubpage
                         actor="Interview Trainer"
@@ -172,12 +173,12 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                         onHide={setTrainerModalhide}
                         setmodalhide={setTrainerModalhide}
                         show={noTrainersInterviewsCardState.showTrainerPage}
-                        submitUpdateInterviewTrainerlist={
-                            submitUpdateInterviewTrainerlist as unknown as (
-                                e: React.MouseEvent<HTMLElement>,
-                                updateTrainerList: Record<string, boolean>,
-                                interview_id: string
-                            ) => void
+                        submitUpdateInterviewTrainerlist={(e, updateTrainerList, interview_id) =>
+                            submitUpdateInterviewTrainerlist(
+                                e,
+                                updateTrainerList,
+                                interview_id
+                            )
                         }
                     />
                 ) : null}

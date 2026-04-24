@@ -1,4 +1,3 @@
-import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -37,21 +36,9 @@ interface UpdateArchivSuccessResponse {
     status?: number;
 }
 
-const noopSubmitAgentList = (
-    _e: SyntheticEvent,
-    _updateAgentList: Record<string, boolean>,
-    _student_id: string
-) => {};
-const noopSubmitEditorList = (
-    _e: SyntheticEvent,
-    _updateEditorList: Record<string, boolean>,
-    _student_id: string
-) => {};
-const noopSubmitAttributesList = (
-    _e: SyntheticEvent,
-    _updateAttributesList: unknown,
-    _student_id: string
-) => {};
+const noopSubmitAgentList = () => {};
+const noopSubmitEditorList = () => {};
+const noopSubmitAttributesList = () => {};
 
 const ArchivStudents = () => {
     const { user } = useAuth();

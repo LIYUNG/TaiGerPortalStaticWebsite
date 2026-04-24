@@ -205,7 +205,7 @@ export type EditUserListSubpageProps =
           show: boolean;
           student: IStudentResponse;
           submitUpdateList: (
-              e: React.SyntheticEvent,
+              e: React.MouseEvent<HTMLElement>,
               updateList: Record<string, boolean>,
               entityId: string
           ) => void;
@@ -218,7 +218,7 @@ export type EditUserListSubpageProps =
           essayDocumentThread: EssayDocumentThreadForWriters;
           isSubmitting?: boolean;
           submitUpdateList: (
-              e: React.SyntheticEvent,
+              e: React.MouseEvent<HTMLElement>,
               updateList: Record<string, boolean>,
               entityId: string
           ) => void;
@@ -231,7 +231,7 @@ export type EditUserListSubpageProps =
           interview: InterviewForTrainers;
           isSubmitting?: boolean;
           submitUpdateList: (
-              e: React.SyntheticEvent,
+              e: React.MouseEvent<HTMLElement>,
               updateList: Record<string, boolean>,
               entityId: string
           ) => void;
