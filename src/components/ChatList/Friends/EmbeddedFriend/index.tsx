@@ -154,7 +154,7 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
                     </IconButton>
                     <ListItemText
                         primary={
-                            <Typography style={{ fontWeight: 'bold' }}>
+                            <Typography fontWeight="bold">
                                 <AttributeChips
                                     attributes={props.data?.attributes}
                                 />
@@ -179,8 +179,8 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
                         }${truncateText(firstText, 14)} • ${convertDateUXFriendly(
                             props.data?.latestCommunication?.createdAt
                         )}`}
-                        style={{
-                            marginLeft: '10px',
+                        sx={{
+                            ml: 1.25,
                             flex: 1
                         }}
                     />
@@ -189,7 +189,7 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
                             {isReplyNeeded ? (
                                 <FiberManualRecordIcon
                                     fontSize="small"
-                                    style={{ marginLeft: '4px' }}
+                                    sx={{ ml: 0.5 }}
                                     aria-label="Not Reply Yet"
                                 />
                             ) : null}

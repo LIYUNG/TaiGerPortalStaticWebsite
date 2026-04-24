@@ -47,7 +47,7 @@ const Main = styled('main', {
 })<{ open?: boolean; ismobile?: string }>(({ theme, open, ismobile }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    maxHeight: 'calc(100vh - 64px)',
+    maxHeight: `calc(100vh - ${theme.spacing(8)})`,
     width: `calc(100% - ${drawerWidth}px)`,
     transition: theme.transitions.create('margin', {
         easing: (theme.transitions as { easing: { sharp: string } }).easing
@@ -345,7 +345,7 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                     mr: 1
                 },
                 '& .MuiPaper-root': {
-                    borderRadius: '12px'
+                    borderRadius: 1.5
                 }
             }}
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -472,7 +472,7 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                     </IconButton>
                     <Link
                         component={LinkDom}
-                        style={{ textDecoration: 'none' }}
+                        underline="none"
                         to={DEMO.DASHBOARD_LINK}
                     >
                         <img

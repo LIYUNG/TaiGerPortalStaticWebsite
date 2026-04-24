@@ -211,7 +211,7 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
                               />
                               <Skeleton
                                   height={54}
-                                  style={{ marginLeft: '10px' }}
+                                  sx={{ ml: 1.25 }}
                                   variant="rectangular"
                                   width={EmbeddedChatListWidth - 50}
                               />

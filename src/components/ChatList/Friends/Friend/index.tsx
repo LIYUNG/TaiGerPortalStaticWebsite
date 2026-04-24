@@ -89,7 +89,7 @@ const Friend = (props: FriendProps) => {
             } ${props.data.lastname}`}
         >
             <Grid alignItems="center" container justifyContent="space-between">
-                <Grid item style={{ display: 'flex', alignItems: 'center' }}>
+                <Grid item sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
                         alt={`${props.data.firstname} ${props.data.lastname}`}
                         {...stringAvatar(
@@ -98,12 +98,12 @@ const Friend = (props: FriendProps) => {
                         src={props.data?.pictureUrl}
                     />
                     <Box
-                        style={{
-                            marginLeft: '10px',
+                        sx={{
+                            ml: 1.25,
                             flex: 1,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '1px'
+                            gap: 0.125
                         }}
                     >
                         <Typography
@@ -141,12 +141,7 @@ const Friend = (props: FriendProps) => {
                     </Box>
                 </Grid>
                 <Grid item>
-                    <Box
-                        style={{
-                            textAlign: 'right',
-                            padding: '8px 8px'
-                        }}
-                    >
+                    <Box sx={{ textAlign: 'right', p: 1 }}>
                         <Typography variant="body2">
                             {props.data?.latestCommunication?.user_id?.toString() ===
                                 props.data?.latestCommunication?.student_id?.toString() &&
@@ -154,7 +149,7 @@ const Friend = (props: FriendProps) => {
                                 true ? (
                                 <FiberManualRecordIcon
                                     fontSize="small"
-                                    style={{ marginLeft: '4px' }}
+                                    sx={{ ml: 0.5 }}
                                     aria-label="Not Reply Yet"
                                 />
                             ) : null}

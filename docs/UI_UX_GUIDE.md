@@ -90,7 +90,7 @@ Concrete before → after:
 
 - [src/index.css:128](../src/index.css#L128): `.white-line { margin: 20px 0 }` — either delete the class if unused, or move the element into a styled component using `sx={{ my: 2.5 }}`.
 
-**Exception — CSS values that are natively pixel-based:** `boxShadow`, `outline`, `textShadow`, and `transform` (e.g., `translateY(-2px)`) may contain `px` literals because CSS itself uses px units in their grammar (e.g., `` `0 0 0 1px ${theme.palette.primary.main}` `` for a focus ring). Borders must still split into `borderWidth` / `borderStyle` / `borderColor`.
+**Exception — CSS values that are natively pixel-based:** `boxShadow`, `outline`, `textShadow`, `transform` (e.g., `translateY(-2px)`), and CSS `filter` functions such as `drop-shadow()` may contain `px` literals because CSS itself uses px units in their grammar (e.g., `` `0 0 0 1px ${theme.palette.primary.main}` `` for a focus ring). Borders must still split into `borderWidth` / `borderStyle` / `borderColor`.
 
 ### R3. Typography — variants only, extend the theme if needed
 
@@ -261,31 +261,31 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 1 | `ApplicationLockControl/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 2 | `ApplicationProgressCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 3 | `AuthProvider/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
-| 4 | `AuthWrapper/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 4 | `AuthWrapper/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 5 | `Banner/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 6 | `BreadcrumbsNavigation/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 7 | `Buttons/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 8 | `Calendar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 9 | `Charts/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: dy: '10px' is an SVG tick-label offset inside MUI X-Charts sx — not a spacing violation |
-| 10 | `ChatList/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 10 | `ChatList/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 11 | `ConfirmDialog/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 12 | `DateComponent/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 13 | `EditorJs/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 14 | `ExtendableTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 15 | `FilePreview/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 14 | `ExtendableTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
+| 15 | `FilePreview/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 16 | `Footer/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 17 | `GaugeCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
-| 18 | `Input/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 18 | `Input/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 19 | `Loading/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 20 | `MaterialReactTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 21 | `Message/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
-| 22 | `Modal/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 22 | `Modal/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 23 | `MuiDataGrid/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 24 | `NavBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 25 | `Offcanvas/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 26 | `Overlay/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
-| 27 | `PDFViewer/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 28 | `ProgramRequirementsTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 27 | `PDFViewer/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
+| 28 | `ProgramRequirementsTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 29 | `StudentOverviewTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 30 | `SurveyProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 31 | `Tabs/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
