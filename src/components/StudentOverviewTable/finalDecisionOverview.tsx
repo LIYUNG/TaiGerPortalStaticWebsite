@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Card, Link } from '@mui/material';
+import { Box, Card, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -140,11 +140,11 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                     const items = params.row?.finalEnrolments ?? [];
                     if (!items.length) return '-';
                     return (
-                        <div
-                            style={{
+                        <Box
+                            sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 4
+                                gap: 0.5
                             }}
                         >
                             {items.map((it) => {
@@ -166,7 +166,7 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                                     <span key={it.key}>{label}</span>
                                 );
                             })}
-                        </div>
+                        </Box>
                     );
                 }
             },
@@ -178,19 +178,20 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                     const items = params.row?.finalEnrolments ?? [];
                     if (!items.length) return '-';
                     return (
-                        <div
-                            style={{
+                        <Box
+                            sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 4
+                                gap: 0.5
                             }}
                         >
                             {items.map((it) => {
                                 const value = (it.city ?? '').toString() || '-';
                                 return (
-                                    <span
+                                    <Box
+                                        component="span"
                                         key={it.key}
-                                        style={{
+                                        sx={{
                                             display: 'inline-block',
                                             maxWidth: '100%',
                                             overflow: 'hidden',
@@ -200,10 +201,10 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                                         title={value}
                                     >
                                         {value}
-                                    </span>
+                                    </Box>
                                 );
                             })}
-                        </div>
+                        </Box>
                     );
                 }
             },
@@ -215,11 +216,11 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                     const items = params.row?.finalEnrolments ?? [];
                     if (!items.length) return '-';
                     return (
-                        <div
-                            style={{
+                        <Box
+                            sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 4
+                                gap: 0.5
                             }}
                         >
                             {items.map((it) => {
@@ -228,9 +229,10 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                                         .toString()
                                         .toUpperCase() || '-';
                                 return (
-                                    <span
+                                    <Box
+                                        component="span"
                                         key={it.key}
-                                        style={{
+                                        sx={{
                                             display: 'inline-block',
                                             maxWidth: '100%',
                                             overflow: 'hidden',
@@ -240,10 +242,10 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
                                         title={value}
                                     >
                                         {value}
-                                    </span>
+                                    </Box>
                                 );
                             })}
-                        </div>
+                        </Box>
                     );
                 }
             },

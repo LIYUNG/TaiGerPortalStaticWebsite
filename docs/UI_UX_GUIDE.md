@@ -284,7 +284,7 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 26 | `Overlay/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 27 | `PDFViewer/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 28 | `ProgramRequirementsTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 29 | `StudentOverviewTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 29 | `StudentOverviewTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 30 | `SurveyProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 31 | `Tabs/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 32 | `TopBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |

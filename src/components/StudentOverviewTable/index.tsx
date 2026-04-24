@@ -42,7 +42,6 @@ import {
     has_admissions
 } from '@pages/Utils/util_functions';
 import DEMO from '@store/constant';
-import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import type {
     IApplicationDocModificationThreadItem,
@@ -624,7 +623,7 @@ const StudentOverviewTable = ({
                     renderCell: (params) => (
                         <Link
                             component={LinkDom}
-                            style={{ textDecoration: 'none' }}
+                            underline="none"
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                                 params.row.id,
                                 DEMO.PROFILE_HASH
@@ -680,10 +679,8 @@ const StudentOverviewTable = ({
                                         {params.row.isEnglishPassed ? (
                                             <IconButton>
                                                 <CheckCircleIcon
+                                                    color="success"
                                                     fontSize="small"
-                                                    style={{
-                                                        color: green[500]
-                                                    }}
                                                     aria-label={`complete ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_certificate} ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_score}`}
                                                 />
                                             </IconButton>
@@ -695,10 +692,8 @@ const StudentOverviewTable = ({
                                                 <>
                                                     {FILE_MISSING_SYMBOL}
                                                     <HelpIcon
+                                                        color="disabled"
                                                         fontSize="small"
-                                                        style={{
-                                                            color: grey[400]
-                                                        }}
                                                         aria-label={`Expected Test Date ${(bg as { language?: { english_certificate?: string; english_test_date?: string } })?.language?.english_certificate} ${(bg as { language?: { english_test_date?: string } })?.language?.english_test_date}`}
                                                     />
                                                 </>
@@ -719,10 +714,8 @@ const StudentOverviewTable = ({
                                         {params.row.isGermanPassed ? (
                                             <IconButton>
                                                 <CheckCircleIcon
+                                                    color="success"
                                                     fontSize="small"
-                                                    style={{
-                                                        color: green[500]
-                                                    }}
                                                     aria-label={`complete ${(bg as { language?: { german_certificate?: string; german_score?: string } })?.language?.german_certificate} ${(bg as { language?: { german_score?: string } })?.language?.german_score}`}
                                                 />
                                             </IconButton>
@@ -732,8 +725,8 @@ const StudentOverviewTable = ({
                                                 bg
                                             ) && (
                                                 <HelpIcon
+                                                    color="disabled"
                                                     fontSize="small"
-                                                    style={{ color: grey[400] }}
                                                     aria-label={`Expected Test Date${(bg as { language?: { german_certificate?: string; german_test_date?: string } })?.language?.german_certificate} ${(bg as { language?: { german_test_date?: string } })?.language?.german_test_date}`}
                                                 />
                                             )
