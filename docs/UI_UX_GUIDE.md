@@ -90,6 +90,8 @@ Concrete before → after:
 
 - [src/index.css:128](../src/index.css#L128): `.white-line { margin: 20px 0 }` — either delete the class if unused, or move the element into a styled component using `sx={{ my: 2.5 }}`.
 
+**Exception — CSS values that are natively pixel-based:** `boxShadow`, `outline`, and `textShadow` may contain `px` literals because CSS itself uses px units in their grammar (e.g., `` `0 0 0 1px ${theme.palette.primary.main}` `` for a focus ring). Borders must still split into `borderWidth` / `borderStyle` / `borderColor`.
+
 ### R3. Typography — variants only, extend the theme if needed
 
 ✅ Do
@@ -109,6 +111,8 @@ Concrete before → after:
 Concrete before → after:
 
 - [src/components/Message/DocThreadEditor.tsx:157](../src/components/Message/DocThreadEditor.tsx#L157): `sx={{ fontSize: '0.75rem', letterSpacing: 0.5 }}` → use `variant="overline"` (which is already a themed variant with correct size & letter-spacing) and drop the `sx` overrides. If a new variant is genuinely needed, add it to `themeLight.ts` / `themeDark.ts` under `typography.{variantName}` first.
+
+**Exception — MUI icons:** `*Icon` components from `@mui/icons-material` render as font glyphs and use `font-size` as their sizing API. Prefer the `fontSize="small|medium|large"` prop (20/24/35px). Only use `sx={{ fontSize: N }}` when the design requires a custom size that doesn't fit the presets.
 
 ### R4. Dark-mode parity — no mode branching in components
 
@@ -190,8 +194,8 @@ Run each pattern against the folder being refactored. Every match must be resolv
 | 2 | `\brgb(a)?\(` | R1 | `src/**/*.{ts,tsx,css}` **excluding** `src/components/ThemeProvider/` | Replace with `theme.palette.*` (use `alpha()` from `@mui/material/styles` for transparency). |
 | 3 | `['"\`](red\|blue\|green\|black\|white\|grey\|gray\|yellow\|orange\|pink\|purple)['"\`]` | R1 | `src/**/*.{ts,tsx}` | Replace with palette reference. |
 | 4 | `from ['"]@mui/material/colors['"]` | R1 | `src/**/*.{ts,tsx}` | Remove import; use `theme.palette.*`. |
-| 5 | `\b\d+px\b` | R2 | inside `sx={{ ... }}` or `style={{ ... }}` in `*.tsx`; also `*.css` | Convert to MUI spacing units (`p: 2` = 16px). |
-| 6 | `\bfontSize\s*:` or `\bfontWeight\s*:` | R3 | inside `sx={{ ... }}` in `*.tsx` | Use `<Typography variant=...>`; extend theme typography if a new variant is needed. |
+| 5 | `\b\d+px\b` | R2 | inside `sx={{ ... }}` or `style={{ ... }}` in `*.tsx`; also `*.css` | Convert to MUI spacing units (`p: 2` = 16px). **Ignore matches inside `boxShadow`, `outline`, `textShadow` values.** |
+| 6 | `\bfontSize\s*:` or `\bfontWeight\s*:` | R3 | inside `sx={{ ... }}` in `*.tsx` | Use `<Typography variant=...>`; extend theme typography if a new variant is needed. **Ignore matches on `*Icon` components — prefer the `fontSize` prop; keep sx only for custom sizes outside small/medium/large.** |
 | 7 | `palette\.mode\s*===?` | R4 | `src/**/*.{ts,tsx}` **excluding** `src/components/ThemeProvider/` | Move the conditional into `paletteDark.ts`. |
 | 8 | `@media\s*\(` | R5 | `src/**/*.{ts,tsx}` | Use `theme.breakpoints` or `sx` responsive object. |
 | 9 | `style=\{\{` on an MUI component | R-general | `src/**/*.tsx` | Switch to `sx={{ ... }}`. |
@@ -272,7 +276,7 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 18 | `Input/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 19 | `Loading/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 20 | `MaterialReactTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 21 | `Message/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 21 | `Message/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 22 | `Modal/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 23 | `MuiDataGrid/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 24 | `NavBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |

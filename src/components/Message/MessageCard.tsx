@@ -238,13 +238,15 @@ const MessageCard = (props: MessageCardProps) => {
             <Card
                 sx={{
                     borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    borderColor: 'divider',
                     boxShadow: theme.shadows[1],
                     overflow: 'visible',
                     transition: 'all 0.2s',
                     '&:hover': {
                         boxShadow: theme.shadows[2],
-                        borderColor: theme.palette.primary.light
+                        borderColor: 'primary.light'
                     }
                 }}
             >
@@ -284,7 +286,11 @@ const MessageCard = (props: MessageCardProps) => {
                                 sx={{
                                     width: 36,
                                     height: 36,
-                                    border: `2px solid ${isCurrentUser ? theme.palette.primary.main : theme.palette.grey[300]}`
+                                    borderWidth: 2,
+                                    borderStyle: 'solid',
+                                    borderColor: isCurrentUser
+                                        ? 'primary.main'
+                                        : 'grey.300'
                                 }}
                             />
                             <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -304,11 +310,7 @@ const MessageCard = (props: MessageCardProps) => {
                                         <Chip
                                             label="You"
                                             size="small"
-                                            sx={{
-                                                height: 18,
-                                                fontSize: '0.65rem',
-                                                fontWeight: 600
-                                            }}
+                                            sx={{ height: 18 }}
                                             variant="outlined"
                                         />
                                     )}
@@ -369,7 +371,7 @@ const MessageCard = (props: MessageCardProps) => {
                                     >
                                         <AttachFileIcon
                                             color="action"
-                                            sx={{ fontSize: 16 }}
+                                            fontSize="small"
                                         />
                                         <Typography
                                             color="text.secondary"
@@ -404,7 +406,9 @@ const MessageCard = (props: MessageCardProps) => {
                                         sx={{
                                             mt: 2,
                                             pt: 2,
-                                            borderTop: `1px solid ${theme.palette.divider}`
+                                            borderTopWidth: 1,
+                                            borderTopStyle: 'solid',
+                                            borderTopColor: 'divider'
                                         }}
                                     >
                                         <FormControlLabel

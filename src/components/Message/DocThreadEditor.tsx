@@ -75,7 +75,6 @@ const DocThreadEditor = ({
     const [isSending, setIsSending] = useState(false);
 
     const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
     const canSend = Boolean(hasContent && !buttonDisabled && !readOnly);
 
     const handleSend = useCallback(
@@ -94,12 +93,12 @@ const DocThreadEditor = ({
 
     const getValidationIcon = (value: boolean | undefined) => {
         if (value === undefined) {
-            return <WarningAmberIcon color="warning" sx={{ fontSize: 18 }} />;
+            return <WarningAmberIcon color="warning" fontSize="small" />;
         }
         return value ? (
-            <CheckCircleIcon color="success" sx={{ fontSize: 18 }} />
+            <CheckCircleIcon color="success" fontSize="small" />
         ) : (
-            <ErrorOutlineIcon color="error" sx={{ fontSize: 18 }} />
+            <ErrorOutlineIcon color="error" fontSize="small" />
         );
     };
 
@@ -110,13 +109,15 @@ const DocThreadEditor = ({
         <Stack spacing={2}>
             <Box
                 sx={{
-                    border: `1px solid ${theme.palette.divider}`,
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    borderColor: 'divider',
                     borderRadius: 1.5,
                     minHeight: 200,
                     bgcolor: 'background.paper',
                     transition: 'all 0.2s',
                     '&:focus-within': {
-                        borderColor: theme.palette.primary.main,
+                        borderColor: 'primary.main',
                         boxShadow: `0 0 0 1px ${theme.palette.primary.main}`
                     }
                 }}
@@ -153,11 +154,6 @@ const DocThreadEditor = ({
                         <Typography
                             color="text.secondary"
                             gutterBottom
-                            sx={{
-                                fontSize: '0.75rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: 0.5
-                            }}
                             variant="overline"
                         >
                             File Validation Results
@@ -228,21 +224,24 @@ const DocThreadEditor = ({
                                                                     color="primary"
                                                                     component="span"
                                                                     sx={{
-                                                                        ml: 0.5,
-                                                                        fontWeight: 500
+                                                                        ml: 0.5
                                                                     }}
                                                                 >
-                                                                    {
-                                                                        (
-                                                                            checkResult[
-                                                                                i
-                                                                            ] as Record<
-                                                                                string,
-                                                                                CheckResultItem
-                                                                            >
-                                                                        )[ky]
-                                                                            ?.metaData
-                                                                    }
+                                                                    <strong>
+                                                                        {
+                                                                            (
+                                                                                checkResult[
+                                                                                    i
+                                                                                ] as Record<
+                                                                                    string,
+                                                                                    CheckResultItem
+                                                                                >
+                                                                            )[
+                                                                                ky
+                                                                            ]
+                                                                                ?.metaData
+                                                                        }
+                                                                    </strong>
                                                                 </Typography>
                                                             )}
                                                         </Typography>
@@ -260,13 +259,13 @@ const DocThreadEditor = ({
                 <Box
                     sx={{
                         position: 'relative',
-                        border: `2px dashed ${theme.palette.divider}`,
+                        borderWidth: 2,
+                        borderStyle: 'dashed',
+                        borderColor: 'divider',
                         borderRadius: 1.5,
                         p: 2,
                         textAlign: 'center',
-                        bgcolor: isDarkMode
-                            ? 'rgba(255,255,255,0.05)'
-                            : 'grey.50',
+                        bgcolor: 'action.hover',
                         transition: 'all 0.2s',
                         ...(readOnly
                             ? {
@@ -275,10 +274,8 @@ const DocThreadEditor = ({
                               }
                             : {
                                   '&:hover': {
-                                      borderColor: theme.palette.primary.main,
-                                      bgcolor: isDarkMode
-                                          ? 'rgba(144, 202, 249, 0.08)'
-                                          : 'primary.lighter',
+                                      borderColor: 'primary.main',
+                                      bgcolor: 'action.selected',
                                       borderStyle: 'solid'
                                   }
                               })
@@ -313,10 +310,7 @@ const DocThreadEditor = ({
                                 width: '100%'
                             }}
                         >
-                            <AttachFileIcon
-                                color="action"
-                                sx={{ fontSize: 32 }}
-                            />
+                            <AttachFileIcon color="action" fontSize="large" />
                             <Typography color="text.secondary" variant="body2">
                                 Click to attach files
                             </Typography>
