@@ -256,17 +256,17 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 
 | # | Target folder | R1 | R2 | R3 | R4 | R5 | R6 | a11y | Done | PR/commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `ApplicationLockControl/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 1 | `ApplicationLockControl/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 2 | `ApplicationProgressCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
-| 3 | `AuthProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 3 | `AuthProvider/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 4 | `AuthWrapper/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 5 | `Banner/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
-| 6 | `BreadcrumbsNavigation/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 6 | `BreadcrumbsNavigation/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 7 | `Buttons/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 8 | `Calendar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 9 | `Charts/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 9 | `Charts/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: dy: '10px' is an SVG tick-label offset inside MUI X-Charts sx — not a spacing violation |
 | 10 | `ChatList/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 11 | `ConfirmDialog/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 11 | `ConfirmDialog/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 12 | `DateComponent/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 13 | `EditorJs/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 14 | `ExtendableTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
@@ -275,13 +275,13 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 17 | `GaugeCard/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 18 | `Input/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 19 | `Loading/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 20 | `MaterialReactTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 20 | `MaterialReactTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 21 | `Message/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 22 | `Modal/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 23 | `MuiDataGrid/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 24 | `NavBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 25 | `Offcanvas/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 26 | `Overlay/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 25 | `Offcanvas/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
+| 26 | `Overlay/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 27 | `PDFViewer/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 28 | `ProgramRequirementsTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 29 | `StudentOverviewTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
