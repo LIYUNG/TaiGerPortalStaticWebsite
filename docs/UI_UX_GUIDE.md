@@ -90,7 +90,7 @@ Concrete before → after:
 
 - [src/index.css:128](../src/index.css#L128): `.white-line { margin: 20px 0 }` — either delete the class if unused, or move the element into a styled component using `sx={{ my: 2.5 }}`.
 
-**Exception — CSS values that are natively pixel-based:** `boxShadow`, `outline`, and `textShadow` may contain `px` literals because CSS itself uses px units in their grammar (e.g., `` `0 0 0 1px ${theme.palette.primary.main}` `` for a focus ring). Borders must still split into `borderWidth` / `borderStyle` / `borderColor`.
+**Exception — CSS values that are natively pixel-based:** `boxShadow`, `outline`, `textShadow`, and `transform` (e.g., `translateY(-2px)`) may contain `px` literals because CSS itself uses px units in their grammar (e.g., `` `0 0 0 1px ${theme.palette.primary.main}` `` for a focus ring). Borders must still split into `borderWidth` / `borderStyle` / `borderColor`.
 
 ### R3. Typography — variants only, extend the theme if needed
 
@@ -113,6 +113,8 @@ Concrete before → after:
 - [src/components/Message/DocThreadEditor.tsx:157](../src/components/Message/DocThreadEditor.tsx#L157): `sx={{ fontSize: '0.75rem', letterSpacing: 0.5 }}` → use `variant="overline"` (which is already a themed variant with correct size & letter-spacing) and drop the `sx` overrides. If a new variant is genuinely needed, add it to `themeLight.ts` / `themeDark.ts` under `typography.{variantName}` first.
 
 **Exception — MUI icons:** `*Icon` components from `@mui/icons-material` render as font glyphs and use `font-size` as their sizing API. Prefer the `fontSize="small|medium|large"` prop (20/24/35px). Only use `sx={{ fontSize: N }}` when the design requires a custom size that doesn't fit the presets.
+
+**Exception — chart internals:** styling chart-library internal text nodes via CSS class selectors (e.g., ``sx={{ [`& .${gaugeClasses.valueText}`]: { fontSize: 30, fontWeight: 'bold' } }}`` on an MUI X-Charts Gauge) may use raw `fontSize`/`fontWeight` because those nodes are SVG text, not MUI Typography, and the chart library does not expose them as themed variants.
 
 ### R4. Dark-mode parity — no mode branching in components
 
@@ -272,13 +274,13 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 14 | `ExtendableTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 15 | `FilePreview/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 16 | `Footer/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 17 | `GaugeCard/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 17 | `GaugeCard/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 18 | `Input/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 19 | `Loading/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 19 | `Loading/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 20 | `MaterialReactTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 21 | `Message/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 22 | `Modal/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 23 | `MuiDataGrid/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 23 | `MuiDataGrid/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 24 | `NavBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 25 | `Offcanvas/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
 | 26 | `Overlay/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | audit: no violations |
@@ -286,9 +288,9 @@ Tick each cell when the rule is verified for the folder, and tick **Done** when 
 | 28 | `ProgramRequirementsTable/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
 | 29 | `StudentOverviewTable/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 30 | `SurveyProvider/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 31 | `Tabs/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 31 | `Tabs/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 | 32 | `TopBar/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
-| 33 | `table/` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | — |
+| 33 | `table/` | [x] | [x] | [x] | [x] | [x] | [x] | [x] | [x] | refactor/ui-ux-application-progress-card |
 
 ### Pages (`src/pages/`)
 

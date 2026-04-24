@@ -69,7 +69,7 @@ export const GenericTopToolbar = ({
                     table={table as MRT_TableInstance<Record<string, unknown>>}
                 />
                 <MRTToggleFiltersButton
-                    sx={{ height: '40px' }}
+                    sx={{ height: 40 }}
                     table={table as MRT_TableInstance<Record<string, unknown>>}
                 />
                 {filterExtras}
