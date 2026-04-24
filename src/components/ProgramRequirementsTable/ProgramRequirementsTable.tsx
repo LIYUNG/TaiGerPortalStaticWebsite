@@ -204,11 +204,8 @@ export const ProgramRequirementsTable = ({
                 direction={isMobile ? 'column' : 'row'}
                 spacing={2}
                 sx={{
-                    p: '16px',
-                    backgroundColor: lighten(
-                        theme.palette.background.default,
-                        0.05
-                    )
+                    p: 2,
+                    bgcolor: lighten(theme.palette.background.default, 0.05)
                 }}
             >
                 <Box sx={{ flex: 1 }}>

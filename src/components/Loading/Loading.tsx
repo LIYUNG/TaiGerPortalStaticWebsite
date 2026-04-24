@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import i18next from 'i18next';
 
 interface LoadingProps {
@@ -33,8 +34,9 @@ export default function Loading({
                           justifyContent: 'center',
                           width: '100%',
                           height: '100%',
-                          minHeight: '100px',
-                          backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                          minHeight: 100,
+                          bgcolor: (theme) =>
+                              alpha(theme.palette.common.black, 0.05),
                           borderRadius: 2
                       }
                     : {
@@ -47,17 +49,18 @@ export default function Loading({
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          bgcolor: (theme) =>
+                              alpha(theme.palette.common.black, 0.5),
                           zIndex: -1
                       }
             }
         >
             <CircularProgress />
-            <Typography color="white" mt={2} variant="h6">
+            <Typography mt={2} sx={{ color: 'common.white' }} variant="h6">
                 {i18next.t('loading', { ns: 'common' })}
             </Typography>
             {showExtraMessage ? (
-                <Typography color="white" variant="body2">
+                <Typography sx={{ color: 'common.white' }} variant="body2">
                     {i18next.t('almost-done', { ns: 'common' })}
                 </Typography>
             ) : null}

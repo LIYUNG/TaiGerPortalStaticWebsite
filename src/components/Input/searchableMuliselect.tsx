@@ -99,8 +99,8 @@ const SearchableMultiSelect = ({
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                padding: '8px',
-                                gap: '16px'
+                                padding: 8,
+                                gap: 16
                             }}
                         >
                             {dataRecord?.label != null ? (

@@ -26,7 +26,13 @@ const EnglishCertificateExpiredBeforeDeadlineBanner = ({
     return (
         isEnglishCertificateExpiredBeforeDeadline(studentTyped) && (
             <Grid item md={12} xs={12}>
-                <Card sx={{ border: '4px solid red' }}>
+                <Card
+                    sx={{
+                        borderWidth: 4,
+                        borderStyle: 'solid',
+                        borderColor: 'error.main'
+                    }}
+                >
                     <Alert severity="warning">
                         {i18next.t(
                             'english-certificate-expired-before-application-deadlines',

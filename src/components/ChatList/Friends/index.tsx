@@ -27,9 +27,8 @@ const Friends = ({
             <Typography
                 sx={{
                     ...(embedded ? {} : { width: menuWidth }),
-                    marginLeft: '10px',
-                    marginTop: '10px',
-                    marginBottom: '10px',
+                    ml: 1.25,
+                    my: 1.25,
                     textAlign: 'center'
                 }}
             >

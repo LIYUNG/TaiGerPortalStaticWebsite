@@ -10,7 +10,6 @@ import {
     FILE_OK_SYMBOL,
     convertDateUXFriendly
 } from '@utils/contants';
-import { red } from '@mui/material/colors';
 import type { Application } from '@/api/types';
 import type {
     IStudentResponse,
@@ -113,7 +112,7 @@ export default function ApplicationProgressCardBody(
                                     <IconButton>
                                         <WarningIcon
                                             fontSize="small"
-                                            sx={{ color: red[700] }}
+                                            sx={{ color: 'error.main' }}
                                         />
                                     </IconButton>{' '}
                                     English

@@ -32,12 +32,9 @@ export const CustomTabPanel = ({
     );
 };
 
-export const a11yProps = (value: number, index: number) => {
+export const a11yProps = (_value: number, index: number) => {
     return {
         id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-        sx: {
-            fontWeight: value === index ? 'bold' : 'normal'
-        }
+        'aria-controls': `simple-tabpanel-${index}`
     };
 };

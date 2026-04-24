@@ -75,16 +75,11 @@ interface ApplicationProgressCardProps {
     student: Record<string, unknown>;
 }
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+const BorderLinearProgress = styled(LinearProgress)(() => ({
     height: 10,
     borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor:
-            theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800]
-    },
     [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8'
+        borderRadius: 5
     }
 }));
 
@@ -101,16 +96,12 @@ const ProgramLink = ({ program }: ProgramLinkProps) => {
             <Link
                 component={LinkDom}
                 onClick={(e) => e.stopPropagation()}
-                sx={{
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center'
-                }}
+                sx={{ display: 'flex', alignItems: 'center' }}
                 target="_blank"
                 to={DEMO.SINGLE_PROGRAM_LINK(program._id?.toString() ?? '')}
                 underline="hover"
             >
-                {program.school}
+                <strong>{program.school}</strong>
                 <IconButton>
                     <LaunchIcon fontSize="small" />
                 </IconButton>
@@ -517,12 +508,12 @@ export default function ApplicationProgressCard(
                     ) : null}
                     <Typography
                         component="div"
-                        style={{ display: 'flex', alignItems: 'center' }}
+                        sx={{ display: 'flex', alignItems: 'center' }}
                         variant="body1"
                     >
                         <BorderLinearProgress
                             className="custom-progress-bar-container"
-                            style={{ flex: 1, marginRight: '10px' }}
+                            sx={{ flex: 1, mr: 1.25 }}
                             value={
                                 isProgramSubmitted(application)
                                     ? 100
@@ -609,7 +600,7 @@ export default function ApplicationProgressCard(
                         )}
                     </Typography>
                     {returnedMessage !== '' ? (
-                        <Typography style={{ color: 'red' }} sx={{ mb: 2 }}>
+                        <Typography color="error" sx={{ mb: 2 }}>
                             {returnedMessage}
                         </Typography>
                     ) : null}

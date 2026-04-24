@@ -146,7 +146,7 @@ export function MuiDataGrid<T extends Record<string, unknown>>(
         },
         muiTableContainerProps: {
             sx: {
-                maxHeight: useAutoHeight ? undefined : '600px'
+                maxHeight: useAutoHeight ? undefined : 600
             }
         },
         renderTopToolbarCustomActions: !simple
@@ -185,7 +185,7 @@ export function MuiDataGrid<T extends Record<string, unknown>>(
         <Box
             sx={{
                 width: '100%',
-                ...(useAutoHeight ? {} : { height: '600px' })
+                ...(useAutoHeight ? {} : { height: 600 })
             }}
         >
             <MaterialReactTable table={table} />

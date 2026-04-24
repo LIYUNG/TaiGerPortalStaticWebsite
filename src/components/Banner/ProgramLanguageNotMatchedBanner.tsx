@@ -21,7 +21,13 @@ const ProgramLanguageNotMatchedBanner = ({
     student
 }: ProgramLanguageNotMatchedBannerProps) => {
     return isLanguageNotMatchedInAnyProgram(student) ? (
-        <Card sx={{ border: '4px solid red' }}>
+        <Card
+            sx={{
+                borderWidth: 4,
+                borderStyle: 'solid',
+                borderColor: 'error.main'
+            }}
+        >
             <Alert severity="warning">
                 {i18next.t(
                     'Programs below require the language that does not match to your background if your survey.',

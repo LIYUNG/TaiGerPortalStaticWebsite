@@ -15,11 +15,10 @@ export default function ModalNew(props: ModalNewProps): JSX.Element {
             aria-labelledby="contained-modal-title-vcenter"
             onClose={props.onClose}
             open={props.open}
-            style={{
+            sx={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '5px'
+                justifyContent: 'center'
             }}
         >
             <Box

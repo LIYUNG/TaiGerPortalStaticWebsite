@@ -65,7 +65,7 @@ const PDFViewer = (apiFilePath: string, path: string): ReactElement => {
                     <Box
                         onScroll={handleScroll}
                         ref={containerRef}
-                        style={{ height: '60vh', overflow: 'auto' }}
+                        sx={{ height: '60vh', overflow: 'auto' }}
                     >
                         <Document
                             file={pdfData as File | undefined}
