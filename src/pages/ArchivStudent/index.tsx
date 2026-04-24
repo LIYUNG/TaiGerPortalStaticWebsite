@@ -70,7 +70,7 @@ const ArchivStudents = () => {
     >({
         mutationFn: ({ studentId, isArchived, shouldInform }) =>
             updateArchivStudents(studentId, isArchived, shouldInform),
-        onSuccess: (resp, _variables) => {
+        onSuccess: (resp) => {
             const success = resp.data?.success;
             const status = resp.status ?? 0;
             if (success) {
