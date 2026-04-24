@@ -42,8 +42,11 @@ import {
 } from '.';
 import type { QueryString } from './types';
 import type { StudentId, UserId } from '@taiger-common/model';
+import { GetMessagesThreadResponse } from '@taiger-common/model';
 
-export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
+export const getMessagThreadQuery = (
+    threadId: string
+): UseQueryOptions<GetMessagesThreadResponse> => ({
     queryKey: ['MessageThread', threadId],
     queryFn: async () => {
         try {

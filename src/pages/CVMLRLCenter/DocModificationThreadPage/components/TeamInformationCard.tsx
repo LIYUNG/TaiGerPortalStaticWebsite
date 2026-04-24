@@ -111,8 +111,8 @@ const TeamInformationCard = ({
                                                     }}
                                                 >
                                                     {getInitials(
-                                                        agent.firstname,
-                                                        agent.lastname
+                                                        agent.firstname || '',
+                                                        agent.lastname || ''
                                                     )}
                                                 </Avatar>
                                             }
@@ -151,8 +151,8 @@ const TeamInformationCard = ({
                                                     }}
                                                 >
                                                     {getInitials(
-                                                        agent.firstname,
-                                                        agent.lastname
+                                                        agent.firstname || '',
+                                                        agent.lastname || ''
                                                     )}
                                                 </Avatar>
                                             }
@@ -233,8 +233,10 @@ const TeamInformationCard = ({
                                                             }}
                                                         >
                                                             {getInitials(
-                                                                outsourcer.firstname,
-                                                                outsourcer.lastname
+                                                                outsourcer.firstname ||
+                                                                    '',
+                                                                outsourcer.lastname ||
+                                                                    ''
                                                             )}
                                                         </Avatar>
                                                     }
@@ -281,8 +283,10 @@ const TeamInformationCard = ({
                                                             }}
                                                         >
                                                             {getInitials(
-                                                                outsourcer.firstname,
-                                                                outsourcer.lastname
+                                                                outsourcer.firstname ||
+                                                                    '',
+                                                                outsourcer.lastname ||
+                                                                    ''
                                                             )}
                                                         </Avatar>
                                                     }
@@ -347,8 +351,8 @@ const TeamInformationCard = ({
                                                     }}
                                                 >
                                                     {getInitials(
-                                                        editor.firstname,
-                                                        editor.lastname
+                                                        editor.firstname || '',
+                                                        editor.lastname || ''
                                                     )}
                                                 </Avatar>
                                             }
@@ -387,8 +391,8 @@ const TeamInformationCard = ({
                                                     }}
                                                 >
                                                     {getInitials(
-                                                        editor.firstname,
-                                                        editor.lastname
+                                                        editor.firstname || '',
+                                                        editor.lastname || ''
                                                     )}
                                                 </Avatar>
                                             }
