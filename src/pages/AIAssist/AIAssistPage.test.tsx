@@ -11,6 +11,8 @@ const apiMocks = vi.hoisted(() => ({
     getAIAssistRecentStudents: vi.fn(),
     postAIAssistFirstMessage: vi.fn(),
     postAIAssistMessage: vi.fn(),
+    streamAIAssistFirstMessage: vi.fn(),
+    streamAIAssistMessage: vi.fn(),
     searchAIAssistStudents: vi.fn(),
     updateAIAssistConversation: vi.fn()
 }));
@@ -202,6 +204,14 @@ describe('AIAssistPage', () => {
                 ]
             }
         });
+        apiMocks.streamAIAssistFirstMessage.mockImplementation(
+            async (payload: unknown) =>
+                apiMocks.postAIAssistFirstMessage(payload)
+        );
+        apiMocks.streamAIAssistMessage.mockImplementation(
+            async (conversationId: string, payload: unknown) =>
+                apiMocks.postAIAssistMessage(conversationId, payload)
+        );
         apiMocks.deleteAIAssistConversation.mockResolvedValue({
             success: true,
             data: {
@@ -320,7 +330,7 @@ describe('AIAssistPage', () => {
         expect(screen.getAllByText('Abby Student').length).toBeGreaterThan(0);
     });
 
-    it('prefills a starter action after selecting a student without auto-sending', async () => {
+    it('selects quick skill without prefilling any starter prompt text', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({
             success: true,
@@ -357,7 +367,7 @@ describe('AIAssistPage', () => {
                         ) as HTMLTextAreaElement
                     ).value
             )
-        ).toContain('identify the main risks');
+        ).toBe('');
         expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
     });
 
@@ -418,11 +428,15 @@ describe('AIAssistPage', () => {
         await user.click(
             screen.getByRole('button', { name: 'Find application risks' })
         );
+        await user.type(
+            screen.getByLabelText('Ask TaiGer AI'),
+            'check risk now'
+        );
         await user.click(screen.getByRole('button', { name: 'Ask' }));
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: expect.stringContaining('identify the main risks'),
+                message: 'check risk now',
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',
@@ -595,11 +609,15 @@ describe('AIAssistPage', () => {
         await user.click(
             screen.getByRole('button', { name: 'Find application risks' })
         );
+        await user.type(
+            screen.getByLabelText('Ask TaiGer AI'),
+            'risk follow-up'
+        );
         await user.click(screen.getByRole('button', { name: 'Ask' }));
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: expect.stringContaining('identify the main risks'),
+                message: 'risk follow-up',
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',

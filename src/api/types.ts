@@ -344,6 +344,29 @@ export interface PostAIAssistFirstMessageResponse {
     };
 }
 
+export interface AIAssistStreamProgressEvent {
+    timestamp?: string;
+    type: 'status' | 'thinking' | 'tool_start' | 'tool_done';
+    phase?: string;
+    message?: string;
+    mode?: string;
+    intent?: string;
+    resolutionStatus?: string;
+    round?: number;
+    toolName?: string;
+    arguments?: unknown;
+    status?: string;
+    durationMs?: number;
+    errorMessage?: string;
+    traceCount?: number;
+}
+
+export interface AIAssistStreamCallbacks<TFinal> {
+    onProgress?: (event: AIAssistStreamProgressEvent) => void;
+    onFinal?: (payload: TFinal) => void;
+    onError?: (message: string) => void;
+}
+
 export interface DeleteAIAssistConversationResponse {
     success: boolean;
     data: AIAssistConversation;

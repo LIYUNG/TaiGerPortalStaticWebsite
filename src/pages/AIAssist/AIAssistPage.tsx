@@ -31,8 +31,8 @@ import {
     getAIAssistConversations,
     getAIAssistMyStudents,
     getAIAssistRecentStudents,
-    postAIAssistFirstMessage,
-    postAIAssistMessage,
+    streamAIAssistFirstMessage,
+    streamAIAssistMessage,
     searchAIAssistStudents,
     updateAIAssistConversation
 } from '@/api';
@@ -43,6 +43,7 @@ import type {
     AIAssistMentionedStudent,
     AIAssistPickerStudent,
     AIAssistQuickSkill,
+    AIAssistStreamProgressEvent,
     AIAssistSkillTrace,
     AIAssistToolCall
 } from '@/api/types';
@@ -63,41 +64,24 @@ interface ComposerState {
 interface QuickSkillOption {
     id: AIAssistQuickSkill;
     labelKey: string;
-    buildPrompt: (student: AIAssistMentionedStudent | null) => string;
 }
 
 const quickSkills: QuickSkillOption[] = [
     {
         id: 'summarize_student',
-        labelKey: 'aiAssist.quickSkill.summarizeStudent',
-        buildPrompt: (student) =>
-            student
-                ? `Summarize ${student.displayName}'s current situation, including active applications, recent progress, and the next actions that need attention.`
-                : 'Summarize this student, including active applications, recent progress, and the next actions that need attention.'
+        labelKey: 'aiAssist.quickSkill.summarizeStudent'
     },
     {
         id: 'identify_risk',
-        labelKey: 'aiAssist.quickSkill.identifyRisk',
-        buildPrompt: (student) =>
-            student
-                ? `Please identify the main risks in ${student.displayName}'s applications and explain what needs attention next.`
-                : 'Please identify the main risks in this application set and explain what needs attention next.'
+        labelKey: 'aiAssist.quickSkill.identifyRisk'
     },
     {
         id: 'review_messages',
-        labelKey: 'aiAssist.quickSkill.reviewMessages',
-        buildPrompt: (student) =>
-            student
-                ? `Review ${student.displayName}'s latest messages and point out anything that needs a reply or follow-up.`
-                : 'Review the latest messages and point out anything that needs a reply or follow-up.'
+        labelKey: 'aiAssist.quickSkill.reviewMessages'
     },
     {
         id: 'review_open_tasks',
-        labelKey: 'aiAssist.quickSkill.reviewOpenTasks',
-        buildPrompt: (student) =>
-            student
-                ? `Review ${student.displayName}'s open tasks and flag the items that need the most immediate attention.`
-                : 'Review the open tasks and flag the items that need the most immediate attention.'
+        labelKey: 'aiAssist.quickSkill.reviewOpenTasks'
     }
 ];
 
@@ -357,6 +341,20 @@ const summarizeToolValue = (value: unknown): string | null => {
     return null;
 };
 
+const resolveCurrentProgressStatus = (
+    event: AIAssistStreamProgressEvent
+): string | null => {
+    if (event.type === 'thinking') {
+        return 'Thinking...';
+    }
+
+    if (event.type === 'tool_start') {
+        return `Calling ${getToolDisplayName(event.toolName || 'tool')}...`;
+    }
+
+    return null;
+};
+
 const ToolTraceCard = ({
     toolCall
 }: {
@@ -506,6 +504,9 @@ const AIAssistPage = (): JSX.Element => {
     const [isLoadingConversation, setIsLoadingConversation] = useState(false);
     const [isLoadingStudentPicker, setIsLoadingStudentPicker] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [currentStreamStatus, setCurrentStreamStatus] = useState<
+        string | null
+    >(null);
     const [isRenaming, setIsRenaming] = useState(false);
     const [deletingConversationId, setDeletingConversationId] = useState<
         string | null
@@ -959,11 +960,6 @@ const AIAssistPage = (): JSX.Element => {
         setSelectedQuickSkill((previous) =>
             previous === quickSkill.id ? null : quickSkill.id
         );
-        setInput((previous) =>
-            previous.trim()
-                ? previous
-                : quickSkill.buildPrompt(mentionedStudent)
-        );
     };
 
     const handleMentionSuggestionClick = (
@@ -1029,16 +1025,38 @@ const AIAssistPage = (): JSX.Element => {
 
         setIsSending(true);
         setError(null);
+        setCurrentStreamStatus(null);
 
         try {
             const assistContext = buildAssistContext();
+            const onProgress = (event: AIAssistStreamProgressEvent): void => {
+                const status = resolveCurrentProgressStatus(event);
+                if (status) {
+                    setCurrentStreamStatus(status);
+                }
+            };
+            const onError = (message: string): void => {
+                setError(message);
+                setCurrentStreamStatus(null);
+            };
 
             if (!conversationId) {
-                const response = await postAIAssistFirstMessage({
-                    message: trimmedInput,
-                    preferredLanguage,
-                    ...(assistContext ? { assistContext } : {})
-                });
+                const response = await streamAIAssistFirstMessage(
+                    {
+                        message: trimmedInput,
+                        preferredLanguage,
+                        ...(assistContext ? { assistContext } : {})
+                    },
+                    {
+                        onProgress,
+                        onError
+                    }
+                );
+                if (!response?.data) {
+                    throw new Error(
+                        'AI Assist did not return a streamed response'
+                    );
+                }
                 const {
                     conversation,
                     userMessage,
@@ -1056,14 +1074,25 @@ const AIAssistPage = (): JSX.Element => {
                 ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
+                setCurrentStreamStatus(null);
                 return;
             }
 
-            const response = await postAIAssistMessage(conversationId, {
-                message: trimmedInput,
-                preferredLanguage,
-                ...(assistContext ? { assistContext } : {})
-            });
+            const response = await streamAIAssistMessage(
+                conversationId,
+                {
+                    message: trimmedInput,
+                    preferredLanguage,
+                    ...(assistContext ? { assistContext } : {})
+                },
+                {
+                    onProgress,
+                    onError
+                }
+            );
+            if (!response?.data) {
+                throw new Error('AI Assist did not return a streamed response');
+            }
             const {
                 userMessage,
                 assistantMessage,
@@ -1079,14 +1108,17 @@ const AIAssistPage = (): JSX.Element => {
             setTrace((previous) => mergeTrace(previous, responseTrace || []));
             setInput(defaultInput);
             touchConversation(conversationId);
+            setCurrentStreamStatus(null);
         } catch (err) {
             setError(
                 err instanceof Error
                     ? err.message
                     : 'Failed to send AI Assist message'
             );
+            setCurrentStreamStatus(null);
         } finally {
             setIsSending(false);
+            setCurrentStreamStatus(null);
         }
     };
 
@@ -1823,6 +1855,19 @@ const AIAssistPage = (): JSX.Element => {
                                         value={input}
                                     />
                                     {renderComposerSuggestions()}
+                                    {isSending && currentStreamStatus ? (
+                                        <Paper
+                                            sx={{ p: 1, bgcolor: 'grey.50' }}
+                                            variant="outlined"
+                                        >
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="caption"
+                                            >
+                                                {currentStreamStatus}
+                                            </Typography>
+                                        </Paper>
+                                    ) : null}
                                     <Stack
                                         direction="row"
                                         justifyContent="flex-end"
