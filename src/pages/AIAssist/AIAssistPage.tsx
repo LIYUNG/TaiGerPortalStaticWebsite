@@ -24,6 +24,8 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import {
     deleteAIAssistConversation,
@@ -354,6 +356,52 @@ const resolveCurrentProgressStatus = (
 
     return null;
 };
+
+const MessageMarkdown = ({ content }: { content: string }): JSX.Element => (
+    <Box
+        sx={{
+            '& p': { m: 0 },
+            '& p + p': { mt: 1 },
+            '& ul, & ol': { my: 0.75, pl: 3 },
+            '& li + li': { mt: 0.25 },
+            '& blockquote': {
+                borderColor: 'divider',
+                borderLeft: 3,
+                m: 0,
+                pl: 1.5
+            },
+            '& table': {
+                borderCollapse: 'collapse',
+                mt: 1,
+                width: '100%'
+            },
+            '& th, & td': {
+                border: '1px solid',
+                borderColor: 'divider',
+                p: 0.75
+            },
+            '& code': {
+                bgcolor: 'action.hover',
+                borderRadius: 0.5,
+                px: 0.5,
+                py: 0.25
+            },
+            '& pre': {
+                bgcolor: 'action.hover',
+                borderRadius: 1,
+                m: 0,
+                mt: 1,
+                overflowX: 'auto',
+                p: 1
+            },
+            wordBreak: 'break-word'
+        }}
+    >
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {content || ''}
+        </ReactMarkdown>
+    </Box>
+);
 
 const ToolTraceCard = ({
     toolCall
@@ -1759,15 +1807,12 @@ const AIAssistPage = (): JSX.Element => {
                                                             ? 'Assistant'
                                                             : 'You'}
                                                     </Typography>
-                                                    <Typography
-                                                        sx={{
-                                                            whiteSpace:
-                                                                'pre-wrap'
-                                                        }}
-                                                        variant="body2"
-                                                    >
-                                                        {message.content}
-                                                    </Typography>
+                                                    <MessageMarkdown
+                                                        content={
+                                                            message.content ||
+                                                            ''
+                                                        }
+                                                    />
                                                     {message.role ===
                                                         'assistant' &&
                                                     message.skillTrace ? (
