@@ -273,5 +273,42 @@
     "updated at": "更新于",
     "your-acquired-ects": "您對應到的ECTS学分",
     "名 (中文)": "名 (中文)",
-    "姓 (中文)": "姓 (中文)"
+    "姓 (中文)": "姓 (中文)",
+    "aiAssist": {
+        "ask": "发送",
+        "askLabel": "询问 TaiGer AI",
+        "blankChat": "空白对话",
+        "blankChatHelp": "先在本地起草第一条消息，准备好后再发送。",
+        "changeStudent": "更换学生",
+        "chooseStudent": "选择学生",
+        "chooseStudentHelp": "从最近使用的学生，或你当前负责的学生开始。",
+        "conversations": "对话",
+        "loadingConversation": "正在加载对话...",
+        "loadingConversations": "正在加载对话列表...",
+        "loadingStudents": "正在加载学生...",
+        "myStudents": "我的学生",
+        "newConversation": "新建对话",
+        "noConversations": "还没有对话。",
+        "noStudentsAvailable": "暂无可用学生。",
+        "quickSkill": {
+            "identifyRisk": "找出申请风险",
+            "reviewMessages": "检查最新消息",
+            "reviewOpenTasks": "检查待办事项",
+            "summarizeStudent": "总结学生情况"
+        },
+        "recentStudents": "最近学生",
+        "searchingStudents": "正在搜索学生...",
+        "skillSuggestions": "技能建议",
+        "skillUsed": "使用技能：",
+        "startWithQuestion": "从一个问题开始",
+        "startWithQuestionHelp": "发送第一条消息前，可以先写空白草稿，或先选择学生。",
+        "startWithStudent": "从 {{studentName}} 开始",
+        "startWithStudentHelp": "选择一个快捷动作，或先编辑消息再发送。",
+        "studentSuggestions": "学生建议",
+        "studentUsed": "学生：",
+        "toolTrace": "工具轨迹",
+        "toolTraceEmpty": "AI 回复后，工具调用会显示在这里。",
+        "toolsUsed": "使用工具",
+        "unknownSkillAutoMode": "未知技能，改用自动模式"
+    }
 }
