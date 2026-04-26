@@ -310,6 +310,7 @@ export interface UpdateAIAssistConversationResponse {
 export interface PostAIAssistMessagePayload {
     message: string;
     assistContext?: AIAssistAssistContext;
+    preferredLanguage?: string;
 }
 
 export interface PostAIAssistMessageResponse {
@@ -326,9 +327,8 @@ export interface PostAIAssistMessageResponse {
 
 export interface PostAIAssistFirstMessagePayload {
     message: string;
-    studentId?: string;
-    studentDisplayName?: string;
     assistContext?: AIAssistAssistContext;
+    preferredLanguage?: string;
 }
 
 export interface PostAIAssistFirstMessageResponse {

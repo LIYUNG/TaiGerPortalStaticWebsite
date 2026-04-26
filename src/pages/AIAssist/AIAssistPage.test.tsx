@@ -385,12 +385,13 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: 'line 1\nline 2'
+                message: 'line 1\nline 2',
+                preferredLanguage: 'en'
             });
         });
     });
 
-    it('binds the selected student when sending the first draft message', async () => {
+    it('sends the selected student as message context', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({
             success: true,
@@ -422,15 +423,14 @@ describe('AIAssistPage', () => {
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
                 message: expect.stringContaining('identify the main risks'),
-                studentId: 'student_abby',
-                studentDisplayName: 'Abby Student',
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',
                         displayName: 'Abby Student'
                     },
                     requestedSkill: 'identify_risk'
-                }
+                },
+                preferredLanguage: 'en'
             });
         });
         expect(apiMocks.postAIAssistMessage).not.toHaveBeenCalled();
@@ -463,7 +463,8 @@ describe('AIAssistPage', () => {
                             displayName: 'Abby Student'
                         },
                         requestedSkill: 'review_open_tasks'
-                    }
+                    },
+                    preferredLanguage: 'en'
                 }
             );
         });
@@ -515,7 +516,8 @@ describe('AIAssistPage', () => {
                         id: 'student_abby',
                         displayName: 'Abby Student'
                     }
-                }
+                },
+                preferredLanguage: 'en'
             });
         });
     });
@@ -560,7 +562,52 @@ describe('AIAssistPage', () => {
                 ),
                 assistContext: {
                     requestedSkill: 'identify_risk'
-                }
+                },
+                preferredLanguage: 'en'
+            });
+        });
+    });
+
+    it('does not bind a selected student to the conversation payload', async () => {
+        const user = userEvent.setup();
+        apiMocks.getAIAssistConversations.mockResolvedValue({
+            success: true,
+            data: []
+        });
+
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: 'Choose student' })
+            ).toBeTruthy();
+        });
+        await user.click(
+            screen.getByRole('button', { name: 'Choose student' })
+        );
+
+        const recentSection = await screen.findByTestId(
+            'ai-assist-student-section-recent'
+        );
+        await user.click(
+            within(recentSection).getByRole('button', { name: 'Abby Student' })
+        );
+        await user.click(
+            screen.getByRole('button', { name: 'Find application risks' })
+        );
+        await user.click(screen.getByRole('button', { name: 'Ask' }));
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
+                message: expect.stringContaining('identify the main risks'),
+                assistContext: {
+                    mentionedStudent: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    requestedSkill: 'identify_risk'
+                },
+                preferredLanguage: 'en'
             });
         });
     });
@@ -606,7 +653,8 @@ describe('AIAssistPage', () => {
                         id: 'student_ada',
                         displayName: 'Ada Lovelace'
                     }
-                }
+                },
+                preferredLanguage: 'en'
             });
         });
     });
@@ -636,7 +684,8 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: '@UnknownStudent review this'
+                message: '@UnknownStudent review this',
+                preferredLanguage: 'en'
             });
         });
     });
@@ -696,7 +745,8 @@ describe('AIAssistPage', () => {
         expect(input).toHaveValue('Need help');
     });
 
-    it('groups tool calls under the matching assistant message', async () => {
+    it('shows tool traces as readable collapsed summaries by default', async () => {
+        const user = userEvent.setup();
         render(<AIAssistPage />);
 
         await waitFor(() => {
@@ -704,9 +754,18 @@ describe('AIAssistPage', () => {
         });
 
         expect(screen.getByText('Tools used (1)')).toBeTruthy();
-        expect(
-            screen.getAllByText('search_accessible_students').length
-        ).toBeGreaterThan(0);
+        expect(screen.getAllByText('Search students').length).toBeGreaterThan(
+            0
+        );
+        expect(screen.queryByText(/"arguments"/)).toBeNull();
+
+        await user.click(
+            screen.getAllByRole('button', {
+                name: 'Show details for Search students'
+            })[0]
+        );
+
+        expect(screen.getByText(/"arguments"/)).toBeTruthy();
     });
 
     it('archives a conversation from the side rail and removes it from view', async () => {

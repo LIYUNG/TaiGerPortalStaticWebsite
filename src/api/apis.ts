@@ -474,9 +474,8 @@ export const postAIAssistFirstMessage = (
         '/api/ai-assist/conversations/first-message',
         {
             message: payload.message,
-            studentId: payload.studentId,
-            studentDisplayName: payload.studentDisplayName,
-            assistContext: payload.assistContext
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
         }
     );
 
@@ -510,7 +509,8 @@ export const postAIAssistMessage = (
         `/api/ai-assist/conversations/${conversationId}/messages`,
         {
             message: payload.message,
-            assistContext: payload.assistContext
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
         }
     );
 

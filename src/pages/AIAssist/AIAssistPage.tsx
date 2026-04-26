@@ -108,6 +108,7 @@ const defaultComposerState: ComposerState = {
     unknownSkillText: null
 };
 const skillTagPattern = /(^|\s)#([a-z_]+)/g;
+const minimumStudentSearchLength = 2;
 
 const skillAliases: Record<AIAssistQuickSkill, string[]> = {
     summarize_student: ['summarize', 'summary', 'student summary'],
@@ -317,47 +318,144 @@ const withResponseSkillTrace = (
     skillTrace: message.skillTrace ?? skillTrace ?? null
 });
 
-const renderToolTraceCard = (
-    toolCall: AIAssistToolCall,
-    key: string
-): JSX.Element => (
-    <Box
-        key={key}
-        sx={{
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            p: 1.5
-        }}
-    >
-        <Typography fontWeight={700} variant="body2">
-            {toolCall.toolName}
-        </Typography>
-        <Typography color="text.secondary" variant="caption">
-            {toolCall.status}
-            {toolCall.durationMs != null ? ` | ${toolCall.durationMs}ms` : ''}
-        </Typography>
-        <Typography
-            component="pre"
+const toolDisplayNames: Record<string, string> = {
+    search_accessible_students: 'Search students',
+    get_student_summary: 'Student summary',
+    get_student_applications: 'Applications',
+    get_latest_communications: 'Messages',
+    get_profile_documents: 'Profile documents',
+    get_support_tickets: 'Support tickets'
+};
+
+const getToolDisplayName = (toolName: string): string =>
+    toolDisplayNames[toolName] ||
+    toolName
+        .split('_')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+
+const summarizeToolValue = (value: unknown): string | null => {
+    if (!value || typeof value !== 'object') {
+        return null;
+    }
+
+    const record = value as Record<string, unknown>;
+
+    if (Array.isArray(record.data)) {
+        return `${record.data.length} result${record.data.length === 1 ? '' : 's'}`;
+    }
+
+    if (typeof record.query === 'string') {
+        return `Query: ${record.query}`;
+    }
+
+    if (typeof record.studentId === 'string') {
+        return `Student: ${record.studentId}`;
+    }
+
+    return null;
+};
+
+const ToolTraceCard = ({
+    toolCall
+}: {
+    toolCall: AIAssistToolCall;
+}): JSX.Element => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const displayName = getToolDisplayName(toolCall.toolName);
+    const argumentSummary = summarizeToolValue(toolCall.arguments);
+    const resultSummary = summarizeToolValue(toolCall.result);
+
+    return (
+        <Box
             sx={{
-                mt: 1,
-                mb: 0,
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                fontSize: '0.75rem'
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 1,
+                p: 1.25
             }}
         >
-            {formatJson({
-                arguments: toolCall.arguments,
-                result: toolCall.result,
-                error: toolCall.errorMessage
-            })}
-        </Typography>
-    </Box>
-);
+            <Stack alignItems="flex-start" spacing={0.75}>
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    justifyContent="space-between"
+                    spacing={1}
+                    sx={{ width: '100%' }}
+                >
+                    <Box>
+                        <Typography fontWeight={700} variant="body2">
+                            {displayName}
+                        </Typography>
+                        <Typography color="text.secondary" variant="caption">
+                            {toolCall.status}
+                            {toolCall.durationMs != null
+                                ? ` | ${toolCall.durationMs}ms`
+                                : ''}
+                        </Typography>
+                    </Box>
+                    <Button
+                        aria-label={`${isExpanded ? 'Hide' : 'Show'} details for ${displayName}`}
+                        onClick={() => {
+                            setIsExpanded((previous) => !previous);
+                        }}
+                        size="small"
+                        variant="text"
+                    >
+                        Details
+                    </Button>
+                </Stack>
+                {argumentSummary || resultSummary || toolCall.errorMessage ? (
+                    <Stack spacing={0.25}>
+                        {argumentSummary ? (
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                {argumentSummary}
+                            </Typography>
+                        ) : null}
+                        {resultSummary ? (
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                {resultSummary}
+                            </Typography>
+                        ) : null}
+                        {toolCall.errorMessage ? (
+                            <Typography color="error" variant="caption">
+                                {toolCall.errorMessage}
+                            </Typography>
+                        ) : null}
+                    </Stack>
+                ) : null}
+                {isExpanded ? (
+                    <Typography
+                        component="pre"
+                        sx={{
+                            mt: 0.5,
+                            mb: 0,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            fontSize: '0.75rem'
+                        }}
+                    >
+                        {formatJson({
+                            arguments: toolCall.arguments,
+                            result: toolCall.result,
+                            error: toolCall.errorMessage
+                        })}
+                    </Typography>
+                ) : null}
+            </Stack>
+        </Box>
+    );
+};
 
 const AIAssistPage = (): JSX.Element => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const translate = useCallback(
         (
             key: string,
@@ -417,6 +515,7 @@ const AIAssistPage = (): JSX.Element => {
     >(null);
     const [draftTitle, setDraftTitle] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const preferredLanguage = i18n.language || 'en';
 
     const syncCursorPosition = useCallback(
         (fallbackValue: string = input): void => {
@@ -935,16 +1034,10 @@ const AIAssistPage = (): JSX.Element => {
             const assistContext = buildAssistContext();
 
             if (!conversationId) {
-                const selectedStudent = draftConversation?.student ?? null;
                 const response = await postAIAssistFirstMessage({
                     message: trimmedInput,
-                    ...(assistContext ? { assistContext } : {}),
-                    ...(selectedStudent
-                        ? {
-                              studentId: selectedStudent.id,
-                              studentDisplayName: selectedStudent.name
-                          }
-                        : {})
+                    preferredLanguage,
+                    ...(assistContext ? { assistContext } : {})
                 });
                 const {
                     conversation,
@@ -968,6 +1061,7 @@ const AIAssistPage = (): JSX.Element => {
 
             const response = await postAIAssistMessage(conversationId, {
                 message: trimmedInput,
+                preferredLanguage,
                 ...(assistContext ? { assistContext } : {})
             });
             const {
@@ -1639,11 +1733,14 @@ const AIAssistPage = (): JSX.Element => {
                                                                 )
                                                             </Typography>
                                                             {assistantTrace.map(
-                                                                (toolCall) =>
-                                                                    renderToolTraceCard(
-                                                                        toolCall,
-                                                                        `${message.id}-${toolCall.id}`
-                                                                    )
+                                                                (toolCall) => (
+                                                                    <ToolTraceCard
+                                                                        key={`${message.id}-${toolCall.id}`}
+                                                                        toolCall={
+                                                                            toolCall
+                                                                        }
+                                                                    />
+                                                                )
                                                             )}
                                                         </Stack>
                                                     ) : null}
@@ -1978,12 +2075,12 @@ const AIAssistPage = (): JSX.Element => {
                                 </Typography>
                             ) : (
                                 <Stack spacing={1.5}>
-                                    {trace.map((toolCall) =>
-                                        renderToolTraceCard(
-                                            toolCall,
-                                            `side-rail-${toolCall.id}`
-                                        )
-                                    )}
+                                    {trace.map((toolCall) => (
+                                        <ToolTraceCard
+                                            key={`side-rail-${toolCall.id}`}
+                                            toolCall={toolCall}
+                                        />
+                                    ))}
                                 </Stack>
                             )}
                         </Paper>
