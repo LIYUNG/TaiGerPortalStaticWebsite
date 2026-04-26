@@ -473,6 +473,7 @@ const AIAssistPage = (): JSX.Element => {
     const composerInputRef = useRef<
         HTMLTextAreaElement | HTMLInputElement | null
     >(null);
+    const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [conversations, setConversations] = useState<AIAssistConversation[]>(
         []
     );
@@ -507,6 +508,7 @@ const AIAssistPage = (): JSX.Element => {
     const [currentStreamStatus, setCurrentStreamStatus] = useState<
         string | null
     >(null);
+    const [showGoToBottom, setShowGoToBottom] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [deletingConversationId, setDeletingConversationId] = useState<
         string | null
@@ -530,6 +532,36 @@ const AIAssistPage = (): JSX.Element => {
         },
         [input]
     );
+
+    const scrollTranscriptToBottom = useCallback((): void => {
+        const transcriptElement = transcriptRef.current;
+        if (!transcriptElement) {
+            return;
+        }
+
+        if (typeof transcriptElement.scrollTo === 'function') {
+            transcriptElement.scrollTo({
+                top: transcriptElement.scrollHeight,
+                behavior: 'auto'
+            });
+        } else {
+            transcriptElement.scrollTop = transcriptElement.scrollHeight;
+        }
+        setShowGoToBottom(false);
+    }, []);
+
+    const handleTranscriptScroll = useCallback((): void => {
+        const transcriptElement = transcriptRef.current;
+        if (!transcriptElement) {
+            return;
+        }
+
+        const distanceFromBottom =
+            transcriptElement.scrollHeight -
+            transcriptElement.scrollTop -
+            transcriptElement.clientHeight;
+        setShowGoToBottom(distanceFromBottom > 80);
+    }, []);
 
     const traceByAssistantMessageId = useMemo(
         () =>
@@ -799,6 +831,19 @@ const AIAssistPage = (): JSX.Element => {
 
         void loadConversations();
     }, [clearActiveWorkspace, loadConversation]);
+
+    useEffect(() => {
+        if (isLoadingConversation) {
+            return;
+        }
+
+        scrollTranscriptToBottom();
+    }, [
+        conversationId,
+        isLoadingConversation,
+        messages,
+        scrollTranscriptToBottom
+    ]);
 
     const addConversationToTop = (conversation: AIAssistConversation): void => {
         setConversations((previous) => [
@@ -1633,6 +1678,8 @@ const AIAssistPage = (): JSX.Element => {
                         >
                             <Box
                                 data-testid="ai-assist-transcript"
+                                onScroll={handleTranscriptScroll}
+                                ref={transcriptRef}
                                 sx={{
                                     flex: 1,
                                     minHeight: 0,
@@ -1779,6 +1826,30 @@ const AIAssistPage = (): JSX.Element => {
                                                 </Paper>
                                             );
                                         })}
+                                        {showGoToBottom ? (
+                                            <Box
+                                                sx={{
+                                                    bottom: 0,
+                                                    display: 'flex',
+                                                    justifyContent: 'flex-end',
+                                                    position: 'sticky',
+                                                    pt: 1
+                                                }}
+                                            >
+                                                <Button
+                                                    onClick={
+                                                        scrollTranscriptToBottom
+                                                    }
+                                                    size="small"
+                                                    variant="contained"
+                                                >
+                                                    {translate(
+                                                        'aiAssist.goToBottom',
+                                                        'Go to bottom'
+                                                    )}
+                                                </Button>
+                                            </Box>
+                                        ) : null}
                                     </Stack>
                                 )}
                             </Box>

@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -784,6 +790,58 @@ describe('AIAssistPage', () => {
         );
 
         expect(screen.getByText(/"arguments"/)).toBeTruthy();
+    });
+
+    it('shows go-to-bottom button when transcript is scrolled up', async () => {
+        const user = userEvent.setup();
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('latest persisted answer')).toBeTruthy();
+        });
+
+        const transcript = screen.getByTestId(
+            'ai-assist-transcript'
+        ) as HTMLDivElement;
+        const scrollToMock = vi.fn();
+
+        Object.defineProperty(transcript, 'scrollTo', {
+            configurable: true,
+            value: scrollToMock
+        });
+        Object.defineProperty(transcript, 'scrollHeight', {
+            configurable: true,
+            value: 1000
+        });
+        Object.defineProperty(transcript, 'clientHeight', {
+            configurable: true,
+            value: 200
+        });
+        Object.defineProperty(transcript, 'scrollTop', {
+            configurable: true,
+            value: 0,
+            writable: true
+        });
+
+        fireEvent.scroll(transcript);
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: 'Go to bottom' })
+            ).toBeTruthy();
+        });
+
+        await user.click(screen.getByRole('button', { name: 'Go to bottom' }));
+
+        expect(scrollToMock).toHaveBeenCalledWith({
+            top: 1000,
+            behavior: 'auto'
+        });
+        await waitFor(() => {
+            expect(
+                screen.queryByRole('button', { name: 'Go to bottom' })
+            ).toBeNull();
+        });
     });
 
     it('archives a conversation from the side rail and removes it from view', async () => {
