@@ -14,6 +14,9 @@ import {
     CircularProgress,
     Divider,
     IconButton,
+    List,
+    ListItemButton,
+    ListItemText,
     Paper,
     Stack,
     TextField,
@@ -96,6 +99,40 @@ const defaultComposerState: ComposerState = {
 const skillTagPattern = /(^|\s)#([a-z_]+)/g;
 const minimumStudentSearchLength = 2;
 
+const getStudentStringField = (
+    student: AIAssistPickerStudent,
+    key: string
+): string => {
+    const rawValue = (student as Record<string, unknown>)[key];
+    return typeof rawValue === 'string' ? rawValue : '';
+};
+
+const getStudentChineseName = (student: AIAssistPickerStudent): string => {
+    const explicitChineseName = String(student.chineseName || '').trim();
+    if (explicitChineseName) {
+        return explicitChineseName;
+    }
+
+    const lastNameChinese = getStudentStringField(student, 'lastname_chinese');
+    const firstNameChinese = getStudentStringField(
+        student,
+        'firstname_chinese'
+    );
+    return `${lastNameChinese}${firstNameChinese}`.trim();
+};
+
+const getStudentEnglishNames = (student: AIAssistPickerStudent): string[] => {
+    const primaryName = String(student.name || '').trim();
+    const firstName = getStudentStringField(student, 'firstname').trim();
+    const lastName = getStudentStringField(student, 'lastname').trim();
+
+    return [
+        primaryName,
+        [firstName, lastName].filter(Boolean).join(' '),
+        [lastName, firstName].filter(Boolean).join(' ')
+    ].filter(Boolean);
+};
+
 const skillAliases: Record<AIAssistQuickSkill, string[]> = {
     summarize_student: ['summarize', 'summary', 'student summary'],
     identify_risk: ['risk', 'risks', 'identify', 'identify risk', 'blocker'],
@@ -160,7 +197,7 @@ const getNextConversation = (
 
 const formatStudentMeta = (student: AIAssistPickerStudent): string =>
     [
-        student.chineseName,
+        getStudentChineseName(student),
         student.email,
         student.applyingProgramCount != null
             ? `${student.applyingProgramCount} applications`
@@ -185,6 +222,63 @@ const escapeRegExp = (value: string): string =>
 
 const normalizeLookup = (value: string): string =>
     value.toLowerCase().replace(/[^a-z]/g, '');
+
+const normalizeMentionSearch = (value: string): string =>
+    String(value || '')
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .trim();
+
+const normalizeChineseSearch = (value: string): string =>
+    String(value || '')
+        .replace(/\s+/g, '')
+        .trim();
+
+const buildStudentSearchStrings = (
+    student: AIAssistPickerStudent
+): string[] => {
+    const englishNames = getStudentEnglishNames(student);
+    const chineseName = getStudentChineseName(student);
+
+    return [
+        ...englishNames.map(normalizeMentionSearch),
+        normalizeMentionSearch(student.email || ''),
+        normalizeMentionSearch(student.name || ''),
+        normalizeChineseSearch(chineseName)
+    ].filter(Boolean);
+};
+
+const matchesStudentMentionQuery = (
+    student: AIAssistPickerStudent,
+    query: string
+): boolean => {
+    const normalizedQuery = normalizeMentionSearch(query);
+    const normalizedChineseQuery = normalizeChineseSearch(query);
+
+    if (!normalizedQuery && !normalizedChineseQuery) {
+        return false;
+    }
+
+    const searchStrings = buildStudentSearchStrings(student);
+
+    return searchStrings.some(
+        (searchValue) =>
+            searchValue.includes(normalizedQuery) ||
+            searchValue.includes(normalizedChineseQuery)
+    );
+};
+
+const uniqueStudents = (
+    students: AIAssistPickerStudent[]
+): AIAssistPickerStudent[] => {
+    const byId = new Map<string, AIAssistPickerStudent>();
+    students.forEach((student) => {
+        if (!byId.has(student.id)) {
+            byId.set(student.id, student);
+        }
+    });
+    return Array.from(byId.values());
+};
 
 const getTokenQueryAtCursor = (
     value: string,
@@ -278,6 +372,48 @@ const parseSkillTrace = (value: string): AIAssistSkillTrace => {
         source: 'composer_tag',
         unknownSkillText: matchedSkillTag
     };
+};
+
+const renderMentionHighlightedText = (
+    value: string,
+    student: AIAssistMentionedStudent | null
+): JSX.Element => {
+    if (!value) {
+        return <>{'\u200b'}</>;
+    }
+
+    if (!student) {
+        return <>{value}</>;
+    }
+
+    const mentionToken = `@${student.displayName}`;
+    const mentionPattern = new RegExp(`(${escapeRegExp(mentionToken)})`, 'gi');
+    const parts = value.split(mentionPattern);
+
+    return (
+        <>
+            {parts.map((part, index) =>
+                part.toLowerCase() === mentionToken.toLowerCase() ? (
+                    <Box
+                        component="span"
+                        key={`mention-${index}`}
+                        sx={{
+                            backgroundColor: 'rgba(25, 118, 210, 0.2)',
+                            borderRadius: 0.75,
+                            color: 'primary.main',
+                            px: 0.25
+                        }}
+                    >
+                        {part}
+                    </Box>
+                ) : (
+                    <Box component="span" key={`text-${index}`}>
+                        {part}
+                    </Box>
+                )
+            )}
+        </>
+    );
 };
 
 const buildComposerState = ({
@@ -521,6 +657,8 @@ const AIAssistPage = (): JSX.Element => {
     const composerInputRef = useRef<
         HTMLTextAreaElement | HTMLInputElement | null
     >(null);
+    const composerHighlightRef = useRef<HTMLDivElement | null>(null);
+    const mentionSuggestionListRef = useRef<HTMLUListElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [conversations, setConversations] = useState<AIAssistConversation[]>(
         []
@@ -581,6 +719,18 @@ const AIAssistPage = (): JSX.Element => {
         },
         [input]
     );
+
+    const syncComposerHighlightScroll = useCallback((): void => {
+        const inputElement = composerInputRef.current;
+        const highlightElement = composerHighlightRef.current;
+
+        if (!inputElement || !highlightElement) {
+            return;
+        }
+
+        highlightElement.scrollTop = inputElement.scrollTop;
+        highlightElement.scrollLeft = inputElement.scrollLeft;
+    }, []);
 
     const scrollTranscriptToBottom = useCallback((): void => {
         const transcriptElement = transcriptRef.current;
@@ -665,9 +815,7 @@ const AIAssistPage = (): JSX.Element => {
         () => getTokenQueryAtCursor(input, cursorPosition, '#'),
         [cursorPosition, input]
     );
-    const hasExplicitUnresolvedMention = Boolean(
-        activeMentionQuery && !selectedMentionedStudent
-    );
+    const hasExplicitUnresolvedMention = Boolean(activeMentionQuery);
     const mentionedStudent = useMemo<AIAssistMentionedStudent | null>(
         () =>
             hasExplicitUnresolvedMention
@@ -701,18 +849,38 @@ const AIAssistPage = (): JSX.Element => {
     }, [mentionSuggestions]);
 
     useEffect(() => {
+        if (
+            isLoadingMentionSuggestions ||
+            mentionSuggestions.length === 0 ||
+            highlightedMentionIndex < 0
+        ) {
+            return;
+        }
+
+        const listElement = mentionSuggestionListRef.current;
+        if (!listElement) {
+            return;
+        }
+
+        const targetItem = listElement.querySelector<HTMLElement>(
+            `[data-mention-index="${highlightedMentionIndex}"]`
+        );
+        targetItem?.scrollIntoView?.({
+            block: 'nearest'
+        });
+    }, [
+        highlightedMentionIndex,
+        isLoadingMentionSuggestions,
+        mentionSuggestions.length
+    ]);
+
+    useEffect(() => {
         setHighlightedSkillIndex(0);
     }, [skillSuggestions]);
 
     useEffect(() => {
-        setComposerState(
-            buildComposerState({
-                mentionedStudent,
-                selectedQuickSkill,
-                skillTrace
-            })
-        );
-    }, [mentionedStudent, selectedQuickSkill, skillTrace]);
+        syncComposerHighlightScroll();
+    }, [input, selectedMentionedStudent, syncComposerHighlightScroll]);
 
     useEffect(() => {
         if (!selectedMentionedStudent) {
@@ -728,6 +896,16 @@ const AIAssistPage = (): JSX.Element => {
             setSelectedMentionedStudent(null);
         }
     }, [input, selectedMentionedStudent]);
+
+    useEffect(() => {
+        setComposerState(
+            buildComposerState({
+                mentionedStudent,
+                selectedQuickSkill,
+                skillTrace
+            })
+        );
+    }, [mentionedStudent, selectedQuickSkill, skillTrace]);
 
     useEffect(() => {
         if (!(isSending && currentStreamStatus === 'Thinking...')) {
@@ -762,12 +940,35 @@ const AIAssistPage = (): JSX.Element => {
         void searchAIAssistStudents(activeMentionQuery)
             .then((response) => {
                 if (!ignore) {
-                    setMentionSuggestions(response.data || []);
+                    const mergedCandidates = uniqueStudents([
+                        ...(response.data || []),
+                        ...recentStudents,
+                        ...myStudents
+                    ]);
+                    const filteredSuggestions = mergedCandidates.filter(
+                        (student) =>
+                            matchesStudentMentionQuery(
+                                student,
+                                activeMentionQuery
+                            )
+                    );
+                    setMentionSuggestions(filteredSuggestions);
                 }
             })
             .catch(() => {
                 if (!ignore) {
-                    setMentionSuggestions([]);
+                    const mergedCandidates = uniqueStudents([
+                        ...recentStudents,
+                        ...myStudents
+                    ]);
+                    const filteredSuggestions = mergedCandidates.filter(
+                        (student) =>
+                            matchesStudentMentionQuery(
+                                student,
+                                activeMentionQuery
+                            )
+                    );
+                    setMentionSuggestions(filteredSuggestions);
                 }
             })
             .finally(() => {
@@ -779,7 +980,7 @@ const AIAssistPage = (): JSX.Element => {
         return () => {
             ignore = true;
         };
-    }, [activeMentionQuery]);
+    }, [activeMentionQuery, myStudents, recentStudents]);
 
     const clearActiveWorkspace = useCallback((): void => {
         setConversationId(null);
@@ -1081,7 +1282,7 @@ const AIAssistPage = (): JSX.Element => {
             cursorIndex:
                 composerInputRef.current?.selectionStart ?? cursorPosition,
             trigger: '@',
-            replacement: `@${student.name}`
+            replacement: `@${student.name} `
         });
 
         setSelectedMentionedStudent({
@@ -1260,7 +1461,7 @@ const AIAssistPage = (): JSX.Element => {
                 return;
             }
 
-            if (event.key === 'Enter' && !event.shiftKey) {
+            if (event.key === 'Enter' && !event.altKey) {
                 event.preventDefault();
                 const student = mentionSuggestions[highlightedMentionIndex];
                 if (student) {
@@ -1293,7 +1494,7 @@ const AIAssistPage = (): JSX.Element => {
                 return;
             }
 
-            if (event.key === 'Enter' && !event.shiftKey) {
+            if (event.key === 'Enter' && !event.altKey) {
                 event.preventDefault();
                 const skill = skillSuggestions[highlightedSkillIndex];
                 if (skill) {
@@ -1303,7 +1504,41 @@ const AIAssistPage = (): JSX.Element => {
             }
         }
 
-        if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.key === 'Enter' && event.altKey) {
+            event.preventDefault();
+            const inputElement = composerInputRef.current;
+            const selectionStart =
+                typeof inputElement?.selectionStart === 'number'
+                    ? inputElement.selectionStart
+                    : input.length;
+            const selectionEnd =
+                typeof inputElement?.selectionEnd === 'number'
+                    ? inputElement.selectionEnd
+                    : selectionStart;
+            const nextValue =
+                input.slice(0, selectionStart) +
+                '\n' +
+                input.slice(selectionEnd);
+
+            setInput(nextValue);
+            const nextCursorPosition = selectionStart + 1;
+            setCursorPosition(nextCursorPosition);
+            window.requestAnimationFrame(() => {
+                const targetInput = composerInputRef.current;
+                if (!targetInput) {
+                    return;
+                }
+
+                targetInput.setSelectionRange(
+                    nextCursorPosition,
+                    nextCursorPosition
+                );
+                syncComposerHighlightScroll();
+            });
+            return;
+        }
+
+        if (event.key === 'Enter' && !event.altKey) {
             event.preventDefault();
             void handleSubmit();
         }
@@ -1446,19 +1681,27 @@ const AIAssistPage = (): JSX.Element => {
         }
 
         return (
-            <Paper sx={{ p: 1.25 }} variant="outlined">
-                <Stack spacing={1}>
+            <Paper
+                sx={{
+                    borderRadius: 1.5,
+                    boxShadow: 8,
+                    bottom: 'calc(100% + 8px)',
+                    left: 0,
+                    maxWidth: 420,
+                    overflow: 'hidden',
+                    position: 'absolute',
+                    width: '100%',
+                    zIndex: (theme) => theme.zIndex.modal
+                }}
+                variant="outlined"
+            >
+                <Stack spacing={0}>
                     {hasMentionSuggestions ? (
-                        <Stack spacing={0.75}>
-                            <Typography fontWeight={700} variant="caption">
-                                {translate(
-                                    'aiAssist.studentSuggestions',
-                                    'Student suggestions'
-                                )}
-                            </Typography>
+                        <Stack spacing={0}>
                             {isLoadingMentionSuggestions ? (
                                 <Typography
                                     color="text.secondary"
+                                    sx={{ px: 1.25, py: 1 }}
                                     variant="caption"
                                 >
                                     {translate(
@@ -1467,37 +1710,79 @@ const AIAssistPage = (): JSX.Element => {
                                     )}
                                 </Typography>
                             ) : (
-                                <Stack direction="row" flexWrap="wrap" gap={1}>
+                                <List
+                                    aria-label="Student mention suggestions"
+                                    dense
+                                    disablePadding
+                                    ref={mentionSuggestionListRef}
+                                    role="listbox"
+                                    sx={{
+                                        maxHeight: 180,
+                                        overflowY: 'auto'
+                                    }}
+                                >
                                     {mentionSuggestions.map(
                                         (student, index) => (
-                                            <Button
+                                            <ListItemButton
                                                 aria-label={`Use student ${student.name}`}
-                                                color={
-                                                    index ===
-                                                    highlightedMentionIndex
-                                                        ? 'primary'
-                                                        : 'inherit'
-                                                }
+                                                data-mention-index={index}
                                                 key={student.id}
                                                 onClick={() => {
                                                     handleMentionSuggestionClick(
                                                         student
                                                     );
                                                 }}
-                                                size="small"
-                                                variant="outlined"
+                                                role="option"
+                                                selected={
+                                                    index ===
+                                                    highlightedMentionIndex
+                                                }
+                                                sx={{
+                                                    '& .MuiListItemText-secondary':
+                                                        {
+                                                            color: 'text.secondary'
+                                                        },
+                                                    '&.Mui-selected': {
+                                                        backgroundColor:
+                                                            'primary.main',
+                                                        color: 'primary.contrastText',
+                                                        '& .MuiListItemText-secondary':
+                                                            {
+                                                                color: 'inherit'
+                                                            }
+                                                    },
+                                                    '&.Mui-selected:hover': {
+                                                        backgroundColor:
+                                                            'primary.dark'
+                                                    }
+                                                }}
                                             >
-                                                {student.name}
-                                            </Button>
+                                                <ListItemText
+                                                    primary={student.name}
+                                                    secondary={
+                                                        getStudentChineseName(
+                                                            student
+                                                        ) ||
+                                                        student.email ||
+                                                        ''
+                                                    }
+                                                    secondaryTypographyProps={{
+                                                        variant: 'caption'
+                                                    }}
+                                                />
+                                            </ListItemButton>
                                         )
                                     )}
-                                </Stack>
+                                </List>
                             )}
                         </Stack>
                     ) : null}
                     {hasSkillSuggestions ? (
-                        <Stack spacing={0.75}>
-                            <Typography fontWeight={700} variant="caption">
+                        <Stack spacing={0.75} sx={{ p: 1 }}>
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
                                 {translate(
                                     'aiAssist.skillSuggestions',
                                     'Skill suggestions'
@@ -1951,24 +2236,6 @@ const AIAssistPage = (): JSX.Element => {
                             >
                                 <Stack spacing={1.5}>
                                     <Stack spacing={1}>
-                                        {composerState.mentionedStudent ? (
-                                            <Stack
-                                                direction="row"
-                                                flexWrap="wrap"
-                                                gap={1}
-                                            >
-                                                <Chip
-                                                    color="primary"
-                                                    label={
-                                                        composerState
-                                                            .mentionedStudent
-                                                            .displayName
-                                                    }
-                                                    size="small"
-                                                    variant="outlined"
-                                                />
-                                            </Stack>
-                                        ) : null}
                                         {renderQuickSkillChips()}
                                         {composerState.unknownSkillText ? (
                                             <Typography
@@ -1982,35 +2249,83 @@ const AIAssistPage = (): JSX.Element => {
                                             </Typography>
                                         ) : null}
                                     </Stack>
-                                    <TextField
-                                        disabled={
-                                            isSending || isLoadingConversation
-                                        }
-                                        fullWidth
-                                        inputRef={composerInputRef}
-                                        label={translate(
-                                            'aiAssist.askLabel',
-                                            'Ask TaiGer AI'
-                                        )}
-                                        minRows={3}
-                                        multiline
-                                        onChange={(event) => {
-                                            setInput(event.target.value);
-                                            setCursorPosition(
-                                                event.target.selectionStart ??
-                                                    event.target.value.length
-                                            );
-                                        }}
-                                        onClick={() => {
-                                            syncCursorPosition();
-                                        }}
-                                        onKeyDown={handleComposerKeyDown}
-                                        onSelect={() => {
-                                            syncCursorPosition();
-                                        }}
-                                        value={input}
-                                    />
-                                    {renderComposerSuggestions()}
+                                    <Box sx={{ position: 'relative' }}>
+                                        {selectedMentionedStudent ? (
+                                            <Box
+                                                aria-hidden
+                                                ref={composerHighlightRef}
+                                                sx={{
+                                                    bottom: 14,
+                                                    left: 14,
+                                                    overflow: 'hidden',
+                                                    pointerEvents: 'none',
+                                                    position: 'absolute',
+                                                    right: 14,
+                                                    top: 14,
+                                                    whiteSpace: 'pre-wrap',
+                                                    wordBreak: 'break-word',
+                                                    zIndex: 1
+                                                }}
+                                            >
+                                                {renderMentionHighlightedText(
+                                                    input,
+                                                    selectedMentionedStudent
+                                                )}
+                                            </Box>
+                                        ) : null}
+                                        <TextField
+                                            disabled={
+                                                isSending ||
+                                                isLoadingConversation
+                                            }
+                                            fullWidth
+                                            inputRef={composerInputRef}
+                                            inputProps={{
+                                                'aria-label': translate(
+                                                    'aiAssist.askLabel',
+                                                    'Ask TaiGer AI'
+                                                ),
+                                                onScroll: () => {
+                                                    syncComposerHighlightScroll();
+                                                }
+                                            }}
+                                            maxRows={8}
+                                            minRows={1}
+                                            multiline
+                                            onChange={(event) => {
+                                                setInput(event.target.value);
+                                                setCursorPosition(
+                                                    event.target
+                                                        .selectionStart ??
+                                                        event.target.value
+                                                            .length
+                                                );
+                                            }}
+                                            onClick={() => {
+                                                syncCursorPosition();
+                                            }}
+                                            onKeyDown={handleComposerKeyDown}
+                                            onSelect={() => {
+                                                syncCursorPosition();
+                                            }}
+                                            placeholder={translate(
+                                                'aiAssist.askLabel',
+                                                'Ask TaiGer AI'
+                                            )}
+                                            sx={{
+                                                '& .MuiInputBase-inputMultiline':
+                                                    selectedMentionedStudent
+                                                        ? {
+                                                              caretColor:
+                                                                  'text.primary',
+                                                              color: 'transparent'
+                                                          }
+                                                        : undefined
+                                            }}
+                                            value={input}
+                                        />
+                                        {renderComposerSuggestions()}
+                                    </Box>
                                     <Stack
                                         direction="row"
                                         justifyContent="flex-end"

@@ -377,7 +377,7 @@ describe('AIAssistPage', () => {
         expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
     });
 
-    it('sends draft messages with Enter and keeps newlines with Shift+Enter', async () => {
+    it('sends draft messages with Enter and keeps newlines with Alt+Enter', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({
             success: true,
@@ -394,7 +394,7 @@ describe('AIAssistPage', () => {
         await user.click(screen.getByRole('button', { name: 'Blank chat' }));
 
         const input = screen.getByLabelText('Ask TaiGer AI');
-        await user.type(input, 'line 1{Shift>}{Enter}{/Shift}line 2');
+        await user.type(input, 'line 1{Alt>}{Enter}{/Alt}line 2');
         expect(input).toHaveValue('line 1\nline 2');
 
         await user.type(input, '{Enter}');
@@ -516,13 +516,13 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(
-                screen.getByRole('button', {
+                screen.getByRole('option', {
                     name: 'Use student Abby Student'
                 })
             ).toBeTruthy();
         });
         await user.click(
-            screen.getByRole('button', {
+            screen.getByRole('option', {
                 name: 'Use student Abby Student'
             })
         );
@@ -530,7 +530,7 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: expect.stringContaining('@Abby Student review risks'),
+                message: expect.stringContaining('review risks'),
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',
@@ -539,6 +539,38 @@ describe('AIAssistPage', () => {
                 },
                 preferredLanguage: 'en'
             });
+        });
+    });
+
+    it('matches @student suggestions by chinese name without spaces', async () => {
+        const user = userEvent.setup();
+        apiMocks.getAIAssistConversations.mockResolvedValue({
+            success: true,
+            data: []
+        });
+        apiMocks.searchAIAssistStudents.mockResolvedValueOnce({
+            success: true,
+            data: [pickerStudents[0]]
+        });
+
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: 'Blank chat' })
+            ).toBeTruthy();
+        });
+        await user.click(screen.getByRole('button', { name: 'Blank chat' }));
+
+        const input = screen.getByLabelText('Ask TaiGer AI');
+        await user.type(input, '@學生艾比');
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('option', {
+                    name: 'Use student Abby Student'
+                })
+            ).toBeTruthy();
         });
     });
 
@@ -660,8 +692,8 @@ describe('AIAssistPage', () => {
         await user.type(input, '@Ad');
         await waitFor(() => {
             expect(
-                screen.getByRole('button', {
-                    name: 'Use student Abby Student'
+                screen.getByRole('option', {
+                    name: 'Use student Ada Lovelace'
                 })
             ).toBeTruthy();
         });
@@ -671,7 +703,7 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: expect.stringContaining('@Ada Lovelace ping'),
+                message: expect.stringContaining('ping'),
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_ada',
