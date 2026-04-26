@@ -1137,6 +1137,7 @@ const AIAssistPage = (): JSX.Element => {
         setIsSending(true);
         setError(null);
         setCurrentStreamStatus(null);
+        scrollTranscriptToBottom();
 
         try {
             const assistContext = buildAssistContext();
@@ -1894,7 +1895,7 @@ const AIAssistPage = (): JSX.Element => {
                                                 sx={{
                                                     bottom: 0,
                                                     display: 'flex',
-                                                    justifyContent: 'flex-end',
+                                                    justifyContent: 'center',
                                                     position: 'sticky',
                                                     pt: 1
                                                 }}
