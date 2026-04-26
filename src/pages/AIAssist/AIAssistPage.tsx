@@ -508,6 +508,7 @@ const AIAssistPage = (): JSX.Element => {
     const [currentStreamStatus, setCurrentStreamStatus] = useState<
         string | null
     >(null);
+    const [thinkingDotCount, setThinkingDotCount] = useState(1);
     const [showGoToBottom, setShowGoToBottom] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [deletingConversationId, setDeletingConversationId] = useState<
@@ -679,6 +680,23 @@ const AIAssistPage = (): JSX.Element => {
             setSelectedMentionedStudent(null);
         }
     }, [input, selectedMentionedStudent]);
+
+    useEffect(() => {
+        if (!(isSending && currentStreamStatus === 'Thinking...')) {
+            return;
+        }
+
+        setThinkingDotCount(1);
+        const intervalId = window.setInterval(() => {
+            setThinkingDotCount((previous) =>
+                previous >= 3 ? 1 : previous + 1
+            );
+        }, 350);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [currentStreamStatus, isSending]);
 
     useEffect(() => {
         if (
@@ -1852,6 +1870,27 @@ const AIAssistPage = (): JSX.Element => {
                                         ) : null}
                                     </Stack>
                                 )}
+                                {isSending && currentStreamStatus ? (
+                                    <Box
+                                        sx={{
+                                            bottom: 0,
+                                            position: 'sticky',
+                                            pt: 1
+                                        }}
+                                    >
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="caption"
+                                        >
+                                            {currentStreamStatus ===
+                                            'Thinking...'
+                                                ? `thinking${'.'.repeat(
+                                                      thinkingDotCount
+                                                  )}`
+                                                : currentStreamStatus}
+                                        </Typography>
+                                    </Box>
+                                ) : null}
                             </Box>
 
                             <Box
@@ -1926,19 +1965,6 @@ const AIAssistPage = (): JSX.Element => {
                                         value={input}
                                     />
                                     {renderComposerSuggestions()}
-                                    {isSending && currentStreamStatus ? (
-                                        <Paper
-                                            sx={{ p: 1, bgcolor: 'grey.50' }}
-                                            variant="outlined"
-                                        >
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="caption"
-                                            >
-                                                {currentStreamStatus}
-                                            </Typography>
-                                        </Paper>
-                                    ) : null}
                                     <Stack
                                         direction="row"
                                         justifyContent="flex-end"
