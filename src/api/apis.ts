@@ -3,16 +3,30 @@ import {
     deleteData,
     getData,
     getDataBlob,
+    patchData,
     postData,
     putData,
     request
 } from './request';
+import { tenantId } from '../env';
 import type {
     LoginCredentials,
     ResetPasswordPayload,
     ForgotPasswordPayload,
     ApiPayload,
-    QueryString
+    QueryString,
+    CreateAIAssistConversationResponse,
+    DeleteAIAssistConversationResponse,
+    GetAIAssistConversationResponse,
+    GetAIAssistConversationsResponse,
+    GetAIAssistPickerStudentsResponse,
+    PostAIAssistFirstMessagePayload,
+    PostAIAssistFirstMessageResponse,
+    AIAssistStreamCallbacks,
+    PostAIAssistMessagePayload,
+    PostAIAssistMessageResponse,
+    UpdateAIAssistConversationPayload,
+    UpdateAIAssistConversationResponse
 } from './types';
 import {
     // Model types
@@ -448,6 +462,236 @@ export const refreshApplication = (applicationId: string) =>
 
 export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
     getData<GetStudentUniAssistResponse>(`/api/uniassist/${studentId}`);
+
+export const createAIAssistConversation = () =>
+    postData<CreateAIAssistConversationResponse>(
+        '/api/ai-assist/conversations',
+        {}
+    );
+
+export const postAIAssistFirstMessage = (
+    payload: PostAIAssistFirstMessagePayload
+) =>
+    postData<PostAIAssistFirstMessageResponse>(
+        '/api/ai-assist/conversations/first-message',
+        {
+            message: payload.message,
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
+        }
+    );
+
+export const streamAIAssistFirstMessage = (
+    payload: PostAIAssistFirstMessagePayload,
+    callbacks: AIAssistStreamCallbacks<PostAIAssistFirstMessageResponse> = {}
+) =>
+    streamAIAssistRequest<PostAIAssistFirstMessageResponse>(
+        '/api/ai-assist/conversations/first-message?stream=1',
+        {
+            message: payload.message,
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
+        },
+        callbacks
+    );
+
+export const getAIAssistConversations = () =>
+    getData<GetAIAssistConversationsResponse>('/api/ai-assist/conversations');
+
+export const getAIAssistConversation = (conversationId: string) =>
+    getData<GetAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`
+    );
+
+export const updateAIAssistConversation = (
+    conversationId: string,
+    payload: UpdateAIAssistConversationPayload
+) =>
+    patchData<UpdateAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`,
+        payload
+    );
+
+const buildSseEndpoint = (path: string): string => {
+    const base = BASE_URL || '';
+    if (/^https?:\/\//i.test(base)) {
+        return `${base}${path}`;
+    }
+
+    if (typeof window !== 'undefined') {
+        return `${window.location.origin}${base}${path}`;
+    }
+
+    return `${base}${path}`;
+};
+
+const parseSseChunks = (raw: string): { event: string; data: string }[] => {
+    const chunks = raw.split('\n\n').filter(Boolean);
+    return chunks
+        .map((chunk) => {
+            const lines = chunk.split('\n');
+            const eventLine = lines.find((line) => line.startsWith('event:'));
+            const dataLine = lines.find((line) => line.startsWith('data:'));
+            if (!eventLine || !dataLine) {
+                return null;
+            }
+
+            return {
+                event: eventLine.slice('event:'.length).trim(),
+                data: dataLine.slice('data:'.length).trim()
+            };
+        })
+        .filter(Boolean) as { event: string; data: string }[];
+};
+
+const streamAIAssistRequest = async <TFinal>(
+    path: string,
+    payload: Record<string, unknown>,
+    callbacks: AIAssistStreamCallbacks<TFinal> = {}
+): Promise<TFinal | null> => {
+    const genericErrorMessage =
+        'AI Assist is temporarily unavailable. Please try again.';
+    const response = await fetch(buildSseEndpoint(path), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
+            tenantId: tenantId ?? ''
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok || !response.body) {
+        callbacks.onError?.(genericErrorMessage);
+        throw new Error(genericErrorMessage);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffered = '';
+    let finalPayload: TFinal | null = null;
+    let streamErrorMessage: string | null = null;
+    const processChunk = (chunkText: string): void => {
+        parseSseChunks(chunkText).forEach(({ event, data }) => {
+            try {
+                const parsed = JSON.parse(data);
+
+                if (event === 'progress') {
+                    callbacks.onProgress?.(parsed);
+                    return;
+                }
+
+                if (event === 'final') {
+                    finalPayload = parsed as TFinal;
+                    callbacks.onFinal?.(finalPayload);
+                    return;
+                }
+
+                if (event === 'token') {
+                    const tokenText =
+                        typeof parsed?.text === 'string' ? parsed.text : '';
+                    if (tokenText) {
+                        callbacks.onToken?.(tokenText);
+                    }
+                    return;
+                }
+
+                if (event === 'references') {
+                    const references =
+                        parsed?.references &&
+                        typeof parsed.references === 'object' &&
+                        !Array.isArray(parsed.references)
+                            ? parsed.references
+                            : {};
+                    callbacks.onReferences?.(references);
+                    return;
+                }
+
+                if (event === 'error') {
+                    streamErrorMessage = genericErrorMessage;
+                    callbacks.onError?.(streamErrorMessage);
+                }
+            } catch {
+                streamErrorMessage = genericErrorMessage;
+                callbacks.onError?.(streamErrorMessage);
+            }
+        });
+    };
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+            break;
+        }
+
+        buffered += decoder.decode(value, { stream: true });
+        const boundary = buffered.lastIndexOf('\n\n');
+        if (boundary < 0) {
+            continue;
+        }
+
+        const complete = buffered.slice(0, boundary);
+        buffered = buffered.slice(boundary + 2);
+        processChunk(complete);
+    }
+
+    if (buffered.trim()) {
+        processChunk(buffered);
+    }
+
+    if (!finalPayload && streamErrorMessage) {
+        throw new Error(streamErrorMessage);
+    }
+
+    return finalPayload;
+};
+
+export const deleteAIAssistConversation = (conversationId: string) =>
+    deleteData<DeleteAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`
+    );
+
+export const postAIAssistMessage = (
+    conversationId: string,
+    payload: PostAIAssistMessagePayload
+) =>
+    postData<PostAIAssistMessageResponse>(
+        `/api/ai-assist/conversations/${conversationId}/messages`,
+        {
+            message: payload.message,
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
+        }
+    );
+
+export const streamAIAssistMessage = (
+    conversationId: string,
+    payload: PostAIAssistMessagePayload,
+    callbacks: AIAssistStreamCallbacks<PostAIAssistMessageResponse> = {}
+) =>
+    streamAIAssistRequest<PostAIAssistMessageResponse>(
+        `/api/ai-assist/conversations/${conversationId}/messages?stream=1`,
+        {
+            message: payload.message,
+            assistContext: payload.assistContext,
+            preferredLanguage: payload.preferredLanguage
+        },
+        callbacks
+    );
+
+export const getAIAssistRecentStudents = () =>
+    getData<GetAIAssistPickerStudentsResponse>(
+        '/api/ai-assist/students/recent'
+    );
+
+export const getAIAssistMyStudents = () =>
+    getData<GetAIAssistPickerStudentsResponse>('/api/ai-assist/students/mine');
+
+export const searchAIAssistStudents = (query: string) =>
+    getData<GetAIAssistPickerStudentsResponse>(
+        `/api/ai-assist/students/search?q=${encodeURIComponent(query)}`
+    );
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
     request.get<GetArchivStudentsResponse>(

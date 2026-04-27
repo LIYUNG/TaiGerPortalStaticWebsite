@@ -31,6 +31,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import GroupsIcon from '@mui/icons-material/Groups';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import { appConfig } from './config';
 
 export interface MenuItem {
@@ -320,6 +321,13 @@ const MenuSidebar: MenuItem[] = [
         type: 'item',
         url: '/dashboard/default',
         icon: <HomeOutlinedIcon />
+    },
+    {
+        id: 'ai-assist',
+        title: 'TaiGer AI',
+        type: 'item',
+        url: '/ai-assist',
+        icon: <SmartToyOutlinedIcon />
     },
     {
         id: 'my-students',

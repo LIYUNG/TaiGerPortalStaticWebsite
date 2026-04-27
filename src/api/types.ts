@@ -189,3 +189,195 @@ export interface OpenTaskRow {
     latest_message_left_by_id?: string;
     [key: string]: unknown;
 }
+
+export interface AIAssistConversation {
+    id: string;
+    ownerUserId?: string;
+    ownerRole?: string;
+    title: string;
+    studentId?: string;
+    studentDisplayName?: string;
+    status?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface AIAssistPickerStudent {
+    id: string;
+    name: string;
+    chineseName?: string;
+    email?: string;
+    applyingProgramCount?: number;
+}
+
+export type AIAssistQuickSkill =
+    | 'summarize_student'
+    | 'identify_risk'
+    | 'review_messages'
+    | 'review_open_tasks';
+
+export interface AIAssistMentionedStudent {
+    id: string;
+    displayName: string;
+}
+
+export interface AIAssistAssistContext {
+    mentionedStudent?: AIAssistMentionedStudent;
+    requestedSkill?: AIAssistQuickSkill;
+    unknownSkillText?: string;
+}
+
+export interface AIAssistSkillTrace {
+    source?: 'quick_skill' | 'composer_tag' | 'auto';
+    requestedSkill?: AIAssistQuickSkill | null;
+    resolvedSkill?: AIAssistQuickSkill | null;
+    unknownSkillText?: string | null;
+    mode?: 'skill' | 'general' | 'composer' | string;
+    student?: AIAssistMentionedStudent | null;
+    status?: 'completed' | 'fallback' | 'success' | 'failed' | string;
+    steps?: Array<
+        | string
+        | {
+              toolName?: string;
+              status?: string;
+              arguments?: unknown;
+              description?: string | null;
+          }
+    >;
+    fallbackReason?: string | null;
+}
+
+export interface AIAssistMessageLinkHint {
+    entityType: 'student' | 'program';
+    entityId: string;
+}
+
+export interface AIAssistMessage {
+    id: string;
+    conversationId?: string;
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    skillTrace?: AIAssistSkillTrace | null;
+    linkHints?: Record<string, AIAssistMessageLinkHint> | null;
+    model?: string;
+    responseId?: string;
+    usage?: Record<string, unknown>;
+    createdAt?: string;
+}
+
+export interface AIAssistToolCall {
+    id: string;
+    conversationId?: string;
+    assistantMessageId?: string;
+    toolName: string;
+    arguments?: unknown;
+    result?: unknown;
+    status: 'success' | 'failed' | 'permission_denied' | 'limited';
+    durationMs?: number;
+    permissionOutcome?: unknown;
+    errorCode?: string;
+    errorMessage?: string;
+    createdAt?: string;
+}
+
+export interface CreateAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
+}
+
+export interface GetAIAssistPickerStudentsResponse {
+    success: boolean;
+    data: AIAssistPickerStudent[];
+}
+
+export interface GetAIAssistConversationsResponse {
+    success: boolean;
+    data: AIAssistConversation[];
+}
+
+export interface GetAIAssistConversationResponse {
+    success: boolean;
+    data: {
+        conversation: AIAssistConversation;
+        messages: AIAssistMessage[];
+        trace: AIAssistToolCall[];
+    };
+}
+
+export interface UpdateAIAssistConversationPayload {
+    title: string;
+}
+
+export interface UpdateAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
+}
+
+export interface PostAIAssistMessagePayload {
+    message: string;
+    assistContext?: AIAssistAssistContext;
+    preferredLanguage?: string;
+}
+
+export interface PostAIAssistMessageResponse {
+    success: boolean;
+    data: {
+        userMessage: AIAssistMessage;
+        assistantMessage: AIAssistMessage;
+        answer: string;
+        trace: AIAssistToolCall[];
+        skillTrace?: AIAssistSkillTrace;
+        usage?: Record<string, unknown>;
+    };
+}
+
+export interface PostAIAssistFirstMessagePayload {
+    message: string;
+    assistContext?: AIAssistAssistContext;
+    preferredLanguage?: string;
+}
+
+export interface PostAIAssistFirstMessageResponse {
+    success: boolean;
+    data: {
+        conversation: AIAssistConversation;
+        userMessage: AIAssistMessage;
+        assistantMessage: AIAssistMessage;
+        answer: string;
+        trace: AIAssistToolCall[];
+        skillTrace?: AIAssistSkillTrace;
+        usage?: Record<string, unknown>;
+    };
+}
+
+export interface AIAssistStreamProgressEvent {
+    timestamp?: string;
+    type: 'status' | 'thinking' | 'tool_start' | 'tool_done';
+    phase?: string;
+    message?: string;
+    mode?: string;
+    intent?: string;
+    resolutionStatus?: string;
+    round?: number;
+    toolName?: string;
+    arguments?: unknown;
+    status?: string;
+    durationMs?: number;
+    errorMessage?: string;
+    traceCount?: number;
+}
+
+export interface AIAssistStreamCallbacks<TFinal> {
+    onProgress?: (event: AIAssistStreamProgressEvent) => void;
+    onToken?: (text: string) => void;
+    onReferences?: (
+        references: Record<string, AIAssistMessageLinkHint>
+    ) => void;
+    onFinal?: (payload: TFinal) => void;
+    onError?: (message: string) => void;
+}
+
+export interface DeleteAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
+}

@@ -38,6 +38,7 @@ const ExcludeMenu: Record<string, string[]> = {
         'teams_overview',
         'internal-document-database',
         'internal-docs',
+        'ai-assist',
         'CRM'
     ],
     External: [
@@ -52,6 +53,7 @@ const ExcludeMenu: Record<string, string[]> = {
         'internal-document-database',
         'download',
         'customer-center-student',
+        'ai-assist',
         'docs',
         'internal-docs',
         'CRM'
@@ -65,6 +67,7 @@ const ExcludeMenu: Record<string, string[]> = {
         'teams_overview',
         'internal-document-database',
         'internal-docs',
+        'ai-assist',
         'CRM'
     ],
     Agent: [

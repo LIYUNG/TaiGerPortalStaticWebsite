@@ -48,6 +48,11 @@ export const putData = async <T = unknown>(
     payload: unknown
 ): Promise<T> => executeRequest(() => request.put<T>(url, payload));
 
+export const patchData = async <T = unknown>(
+    url: string,
+    payload: unknown
+): Promise<T> => executeRequest(() => request.patch<T>(url, payload));
+
 export const getData = async <T = unknown>(url: string): Promise<T> =>
     executeRequest(() => request.get<T>(url));
 

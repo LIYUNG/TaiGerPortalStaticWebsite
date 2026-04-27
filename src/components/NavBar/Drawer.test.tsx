@@ -76,5 +76,29 @@ describe('CustomDrawer Component', () => {
         expect(
             screen.getByTestId('navbar_drawer_component')
         ).not.toHaveTextContent('Internal Docs');
+        expect(
+            screen.getByTestId('navbar_drawer_component')
+        ).not.toHaveTextContent('TaiGer AI');
+    });
+
+    test('renders TaiGer AI for Agent', () => {
+        vi.mocked(useAuth).mockReturnValue({
+            user: {
+                role: 'Agent',
+                _id: '639baebf8b84944b872cf649',
+                firstname: 'test',
+                lastname: 'agent'
+            },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
+
+        render(<CustomDrawer {...mockProps} />);
+
+        expect(screen.getByTestId('navbar_drawer_component')).toHaveTextContent(
+            'TaiGer AI'
+        );
     });
 });
