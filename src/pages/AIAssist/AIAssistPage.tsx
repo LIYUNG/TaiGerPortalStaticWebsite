@@ -2417,6 +2417,36 @@ const AIAssistPage = (): JSX.Element => {
             }}
         >
             <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
+                <Paper
+                    sx={{
+                        alignItems: 'center',
+                        borderStyle: 'dashed',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                        px: 1.5,
+                        py: 1
+                    }}
+                    variant="outlined"
+                >
+                    <Typography fontWeight={600} variant="body2">
+                        {translate('aiAssist.betaLabel', 'TaiGer AI Assist')}
+                    </Typography>
+                    <Chip
+                        color="warning"
+                        label="BETA"
+                        size="small"
+                        sx={{ borderRadius: 0 }}
+                        variant="outlined"
+                    />
+                    <Typography color="text.secondary" variant="caption">
+                        {translate(
+                            'aiAssist.betaHint',
+                            'Initial release for testing. Output quality and behavior may change.'
+                        )}
+                    </Typography>
+                </Paper>
+
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 <Box
