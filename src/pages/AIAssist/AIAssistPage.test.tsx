@@ -877,12 +877,8 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(
-                screen
-                    .getAllByTestId('ai-assist-highlighted-token')
-                    .map((node) => node.textContent)
-            ).toEqual(
-                expect.arrayContaining(['@Abby Student', '#identify_risk'])
-            );
+                screen.getByText('@Abby Student #identify_risk check blockers')
+            ).toBeTruthy();
         });
         expect(screen.getByText('Skill used: identify_risk')).toBeTruthy();
         expect(screen.getByText('Student: Abby Student')).toBeTruthy();

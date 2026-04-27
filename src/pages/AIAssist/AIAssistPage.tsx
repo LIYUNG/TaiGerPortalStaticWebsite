@@ -595,15 +595,25 @@ const MessageContent = ({
 }: {
     message: AIAssistMessage;
 }): JSX.Element => {
+    const content = message.content || '';
     const studentDisplayName = message.skillTrace?.student?.displayName || null;
     const requestedSkill = message.skillTrace?.requestedSkill || null;
     const highlightTokens = [
         studentDisplayName ? `@${studentDisplayName}` : '',
         requestedSkill ? `#${requestedSkill}` : ''
     ].filter(Boolean);
+    const hasMarkdownSyntax = /(^|\s)([#>*`-]|\d+\.)\s|[*_`[\]()]/m.test(
+        content
+    );
 
     if (highlightTokens.length === 0) {
-        return <MessageMarkdown content={message.content || ''} />;
+        return <MessageMarkdown content={content} />;
+    }
+
+    // Keep markdown rendering for rich responses. Apply inline highlight only
+    // when content is plain text.
+    if (hasMarkdownSyntax) {
+        return <MessageMarkdown content={content} />;
     }
 
     return (
@@ -613,10 +623,7 @@ const MessageContent = ({
                 wordBreak: 'break-word'
             }}
         >
-            {renderHighlightedMessageText(
-                message.content || '',
-                highlightTokens
-            )}
+            {renderHighlightedMessageText(content, highlightTokens)}
         </Box>
     );
 };
