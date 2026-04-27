@@ -564,6 +564,61 @@ describe('AIAssistPage', () => {
         expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
     });
 
+    it('clears selected skill after each successful send', async () => {
+        const user = userEvent.setup();
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('latest persisted answer')).toBeTruthy();
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: 'Review open tasks' })
+        );
+
+        const input = screen.getByLabelText('Ask TaiGer AI');
+        await user.clear(input);
+        await user.type(input, 'first follow-up{Enter}');
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistMessage).toHaveBeenNthCalledWith(
+                1,
+                'conv_latest',
+                {
+                    message: 'first follow-up',
+                    assistContext: {
+                        mentionedStudent: {
+                            id: 'student_abby',
+                            displayName: 'Abby Student'
+                        },
+                        requestedSkill: 'review_open_tasks'
+                    },
+                    preferredLanguage: 'en'
+                }
+            );
+        });
+
+        await user.clear(input);
+        await user.type(input, 'second follow-up{Enter}');
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistMessage).toHaveBeenNthCalledWith(
+                2,
+                'conv_latest',
+                {
+                    message: 'second follow-up',
+                    assistContext: {
+                        mentionedStudent: {
+                            id: 'student_abby',
+                            displayName: 'Abby Student'
+                        }
+                    },
+                    preferredLanguage: 'en'
+                }
+            );
+        });
+    });
+
     it('resolves @student suggestions into assistContext', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({

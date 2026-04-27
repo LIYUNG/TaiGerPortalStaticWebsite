@@ -1644,6 +1644,7 @@ const AIAssistPage = (): JSX.Element => {
                 ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
+                setSelectedQuickSkill(null);
                 setStreamedAssistantContent('');
                 setStreamStatusWithMinDuration(null, true);
                 return;
@@ -1671,6 +1672,7 @@ const AIAssistPage = (): JSX.Element => {
                 trace: responseTrace,
                 skillTrace: responseSkillTrace
             } = response.data;
+            const activeStudent = responseSkillTrace?.student;
 
             setMessages((previous) => [
                 ...previous,
@@ -1678,7 +1680,23 @@ const AIAssistPage = (): JSX.Element => {
                 withResponseSkillTrace(assistantMessage, responseSkillTrace)
             ]);
             setTrace((previous) => mergeTrace(previous, responseTrace || []));
+            if (activeStudent?.id) {
+                setConversations((previous) =>
+                    previous.map((conversation) =>
+                        conversation.id === conversationId
+                            ? {
+                                  ...conversation,
+                                  studentId: activeStudent.id,
+                                  studentDisplayName:
+                                      activeStudent.displayName ||
+                                      conversation.studentDisplayName
+                              }
+                            : conversation
+                    )
+                );
+            }
             setInput(defaultInput);
+            setSelectedQuickSkill(null);
             touchConversation(conversationId);
             setStreamedAssistantContent('');
             setStreamStatusWithMinDuration(null, true);
@@ -2537,6 +2555,23 @@ const AIAssistPage = (): JSX.Element => {
                                 <Stack spacing={1.5}>
                                     <Stack spacing={1}>
                                         {renderQuickSkillChips()}
+                                        {composerState.mentionedStudent
+                                            ?.displayName ? (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="caption"
+                                            >
+                                                {translate(
+                                                    'aiAssist.currentStudent',
+                                                    'Current student:'
+                                                )}{' '}
+                                                {
+                                                    composerState
+                                                        .mentionedStudent
+                                                        .displayName
+                                                }
+                                            </Typography>
+                                        ) : null}
                                         {composerState.unknownSkillText ? (
                                             <Typography
                                                 color="text.secondary"
