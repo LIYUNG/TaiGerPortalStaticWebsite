@@ -583,6 +583,27 @@ const MessageMarkdown = ({ content }: { content: string }): JSX.Element => (
                 overflowX: 'auto',
                 p: 1
             },
+            '& a': {
+                borderBottom: '1px solid',
+                borderColor: 'primary.light',
+                borderRadius: 0.75,
+                color: 'primary.dark',
+                display: 'inline-block',
+                fontWeight: 600,
+                lineHeight: 1.35,
+                px: 0.35,
+                textDecoration: 'none',
+                transition: 'all 0.16s ease'
+            },
+            '& a:hover': {
+                backgroundColor: 'rgba(25, 118, 210, 0.10)',
+                borderColor: 'primary.main',
+                color: 'primary.main'
+            },
+            '& a:focus-visible': {
+                boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.24)',
+                outline: 'none'
+            },
             wordBreak: 'break-word'
         }}
     >
@@ -643,47 +664,40 @@ const renderHighlightedMessageText = (
 };
 
 const linkHrefFromHint = (hint: AIAssistMessageLinkHint): string | null => {
-    if (!hint?.entityId || !hint?.route) {
+    if (!hint?.entityId || !hint?.entityType) {
         return null;
     }
 
-    if (hint.route === 'student_database_profile') {
+    if (hint.entityType === 'student') {
         return DEMO.STUDENT_DATABASE_STUDENTID_LINK(
             hint.entityId,
             DEMO.PROFILE_HASH
         );
     }
 
-    if (hint.route === 'student_profile') {
-        return DEMO.PROFILE_STUDENT_LINK(hint.entityId);
-    }
-
-    if (hint.route === 'program_detail') {
+    if (hint.entityType === 'program') {
         return DEMO.SINGLE_PROGRAM_LINK(hint.entityId);
     }
 
     return null;
 };
 
-const referenceMarkerPattern = /\[link:([a-zA-Z0-9_-]+)\|([^\]]+)\]/g;
+const referenceMarkerPattern = /\[reflink:([a-zA-Z0-9_-]+)\|([^\]]+)\]/g;
 
 const buildReferenceMap = (
-    linkHints: AIAssistMessageLinkHint[] | null | undefined
+    linkHints: Record<string, AIAssistMessageLinkHint> | null | undefined
 ): Map<string, AIAssistMessageLinkHint> => {
     const byRefId = new Map<string, AIAssistMessageLinkHint>();
-    if (!Array.isArray(linkHints)) {
+    if (!linkHints || typeof linkHints !== 'object') {
         return byRefId;
     }
 
-    linkHints.forEach((hint, index) => {
-        const refId = String(hint?.refId || index + 1).trim();
+    Object.entries(linkHints).forEach(([rawRefId, hint]) => {
+        const refId = String(rawRefId || '').trim();
         if (!refId || byRefId.has(refId)) {
             return;
         }
-        byRefId.set(refId, {
-            ...hint,
-            refId
-        });
+        byRefId.set(refId, hint);
     });
 
     return byRefId;
@@ -691,7 +705,7 @@ const buildReferenceMap = (
 
 const applyReferenceMarkersToMarkdown = (
     content: string,
-    linkHints: AIAssistMessageLinkHint[] | null | undefined
+    linkHints: Record<string, AIAssistMessageLinkHint> | null | undefined
 ): string => {
     if (!content) {
         return content;
@@ -915,7 +929,7 @@ const AIAssistPage = (): JSX.Element => {
     const [streamedAssistantContent, setStreamedAssistantContent] =
         useState('');
     const [streamedAssistantReferences, setStreamedAssistantReferences] =
-        useState<AIAssistMessageLinkHint[]>([]);
+        useState<Record<string, AIAssistMessageLinkHint>>({});
     const [currentStreamStatus, setCurrentStreamStatus] = useState<
         string | null
     >(null);
@@ -1670,7 +1684,7 @@ const AIAssistPage = (): JSX.Element => {
         setIsSending(true);
         setError(null);
         setStreamedAssistantContent('');
-        setStreamedAssistantReferences([]);
+        setStreamedAssistantReferences({});
         setStreamStatusWithMinDuration(null, true);
         scrollTranscriptToBottom();
 
@@ -1691,14 +1705,18 @@ const AIAssistPage = (): JSX.Element => {
                 void message;
                 setError(aiAssistGenericErrorMessage);
                 setStreamedAssistantContent('');
-                setStreamedAssistantReferences([]);
+                setStreamedAssistantReferences({});
                 setStreamStatusWithMinDuration(null, true);
             };
             const onReferences = (
-                references: AIAssistMessageLinkHint[]
+                references: Record<string, AIAssistMessageLinkHint>
             ): void => {
                 setStreamedAssistantReferences(
-                    Array.isArray(references) ? references : []
+                    references &&
+                        typeof references === 'object' &&
+                        !Array.isArray(references)
+                        ? references
+                        : {}
                 );
             };
 
@@ -1740,7 +1758,7 @@ const AIAssistPage = (): JSX.Element => {
                 setInput(defaultInput);
                 setSelectedQuickSkill(null);
                 setStreamedAssistantContent('');
-                setStreamedAssistantReferences([]);
+                setStreamedAssistantReferences({});
                 setStreamStatusWithMinDuration(null, true);
                 return;
             }
@@ -1795,18 +1813,18 @@ const AIAssistPage = (): JSX.Element => {
             setSelectedQuickSkill(null);
             touchConversation(conversationId);
             setStreamedAssistantContent('');
-            setStreamedAssistantReferences([]);
+            setStreamedAssistantReferences({});
             setStreamStatusWithMinDuration(null, true);
         } catch (err) {
             void err;
             setError(aiAssistGenericErrorMessage);
             setStreamedAssistantContent('');
-            setStreamedAssistantReferences([]);
+            setStreamedAssistantReferences({});
             setStreamStatusWithMinDuration(null, true);
         } finally {
             setIsSending(false);
             setStreamedAssistantContent('');
-            setStreamedAssistantReferences([]);
+            setStreamedAssistantReferences({});
             setStreamStatusWithMinDuration(null, true);
         }
     }, [

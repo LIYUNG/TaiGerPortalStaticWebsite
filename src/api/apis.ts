@@ -613,9 +613,12 @@ const streamAIAssistRequest = async <TFinal>(
                 }
 
                 if (event === 'references') {
-                    const references = Array.isArray(parsed?.references)
-                        ? parsed.references
-                        : [];
+                    const references =
+                        parsed?.references &&
+                        typeof parsed.references === 'object' &&
+                        !Array.isArray(parsed.references)
+                            ? parsed.references
+                            : {};
                     callbacks.onReferences?.(references);
                     return;
                 }

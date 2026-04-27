@@ -911,17 +911,13 @@ describe('AIAssistPage', () => {
                         conversationId: 'conv_latest',
                         role: 'user',
                         content:
-                            '@Abby Student [link:1|@Abby Student] #identify_risk check blockers',
-                        linkHints: [
-                            {
-                                refId: '1',
-                                label: '@Abby Student',
-                                title: 'Abby Student',
+                            '@Abby Student [reflink:1|@Abby Student] #identify_risk check blockers',
+                        linkHints: {
+                            '1': {
                                 entityType: 'student',
-                                entityId: 'student_abby',
-                                route: 'student_database_profile'
+                                entityId: 'student_abby'
                             }
-                        ],
+                        },
                         skillTrace: {
                             requestedSkill: 'identify_risk',
                             resolvedSkill: 'identify_risk',
