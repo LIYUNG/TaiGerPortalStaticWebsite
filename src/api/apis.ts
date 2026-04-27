@@ -612,6 +612,14 @@ const streamAIAssistRequest = async <TFinal>(
                     return;
                 }
 
+                if (event === 'references') {
+                    const references = Array.isArray(parsed?.references)
+                        ? parsed.references
+                        : [];
+                    callbacks.onReferences?.(references);
+                    return;
+                }
+
                 if (event === 'error') {
                     streamErrorMessage = genericErrorMessage;
                     callbacks.onError?.(streamErrorMessage);

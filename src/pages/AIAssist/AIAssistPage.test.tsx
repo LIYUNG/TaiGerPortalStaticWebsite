@@ -910,14 +910,15 @@ describe('AIAssistPage', () => {
                         id: 'msg_user_meta',
                         conversationId: 'conv_latest',
                         role: 'user',
-                        content: '@Abby Student #identify_risk check blockers',
+                        content:
+                            '@Abby Student [link:1|@Abby Student] #identify_risk check blockers',
                         linkHints: [
                             {
+                                refId: '1',
                                 label: '@Abby Student',
+                                title: 'Abby Student',
                                 entityType: 'student',
                                 entityId: 'student_abby',
-                                start: 0,
-                                end: 13,
                                 route: 'student_database_profile'
                             }
                         ],
@@ -945,7 +946,9 @@ describe('AIAssistPage', () => {
                 screen.getByRole('link', { name: '@Abby Student' })
             ).toBeTruthy();
         });
-        expect(screen.getByText('#identify_risk check blockers')).toBeTruthy();
+        expect(screen.getByTestId('ai-assist-chat-panel')).toHaveTextContent(
+            '#identify_risk check blockers'
+        );
         expect(screen.getByText('Skill used: identify_risk')).toBeTruthy();
         expect(screen.getByText('Student: Abby Student')).toBeTruthy();
     });

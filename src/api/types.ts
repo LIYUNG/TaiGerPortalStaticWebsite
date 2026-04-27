@@ -248,11 +248,12 @@ export interface AIAssistSkillTrace {
 }
 
 export interface AIAssistMessageLinkHint {
+    refId: string;
     label: string;
+    title?: string;
     entityType: 'student' | 'program';
     entityId: string;
-    start: number;
-    end: number;
+    occurrence?: number;
     route: 'student_database_profile' | 'student_profile' | 'program_detail';
 }
 
@@ -374,6 +375,7 @@ export interface AIAssistStreamProgressEvent {
 export interface AIAssistStreamCallbacks<TFinal> {
     onProgress?: (event: AIAssistStreamProgressEvent) => void;
     onToken?: (text: string) => void;
+    onReferences?: (references: AIAssistMessageLinkHint[]) => void;
     onFinal?: (payload: TFinal) => void;
     onError?: (message: string) => void;
 }

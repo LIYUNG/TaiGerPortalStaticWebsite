@@ -665,76 +665,61 @@ const linkHrefFromHint = (hint: AIAssistMessageLinkHint): string | null => {
     return null;
 };
 
-const applyLinkHintsToMarkdown = (
+const referenceMarkerPattern = /\[link:([a-zA-Z0-9_-]+)\|([^\]]+)\]/g;
+
+const buildReferenceMap = (
+    linkHints: AIAssistMessageLinkHint[] | null | undefined
+): Map<string, AIAssistMessageLinkHint> => {
+    const byRefId = new Map<string, AIAssistMessageLinkHint>();
+    if (!Array.isArray(linkHints)) {
+        return byRefId;
+    }
+
+    linkHints.forEach((hint, index) => {
+        const refId = String(hint?.refId || index + 1).trim();
+        if (!refId || byRefId.has(refId)) {
+            return;
+        }
+        byRefId.set(refId, {
+            ...hint,
+            refId
+        });
+    });
+
+    return byRefId;
+};
+
+const applyReferenceMarkersToMarkdown = (
     content: string,
     linkHints: AIAssistMessageLinkHint[] | null | undefined
 ): string => {
-    if (!content || !Array.isArray(linkHints) || linkHints.length === 0) {
+    if (!content) {
         return content;
     }
 
-    const escapeMarkdownLabel = (value: string): string =>
-        value
-            .replace(/\\/g, '\\\\')
-            .replace(/\[/g, '\\[')
-            .replace(/\]/g, '\\]');
-    const candidates = linkHints
-        .map((hint) => ({
-            ...hint,
-            href: linkHrefFromHint(hint)
-        }))
-        .filter(
-            (hint) =>
-                Boolean(hint.href) &&
-                Number.isInteger(hint.start) &&
-                Number.isInteger(hint.end) &&
-                hint.start >= 0 &&
-                hint.end > hint.start &&
-                hint.end <= content.length
-        )
-        .sort((left, right) =>
-            left.start === right.start
-                ? right.end - left.end
-                : left.start - right.start
-        );
-
-    if (!candidates.length) {
-        return content;
-    }
-
-    const nonOverlappingHints = candidates.reduce<
-        Array<
-            AIAssistMessageLinkHint & {
-                href: string | null;
+    const referencesById = buildReferenceMap(linkHints);
+    return content.replace(
+        referenceMarkerPattern,
+        (_marker, rawRefId, rawLabel) => {
+            const refId = String(rawRefId || '').trim();
+            const label = String(rawLabel || '').trim() || refId;
+            const reference = referencesById.get(refId);
+            if (!reference) {
+                return label;
             }
-        >
-    >((selected, candidate) => {
-        const previous = selected[selected.length - 1];
-        if (previous && candidate.start < previous.end) {
-            return selected;
+
+            const href = linkHrefFromHint(reference);
+            if (!href) {
+                return label;
+            }
+
+            const safeLabel = label
+                .replace(/\\/g, '\\\\')
+                .replace(/\[/g, '\\[')
+                .replace(/\]/g, '\\]');
+            return `[${safeLabel}](${href})`;
         }
-        selected.push(candidate);
-        return selected;
-    }, []);
-
-    if (!nonOverlappingHints.length) {
-        return content;
-    }
-
-    let cursor = 0;
-    let linked = '';
-
-    nonOverlappingHints.forEach((hint) => {
-        const href = hint.href || '';
-        const label = content.slice(hint.start, hint.end);
-
-        linked += content.slice(cursor, hint.start);
-        linked += `[${escapeMarkdownLabel(label)}](${href})`;
-        cursor = hint.end;
-    });
-
-    linked += content.slice(cursor);
-    return linked;
+    );
 };
 
 const MessageContent = ({
@@ -749,7 +734,7 @@ const MessageContent = ({
         studentDisplayName ? `@${studentDisplayName}` : '',
         requestedSkill ? `#${requestedSkill}` : ''
     ].filter(Boolean);
-    const content = applyLinkHintsToMarkdown(
+    const content = applyReferenceMarkersToMarkdown(
         message.content || '',
         message.linkHints
     );
@@ -929,6 +914,8 @@ const AIAssistPage = (): JSX.Element => {
     const [isSending, setIsSending] = useState(false);
     const [streamedAssistantContent, setStreamedAssistantContent] =
         useState('');
+    const [streamedAssistantReferences, setStreamedAssistantReferences] =
+        useState<AIAssistMessageLinkHint[]>([]);
     const [currentStreamStatus, setCurrentStreamStatus] = useState<
         string | null
     >(null);
@@ -1683,6 +1670,7 @@ const AIAssistPage = (): JSX.Element => {
         setIsSending(true);
         setError(null);
         setStreamedAssistantContent('');
+        setStreamedAssistantReferences([]);
         setStreamStatusWithMinDuration(null, true);
         scrollTranscriptToBottom();
 
@@ -1703,7 +1691,15 @@ const AIAssistPage = (): JSX.Element => {
                 void message;
                 setError(aiAssistGenericErrorMessage);
                 setStreamedAssistantContent('');
+                setStreamedAssistantReferences([]);
                 setStreamStatusWithMinDuration(null, true);
+            };
+            const onReferences = (
+                references: AIAssistMessageLinkHint[]
+            ): void => {
+                setStreamedAssistantReferences(
+                    Array.isArray(references) ? references : []
+                );
             };
 
             if (!conversationId) {
@@ -1716,6 +1712,7 @@ const AIAssistPage = (): JSX.Element => {
                     {
                         onProgress,
                         onToken,
+                        onReferences,
                         onError
                     }
                 );
@@ -1743,6 +1740,7 @@ const AIAssistPage = (): JSX.Element => {
                 setInput(defaultInput);
                 setSelectedQuickSkill(null);
                 setStreamedAssistantContent('');
+                setStreamedAssistantReferences([]);
                 setStreamStatusWithMinDuration(null, true);
                 return;
             }
@@ -1757,6 +1755,7 @@ const AIAssistPage = (): JSX.Element => {
                 {
                     onProgress,
                     onToken,
+                    onReferences,
                     onError
                 }
             );
@@ -1796,15 +1795,18 @@ const AIAssistPage = (): JSX.Element => {
             setSelectedQuickSkill(null);
             touchConversation(conversationId);
             setStreamedAssistantContent('');
+            setStreamedAssistantReferences([]);
             setStreamStatusWithMinDuration(null, true);
         } catch (err) {
             void err;
             setError(aiAssistGenericErrorMessage);
             setStreamedAssistantContent('');
+            setStreamedAssistantReferences([]);
             setStreamStatusWithMinDuration(null, true);
         } finally {
             setIsSending(false);
             setStreamedAssistantContent('');
+            setStreamedAssistantReferences([]);
             setStreamStatusWithMinDuration(null, true);
         }
     }, [
@@ -2611,8 +2613,15 @@ const AIAssistPage = (): JSX.Element => {
                                         >
                                             Assistant
                                         </Typography>
-                                        <MessageMarkdown
-                                            content={streamedAssistantContent}
+                                        <MessageContent
+                                            message={{
+                                                id: 'streaming-assistant',
+                                                role: 'assistant',
+                                                content:
+                                                    streamedAssistantContent,
+                                                linkHints:
+                                                    streamedAssistantReferences
+                                            }}
                                         />
                                     </Paper>
                                 ) : null}
