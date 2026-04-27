@@ -336,7 +336,7 @@ describe('AIAssistPage', () => {
         expect(screen.getAllByText('Abby Student').length).toBeGreaterThan(0);
     });
 
-    it('selects quick skill without prefilling any starter prompt text', async () => {
+    it('keeps mention text and does not add extra starter prompt text when selecting quick skill', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({
             success: true,
@@ -373,7 +373,7 @@ describe('AIAssistPage', () => {
                         ) as HTMLTextAreaElement
                     ).value
             )
-        ).toBe('');
+        ).toBe('@Abby Student ');
         expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
     });
 
@@ -438,11 +438,11 @@ describe('AIAssistPage', () => {
             screen.getByLabelText('Ask TaiGer AI'),
             'check risk now'
         );
-        await user.click(screen.getByRole('button', { name: 'Ask' }));
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: 'check risk now',
+                message: '@Abby Student check risk now',
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',
@@ -454,6 +454,79 @@ describe('AIAssistPage', () => {
             });
         });
         expect(apiMocks.postAIAssistMessage).not.toHaveBeenCalled();
+    });
+
+    it('auto-inserts @mention when selecting student from UI picker', async () => {
+        const user = userEvent.setup();
+        apiMocks.getAIAssistConversations.mockResolvedValue({
+            success: true,
+            data: []
+        });
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: 'Choose student' })
+            ).toBeTruthy();
+        });
+        await user.click(
+            screen.getByRole('button', { name: 'Choose student' })
+        );
+
+        const recentSection = await screen.findByTestId(
+            'ai-assist-student-section-recent'
+        );
+        await user.click(
+            within(recentSection).getByRole('button', { name: 'Abby Student' })
+        );
+
+        expect(screen.getByLabelText('Ask TaiGer AI')).toHaveValue(
+            '@Abby Student '
+        );
+    });
+
+    it('submits with only selected student and skill without extra prompt', async () => {
+        const user = userEvent.setup();
+        apiMocks.getAIAssistConversations.mockResolvedValue({
+            success: true,
+            data: []
+        });
+
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: 'Choose student' })
+            ).toBeTruthy();
+        });
+        await user.click(
+            screen.getByRole('button', { name: 'Choose student' })
+        );
+
+        const recentSection = await screen.findByTestId(
+            'ai-assist-student-section-recent'
+        );
+        await user.click(
+            within(recentSection).getByRole('button', { name: 'Abby Student' })
+        );
+        await user.click(
+            screen.getByRole('button', { name: 'Find application risks' })
+        );
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
+                message: '@Abby Student',
+                assistContext: {
+                    mentionedStudent: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    requestedSkill: 'identify_risk'
+                },
+                preferredLanguage: 'en'
+            });
+        });
     });
 
     it('sends quick skill context with follow-up messages', async () => {
@@ -651,11 +724,11 @@ describe('AIAssistPage', () => {
             screen.getByLabelText('Ask TaiGer AI'),
             'risk follow-up'
         );
-        await user.click(screen.getByRole('button', { name: 'Ask' }));
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
 
         await waitFor(() => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
-                message: 'risk follow-up',
+                message: '@Abby Student risk follow-up',
                 assistContext: {
                     mentionedStudent: {
                         id: 'student_abby',
@@ -772,6 +845,49 @@ describe('AIAssistPage', () => {
         expect(screen.getByText('Student: Abby Student')).toBeTruthy();
     });
 
+    it('highlights mention and skill tokens in message text from metadata', async () => {
+        apiMocks.getAIAssistConversation.mockResolvedValueOnce({
+            success: true,
+            data: {
+                conversation: conversations[0],
+                messages: [
+                    {
+                        id: 'msg_user_meta',
+                        conversationId: 'conv_latest',
+                        role: 'user',
+                        content: '@Abby Student #identify_risk check blockers',
+                        skillTrace: {
+                            requestedSkill: 'identify_risk',
+                            resolvedSkill: 'identify_risk',
+                            mode: 'composer',
+                            student: {
+                                id: 'student_abby',
+                                displayName: 'Abby Student'
+                            },
+                            status: 'captured',
+                            steps: []
+                        }
+                    }
+                ],
+                trace: []
+            }
+        });
+
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(
+                screen
+                    .getAllByTestId('ai-assist-highlighted-token')
+                    .map((node) => node.textContent)
+            ).toEqual(
+                expect.arrayContaining(['@Abby Student', '#identify_risk'])
+            );
+        });
+        expect(screen.getByText('Skill used: identify_risk')).toBeTruthy();
+        expect(screen.getByText('Student: Abby Student')).toBeTruthy();
+    });
+
     it('preserves the draft text when the first message request fails', async () => {
         const user = userEvent.setup();
         apiMocks.getAIAssistConversations.mockResolvedValue({
@@ -793,7 +909,7 @@ describe('AIAssistPage', () => {
 
         const input = screen.getByLabelText('Ask TaiGer AI');
         await user.type(input, 'Need help');
-        await user.click(screen.getByRole('button', { name: 'Ask' }));
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
 
         await waitFor(() => {
             expect(screen.getByText('send failed')).toBeTruthy();

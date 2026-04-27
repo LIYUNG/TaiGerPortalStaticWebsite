@@ -14,6 +14,7 @@ import {
     CircularProgress,
     Divider,
     IconButton,
+    InputAdornment,
     List,
     ListItemButton,
     ListItemText,
@@ -538,6 +539,87 @@ const MessageMarkdown = ({ content }: { content: string }): JSX.Element => (
         </ReactMarkdown>
     </Box>
 );
+
+const renderHighlightedMessageText = (
+    content: string,
+    tokens: string[]
+): JSX.Element => {
+    if (!content) {
+        return <>{''}</>;
+    }
+
+    const cleanedTokens = tokens.filter(Boolean);
+    if (cleanedTokens.length === 0) {
+        return <>{content}</>;
+    }
+
+    const tokenPattern = new RegExp(
+        `(${cleanedTokens.map(escapeRegExp).join('|')})`,
+        'gi'
+    );
+    const parts = content.split(tokenPattern);
+
+    return (
+        <>
+            {parts.map((part, index) => {
+                const isHighlighted = cleanedTokens.some(
+                    (token) => token.toLowerCase() === part.toLowerCase()
+                );
+
+                return isHighlighted ? (
+                    <Box
+                        component="span"
+                        data-testid="ai-assist-highlighted-token"
+                        key={`hl-${index}`}
+                        sx={{
+                            backgroundColor: 'rgba(25, 118, 210, 0.2)',
+                            borderRadius: 0.75,
+                            color: 'primary.main',
+                            px: 0.25
+                        }}
+                    >
+                        {part}
+                    </Box>
+                ) : (
+                    <Box component="span" key={`tx-${index}`}>
+                        {part}
+                    </Box>
+                );
+            })}
+        </>
+    );
+};
+
+const MessageContent = ({
+    message
+}: {
+    message: AIAssistMessage;
+}): JSX.Element => {
+    const studentDisplayName = message.skillTrace?.student?.displayName || null;
+    const requestedSkill = message.skillTrace?.requestedSkill || null;
+    const highlightTokens = [
+        studentDisplayName ? `@${studentDisplayName}` : '',
+        requestedSkill ? `#${requestedSkill}` : ''
+    ].filter(Boolean);
+
+    if (highlightTokens.length === 0) {
+        return <MessageMarkdown content={message.content || ''} />;
+    }
+
+    return (
+        <Box
+            sx={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word'
+            }}
+        >
+            {renderHighlightedMessageText(
+                message.content || '',
+                highlightTokens
+            )}
+        </Box>
+    );
+};
 
 const ToolTraceCard = ({
     toolCall
@@ -1258,10 +1340,24 @@ const AIAssistPage = (): JSX.Element => {
     };
 
     const handleSelectStudent = (student: AIAssistPickerStudent): void => {
-        setSelectedQuickSkill(null);
-        setSelectedMentionedStudent(null);
+        const mentionToken = `@${student.name}`;
+        const mentionPattern = new RegExp(
+            `(^|\\s)${escapeRegExp(mentionToken)}(?=\\s|$)`,
+            'i'
+        );
+        const nextInput = mentionPattern.test(input)
+            ? input
+            : input.trim()
+              ? `${mentionToken} ${input}`
+              : `${mentionToken} `;
+
+        setSelectedMentionedStudent({
+            id: student.id,
+            displayName: student.name
+        });
         setMentionSuggestions([]);
-        setComposerState(defaultComposerState);
+        setInput(nextInput);
+        setCursorPosition(nextInput.length);
         setDraftConversation({
             mode: 'studentReady',
             student
@@ -1328,10 +1424,37 @@ const AIAssistPage = (): JSX.Element => {
             : undefined;
     };
 
+    const buildSubmissionMessage = (
+        trimmedInput: string,
+        assistContext?: AIAssistAssistContext
+    ): string => {
+        if (trimmedInput) {
+            return trimmedInput;
+        }
+
+        const tokens: string[] = [];
+        if (assistContext?.mentionedStudent?.displayName) {
+            tokens.push(`@${assistContext.mentionedStudent.displayName}`);
+        }
+        if (assistContext?.requestedSkill) {
+            tokens.push(`#${assistContext.requestedSkill}`);
+        }
+        if (assistContext?.unknownSkillText) {
+            tokens.push(`#${assistContext.unknownSkillText}`);
+        }
+
+        return tokens.join(' ').trim();
+    };
+
     const handleSubmit = async (): Promise<void> => {
         const trimmedInput = input.trim();
+        const assistContext = buildAssistContext();
+        const submissionMessage = buildSubmissionMessage(
+            trimmedInput,
+            assistContext
+        );
 
-        if (!trimmedInput || isSending || isLoadingConversation) {
+        if (!submissionMessage || isSending || isLoadingConversation) {
             return;
         }
 
@@ -1341,7 +1464,6 @@ const AIAssistPage = (): JSX.Element => {
         scrollTranscriptToBottom();
 
         try {
-            const assistContext = buildAssistContext();
             const onProgress = (event: AIAssistStreamProgressEvent): void => {
                 const status = resolveCurrentProgressStatus(event);
                 if (status) {
@@ -1356,7 +1478,7 @@ const AIAssistPage = (): JSX.Element => {
             if (!conversationId) {
                 const response = await streamAIAssistFirstMessage(
                     {
-                        message: trimmedInput,
+                        message: submissionMessage,
                         preferredLanguage,
                         ...(assistContext ? { assistContext } : {})
                     },
@@ -1394,7 +1516,7 @@ const AIAssistPage = (): JSX.Element => {
             const response = await streamAIAssistMessage(
                 conversationId,
                 {
-                    message: trimmedInput,
+                    message: submissionMessage,
                     preferredLanguage,
                     ...(assistContext ? { assistContext } : {})
                 },
@@ -1968,6 +2090,11 @@ const AIAssistPage = (): JSX.Element => {
         );
     };
 
+    const composerAssistContext = buildAssistContext();
+    const canSubmit = Boolean(
+        buildSubmissionMessage(input.trim(), composerAssistContext)
+    );
+
     return (
         <Box
             data-testid="ai-assist-page"
@@ -2093,32 +2220,36 @@ const AIAssistPage = (): JSX.Element => {
                                                             ? 'Assistant'
                                                             : 'You'}
                                                     </Typography>
-                                                    <MessageMarkdown
-                                                        content={
-                                                            message.content ||
-                                                            ''
-                                                        }
+                                                    <MessageContent
+                                                        message={message}
                                                     />
-                                                    {message.role ===
-                                                        'assistant' &&
-                                                    message.skillTrace ? (
+                                                    {message.skillTrace ? (
                                                         <Stack
                                                             spacing={0.25}
                                                             sx={{ mt: 1.25 }}
                                                         >
-                                                            <Typography
-                                                                fontWeight={700}
-                                                                variant="caption"
-                                                            >
-                                                                {translate(
-                                                                    'aiAssist.skillUsed',
-                                                                    'Skill used:'
-                                                                )}{' '}
-                                                                {message
-                                                                    .skillTrace
-                                                                    .resolvedSkill ||
-                                                                    'auto'}
-                                                            </Typography>
+                                                            {message.skillTrace
+                                                                .resolvedSkill ||
+                                                            message.skillTrace
+                                                                .requestedSkill ? (
+                                                                <Typography
+                                                                    fontWeight={
+                                                                        700
+                                                                    }
+                                                                    variant="caption"
+                                                                >
+                                                                    {translate(
+                                                                        'aiAssist.skillUsed',
+                                                                        'Skill used:'
+                                                                    )}{' '}
+                                                                    {message
+                                                                        .skillTrace
+                                                                        .resolvedSkill ||
+                                                                        message
+                                                                            .skillTrace
+                                                                            .requestedSkill}
+                                                                </Typography>
+                                                            ) : null}
                                                             {message.skillTrace
                                                                 .student
                                                                 ?.displayName ? (
@@ -2279,6 +2410,36 @@ const AIAssistPage = (): JSX.Element => {
                                                 isLoadingConversation
                                             }
                                             fullWidth
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            aria-label={translate(
+                                                                'aiAssist.sendMessage',
+                                                                'Send message'
+                                                            )}
+                                                            color="primary"
+                                                            disabled={
+                                                                isSending ||
+                                                                isLoadingConversation ||
+                                                                !canSubmit
+                                                            }
+                                                            onClick={() => {
+                                                                void handleSubmit();
+                                                            }}
+                                                            size="small"
+                                                        >
+                                                            {isSending ? (
+                                                                <CircularProgress
+                                                                    size={16}
+                                                                />
+                                                            ) : (
+                                                                <SendIcon fontSize="small" />
+                                                            )}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
                                             inputRef={composerInputRef}
                                             inputProps={{
                                                 'aria-label': translate(
@@ -2313,6 +2474,9 @@ const AIAssistPage = (): JSX.Element => {
                                                 'Ask TaiGer AI'
                                             )}
                                             sx={{
+                                                '& .MuiInputBase-root': {
+                                                    pr: 0.5
+                                                },
                                                 '& .MuiInputBase-inputMultiline':
                                                     selectedMentionedStudent
                                                         ? {
@@ -2326,33 +2490,6 @@ const AIAssistPage = (): JSX.Element => {
                                         />
                                         {renderComposerSuggestions()}
                                     </Box>
-                                    <Stack
-                                        direction="row"
-                                        justifyContent="flex-end"
-                                    >
-                                        <Button
-                                            disabled={
-                                                isSending ||
-                                                isLoadingConversation ||
-                                                !input.trim()
-                                            }
-                                            endIcon={
-                                                isSending ? (
-                                                    <CircularProgress
-                                                        size={16}
-                                                    />
-                                                ) : (
-                                                    <SendIcon />
-                                                )
-                                            }
-                                            onClick={() => {
-                                                void handleSubmit();
-                                            }}
-                                            variant="contained"
-                                        >
-                                            {translate('aiAssist.ask', 'Ask')}
-                                        </Button>
-                                    </Stack>
                                 </Stack>
                             </Box>
                         </Paper>
