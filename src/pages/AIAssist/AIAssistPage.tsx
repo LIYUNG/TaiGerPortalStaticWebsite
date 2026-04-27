@@ -42,10 +42,12 @@ import {
     searchAIAssistStudents,
     updateAIAssistConversation
 } from '@/api';
+import DEMO from '@/store/constant';
 import type {
     AIAssistAssistContext,
     AIAssistConversation,
     AIAssistMessage,
+    AIAssistMessageLinkHint,
     AIAssistMentionedStudent,
     AIAssistPickerStudent,
     AIAssistQuickSkill,
@@ -640,41 +642,136 @@ const renderHighlightedMessageText = (
     );
 };
 
+const linkHrefFromHint = (hint: AIAssistMessageLinkHint): string | null => {
+    if (!hint?.entityId || !hint?.route) {
+        return null;
+    }
+
+    if (hint.route === 'student_database_profile') {
+        return DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+            hint.entityId,
+            DEMO.PROFILE_HASH
+        );
+    }
+
+    if (hint.route === 'student_profile') {
+        return DEMO.PROFILE_STUDENT_LINK(hint.entityId);
+    }
+
+    if (hint.route === 'program_detail') {
+        return DEMO.SINGLE_PROGRAM_LINK(hint.entityId);
+    }
+
+    return null;
+};
+
+const applyLinkHintsToMarkdown = (
+    content: string,
+    linkHints: AIAssistMessageLinkHint[] | null | undefined
+): string => {
+    if (!content || !Array.isArray(linkHints) || linkHints.length === 0) {
+        return content;
+    }
+
+    const escapeMarkdownLabel = (value: string): string =>
+        value
+            .replace(/\\/g, '\\\\')
+            .replace(/\[/g, '\\[')
+            .replace(/\]/g, '\\]');
+    const candidates = linkHints
+        .map((hint) => ({
+            ...hint,
+            href: linkHrefFromHint(hint)
+        }))
+        .filter(
+            (hint) =>
+                Boolean(hint.href) &&
+                Number.isInteger(hint.start) &&
+                Number.isInteger(hint.end) &&
+                hint.start >= 0 &&
+                hint.end > hint.start &&
+                hint.end <= content.length
+        )
+        .sort((left, right) =>
+            left.start === right.start
+                ? right.end - left.end
+                : left.start - right.start
+        );
+
+    if (!candidates.length) {
+        return content;
+    }
+
+    const nonOverlappingHints = candidates.reduce<
+        Array<
+            AIAssistMessageLinkHint & {
+                href: string | null;
+            }
+        >
+    >((selected, candidate) => {
+        const previous = selected[selected.length - 1];
+        if (previous && candidate.start < previous.end) {
+            return selected;
+        }
+        selected.push(candidate);
+        return selected;
+    }, []);
+
+    if (!nonOverlappingHints.length) {
+        return content;
+    }
+
+    let cursor = 0;
+    let linked = '';
+
+    nonOverlappingHints.forEach((hint) => {
+        const href = hint.href || '';
+        const label = content.slice(hint.start, hint.end);
+
+        linked += content.slice(cursor, hint.start);
+        linked += `[${escapeMarkdownLabel(label)}](${href})`;
+        cursor = hint.end;
+    });
+
+    linked += content.slice(cursor);
+    return linked;
+};
+
 const MessageContent = ({
     message
 }: {
     message: AIAssistMessage;
 }): JSX.Element => {
-    const content = message.content || '';
-    const studentDisplayName = message.skillTrace?.student?.displayName || null;
+    const student = message.skillTrace?.student || null;
+    const studentDisplayName = student?.displayName || null;
     const requestedSkill = message.skillTrace?.requestedSkill || null;
     const highlightTokens = [
         studentDisplayName ? `@${studentDisplayName}` : '',
         requestedSkill ? `#${requestedSkill}` : ''
     ].filter(Boolean);
+    const content = applyLinkHintsToMarkdown(
+        message.content || '',
+        message.linkHints
+    );
     const hasMarkdownSyntax = /(^|\s)([#>*`-]|\d+\.)\s|[*_`[\]()]/m.test(
         content
     );
 
-    if (highlightTokens.length === 0) {
-        return <MessageMarkdown content={content} />;
-    }
-
-    // Keep markdown rendering for rich responses. Apply inline highlight only
-    // when content is plain text.
-    if (hasMarkdownSyntax) {
-        return <MessageMarkdown content={content} />;
-    }
-
     return (
-        <Box
-            sx={{
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word'
-            }}
-        >
-            {renderHighlightedMessageText(content, highlightTokens)}
-        </Box>
+        <Stack spacing={0.75}>
+            {highlightTokens.length === 0 || hasMarkdownSyntax ? (
+                <MessageMarkdown content={content} />
+            ) : (
+                <Box
+                    sx={{
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word'
+                    }}
+                >
+                    {renderHighlightedMessageText(content, highlightTokens)}
+                </Box>
+            )}
+        </Stack>
     );
 };
 

@@ -911,6 +911,16 @@ describe('AIAssistPage', () => {
                         conversationId: 'conv_latest',
                         role: 'user',
                         content: '@Abby Student #identify_risk check blockers',
+                        linkHints: [
+                            {
+                                label: '@Abby Student',
+                                entityType: 'student',
+                                entityId: 'student_abby',
+                                start: 0,
+                                end: 13,
+                                route: 'student_database_profile'
+                            }
+                        ],
                         skillTrace: {
                             requestedSkill: 'identify_risk',
                             resolvedSkill: 'identify_risk',
@@ -932,9 +942,10 @@ describe('AIAssistPage', () => {
 
         await waitFor(() => {
             expect(
-                screen.getByText('@Abby Student #identify_risk check blockers')
+                screen.getByRole('link', { name: '@Abby Student' })
             ).toBeTruthy();
         });
+        expect(screen.getByText('#identify_risk check blockers')).toBeTruthy();
         expect(screen.getByText('Skill used: identify_risk')).toBeTruthy();
         expect(screen.getByText('Student: Abby Student')).toBeTruthy();
     });

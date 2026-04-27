@@ -247,12 +247,22 @@ export interface AIAssistSkillTrace {
     fallbackReason?: string | null;
 }
 
+export interface AIAssistMessageLinkHint {
+    label: string;
+    entityType: 'student' | 'program';
+    entityId: string;
+    start: number;
+    end: number;
+    route: 'student_database_profile' | 'student_profile' | 'program_detail';
+}
+
 export interface AIAssistMessage {
     id: string;
     conversationId?: string;
     role: 'user' | 'assistant' | 'system';
     content: string;
     skillTrace?: AIAssistSkillTrace | null;
+    linkHints?: AIAssistMessageLinkHint[] | null;
     model?: string;
     responseId?: string;
     usage?: Record<string, unknown>;
