@@ -101,6 +101,7 @@ const defaultComposerState: ComposerState = {
 };
 const skillTagPattern = /(^|\s)#([a-z_]+)/g;
 const minimumStudentSearchLength = 2;
+const minimumStreamStatusDisplayMs = 450;
 
 const getStudentStringField = (
     student: AIAssistPickerStudent,
@@ -485,12 +486,59 @@ const summarizeToolValue = (value: unknown): string | null => {
 const resolveCurrentProgressStatus = (
     event: AIAssistStreamProgressEvent
 ): string | null => {
+    if (event.type === 'status') {
+        if (event.phase === 'mode') {
+            if (event.mode === 'intent_first') {
+                return 'Intent routing...';
+            }
+
+            if (event.mode === 'skill') {
+                return 'Planning skill workflow...';
+            }
+
+            if (
+                event.mode === 'legacy_tool_loop' ||
+                event.mode === 'chat_fallback'
+            ) {
+                return 'Thinking...';
+            }
+        }
+
+        if (event.phase === 'intent_routing') {
+            return 'Intent routing...';
+        }
+
+        if (event.phase === 'entity_resolution') {
+            return 'Resolving student...';
+        }
+
+        if (event.phase === 'completed') {
+            return null;
+        }
+    }
+
     if (event.type === 'thinking') {
+        if (event.phase === 'intent_routing') {
+            return 'Intent routing...';
+        }
+
+        if (event.phase === 'entity_resolution') {
+            return 'Resolving student...';
+        }
+
+        if (event.phase === 'answer_composer') {
+            return 'Composing answer...';
+        }
+
         return 'Thinking...';
     }
 
     if (event.type === 'tool_start') {
-        return `Calling ${getToolDisplayName(event.toolName || 'tool')}...`;
+        return `Tool calling: ${getToolDisplayName(event.toolName || 'tool')}...`;
+    }
+
+    if (event.type === 'tool_done') {
+        return 'Thinking...';
     }
 
     return null;
@@ -786,6 +834,12 @@ const AIAssistPage = (): JSX.Element => {
         string | null
     >(null);
     const [thinkingDotCount, setThinkingDotCount] = useState(1);
+    const currentStreamStatusRef = useRef<string | null>(null);
+    const streamStatusSinceRef = useRef(0);
+    const pendingStreamStatusRef = useRef<string | null>(null);
+    const streamStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+        null
+    );
     const [showGoToBottom, setShowGoToBottom] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [deletingConversationId, setDeletingConversationId] = useState<
@@ -997,6 +1051,66 @@ const AIAssistPage = (): JSX.Element => {
             })
         );
     }, [mentionedStudent, selectedQuickSkill, skillTrace]);
+
+    useEffect(() => {
+        currentStreamStatusRef.current = currentStreamStatus;
+    }, [currentStreamStatus]);
+
+    useEffect(() => {
+        return () => {
+            if (streamStatusTimeoutRef.current) {
+                clearTimeout(streamStatusTimeoutRef.current);
+                streamStatusTimeoutRef.current = null;
+            }
+        };
+    }, []);
+
+    const clearPendingStreamStatus = useCallback(() => {
+        if (streamStatusTimeoutRef.current) {
+            clearTimeout(streamStatusTimeoutRef.current);
+            streamStatusTimeoutRef.current = null;
+        }
+        pendingStreamStatusRef.current = null;
+    }, []);
+
+    const setStreamStatusWithMinDuration = useCallback(
+        (nextStatus: string | null, forceImmediate = false): void => {
+            const currentStatus = currentStreamStatusRef.current;
+            if (currentStatus === nextStatus) {
+                return;
+            }
+
+            if (forceImmediate || nextStatus == null || currentStatus == null) {
+                clearPendingStreamStatus();
+                setCurrentStreamStatus(nextStatus);
+                streamStatusSinceRef.current = Date.now();
+                return;
+            }
+
+            const elapsed = Date.now() - streamStatusSinceRef.current;
+            const remaining = minimumStreamStatusDisplayMs - elapsed;
+
+            if (remaining <= 0) {
+                clearPendingStreamStatus();
+                setCurrentStreamStatus(nextStatus);
+                streamStatusSinceRef.current = Date.now();
+                return;
+            }
+
+            pendingStreamStatusRef.current = nextStatus;
+            if (streamStatusTimeoutRef.current) {
+                clearTimeout(streamStatusTimeoutRef.current);
+            }
+            streamStatusTimeoutRef.current = setTimeout(() => {
+                streamStatusTimeoutRef.current = null;
+                const pendingStatus = pendingStreamStatusRef.current;
+                pendingStreamStatusRef.current = null;
+                setCurrentStreamStatus(pendingStatus);
+                streamStatusSinceRef.current = Date.now();
+            }, remaining);
+        },
+        [clearPendingStreamStatus]
+    );
 
     useEffect(() => {
         if (!(isSending && currentStreamStatus === 'Thinking...')) {
@@ -1455,7 +1569,7 @@ const AIAssistPage = (): JSX.Element => {
         return tokens.join(' ').trim();
     };
 
-    const handleSubmit = async (): Promise<void> => {
+    const handleSubmit = useCallback(async (): Promise<void> => {
         const trimmedInput = input.trim();
         const assistContext = buildAssistContext();
         const submissionMessage = buildSubmissionMessage(
@@ -1469,20 +1583,18 @@ const AIAssistPage = (): JSX.Element => {
 
         setIsSending(true);
         setError(null);
-        setCurrentStreamStatus(null);
+        setStreamStatusWithMinDuration(null, true);
         scrollTranscriptToBottom();
 
         try {
             const onProgress = (event: AIAssistStreamProgressEvent): void => {
                 const status = resolveCurrentProgressStatus(event);
-                if (status) {
-                    setCurrentStreamStatus(status);
-                }
+                setStreamStatusWithMinDuration(status);
             };
             const onError = (message: string): void => {
                 void message;
                 setError(aiAssistGenericErrorMessage);
-                setCurrentStreamStatus(null);
+                setStreamStatusWithMinDuration(null, true);
             };
 
             if (!conversationId) {
@@ -1519,7 +1631,7 @@ const AIAssistPage = (): JSX.Element => {
                 ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
-                setCurrentStreamStatus(null);
+                setStreamStatusWithMinDuration(null, true);
                 return;
             }
 
@@ -1553,16 +1665,27 @@ const AIAssistPage = (): JSX.Element => {
             setTrace((previous) => mergeTrace(previous, responseTrace || []));
             setInput(defaultInput);
             touchConversation(conversationId);
-            setCurrentStreamStatus(null);
+            setStreamStatusWithMinDuration(null, true);
         } catch (err) {
             void err;
             setError(aiAssistGenericErrorMessage);
-            setCurrentStreamStatus(null);
+            setStreamStatusWithMinDuration(null, true);
         } finally {
             setIsSending(false);
-            setCurrentStreamStatus(null);
+            setStreamStatusWithMinDuration(null, true);
         }
-    };
+    }, [
+        addConversationToTop,
+        composerState,
+        conversationId,
+        input,
+        isLoadingConversation,
+        isSending,
+        preferredLanguage,
+        scrollTranscriptToBottom,
+        setStreamStatusWithMinDuration,
+        touchConversation
+    ]);
 
     const handleComposerKeyDown = (
         event: KeyboardEvent<HTMLDivElement>
