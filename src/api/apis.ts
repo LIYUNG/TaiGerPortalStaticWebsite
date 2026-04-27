@@ -603,6 +603,15 @@ const streamAIAssistRequest = async <TFinal>(
                     return;
                 }
 
+                if (event === 'token') {
+                    const tokenText =
+                        typeof parsed?.text === 'string' ? parsed.text : '';
+                    if (tokenText) {
+                        callbacks.onToken?.(tokenText);
+                    }
+                    return;
+                }
+
                 if (event === 'error') {
                     streamErrorMessage = genericErrorMessage;
                     callbacks.onError?.(streamErrorMessage);

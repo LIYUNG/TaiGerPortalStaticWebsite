@@ -830,6 +830,8 @@ const AIAssistPage = (): JSX.Element => {
     const [isLoadingConversation, setIsLoadingConversation] = useState(false);
     const [isLoadingStudentPicker, setIsLoadingStudentPicker] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [streamedAssistantContent, setStreamedAssistantContent] =
+        useState('');
     const [currentStreamStatus, setCurrentStreamStatus] = useState<
         string | null
     >(null);
@@ -1583,6 +1585,7 @@ const AIAssistPage = (): JSX.Element => {
 
         setIsSending(true);
         setError(null);
+        setStreamedAssistantContent('');
         setStreamStatusWithMinDuration(null, true);
         scrollTranscriptToBottom();
 
@@ -1591,9 +1594,18 @@ const AIAssistPage = (): JSX.Element => {
                 const status = resolveCurrentProgressStatus(event);
                 setStreamStatusWithMinDuration(status);
             };
+            const onToken = (text: string): void => {
+                if (!text) {
+                    return;
+                }
+
+                setStreamedAssistantContent((previous) => previous + text);
+                scrollTranscriptToBottom();
+            };
             const onError = (message: string): void => {
                 void message;
                 setError(aiAssistGenericErrorMessage);
+                setStreamedAssistantContent('');
                 setStreamStatusWithMinDuration(null, true);
             };
 
@@ -1606,6 +1618,7 @@ const AIAssistPage = (): JSX.Element => {
                     },
                     {
                         onProgress,
+                        onToken,
                         onError
                     }
                 );
@@ -1631,6 +1644,7 @@ const AIAssistPage = (): JSX.Element => {
                 ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
+                setStreamedAssistantContent('');
                 setStreamStatusWithMinDuration(null, true);
                 return;
             }
@@ -1644,6 +1658,7 @@ const AIAssistPage = (): JSX.Element => {
                 },
                 {
                     onProgress,
+                    onToken,
                     onError
                 }
             );
@@ -1665,13 +1680,16 @@ const AIAssistPage = (): JSX.Element => {
             setTrace((previous) => mergeTrace(previous, responseTrace || []));
             setInput(defaultInput);
             touchConversation(conversationId);
+            setStreamedAssistantContent('');
             setStreamStatusWithMinDuration(null, true);
         } catch (err) {
             void err;
             setError(aiAssistGenericErrorMessage);
+            setStreamedAssistantContent('');
             setStreamStatusWithMinDuration(null, true);
         } finally {
             setIsSending(false);
+            setStreamedAssistantContent('');
             setStreamStatusWithMinDuration(null, true);
         }
     }, [
@@ -2462,6 +2480,27 @@ const AIAssistPage = (): JSX.Element => {
                                         ) : null}
                                     </Stack>
                                 )}
+                                {isSending && streamedAssistantContent ? (
+                                    <Paper
+                                        sx={{
+                                            mt: 1.5,
+                                            p: 2
+                                        }}
+                                        variant="outlined"
+                                    >
+                                        <Typography
+                                            color="text.secondary"
+                                            fontWeight={700}
+                                            gutterBottom
+                                            variant="caption"
+                                        >
+                                            Assistant
+                                        </Typography>
+                                        <MessageMarkdown
+                                            content={streamedAssistantContent}
+                                        />
+                                    </Paper>
+                                ) : null}
                                 {isSending && currentStreamStatus ? (
                                     <Box
                                         sx={{

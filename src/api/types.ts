@@ -363,6 +363,7 @@ export interface AIAssistStreamProgressEvent {
 
 export interface AIAssistStreamCallbacks<TFinal> {
     onProgress?: (event: AIAssistStreamProgressEvent) => void;
+    onToken?: (text: string) => void;
     onFinal?: (payload: TFinal) => void;
     onError?: (message: string) => void;
 }

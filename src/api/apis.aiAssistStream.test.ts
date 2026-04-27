@@ -62,4 +62,35 @@ describe('AI Assist stream API error handling', () => {
             'AI Assist is temporarily unavailable. Please try again.'
         );
     });
+
+    it('emits token callbacks before final payload', async () => {
+        const onToken = vi.fn();
+        const onFinal = vi.fn();
+        vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+            createSseResponse([
+                'event: token\n',
+                'data: {"text":"Hello"}\n\n',
+                'event: token\n',
+                'data: {"text":" world"}\n\n',
+                'event: final\n',
+                'data: {"success":true,"data":{"answer":"Hello world"}}\n\n'
+            ])
+        );
+
+        const result = await streamAIAssistFirstMessage(
+            { message: 'hello' },
+            { onToken, onFinal }
+        );
+
+        expect(onToken).toHaveBeenNthCalledWith(1, 'Hello');
+        expect(onToken).toHaveBeenNthCalledWith(2, ' world');
+        expect(onFinal).toHaveBeenCalledWith({
+            success: true,
+            data: { answer: 'Hello world' }
+        });
+        expect(result).toEqual({
+            success: true,
+            data: { answer: 'Hello world' }
+        });
+    });
 });
