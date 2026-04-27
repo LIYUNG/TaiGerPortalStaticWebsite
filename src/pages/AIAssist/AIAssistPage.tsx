@@ -90,6 +90,8 @@ const quickSkills: QuickSkillOption[] = [
         labelKey: 'aiAssist.quickSkill.reviewOpenTasks'
     }
 ];
+const aiAssistGenericErrorMessage =
+    'AI Assist is temporarily unavailable. Please try again.';
 
 const defaultInput = '';
 const defaultComposerState: ComposerState = {
@@ -1478,7 +1480,8 @@ const AIAssistPage = (): JSX.Element => {
                 }
             };
             const onError = (message: string): void => {
-                setError(message);
+                void message;
+                setError(aiAssistGenericErrorMessage);
                 setCurrentStreamStatus(null);
             };
 
@@ -1552,11 +1555,8 @@ const AIAssistPage = (): JSX.Element => {
             touchConversation(conversationId);
             setCurrentStreamStatus(null);
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Failed to send AI Assist message'
-            );
+            void err;
+            setError(aiAssistGenericErrorMessage);
             setCurrentStreamStatus(null);
         } finally {
             setIsSending(false);

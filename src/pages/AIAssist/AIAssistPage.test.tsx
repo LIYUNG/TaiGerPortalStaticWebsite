@@ -908,7 +908,11 @@ describe('AIAssistPage', () => {
         await user.click(screen.getByRole('button', { name: 'Send message' }));
 
         await waitFor(() => {
-            expect(screen.getByText('send failed')).toBeTruthy();
+            expect(
+                screen.getByText(
+                    'AI Assist is temporarily unavailable. Please try again.'
+                )
+            ).toBeTruthy();
         });
         expect(input).toHaveValue('Need help');
     });

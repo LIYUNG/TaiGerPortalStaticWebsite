@@ -549,6 +549,8 @@ const streamAIAssistRequest = async <TFinal>(
     payload: Record<string, unknown>,
     callbacks: AIAssistStreamCallbacks<TFinal> = {}
 ): Promise<TFinal | null> => {
+    const genericErrorMessage =
+        'AI Assist is temporarily unavailable. Please try again.';
     const response = await fetch(buildSseEndpoint(path), {
         method: 'POST',
         credentials: 'include',
@@ -561,15 +563,15 @@ const streamAIAssistRequest = async <TFinal>(
     });
 
     if (!response.ok || !response.body) {
-        throw new Error(
-            `Streaming request failed with status ${response.status}`
-        );
+        callbacks.onError?.(genericErrorMessage);
+        throw new Error(genericErrorMessage);
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffered = '';
     let finalPayload: TFinal | null = null;
+    let streamErrorMessage: string | null = null;
 
     while (true) {
         const { value, done } = await reader.read();
@@ -602,14 +604,18 @@ const streamAIAssistRequest = async <TFinal>(
                 }
 
                 if (event === 'error') {
-                    callbacks.onError?.(
-                        parsed?.message || 'AI Assist streaming failed'
-                    );
+                    streamErrorMessage = genericErrorMessage;
+                    callbacks.onError?.(streamErrorMessage);
                 }
             } catch {
-                callbacks.onError?.('Failed to parse AI Assist stream payload');
+                streamErrorMessage = genericErrorMessage;
+                callbacks.onError?.(streamErrorMessage);
             }
         });
+    }
+
+    if (!finalPayload && streamErrorMessage) {
+        throw new Error(streamErrorMessage);
     }
 
     return finalPayload;
