@@ -514,6 +514,13 @@ const resolveCurrentProgressStatus = (
             return 'Resolving student...';
         }
 
+        if (
+            event.phase === 'annotation' ||
+            event.status === 'annotating_references'
+        ) {
+            return 'Adding reference links...';
+        }
+
         if (event.phase === 'completed') {
             return null;
         }
@@ -584,21 +591,24 @@ const MessageMarkdown = ({ content }: { content: string }): JSX.Element => (
                 p: 1
             },
             '& a': {
-                borderBottom: '1px solid',
-                borderColor: 'primary.light',
-                borderRadius: 0.75,
-                color: 'primary.dark',
-                display: 'inline-block',
+                borderBottom: '1px solid rgba(25, 118, 210, 0.38)',
+                color: '#1565c0',
+                display: 'inline',
                 fontWeight: 600,
                 lineHeight: 1.35,
-                px: 0.35,
                 textDecoration: 'none',
-                transition: 'all 0.16s ease'
+                textUnderlineOffset: '2px',
+                transition:
+                    'color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease'
+            },
+            '& a:visited': {
+                borderBottomColor: 'rgba(25, 118, 210, 0.38)',
+                color: '#1565c0'
             },
             '& a:hover': {
-                backgroundColor: 'rgba(25, 118, 210, 0.10)',
-                borderColor: 'primary.main',
-                color: 'primary.main'
+                backgroundColor: 'rgba(21, 101, 192, 0.08)',
+                borderColor: '#1565c0',
+                color: '#0d47a1'
             },
             '& a:focus-visible': {
                 boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.24)',
@@ -727,7 +737,12 @@ const applyReferenceMarkersToMarkdown = (
                 return label;
             }
 
-            const safeLabel = label
+            const displayLabel =
+                reference.entityType === 'student' && !label.startsWith('@')
+                    ? `@${label}`
+                    : label;
+
+            const safeLabel = displayLabel
                 .replace(/\\/g, '\\\\')
                 .replace(/\[/g, '\\[')
                 .replace(/\]/g, '\\]');
@@ -1688,6 +1703,8 @@ const AIAssistPage = (): JSX.Element => {
         setStreamStatusWithMinDuration(null, true);
         scrollTranscriptToBottom();
 
+        let hasStreamError = false;
+
         try {
             const onProgress = (event: AIAssistStreamProgressEvent): void => {
                 const status = resolveCurrentProgressStatus(event);
@@ -1703,6 +1720,7 @@ const AIAssistPage = (): JSX.Element => {
             };
             const onError = (message: string): void => {
                 void message;
+                hasStreamError = true;
                 setError(aiAssistGenericErrorMessage);
                 setStreamedAssistantContent('');
                 setStreamedAssistantReferences({});
@@ -1711,6 +1729,7 @@ const AIAssistPage = (): JSX.Element => {
             const onReferences = (
                 references: Record<string, AIAssistMessageLinkHint>
             ): void => {
+                setStreamStatusWithMinDuration('Adding reference links...');
                 setStreamedAssistantReferences(
                     references &&
                         typeof references === 'object' &&
@@ -1759,7 +1778,7 @@ const AIAssistPage = (): JSX.Element => {
                 setSelectedQuickSkill(null);
                 setStreamedAssistantContent('');
                 setStreamedAssistantReferences({});
-                setStreamStatusWithMinDuration(null, true);
+                setStreamStatusWithMinDuration(null);
                 return;
             }
 
@@ -1814,9 +1833,10 @@ const AIAssistPage = (): JSX.Element => {
             touchConversation(conversationId);
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
-            setStreamStatusWithMinDuration(null, true);
+            setStreamStatusWithMinDuration(null);
         } catch (err) {
             void err;
+            hasStreamError = true;
             setError(aiAssistGenericErrorMessage);
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
@@ -1825,7 +1845,9 @@ const AIAssistPage = (): JSX.Element => {
             setIsSending(false);
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
-            setStreamStatusWithMinDuration(null, true);
+            if (hasStreamError) {
+                setStreamStatusWithMinDuration(null, true);
+            }
         }
     }, [
         addConversationToTop,
