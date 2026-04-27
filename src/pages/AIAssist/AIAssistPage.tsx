@@ -531,7 +531,7 @@ const resolveCurrentProgressStatus = (
             event.phase === 'annotation' ||
             event.status === 'annotating_references'
         ) {
-            return 'Adding reference links...';
+            return 'Finalizing response...';
         }
 
         if (event.phase === 'completed') {
@@ -1742,7 +1742,7 @@ const AIAssistPage = (): JSX.Element => {
             const onReferences = (
                 references: Record<string, AIAssistMessageLinkHint>
             ): void => {
-                setStreamStatusWithMinDuration('Adding reference links...');
+                setStreamStatusWithMinDuration('Finalizing response...');
                 setStreamedAssistantReferences(
                     references &&
                         typeof references === 'object' &&
