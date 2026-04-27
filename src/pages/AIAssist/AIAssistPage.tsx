@@ -201,12 +201,25 @@ const getNextConversation = (
     );
 };
 
-const formatStudentMeta = (student: AIAssistPickerStudent): string =>
+const formatStudentMeta = (
+    student: AIAssistPickerStudent,
+    translate: (
+        key: string,
+        defaultValue: string,
+        options?: Record<string, unknown>
+    ) => string
+): string =>
     [
         getStudentChineseName(student),
         student.email,
         student.applyingProgramCount != null
-            ? `${student.applyingProgramCount} applications`
+            ? translate(
+                  'aiAssist.applicationsCount',
+                  '{{count}} applications',
+                  {
+                      count: student.applyingProgramCount
+                  }
+              )
             : null
     ]
         .filter(Boolean)
@@ -2028,7 +2041,7 @@ const AIAssistPage = (): JSX.Element => {
                 </Typography>
             ) : (
                 students.map((student) => {
-                    const studentMeta = formatStudentMeta(student);
+                    const studentMeta = formatStudentMeta(student, translate);
 
                     return (
                         <Button
@@ -2308,7 +2321,10 @@ const AIAssistPage = (): JSX.Element => {
             draftConversation?.mode === 'studentReady' &&
             draftConversation.student
         ) {
-            const studentMeta = formatStudentMeta(draftConversation.student);
+            const studentMeta = formatStudentMeta(
+                draftConversation.student,
+                translate
+            );
 
             return (
                 <Stack spacing={1.5}>

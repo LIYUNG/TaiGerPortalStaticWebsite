@@ -232,7 +232,7 @@ export interface AIAssistSkillTrace {
     requestedSkill?: AIAssistQuickSkill | null;
     resolvedSkill?: AIAssistQuickSkill | null;
     unknownSkillText?: string | null;
-    mode?: 'skill' | 'general';
+    mode?: 'skill' | 'general' | 'composer' | string;
     student?: AIAssistMentionedStudent | null;
     status?: 'completed' | 'fallback' | 'success' | 'failed' | string;
     steps?: Array<

@@ -572,23 +572,8 @@ const streamAIAssistRequest = async <TFinal>(
     let buffered = '';
     let finalPayload: TFinal | null = null;
     let streamErrorMessage: string | null = null;
-
-    while (true) {
-        const { value, done } = await reader.read();
-        if (done) {
-            break;
-        }
-
-        buffered += decoder.decode(value, { stream: true });
-        const boundary = buffered.lastIndexOf('\n\n');
-        if (boundary < 0) {
-            continue;
-        }
-
-        const complete = buffered.slice(0, boundary);
-        buffered = buffered.slice(boundary + 2);
-
-        parseSseChunks(complete).forEach(({ event, data }) => {
+    const processChunk = (chunkText: string): void => {
+        parseSseChunks(chunkText).forEach(({ event, data }) => {
             try {
                 const parsed = JSON.parse(data);
 
@@ -632,6 +617,27 @@ const streamAIAssistRequest = async <TFinal>(
                 callbacks.onError?.(streamErrorMessage);
             }
         });
+    };
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+            break;
+        }
+
+        buffered += decoder.decode(value, { stream: true });
+        const boundary = buffered.lastIndexOf('\n\n');
+        if (boundary < 0) {
+            continue;
+        }
+
+        const complete = buffered.slice(0, boundary);
+        buffered = buffered.slice(boundary + 2);
+        processChunk(complete);
+    }
+
+    if (buffered.trim()) {
+        processChunk(buffered);
     }
 
     if (!finalPayload && streamErrorMessage) {
