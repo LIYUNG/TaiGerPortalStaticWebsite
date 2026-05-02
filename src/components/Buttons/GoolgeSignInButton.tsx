@@ -1,25 +1,10 @@
 import { Button, SvgIcon } from '@mui/material';
 import { googleOAuthClientId, googleOAuthRedirectUrl } from '../../env';
 import DEMO from '@store/constant';
+import { sanitizeInternalPath } from '@utils/authRedirect';
 
 const GOOGLE_OAUTH_CLIENT_ID = googleOAuthClientId;
 const GOOGLE_OAUTH_REDIRECT_URL = googleOAuthRedirectUrl;
-
-const sanitizeInternalPath = (value: string | null): string | null => {
-    if (!value) {
-        return null;
-    }
-
-    if (
-        !value.startsWith('/') ||
-        value.startsWith('//') ||
-        value.includes('://')
-    ) {
-        return null;
-    }
-
-    return value;
-};
 
 function GoogleIcon(): JSX.Element {
     return (

@@ -35,4 +35,9 @@ describe('authRedirect', () => {
             '/admissions-overview'
         );
     });
+
+    it('rejects paths containing backslashes', () => {
+        expect(sanitizeInternalPath('/some\\path')).toBeNull();
+        expect(sanitizeInternalPath('some\\path')).toBeNull();
+    });
 });
