@@ -5,6 +5,7 @@ import {
     RouterProvider,
     createBrowserRouter,
     useNavigation,
+    useLocation,
     type RouteObject
 } from 'react-router-dom';
 import '@fontsource/roboto';
@@ -19,6 +20,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { ChunkLoadErrorBoundary } from '@utils/chunkLoadError';
+import { getPostLoginRedirectPath } from '@utils/authRedirect';
 
 const Layout = (): JSX.Element => {
     const navigation = useNavigation();
@@ -45,10 +47,19 @@ const Layout = (): JSX.Element => {
 const WrapperPublic = (): JSX.Element => {
     const { isAuthenticated } = useAuth();
     const query = new URLSearchParams(window.location.search);
+    const redirectPath = getPostLoginRedirectPath(query);
+    const location = useLocation();
+    const isOAuthCallback = location.pathname === '/account/google/verify';
 
     return isAuthenticated ? (
-        query.get('p') ? (
-            <Navigate to={query.get('p') ?? '/'} />
+        isOAuthCallback ? (
+            <ChunkLoadErrorBoundary>
+                <Suspense fallback={<Loading />}>
+                    <Outlet />
+                </Suspense>
+            </ChunkLoadErrorBoundary>
+        ) : redirectPath ? (
+            <Navigate to={redirectPath} />
         ) : (
             <Navigate to={DEMO.DASHBOARD_LINK} />
         )
