@@ -15,6 +15,7 @@ import DEMO from '@store/constant';
 import AuthWrapper from '@components/AuthWrapper';
 import { t } from 'i18next';
 import { ApiResponse, IUserWithId } from '@taiger-common/model';
+import { getPostLoginRedirectPath } from '@utils/authRedirect';
 
 export default function GoogleOAuthCallback() {
     const [searchParams] = useSearchParams();
@@ -32,8 +33,8 @@ export default function GoogleOAuthCallback() {
             // Extract data from response (assuming it's an AxiosResponse)
             const responseData = response;
             login(responseData.data!);
-            // Redirect to dashboard or home page
-            navigate(DEMO.DASHBOARD_LINK, { replace: true });
+            const returnTo = getPostLoginRedirectPath(searchParams);
+            navigate(returnTo ?? DEMO.DASHBOARD_LINK, { replace: true });
         },
         onError: (error) => {
             console.error('OAuth failed:', error);

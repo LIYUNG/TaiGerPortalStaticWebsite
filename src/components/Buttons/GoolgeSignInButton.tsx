@@ -1,8 +1,25 @@
 import { Button, SvgIcon } from '@mui/material';
 import { googleOAuthClientId, googleOAuthRedirectUrl } from '../../env';
+import DEMO from '@store/constant';
 
 const GOOGLE_OAUTH_CLIENT_ID = googleOAuthClientId;
 const GOOGLE_OAUTH_REDIRECT_URL = googleOAuthRedirectUrl;
+
+const sanitizeInternalPath = (value: string | null): string | null => {
+    if (!value) {
+        return null;
+    }
+
+    if (
+        !value.startsWith('/') ||
+        value.startsWith('//') ||
+        value.includes('://')
+    ) {
+        return null;
+    }
+
+    return value;
+};
 
 function GoogleIcon(): JSX.Element {
     return (
@@ -38,12 +55,15 @@ function GoogleIcon(): JSX.Element {
 export const GoogleLoginButton = (): JSX.Element => {
     const handleGoogleLogin = (): void => {
         const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+        const loginUrl = new URL(window.location.href);
+        const returnTo = sanitizeInternalPath(loginUrl.searchParams.get('p'));
 
         const query = new URLSearchParams({
             client_id: GOOGLE_OAUTH_CLIENT_ID ?? '',
             redirect_uri: GOOGLE_OAUTH_REDIRECT_URL ?? '',
             response_type: 'code',
-            scope: 'openid email profile'
+            scope: 'openid email profile',
+            state: returnTo ?? DEMO.DASHBOARD_LINK
         });
         url.search = query.toString();
 
