@@ -36,7 +36,6 @@ import {
     getLeadStatusLabel,
     getLeadStatusOptions
 } from '@pages/CRM/constants/statusOptions';
-import type { TFunction } from 'i18next';
 
 type LeadLike = {
     fullName?: string;
@@ -246,7 +245,7 @@ const LeadProfileHeader = ({
                                 fontSize: 20
                             }}
                         >
-                            {(String(lead.fullName || ''))
+                            {String(lead.fullName || '')
                                 .split(' ')
                                 .map((n: string) => n?.[0])
                                 .filter(Boolean)
@@ -1183,9 +1182,7 @@ const LeadProfileHeader = ({
                                             String(e.target.value)
                                         )
                                     }
-                                    value={
-                                        (formData.gender as string) || ''
-                                    }
+                                    value={(formData.gender as string) || ''}
                                 >
                                     <MenuItem value="male">Male</MenuItem>
                                     <MenuItem value="female">Female</MenuItem>

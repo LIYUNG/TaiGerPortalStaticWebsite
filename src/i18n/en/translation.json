@@ -298,6 +298,10 @@
         "quickSkill": {
             "identifyRisk": "Find application risks",
             "reviewMessages": "Check latest messages",
+            "reviewMessagesRecent": "Summarize recent messages",
+            "reviewMessagesAll": "Summarize all messages",
+            "reviewDocumentThreads": "Check document threads",
+            "summarizeLeadMeetings": "Summarize meetings",
             "reviewOpenTasks": "Review open tasks",
             "summarizeStudent": "Summarize a student"
         },

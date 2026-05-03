@@ -21,7 +21,6 @@ import {
 
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { IUser } from '@taiger-common/model';
-import type { CreateUserFromLeadLead } from '@pages/CRM/components/CreateUserFromLeadModal';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
 import { request } from '@/api';
