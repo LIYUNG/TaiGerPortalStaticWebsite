@@ -573,7 +573,7 @@ describe('AIAssistPage', () => {
         });
 
         await user.click(
-            screen.getByRole('button', { name: 'Summarize lead meetings' })
+            screen.getByRole('button', { name: 'Summarize meetings' })
         );
 
         const input = screen.getByLabelText('Ask TaiGer AI');

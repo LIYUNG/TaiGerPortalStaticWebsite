@@ -2145,7 +2145,7 @@ const AIAssistPage = (): JSX.Element => {
                                           ? 'Check document threads'
                                           : quickSkill.id ===
                                               'summarize_lead_meetings'
-                                            ? 'Summarize lead meetings'
+                                            ? 'Summarize meetings'
                                             : 'Review open tasks'
                         )}
                         onClick={() => {
