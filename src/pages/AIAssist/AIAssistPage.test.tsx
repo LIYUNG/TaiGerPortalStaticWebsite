@@ -538,7 +538,7 @@ describe('AIAssistPage', () => {
         });
 
         await user.click(
-            screen.getByRole('button', { name: 'Review open tasks' })
+            screen.getAllByRole('button', { name: 'Review open tasks' })[0]
         );
 
         const input = screen.getByLabelText('Ask TaiGer AI');
@@ -564,6 +564,40 @@ describe('AIAssistPage', () => {
         expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
     });
 
+    it('sends new lead-meeting skill context', async () => {
+        const user = userEvent.setup();
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('latest persisted answer')).toBeTruthy();
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: 'Summarize lead meetings' })
+        );
+
+        const input = screen.getByLabelText('Ask TaiGer AI');
+        await user.clear(input);
+        await user.type(input, 'meeting highlights{Enter}');
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistMessage).toHaveBeenCalledWith(
+                'conv_latest',
+                {
+                    message: 'meeting highlights',
+                    assistContext: {
+                        mentionedStudent: {
+                            id: 'student_abby',
+                            displayName: 'Abby Student'
+                        },
+                        requestedSkill: 'summarize_lead_meetings'
+                    },
+                    preferredLanguage: 'en'
+                }
+            );
+        });
+    });
+
     it('clears selected skill after each successful send', async () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
@@ -573,7 +607,7 @@ describe('AIAssistPage', () => {
         });
 
         await user.click(
-            screen.getByRole('button', { name: 'Review open tasks' })
+            screen.getAllByRole('button', { name: 'Review open tasks' })[0]
         );
 
         const input = screen.getByLabelText('Ask TaiGer AI');

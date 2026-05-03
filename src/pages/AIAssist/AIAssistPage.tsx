@@ -88,6 +88,22 @@ const quickSkills: QuickSkillOption[] = [
         labelKey: 'aiAssist.quickSkill.reviewMessages'
     },
     {
+        id: 'review_messages_recent',
+        labelKey: 'aiAssist.quickSkill.reviewMessagesRecent'
+    },
+    {
+        id: 'review_messages_all',
+        labelKey: 'aiAssist.quickSkill.reviewMessagesAll'
+    },
+    {
+        id: 'review_document_threads',
+        labelKey: 'aiAssist.quickSkill.reviewDocumentThreads'
+    },
+    {
+        id: 'summarize_lead_meetings',
+        labelKey: 'aiAssist.quickSkill.summarizeLeadMeetings'
+    },
+    {
         id: 'review_open_tasks',
         labelKey: 'aiAssist.quickSkill.reviewOpenTasks'
     }
@@ -143,6 +159,23 @@ const skillAliases: Record<AIAssistQuickSkill, string[]> = {
     summarize_student: ['summarize', 'summary', 'student summary'],
     identify_risk: ['risk', 'risks', 'identify', 'identify risk', 'blocker'],
     review_messages: ['messages', 'message', 'review messages', 'reply'],
+    review_messages_recent: [
+        'recent messages',
+        'recent message',
+        'last 30 days',
+        'recent comms'
+    ],
+    review_messages_all: ['all messages', 'all comms', 'history messages'],
+    review_document_threads: [
+        'document thread',
+        'document threads',
+        'thread status'
+    ],
+    summarize_lead_meetings: [
+        'lead meetings',
+        'meeting transcript',
+        'meeting summary'
+    ],
     review_open_tasks: ['tasks', 'task', 'open tasks', 'todo', 'followup']
 };
 
@@ -464,7 +497,11 @@ const toolDisplayNames: Record<string, string> = {
     get_student_summary: 'Student summary',
     get_student_applications: 'Applications',
     get_latest_communications: 'Messages',
+    get_recent_communication_context: 'Recent messages',
+    get_all_communication_context: 'All messages',
     get_profile_documents: 'Profile documents',
+    get_document_thread_context: 'Document threads',
+    get_crm_lead_meeting_context: 'Lead meetings',
     get_support_tickets: 'Support tickets'
 };
 
@@ -2099,7 +2136,17 @@ const AIAssistPage = (): JSX.Element => {
                                   ? 'Find application risks'
                                   : quickSkill.id === 'review_messages'
                                     ? 'Check latest messages'
-                                    : 'Review open tasks'
+                                    : quickSkill.id === 'review_messages_recent'
+                                      ? 'Summarize recent messages'
+                                      : quickSkill.id === 'review_messages_all'
+                                        ? 'Summarize all messages'
+                                        : quickSkill.id ===
+                                            'review_document_threads'
+                                          ? 'Check document threads'
+                                          : quickSkill.id ===
+                                              'summarize_lead_meetings'
+                                            ? 'Summarize lead meetings'
+                                            : 'Review open tasks'
                         )}
                         onClick={() => {
                             handleQuickSkillClick(quickSkill);

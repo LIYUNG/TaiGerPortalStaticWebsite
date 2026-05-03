@@ -214,6 +214,10 @@ export type AIAssistQuickSkill =
     | 'summarize_student'
     | 'identify_risk'
     | 'review_messages'
+    | 'review_messages_recent'
+    | 'review_messages_all'
+    | 'review_document_threads'
+    | 'summarize_lead_meetings'
     | 'review_open_tasks';
 
 export interface AIAssistMentionedStudent {

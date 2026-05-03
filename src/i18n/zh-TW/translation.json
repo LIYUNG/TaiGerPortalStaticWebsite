@@ -317,6 +317,10 @@
         "quickSkill": {
             "identifyRisk": "找出申請風險",
             "reviewMessages": "檢查最新訊息",
+            "reviewMessagesRecent": "總結近期訊息",
+            "reviewMessagesAll": "總結全部訊息",
+            "reviewDocumentThreads": "檢查文件討論串",
+            "summarizeLeadMeetings": "總結 lead 會議",
             "reviewOpenTasks": "檢查待辦事項",
             "summarizeStudent": "總結學生情況"
         },
