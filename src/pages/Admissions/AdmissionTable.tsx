@@ -104,6 +104,21 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                 width: 100
             },
             {
+                field: 'attended_high_school',
+                headerName: t('Attended High School', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'attended_university',
+                headerName: t('Attended University', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'attended_university_program',
+                headerName: t('Attended University Program', { ns: 'common' }),
+                width: 100
+            },
+            {
                 field: 'school',
                 headerName: t('School', { ns: 'common' }),
                 width: 250,
@@ -212,6 +227,13 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                         lastname?: string;
                         firstname_chinese?: string;
                         lastname_chinese?: string;
+                        academic_background?: {
+                            university?: {
+                                attended_high_school?: string;
+                                attended_university?: string;
+                                attended_university_program?: string;
+                            };
+                        };
                         agents?: { firstname?: string }[];
                         editors?: { firstname?: string }[];
                     };
@@ -241,6 +263,15 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                             (editor: { firstname?: string }) => editor.firstname
                         )
                         .join(' '),
+                    attended_high_school:
+                        app.studentId?.academic_background?.university
+                            ?.attended_high_school,
+                    attended_university:
+                        app.studentId?.academic_background?.university
+                            ?.attended_university,
+                    attended_university_program:
+                        app.studentId?.academic_background?.university
+                            ?.attended_university_program,
                     school: app.programId?.school,
                     program_name: app.programId?.program_name,
                     semester: app.programId?.semester,
