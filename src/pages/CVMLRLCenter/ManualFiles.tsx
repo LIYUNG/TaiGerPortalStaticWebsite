@@ -354,7 +354,8 @@ const ManualFiles = (props: ManualFilesProps) => {
                                             component={LinkDom}
                                             target="_blank"
                                             to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(
-                                                props.student._id?.toString() ?? ''
+                                                props.student._id?.toString() ??
+                                                    ''
                                             )}`}
                                         >
                                             {' '}
@@ -383,9 +384,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                             (props.application &&
                                 props.application.closed !== 'O')) ? (
                             <ToggleableUploadFileForm
-                                application={
-                                    props.application ?? undefined
-                                }
+                                application={props.application ?? undefined}
                                 category={categoryState}
                                 filetype={props.filetype}
                                 handleCreateGeneralMessageThread={
@@ -438,8 +437,10 @@ const ManualFiles = (props: ManualFilesProps) => {
                             const program = props.application?.programId as
                                 | Record<string, unknown>
                                 | undefined;
-                            const fileCatConst =
-                                file_category_const as Record<string, string>;
+                            const fileCatConst = file_category_const as Record<
+                                string,
+                                string
+                            >;
                             return (
                                 program?.[doc_reqired_key] === 'yes' && (
                                     <Button

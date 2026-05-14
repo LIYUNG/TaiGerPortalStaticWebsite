@@ -363,10 +363,14 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     }
                     if (targetThread && data) {
                         targetThread.isFinalVersion = data.isFinalVersion;
-                        targetThread.updatedAt = data.updatedAt ? String(data.updatedAt) : undefined;
+                        targetThread.updatedAt = data.updatedAt
+                            ? String(data.updatedAt)
+                            : undefined;
                         if (targetThread.doc_thread_id)
                             targetThread.doc_thread_id.updatedAt =
-                                data.updatedAt ? String(data.updatedAt) : undefined;
+                                data.updatedAt
+                                    ? String(data.updatedAt)
+                                    : undefined;
                     }
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
@@ -660,15 +664,15 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const decidedApplications =
-        editorDocsProgressState.student.applications?.filter(
-            (app: Application) => isProgramDecided(app)
-        ) ?? [];
+    const allApplications = editorDocsProgressState.student.applications ?? [];
 
-    const undecidedApplications =
-        editorDocsProgressState.student.applications?.filter(
-            (app: Application) => !isProgramDecided(app)
-        ) ?? [];
+    const decidedApplications = allApplications.filter((app: Application) =>
+        isProgramDecided(app)
+    );
+
+    const undecidedApplications = allApplications.filter(
+        (app: Application) => !isProgramDecided(app)
+    );
 
     const sharedAccordionProps = {
         student: editorDocsProgressState.student,
@@ -691,7 +695,7 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
             ) : null}
             <ManualFiles
                 application={null}
-                applications={decidedApplications}
+                applications={allApplications}
                 filetype="General"
                 handleAsFinalFile={handleAsFinalFile}
                 initGeneralFileThread={initGeneralFileThread}

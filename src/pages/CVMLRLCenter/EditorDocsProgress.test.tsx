@@ -4,11 +4,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import EditorDocsProgress from './EditorDocsProgress';
 
 vi.mock('@taiger-common/core', () => ({
-    isProgramDecided: vi.fn(() => true)
+    isProgramDecided: vi.fn((app: { decided?: string }) => app.decided === 'O')
 }));
 
+let lastManualFilesProps: Record<string, unknown> | null = null;
+
 vi.mock('./ManualFiles', () => ({
-    default: () => <div data-testid="manual-files" />
+    default: (props: Record<string, unknown>) => {
+        lastManualFilesProps = props;
+        return <div data-testid="manual-files" />;
+    }
 }));
 
 vi.mock('./components/ApplicationAccordionList', () => ({
@@ -64,7 +69,16 @@ vi.mock('i18next', () => ({
 const mockStudent = {
     _id: 'student1',
     firstname: 'John',
-    applications: [],
+    applications: [
+        {
+            _id: 'app1',
+            decided: 'O'
+        },
+        {
+            _id: 'app2',
+            decided: '-'
+        }
+    ],
     generaldocs_threads: []
 };
 
@@ -101,5 +115,10 @@ describe('EditorDocsProgress', () => {
         expect(
             await screen.findByTestId('set-program-status-dialog')
         ).toBeInTheDocument();
+    });
+
+    it('passes all student applications to ManualFiles for general docs', async () => {
+        await screen.findByTestId('manual-files');
+        expect(lastManualFilesProps?.applications).toHaveLength(2);
     });
 });
