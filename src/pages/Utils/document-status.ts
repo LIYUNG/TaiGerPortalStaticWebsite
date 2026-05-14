@@ -204,15 +204,20 @@ export const getGeneralDocumentStatus = (
         return { missing: [], extra: [], rlApplications: [] };
     }
 
+    // exclude programs that are already decided as not wanted
+    const relevantApplications = applications.filter(
+        (app) => !(app.decided === 'X')
+    );
+
     const generalRLcount = getGeneralRLCount(generalDocs);
-    const generalRLrequired = getGeneralRLMaxCount(applications);
+    const generalRLrequired = getGeneralRLMaxCount(relevantApplications);
     const missingRLCount = generalRLrequired - generalRLcount;
     const extraRLCount = generalRLcount - generalRLrequired;
 
     const missing: DocumentEntry[] = [];
     const extra: DocumentEntry[] = [];
 
-    const rlApplications: RLApplication[] = applications
+    const rlApplications: RLApplication[] = relevantApplications
         .map(({ programId }) => {
             const required = Number.parseInt(
                 (programId?.rl_required as string) ?? '',
