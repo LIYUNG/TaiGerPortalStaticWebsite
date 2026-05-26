@@ -13,7 +13,6 @@ import {
     Typography,
     Box
 } from '@mui/material';
-import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
 import { appConfig } from '../../../config';
@@ -67,7 +66,11 @@ const AgentMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useMyStudentsApplicationsV2({ userId: user!._id, decided: 'O' });
+        useMyStudentsApplicationsV2({
+            userId: user!._id,
+            decided: 'O',
+            closed: '-'
+        });
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ agents: user!._id, archiv: false });
@@ -110,12 +113,7 @@ const AgentMainView = () => {
             myStudentsApplications.applications ?? []
         ) as RefactoredApplication[]
     )
-        .filter(
-            (application) =>
-                isProgramDecided(application) &&
-                application.closed === '-' &&
-                application.program_name !== 'No Program'
-        )
+        .filter((application) => application.program_name !== 'No Program')
         .sort((a, b) =>
             a.application_deadline > b.application_deadline ? 1 : -1
         );
