@@ -13,7 +13,6 @@ import {
     Typography,
     Box
 } from '@mui/material';
-import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
 import { appConfig } from '../../../config';
