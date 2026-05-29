@@ -5,6 +5,7 @@ import path, { resolve } from 'path';
 
 const root = resolve(__dirname, 'src');
 const isCI = !!process.env.CI;
+const ciHeapMb = 6144;
 
 export default defineConfig({
     plugins: [react(), tsconfigPaths()],
@@ -15,15 +16,13 @@ export default defineConfig({
         exclude: ['node_modules', 'dist', 'build', 'public', 'src/i18n'],
         setupFiles: ['./setupTests.ts'],
         reporter: isCI ? ['dot'] : ['verbose'],
+        cache: !isCI,
         pool: 'forks',
-        // Run one test file at a time in CI to cap peak memory.
+        maxWorkers: isCI ? 1 : 4,
+        minWorkers: 1,
         fileParallelism: !isCI,
-        poolOptions: {
-            forks: {
-                maxForks: isCI ? 1 : 4,
-                minForks: 1
-            }
-        }
+        isolate: true,
+        execArgv: isCI ? [`--max-old-space-size=${ciHeapMb}`] : undefined
     },
     resolve: {
         alias: {

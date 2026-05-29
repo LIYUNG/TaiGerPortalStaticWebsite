@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it, vi } from 'vitest';
 import { ProgramsTable } from './ProgramsTable';
 
 vi.mock('@hooks/usePrograms', () => ({
@@ -81,14 +82,6 @@ describe('ProgramsTable', () => {
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeInTheDocument();
-    });
-
-    it('renders assign dialog', () => {
-        render(
-            <MemoryRouter>
-                <ProgramsTable {...defaultProps} />
-            </MemoryRouter>
-        );
         expect(screen.getByTestId('assign-dialog')).toBeInTheDocument();
     });
 
