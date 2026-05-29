@@ -8,7 +8,7 @@ env:
   CI_TEST_BATCHES: 18
 
 jobs:
-  test:
+  test-batch:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,3 +30,17 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: node scripts/run-ci-test-batch.mjs ${{ matrix.batch }} ${{ env.CI_TEST_BATCHES }}
+
+  # Branch protection requires a single check named "test".
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    needs: test-batch
+    if: always()
+    steps:
+      - name: Verify all test batches passed
+        run: |
+          if [ "${{ needs.test-batch.result }}" != "success" ]; then
+            echo "Test batches did not all succeed (result: ${{ needs.test-batch.result }})"
+            exit 1
+          fi
