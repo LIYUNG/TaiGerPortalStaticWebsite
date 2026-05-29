@@ -61,6 +61,7 @@ import {
     type GetQueryStudentResultsResponse,
     // Users
     type GetUsersResponse,
+    type GetUsersPaginatedResponse,
     type GetUsersCountResponse,
     type GetUsersOverviewResponse,
     type GetUserResponse,
@@ -338,6 +339,32 @@ export const getQueryStudentResults = (keywords: string) =>
 // User APIs
 export const getUsers = (queryString: QueryString) =>
     request.get<GetUsersResponse>(`/api/users?${queryString}`);
+
+export type GetUsersPaginatedParams = {
+    role?: string;
+    agents?: string;
+    editors?: string;
+    archiv?: string | boolean;
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+};
+
+export const getUsersPaginated = (params: GetUsersPaginatedParams) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+            return;
+        }
+        searchParams.set(key, String(value));
+    });
+
+    return request.get<GetUsersPaginatedResponse>(
+        `/api/users?${searchParams.toString()}`
+    );
+};
 export const getUsersCount = () =>
     getData<GetUsersCountResponse>('/api/users/count');
 export const getUsersOverview = () =>
