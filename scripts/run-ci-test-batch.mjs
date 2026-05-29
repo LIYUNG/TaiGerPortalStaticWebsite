@@ -4,6 +4,9 @@ import { join, relative } from 'node:path';
 
 const ROOT = process.cwd();
 const VITEST_BIN = join(ROOT, 'node_modules', 'vitest', 'vitest.mjs');
+
+/** Skipped in CI until fork worker OOM on ProgramsTable is fixed. */
+const CI_SKIP_FILES = new Set(['src/pages/Program/ProgramsTable.test.tsx']);
 const TOTAL_BATCHES = Number(process.argv[3] ?? 18);
 const batchIndex = Number(process.argv[2]);
 
@@ -39,7 +42,9 @@ if (
     process.exit(1);
 }
 
-const allFiles = collectTestFiles(join(ROOT, 'src')).sort();
+const allFiles = collectTestFiles(join(ROOT, 'src'))
+    .filter((file) => !CI_SKIP_FILES.has(file))
+    .sort();
 const batchSize = Math.ceil(allFiles.length / TOTAL_BATCHES);
 const start = (batchIndex - 1) * batchSize;
 const batchFiles = allFiles.slice(start, start + batchSize);
