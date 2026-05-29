@@ -22,22 +22,6 @@ vi.mock('../../config', () => ({
     appConfig: { companyName: 'TaiGer' }
 }));
 
-vi.mock('@hooks/usePrograms', () => ({
-    usePrograms: () => ({
-        data: [
-            {
-                _id: 'p1',
-                school: 'TU Berlin',
-                program_name: 'CS',
-                degree: 'Master'
-            }
-        ],
-        isLoading: false,
-        isError: false,
-        error: null
-    })
-}));
-
 vi.mock('../Utils/TabTitle', () => ({
     TabTitle: vi.fn()
 }));

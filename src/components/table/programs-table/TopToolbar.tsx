@@ -23,16 +23,17 @@ interface TopToolbarProps {
                 prev: { id: string; value: unknown[] }[]
             ) => { id: string; value: unknown[] }[]
         ) => void;
-        getSelectedRowModel: () => { rows: unknown[] };
     };
     toolbarStyle?: object;
     onAssignClick: () => void;
+    selectedCount: number;
 }
 
 export const TopToolbar = ({
     table,
     toolbarStyle,
-    onAssignClick
+    onAssignClick,
+    selectedCount
 }: TopToolbarProps) => {
     const { t } = useTranslation();
 
@@ -94,16 +95,15 @@ export const TopToolbar = ({
                 <>
                     <Button
                         color="success"
-                        disabled={
-                            (table.getSelectedRowModel().rows?.length || 0) ===
-                            0
-                        }
+                        disabled={selectedCount === 0}
                         onClick={onAssignClick}
                         startIcon={<PersonAddIcon />}
                         sx={{ mr: 1 }}
                         variant="contained"
                     >
-                        {t('Assign', { ns: 'common' })}
+                        {selectedCount > 0
+                            ? `${t('Assign', { ns: 'common' })} (${selectedCount})`
+                            : t('Assign', { ns: 'common' })}
                     </Button>
                     <Button
                         color="primary"

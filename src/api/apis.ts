@@ -61,6 +61,7 @@ import {
     type GetQueryStudentResultsResponse,
     // Users
     type GetUsersResponse,
+    type GetUsersPaginatedResponse,
     type GetUsersCountResponse,
     type GetUsersOverviewResponse,
     type GetUserResponse,
@@ -338,6 +339,32 @@ export const getQueryStudentResults = (keywords: string) =>
 // User APIs
 export const getUsers = (queryString: QueryString) =>
     request.get<GetUsersResponse>(`/api/users?${queryString}`);
+
+export type GetUsersPaginatedParams = {
+    role?: string;
+    agents?: string;
+    editors?: string;
+    archiv?: string | boolean;
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+};
+
+export const getUsersPaginated = (params: GetUsersPaginatedParams) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+            return;
+        }
+        searchParams.set(key, String(value));
+    });
+
+    return request.get<GetUsersPaginatedResponse>(
+        `/api/users?${searchParams.toString()}`
+    );
+};
 export const getUsersCount = () =>
     getData<GetUsersCountResponse>('/api/users/count');
 export const getUsersOverview = () =>
@@ -723,13 +750,19 @@ export const updateArchivUser = ({
     });
 
 // Student APIs
-export const updateAgents = (agentsId: Record<string, boolean>, studentId: StudentId) =>
+export const updateAgents = (
+    agentsId: Record<string, boolean>,
+    studentId: StudentId
+) =>
     request.post<UpdateStudentAgentsResponse>(
         `/api/students/${studentId}/agents`,
         agentsId
     );
 
-export const updateEditors = (editorsId: Record<string, boolean>, studentId: StudentId) =>
+export const updateEditors = (
+    editorsId: Record<string, boolean>,
+    studentId: StudentId
+) =>
     request.post<UpdateStudentEditorsResponse>(
         `/api/students/${studentId}/editors`,
         editorsId
@@ -1195,8 +1228,43 @@ export const deleteInternalDocumentation = (doc_id: string) =>
     request.delete<DeleteInternaldocResponse>(`/api/docs/internal/${doc_id}`);
 
 // Program APIs
-export const getProgramsV2 = () =>
-    getData<GetProgramsResponse>('/api/programs');
+export const getProgramsV2 = (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    filters?: Record<string, string | string[] | undefined>;
+}) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
+    if (params?.sortOrder) searchParams.set('sortOrder', params.sortOrder);
+
+    if (params?.filters) {
+        Object.entries(params.filters).forEach(([key, value]) => {
+            if (value === undefined || value === null || value === '') {
+                return;
+            }
+
+            if (Array.isArray(value)) {
+                if (value.length > 0) {
+                    searchParams.set(key, value.join(','));
+                }
+                return;
+            }
+
+            searchParams.set(key, String(value));
+        });
+    }
+
+    const query = searchParams.toString();
+    return getData<GetProgramsResponse>(
+        query ? `/api/programs?${query}` : '/api/programs'
+    );
+};
 export const getProgramsOverview = () =>
     getData<GetProgramsOverviewResponse>('/api/programs/overview');
 export const getSchoolsDistribution = () =>
