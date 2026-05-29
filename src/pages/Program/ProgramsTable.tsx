@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     MaterialReactTable,
-    useMaterialReactTable
+    useMaterialReactTable,
+    type MRT_ColumnFiltersState,
+    type MRT_PaginationState,
+    type MRT_RowSelectionState,
+    type MRT_Updater
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '@components/table';
 import { useTranslation } from 'react-i18next';
-import { Link } from '@mui/material';
-import { Box, Chip } from '@mui/material';
+import { Link, Box, Chip, Button, Typography } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 
@@ -15,10 +18,14 @@ import DEMO from '@store/constant';
 import { TopToolbar } from '@components/table/programs-table/TopToolbar';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '@utils/contants';
-import { PROGRAM_SUBJECTS } from '@taiger-common/model';
+import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
 import { calculateProgramLockStatus } from '../Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
-
+import { usePrograms } from '@hooks/usePrograms';
+import {
+    columnFiltersToProgramListFilters,
+    type ProgramListFilters
+} from './programListFilters';
 /** Program row in ProgramsTable (data array item) */
 export interface ProgramsTableProgramRow {
     _id?: string | number;
@@ -34,31 +41,137 @@ export interface ProgramsTableStudent {
 }
 
 export interface ProgramsTableProps {
-    isLoading: boolean;
-    data: ProgramsTableProgramRow[] | undefined;
-    student: ProgramsTableStudent;
+    student?: ProgramsTableStudent;
 }
 
-export const ProgramsTable = ({
-    isLoading,
-    data,
-    student
-}: ProgramsTableProps) => {
+const getProgramRowId = (program: ProgramsTableProgramRow) =>
+    String(program._id ?? '');
+
+export const ProgramsTable = ({ student }: ProgramsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
-    const tableConfig = getTableConfig(customTableStyles as Parameters<typeof getTableConfig>[0], isLoading);
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
+    const [pagination, setPagination] = useState<MRT_PaginationState>({
+        pageIndex: 0,
+        pageSize: 20
+    });
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+        []
+    );
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [debouncedColumnFilters, setDebouncedColumnFilters] =
+        useState<ProgramListFilters>({});
+    const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+    const [selectedProgramsById, setSelectedProgramsById] = useState<
+        Record<string, ProgramsTableProgramRow>
+    >({});
 
-    // Get unique subject groups from PROGRAM_SUBJECTS
-    const subjectGroups = Object.entries(PROGRAM_SUBJECTS).map(
-        ([code, { label, category }]) => ({
-            code,
-            label,
-            category,
-            groupBy: category
-        })
+    const filterKey = useMemo(
+        () =>
+            JSON.stringify({
+                search: debouncedSearch,
+                filters: debouncedColumnFilters
+            }),
+        [debouncedSearch, debouncedColumnFilters]
     );
 
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            setDebouncedSearch(globalFilter.trim());
+            setDebouncedColumnFilters(
+                columnFiltersToProgramListFilters(columnFilters)
+            );
+            setPagination((current) => ({ ...current, pageIndex: 0 }));
+        }, 300);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [globalFilter, columnFilters]);
+
+    useEffect(() => {
+        setRowSelection({});
+        setSelectedProgramsById({});
+    }, [filterKey]);
+    const { data, isLoading, isFetching } = usePrograms({
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+        search: debouncedSearch,
+        filters: debouncedColumnFilters
+    });
+
+    const selectedPrograms = useMemo(
+        () => Object.values(selectedProgramsById),
+        [selectedProgramsById]
+    );
+    const selectedCount = selectedPrograms.length;
+
+    const clearSelection = useCallback(() => {
+        setRowSelection({});
+        setSelectedProgramsById({});
+    }, []);
+
+    const handleRowSelectionChange = useCallback(
+        (updater: MRT_Updater<MRT_RowSelectionState>) => {
+            setRowSelection((previousSelection) =>
+                typeof updater === 'function'
+                    ? updater(previousSelection)
+                    : updater
+            );
+        },
+        []
+    );
+
+    useEffect(() => {
+        const currentPrograms = data?.programs ?? [];
+
+        setSelectedProgramsById((previousPrograms) => {
+            const nextPrograms = { ...previousPrograms };
+            const currentPageIds = new Set(
+                currentPrograms.map(getProgramRowId)
+            );
+
+            currentPageIds.forEach((id) => {
+                if (rowSelection[id]) {
+                    const program = currentPrograms.find(
+                        (item) => getProgramRowId(item) === id
+                    );
+                    if (program) {
+                        nextPrograms[id] = program;
+                    }
+                } else {
+                    delete nextPrograms[id];
+                }
+            });
+
+            return nextPrograms;
+        });
+    }, [rowSelection, data?.programs]);
+    const tableConfig = getTableConfig(
+        customTableStyles as Parameters<typeof getTableConfig>[0],
+        isLoading || isFetching
+    );
+
+    const subjectGroups = useMemo(
+        () =>
+            Object.entries(PROGRAM_SUBJECTS).map(
+                ([code, { label, category }]) => ({
+                    code,
+                    label,
+                    category,
+                    groupBy: category
+                })
+            ),
+        []
+    );
+
+    const tagFilterOptions = useMemo(
+        () =>
+            Object.entries(SCHOOL_TAGS).map(([code, { label }]) => ({
+                value: code,
+                label
+            })),
+        []
+    );
     const columns: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
         {
             accessorFn: (row) => {
@@ -70,7 +183,9 @@ export const ProgramsTable = ({
             size: 110,
             filterVariant: 'select',
             filterFn: (row, _columnId, filterValue) => {
-                const lockStatus = calculateProgramLockStatus(row.original as never);
+                const lockStatus = calculateProgramLockStatus(
+                    row.original as never
+                );
                 const status = lockStatus.isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
@@ -85,7 +200,9 @@ export const ProgramsTable = ({
                 }
             ],
             Cell: ({ row }) => {
-                const lockStatus = calculateProgramLockStatus(row.original as never);
+                const lockStatus = calculateProgramLockStatus(
+                    row.original as never
+                );
 
                 return lockStatus.isLocked ? (
                     <Chip
@@ -107,7 +224,6 @@ export const ProgramsTable = ({
         {
             accessorKey: 'school',
             header: t('School', { ns: 'common' }),
-            //   filterVariant: 'autocomplete',
             filterFn: 'contains',
             size: 250,
             Cell: (params) => {
@@ -146,7 +262,10 @@ export const ProgramsTable = ({
             accessorKey: 'programSubjects',
             header: t('Subjects', { ns: 'common' }),
             filterVariant: 'multi-select',
-            filterSelectOptions: subjectGroups.map((item) => item.label),
+            filterSelectOptions: subjectGroups.map((item) => ({
+                value: item.code,
+                label: item.label
+            })),
             size: 200,
             Cell: ({ row }) => {
                 const subjects = row.original.programSubjects || [];
@@ -168,7 +287,7 @@ export const ProgramsTable = ({
             accessorKey: 'tags',
             header: t('Tags', { ns: 'common' }),
             filterVariant: 'multi-select',
-            filterSelectOptions: subjectGroups.map((item) => item.label),
+            filterSelectOptions: tagFilterOptions,
             size: 200,
             Cell: ({ row }) => {
                 const tags = row.original.tags || [];
@@ -198,33 +317,49 @@ export const ProgramsTable = ({
         {
             accessorKey: 'degree',
             header: t('Degree', { ns: 'common' }),
+            filterVariant: 'text',
             size: 90
         },
         {
             accessorKey: 'semester',
             header: t('Semester', { ns: 'common' }),
+            filterVariant: 'text',
             size: 100
         },
         {
             accessorKey: 'lang',
             header: t('Language', { ns: 'common' }),
+            filterVariant: 'text',
             size: 120
         },
         {
             accessorKey: 'toefl',
             header: t('TOEFL', { ns: 'common' }),
+            filterVariant: 'text',
             size: 100
         },
         {
             accessorKey: 'ielts',
             header: t('IELTS', { ns: 'common' }),
+            filterVariant: 'text',
             size: 100
         },
-        { accessorKey: 'gre', header: t('GRE', { ns: 'common' }), size: 120 },
-        { accessorKey: 'gmat', header: t('GMAT', { ns: 'common' }), size: 120 },
+        {
+            accessorKey: 'gre',
+            header: t('GRE', { ns: 'common' }),
+            filterVariant: 'text',
+            size: 120
+        },
+        {
+            accessorKey: 'gmat',
+            header: t('GMAT', { ns: 'common' }),
+            filterVariant: 'text',
+            size: 120
+        },
         {
             accessorKey: 'application_deadline',
             header: t('Deadline', { ns: 'common' }),
+            filterVariant: 'text',
             size: 120
         },
         {
@@ -237,13 +372,50 @@ export const ProgramsTable = ({
     const table = useMaterialReactTable({
         ...(tableConfig as Record<string, unknown>),
         columns,
-        state: { isLoading },
-        data: data || []
+        data: data?.programs ?? [],
+        getRowId: (row) => getProgramRowId(row),
+        manualPagination: true,
+        manualFiltering: true,
+        rowCount: data?.total ?? 0,
+        onPaginationChange: setPagination,
+        onGlobalFilterChange: setGlobalFilter,
+        onColumnFiltersChange: setColumnFilters,
+        onRowSelectionChange: handleRowSelectionChange,
+        state: {
+            isLoading: isLoading || isFetching,
+            pagination,
+            globalFilter,
+            columnFilters,
+            rowSelection
+        },
+        renderToolbarAlertBannerContent: () =>
+            selectedCount > 0 ? (
+                <Box
+                    sx={{
+                        alignItems: 'center',
+                        display: 'flex',
+                        gap: 2,
+                        px: 2,
+                        py: 1,
+                        width: '100%'
+                    }}
+                >
+                    <Typography variant="body2">
+                        {t('{{count}} program(s) selected', {
+                            count: selectedCount,
+                            ns: 'programList',
+                            defaultValue: `${selectedCount} program(s) selected`
+                        })}
+                    </Typography>
+                    <Button onClick={clearSelection} size="small">
+                        {t('Clear selection', { ns: 'common' })}
+                    </Button>
+                </Box>
+            ) : null
     } as Parameters<typeof useMaterialReactTable<ProgramsTableProgramRow>>[0]);
-    const selectedRows = table.getSelectedRowModel().rows ?? [];
-    const programsForDialog = selectedRows.map(({ original }) => original);
+
     const handleAssignClick = () => {
-        if (selectedRows.length === 0) {
+        if (selectedCount === 0) {
             return;
         }
         setOpenAssignDialog(true);
@@ -254,15 +426,15 @@ export const ProgramsTable = ({
     };
 
     const handleOnSuccess = () => {
-        table.resetRowSelection();
+        clearSelection();
         setOpenAssignDialog(false);
     };
-
     /* material-react-table expects toolbar to be assigned to options */
     // eslint-disable-next-line react-hooks/immutability
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}
+            selectedCount={selectedCount}
             table={table as never}
             toolbarStyle={customTableStyles.toolbarStyle}
         />
@@ -275,7 +447,7 @@ export const ProgramsTable = ({
                 handleOnSuccess={handleOnSuccess}
                 onClose={handleDialogClose}
                 open={openAssignDialog}
-                programs={programsForDialog as never[]}
+                programs={selectedPrograms as never[]}
                 student={student as never}
             />
         </>

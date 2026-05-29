@@ -7,7 +7,6 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import { usePrograms } from '@hooks/usePrograms';
 import { ProgramsTable } from './ProgramsTable';
 import type { IStudentResponse } from '@taiger-common/model';
 
@@ -18,20 +17,11 @@ export interface ProgramListProps {
 const ProgramList = (props: ProgramListProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data: programs, isLoading, isError, error } = usePrograms();
 
     TabTitle(t('Program List', { ns: 'common' }));
 
     if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-
-    if (isError) {
-        return (
-            <Typography color="error">
-                {error instanceof Error ? error.message : String(error)}
-            </Typography>
-        );
     }
 
     return (
@@ -60,11 +50,7 @@ const ProgramList = (props: ProgramListProps) => {
                     {t('View Overview', { ns: 'common' })}
                 </Button>
             </Box>
-            <ProgramsTable
-                data={programs}
-                isLoading={isLoading}
-                student={props.student}
-            />
+            <ProgramsTable student={props.student ?? undefined} />
         </Box>
     );
 };
