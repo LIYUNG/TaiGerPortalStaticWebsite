@@ -18,8 +18,12 @@ vi.mock('@/api', () => ({
     queryClient: { invalidateQueries: vi.fn() }
 }));
 
-vi.mock('@/api/query', () => ({
-    getUsersQuery: vi.fn(() => ({ queryKey: ['users'], queryFn: vi.fn() }))
+vi.mock('@hooks/useUsersPaginated', () => ({
+    useUsersPaginated: () => ({
+        data: { users: [], total: 0, page: 1, limit: 10 },
+        isLoading: false,
+        isFetching: false
+    })
 }));
 
 vi.mock('@tanstack/react-query', async (importOriginal) => {
@@ -27,7 +31,6 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
         await importOriginal<typeof import('@tanstack/react-query')>();
     return {
         ...actual,
-        useQuery: vi.fn(() => ({ data: [], isLoading: false })),
         useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
     };
 });
@@ -95,7 +98,7 @@ vi.mock('@store/constant', () => ({
 }));
 
 const defaultProps = {
-    queryString: { role: 'Student' } as never,
+    queryString: 'role=Student',
     openAddUserModal: vi.fn()
 };
 

@@ -2,6 +2,11 @@
 // jest-dom adds custom matchers for asserting on DOM nodes (works with Vitest).
 // e.g. expect(element).toHaveTextContent(/react/i)
 import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+
+afterEach(() => {
+    cleanup();
+});
 
 // Defaults for env when running in Vitest (no import.meta.env)
 if (typeof process !== 'undefined') {

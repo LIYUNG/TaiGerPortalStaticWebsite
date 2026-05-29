@@ -1,11 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Box, Typography, Avatar, Chip, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
 import {
     MaterialReactTable,
     MRT_ColumnDef,
-    useMaterialReactTable
+    useMaterialReactTable,
+    type MRT_PaginationState,
+    type MRT_RowSelectionState,
+    type MRT_Updater
 } from 'material-react-table';
 import {
     is_TaiGer_Agent,
@@ -17,8 +21,8 @@ import UsersListSubpage from './UsersListSubpage';
 import { deleteUser, changeUserRole, updateArchivUser } from '@/api';
 import { stringAvatar } from '@utils/contants';
 import { ConfirmDialog, useConfirmDialog } from '@components/ConfirmDialog';
-import { getUsersQuery } from '@/api/query';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useUsersPaginated } from '@hooks/useUsersPaginated';
 import DEMO from '@store/constant';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
@@ -33,11 +37,38 @@ export interface UsersListProps {
     readOnly?: boolean;
 }
 
+const getUserRowId = (user: Record<string, unknown>) => String(user._id ?? '');
+
 const UsersList = (props: UsersListProps) => {
     const { t } = useTranslation();
-    const { data: usersList, isLoading } = useQuery(
-        getUsersQuery(props.queryString)
+    const baseFilters = useMemo(
+        () => queryString.parse(props.queryString) as Record<string, string>,
+        [props.queryString]
     );
+    const [pagination, setPagination] = useState<MRT_PaginationState>({
+        pageIndex: 0,
+        pageSize: 10
+    });
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            setDebouncedSearch(globalFilter.trim());
+            setPagination((current) => ({ ...current, pageIndex: 0 }));
+            setRowSelection({});
+        }, 300);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [globalFilter]);
+
+    const { data, isLoading, isFetching } = useUsersPaginated({
+        ...baseFilters,
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+        search: debouncedSearch
+    });
     const customTableStyles = useTableStyles();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
@@ -184,13 +215,20 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.lastLoginAt) return '';
-                    return formatDate(row.lastLoginAt as string | number | Date).toLowerCase();
+                    return formatDate(
+                        row.lastLoginAt as string | number | Date
+                    ).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.lastLoginAt
-                                ? formatDate(row.original.lastLoginAt as string | number | Date)
+                                ? formatDate(
+                                      row.original.lastLoginAt as
+                                          | string
+                                          | number
+                                          | Date
+                                  )
                                 : '-'}
                         </Typography>
                     );
@@ -198,10 +236,20 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB): number => {
                     const dateA = rowA.original.lastLoginAt
-                        ? new Date(rowA.original.lastLoginAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowA.original.lastLoginAt as
+                                  | string
+                                  | number
+                                  | Date
+                          ).getTime()
                         : 0;
                     const dateB = rowB.original.lastLoginAt
-                        ? new Date(rowB.original.lastLoginAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowB.original.lastLoginAt as
+                                  | string
+                                  | number
+                                  | Date
+                          ).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -213,13 +261,20 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.createdAt) return '';
-                    return formatDate(row.createdAt as string | number | Date).toLowerCase();
+                    return formatDate(
+                        row.createdAt as string | number | Date
+                    ).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.createdAt
-                                ? formatDate(row.original.createdAt as string | number | Date)
+                                ? formatDate(
+                                      row.original.createdAt as
+                                          | string
+                                          | number
+                                          | Date
+                                  )
                                 : '-'}
                         </Typography>
                     );
@@ -227,10 +282,14 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB) => {
                     const dateA = rowA.original.createdAt
-                        ? new Date(rowA.original.createdAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowA.original.createdAt as string | number | Date
+                          ).getTime()
                         : 0;
                     const dateB = rowB.original.createdAt
-                        ? new Date(rowB.original.createdAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowB.original.createdAt as string | number | Date
+                          ).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -300,7 +359,7 @@ const UsersList = (props: UsersListProps) => {
             setSeverity('success');
             setMessage('Update user role successfully!');
             queryClient.invalidateQueries({
-                queryKey: ['users', props.queryString]
+                queryKey: ['users', 'paginated']
             });
             queryClient.invalidateQueries({
                 queryKey: ['users/count']
@@ -351,7 +410,7 @@ const UsersList = (props: UsersListProps) => {
             setSeverity('success');
             setMessage('Update user archiv status successfully!');
             queryClient.invalidateQueries({
-                queryKey: ['users', props.queryString]
+                queryKey: ['users', 'paginated']
             });
             queryClient.invalidateQueries({
                 queryKey: ['users/count']
@@ -465,21 +524,43 @@ const UsersList = (props: UsersListProps) => {
         assignUserAs({ role: user_role, _id: user_id });
     };
 
-    const tableConfig = getTableConfig({}, isLoading);
+    const handleRowSelectionChange = useCallback(
+        (updater: MRT_Updater<MRT_RowSelectionState>) => {
+            setRowSelection((previousSelection) =>
+                typeof updater === 'function'
+                    ? updater(previousSelection)
+                    : updater
+            );
+        },
+        []
+    );
+
+    const tableConfig = getTableConfig({}, isLoading || isFetching);
 
     const table = useMaterialReactTable({
         ...(tableConfig as Record<string, unknown>),
         enableRowSelection: !props.readOnly,
         enableMultiRowSelection: !props.readOnly,
         columns,
-        data: (usersList as Record<string, unknown>[]) || [],
-        state: { isLoading },
+        data: data?.users ?? [],
+        getRowId: (row) => getUserRowId(row),
+        manualPagination: true,
+        manualFiltering: true,
+        enableSorting: false,
+        rowCount: data?.total ?? 0,
+        onPaginationChange: setPagination,
+        onGlobalFilterChange: setGlobalFilter,
+        onRowSelectionChange: handleRowSelectionChange,
+        state: {
+            isLoading: isLoading || isFetching,
+            pagination,
+            globalFilter,
+            rowSelection
+        },
         enableGlobalFilter: true,
-        enableColumnFilters: false, // Hide column filters by default, show via Filters button
-        enableSorting: true,
+        enableColumnFilters: false,
         initialState: {
             ...tableConfig.initialState,
-            pagination: { pageSize: 10, pageIndex: 0 },
             showGlobalFilter: true,
             showColumnFilters: false,
             density: 'comfortable'
@@ -505,7 +586,21 @@ const UsersList = (props: UsersListProps) => {
                 onArchiveClick={handleArchiveClick}
                 onDeleteClick={handleDeleteClick}
                 onEditClick={setModalShow}
-                table={tbl as unknown as { getSelectedRowModel: () => { rows: { original: { firstname: string; lastname: string; _id: string; role?: string; archiv?: boolean } }[] } }}
+                table={
+                    tbl as unknown as {
+                        getSelectedRowModel: () => {
+                            rows: {
+                                original: {
+                                    firstname: string;
+                                    lastname: string;
+                                    _id: string;
+                                    role?: string;
+                                    archiv?: boolean;
+                                };
+                            }[];
+                        };
+                    }
+                }
                 toolbarStyle={customTableStyles.toolbarStyle}
             />
         )

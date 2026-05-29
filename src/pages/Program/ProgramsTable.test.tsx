@@ -1,6 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it, vi } from 'vitest';
 import { ProgramsTable } from './ProgramsTable';
+
+vi.mock('@hooks/usePrograms', () => ({
+    usePrograms: () => ({
+        data: {
+            programs: [
+                {
+                    _id: 'p1',
+                    school: 'TU Berlin',
+                    program_name: 'Computer Science',
+                    programSubjects: ['CS'],
+                    tags: ['top']
+                }
+            ],
+            total: 1,
+            page: 1,
+            limit: 20
+        },
+        isLoading: false,
+        isFetching: false
+    })
+}));
 
 vi.mock('material-react-table', () => ({
     MaterialReactTable: () => <div data-testid="material-react-table" />,
@@ -38,6 +60,9 @@ vi.mock('@utils/contants', () => ({
 vi.mock('@taiger-common/model', () => ({
     PROGRAM_SUBJECTS: {
         CS: { label: 'Computer Science', category: 'Engineering' }
+    },
+    SCHOOL_TAGS: {
+        TOP50: { label: 'QS Top 50 Universities', category: 'TOP50' }
     }
 }));
 
@@ -46,16 +71,6 @@ vi.mock('../Utils/util_functions', () => ({
 }));
 
 const defaultProps = {
-    isLoading: false,
-    data: [
-        {
-            _id: 'p1',
-            school: 'TU Berlin',
-            program_name: 'Computer Science',
-            programSubjects: ['CS'],
-            tags: ['top']
-        }
-    ],
     student: { _id: 's1' }
 };
 
@@ -67,38 +82,13 @@ describe('ProgramsTable', () => {
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeInTheDocument();
-    });
-
-    it('renders assign dialog', () => {
-        render(
-            <MemoryRouter>
-                <ProgramsTable {...defaultProps} />
-            </MemoryRouter>
-        );
         expect(screen.getByTestId('assign-dialog')).toBeInTheDocument();
     });
 
-    it('renders with empty data array', () => {
+    it('renders with student prop omitted', () => {
         render(
             <MemoryRouter>
-                <ProgramsTable
-                    isLoading={false}
-                    data={[]}
-                    student={{ _id: 's1' }}
-                />
-            </MemoryRouter>
-        );
-        expect(screen.getByTestId('material-react-table')).toBeInTheDocument();
-    });
-
-    it('renders in loading state', () => {
-        render(
-            <MemoryRouter>
-                <ProgramsTable
-                    isLoading={true}
-                    data={undefined}
-                    student={null}
-                />
+                <ProgramsTable />
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeInTheDocument();

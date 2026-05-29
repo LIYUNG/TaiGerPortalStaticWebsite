@@ -32,6 +32,7 @@ import {
     getInterviewsByStudentId,
     getInterviewsByProgramId,
     getUsers,
+    getUsersPaginated,
     getUsersCount,
     getUsersOverview,
     getSameProgramStudents,
@@ -115,6 +116,33 @@ export const getIsManagerQuery = ({
     queryKey: ['is-manager', userId],
     queryFn: getIsManager,
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getUsersPaginatedQuery = (
+    params: import('./apis').GetUsersPaginatedParams
+): UseQueryOptions => ({
+    queryKey: ['users', 'paginated', params],
+    queryFn: () => getUsersPaginated(params),
+    staleTime: 1000 * 60 * 5,
+    select: (response: unknown) => {
+        const body = (
+            response as {
+                data?: {
+                    data?: unknown[];
+                    total?: number;
+                    page?: number;
+                    limit?: number;
+                };
+            }
+        )?.data;
+
+        return {
+            users: body?.data ?? [],
+            total: body?.total ?? 0,
+            page: body?.page ?? params.page ?? 1,
+            limit: body?.limit ?? params.limit ?? 20
+        };
+    }
 });
 
 export const getUsersQuery = (queryString: QueryString): UseQueryOptions => ({

@@ -97,7 +97,14 @@ export const AssignProgramsToStudentDialog = ({
     };
 
     const handleSubmit = () => {
-        const program_ids = programs?.map(({ _id }) => _id);
+        const program_ids = programs
+            ?.map(({ _id }) => (_id != null ? String(_id) : ''))
+            .filter(Boolean);
+
+        if (!studentId || program_ids.length === 0) {
+            return;
+        }
+
         mutate({ studentId, program_ids });
     };
 
@@ -109,13 +116,12 @@ export const AssignProgramsToStudentDialog = ({
                 {t('Selected Programs', { ns: 'programList' })}
             </DialogTitle>
             <DialogContent>
-                {programs?.map(
-                    ({ school, program_name, degree, semester }, index) => (
-                        <Box key={index}>
-                            {school} - {program_name} - {degree} - {semester}
-                        </Box>
-                    )
-                )}
+                {programs?.map((program) => (
+                    <Box key={String(program._id)}>
+                        {program.school} - {program.program_name} -{' '}
+                        {program.degree} - {program.semester}
+                    </Box>
+                ))}
                 ---
                 {/* Filter Toggle Section */}
                 <Box sx={{ mb: 2, mt: 2 }}>
