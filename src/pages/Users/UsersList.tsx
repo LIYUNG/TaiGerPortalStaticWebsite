@@ -57,15 +57,11 @@ const UsersList = (props: UsersListProps) => {
         const timeoutId = window.setTimeout(() => {
             setDebouncedSearch(globalFilter.trim());
             setPagination((current) => ({ ...current, pageIndex: 0 }));
+            setRowSelection({});
         }, 300);
 
         return () => window.clearTimeout(timeoutId);
     }, [globalFilter]);
-
-    useEffect(() => {
-        setRowSelection({});
-        setPagination((current) => ({ ...current, pageIndex: 0 }));
-    }, [props.queryString, debouncedSearch]);
 
     const { data, isLoading, isFetching } = useUsersPaginated({
         ...baseFilters,
@@ -219,13 +215,20 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.lastLoginAt) return '';
-                    return formatDate(row.lastLoginAt as string | number | Date).toLowerCase();
+                    return formatDate(
+                        row.lastLoginAt as string | number | Date
+                    ).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.lastLoginAt
-                                ? formatDate(row.original.lastLoginAt as string | number | Date)
+                                ? formatDate(
+                                      row.original.lastLoginAt as
+                                          | string
+                                          | number
+                                          | Date
+                                  )
                                 : '-'}
                         </Typography>
                     );
@@ -233,10 +236,20 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB): number => {
                     const dateA = rowA.original.lastLoginAt
-                        ? new Date(rowA.original.lastLoginAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowA.original.lastLoginAt as
+                                  | string
+                                  | number
+                                  | Date
+                          ).getTime()
                         : 0;
                     const dateB = rowB.original.lastLoginAt
-                        ? new Date(rowB.original.lastLoginAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowB.original.lastLoginAt as
+                                  | string
+                                  | number
+                                  | Date
+                          ).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -248,13 +261,20 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.createdAt) return '';
-                    return formatDate(row.createdAt as string | number | Date).toLowerCase();
+                    return formatDate(
+                        row.createdAt as string | number | Date
+                    ).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.createdAt
-                                ? formatDate(row.original.createdAt as string | number | Date)
+                                ? formatDate(
+                                      row.original.createdAt as
+                                          | string
+                                          | number
+                                          | Date
+                                  )
                                 : '-'}
                         </Typography>
                     );
@@ -262,10 +282,14 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB) => {
                     const dateA = rowA.original.createdAt
-                        ? new Date(rowA.original.createdAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowA.original.createdAt as string | number | Date
+                          ).getTime()
                         : 0;
                     const dateB = rowB.original.createdAt
-                        ? new Date(rowB.original.createdAt as string | number | Date).getTime()
+                        ? new Date(
+                              rowB.original.createdAt as string | number | Date
+                          ).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -562,7 +586,21 @@ const UsersList = (props: UsersListProps) => {
                 onArchiveClick={handleArchiveClick}
                 onDeleteClick={handleDeleteClick}
                 onEditClick={setModalShow}
-                table={tbl as unknown as { getSelectedRowModel: () => { rows: { original: { firstname: string; lastname: string; _id: string; role?: string; archiv?: boolean } }[] } }}
+                table={
+                    tbl as unknown as {
+                        getSelectedRowModel: () => {
+                            rows: {
+                                original: {
+                                    firstname: string;
+                                    lastname: string;
+                                    _id: string;
+                                    role?: string;
+                                    archiv?: boolean;
+                                };
+                            }[];
+                        };
+                    }
+                }
                 toolbarStyle={customTableStyles.toolbarStyle}
             />
         )

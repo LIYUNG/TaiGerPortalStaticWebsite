@@ -67,15 +67,6 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         Record<string, ProgramsTableProgramRow>
     >({});
 
-    const filterKey = useMemo(
-        () =>
-            JSON.stringify({
-                search: debouncedSearch,
-                filters: debouncedColumnFilters
-            }),
-        [debouncedSearch, debouncedColumnFilters]
-    );
-
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
             setDebouncedSearch(globalFilter.trim());
@@ -83,15 +74,13 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
                 columnFiltersToProgramListFilters(columnFilters)
             );
             setPagination((current) => ({ ...current, pageIndex: 0 }));
+            setRowSelection({});
+            setSelectedProgramsById({});
         }, 300);
 
         return () => window.clearTimeout(timeoutId);
     }, [globalFilter, columnFilters]);
 
-    useEffect(() => {
-        setRowSelection({});
-        setSelectedProgramsById({});
-    }, [filterKey]);
     const { data, isLoading, isFetching } = usePrograms({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
