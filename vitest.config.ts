@@ -4,34 +4,37 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import path, { resolve } from 'path';
 
 const root = resolve(__dirname, 'src');
+const isCI = !!process.env.CI;
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
-  test: {
-    globals: true,
-    environment: 'happy-dom',
-    testTimeout: 10000,
-    exclude: ['node_modules', 'dist', 'build', 'public', 'src/i18n'],
-    setupFiles: ['./setupTests.ts'],
-  },
-  pool: 'forks',
-  reporter: ['verbose'],
-  poolOptions: {
-    forks: {
-      maxForks: 8,
-      minForks: 4,
+    plugins: [react(), tsconfigPaths()],
+    test: {
+        globals: true,
+        environment: 'happy-dom',
+        testTimeout: 10000,
+        exclude: ['node_modules', 'dist', 'build', 'public', 'src/i18n'],
+        setupFiles: ['./setupTests.ts'],
+        reporter: ['verbose'],
+        // Forks isolate memory per worker; keep CI parallelism low to avoid OOM.
+        pool: 'forks',
+        fileParallelism: !isCI,
+        poolOptions: {
+            forks: {
+                maxForks: isCI ? 2 : 4,
+                minForks: isCI ? 1 : 2
+            }
+        }
     },
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(root),
-      '@api': path.resolve(root, 'api'),
-      '@components': path.resolve(root, 'components'),
-      '@contexts': path.resolve(root, 'contexts'),
-      '@utils': path.resolve(root, 'utils'),
-      '@hooks': path.resolve(root, 'hooks'),
-      '@pages': path.resolve(root, 'pages'),
-      '@store': path.resolve(root, 'store'),
-    },
-  },
+    resolve: {
+        alias: {
+            '@': path.resolve(root),
+            '@api': path.resolve(root, 'api'),
+            '@components': path.resolve(root, 'components'),
+            '@contexts': path.resolve(root, 'contexts'),
+            '@utils': path.resolve(root, 'utils'),
+            '@hooks': path.resolve(root, 'hooks'),
+            '@pages': path.resolve(root, 'pages'),
+            '@store': path.resolve(root, 'store')
+        }
+    }
 });
