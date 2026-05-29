@@ -14,14 +14,14 @@ export default defineConfig({
         testTimeout: 10000,
         exclude: ['node_modules', 'dist', 'build', 'public', 'src/i18n'],
         setupFiles: ['./setupTests.ts'],
-        reporter: ['verbose'],
-        // Forks isolate memory per worker; keep CI parallelism low to avoid OOM.
+        reporter: isCI ? ['dot'] : ['verbose'],
         pool: 'forks',
+        // Run one test file at a time in CI to cap peak memory.
         fileParallelism: !isCI,
         poolOptions: {
             forks: {
-                maxForks: isCI ? 2 : 4,
-                minForks: isCI ? 1 : 2
+                maxForks: isCI ? 1 : 4,
+                minForks: 1
             }
         }
     },

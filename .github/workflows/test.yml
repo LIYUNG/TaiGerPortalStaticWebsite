@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
 
@@ -19,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run tests (shard ${{ matrix.shard }}/4)
         env:
-          NODE_OPTIONS: --max-old-space-size=8192
-        run: npm run test:ci
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/4
