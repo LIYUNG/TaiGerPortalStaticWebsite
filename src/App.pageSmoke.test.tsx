@@ -11,7 +11,7 @@ import {
     ComponentType
 } from 'react';
 import { ReactNode } from 'react';
-import { act, render } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 
@@ -262,6 +262,8 @@ const renderPageAsync = async (ui: React.ReactElement): Promise<void> => {
         renderPage(ui);
     });
 };
+
+afterEach(cleanup);
 
 describe('Page smoke tests – all pages render without crashing', () => {
     test('Dashboard (default) renders', async () => {

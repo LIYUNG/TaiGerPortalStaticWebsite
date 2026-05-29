@@ -12,7 +12,7 @@ import {
     ComponentType
 } from 'react';
 import { ReactNode } from 'react';
-import { act, render } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { useAuth } from '@components/AuthProvider';
@@ -555,6 +555,8 @@ const renderPageAsync = async (ui: React.ReactElement): Promise<void> => {
     });
 };
 
+afterEach(cleanup);
+
 // ═════════════════════════════════════════════════════════════════════════════
 // Tier 3 – Feature-Flagged Pages
 // ═════════════════════════════════════════════════════════════════════════════
@@ -679,31 +681,41 @@ describe('Tier 3 – Communications pages smoke tests', () => {
 
 describe('Tier 3 – Documentation pages smoke tests', () => {
     test('DocsApplication renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/index')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
+        const C = lazy(
+            () => import('@pages/Documentation/index')
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('InternaldocsPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/internal_index')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
+        const C = lazy(
+            () => import('@pages/Documentation/internal_index')
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocsPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/SingleDoc')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
+        const C = lazy(
+            () => import('@pages/Documentation/SingleDoc')
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocsInternalPage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/SingleInternalDoc')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
+        const C = lazy(
+            () => import('@pages/Documentation/SingleInternalDoc')
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocCreatePage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/DocCreatePage')) as unknown as LazyExoticComponent<ComponentType<unknown>>;
+        const C = lazy(
+            () => import('@pages/Documentation/DocCreatePage')
+        ) as unknown as LazyExoticComponent<ComponentType<unknown>>;
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
