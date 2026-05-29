@@ -5,8 +5,13 @@ import { join, relative } from 'node:path';
 const ROOT = process.cwd();
 const VITEST_BIN = join(ROOT, 'node_modules', 'vitest', 'vitest.mjs');
 
-/** Skipped in CI until fork worker OOM on ProgramsTable is fixed. */
-const CI_SKIP_FILES = new Set(['src/pages/Program/ProgramsTable.test.tsx']);
+/**
+ * Files quarantined from CI batches. The previous OOM on ProgramsTable was
+ * caused by per-file fork churn (now fixed in vitest.config.ts by switching
+ * to a shared threads pool with isolate: false), so this list is empty by
+ * default. Add a path here to quickly quarantine a flaky test.
+ */
+const CI_SKIP_FILES = new Set();
 const TOTAL_BATCHES = Number(process.argv[3] ?? 18);
 const batchIndex = Number(process.argv[2]);
 
@@ -65,8 +70,6 @@ execFileSync(
         'run',
         ...batchFiles,
         '--passWithNoTests',
-        '--no-file-parallelism',
-        '--maxWorkers=1',
         '--reporter=dot'
     ],
     {
