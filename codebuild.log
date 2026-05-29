@@ -1,0 +1,1639 @@
+[Container] 2026/05/29 20:12:09.470309 Running on CodeBuild On-demand
+[Container] 2026/05/29 20:12:09.470321 Waiting for agent ping
+[Container] 2026/05/29 20:12:09.671804 Waiting for DOWNLOAD_SOURCE
+[Container] 2026/05/29 20:12:11.234273 Phase is DOWNLOAD_SOURCE
+[Container] 2026/05/29 20:12:11.247439 CODEBUILD_SRC_DIR=/codebuild/output/src707962462/src
+[Container] 2026/05/29 20:12:11.248024 YAML location is /codebuild/readonly/buildspec.yml
+[Container] 2026/05/29 20:12:11.250241 Setting HTTP client timeout to higher timeout for S3 source
+[Container] 2026/05/29 20:12:11.250381 Processing environment variables
+[Container] 2026/05/29 20:12:11.465235 No runtime version selected in buildspec.
+[Container] 2026/05/29 20:12:11.479657 Moving to directory /codebuild/output/src707962462/src
+[Container] 2026/05/29 20:12:11.479680 Cache is not defined in the buildspec
+[Container] 2026/05/29 20:12:11.537654 Skip cache due to: no paths specified to be cached
+[Container] 2026/05/29 20:12:11.538009 Registering with agent
+[Container] 2026/05/29 20:12:11.573998 Phases found in YAML: 1
+[Container] 2026/05/29 20:12:11.574018  BUILD: 2 commands
+[Container] 2026/05/29 20:12:11.574452 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2026/05/29 20:12:11.574464 Phase context status code:  Message: 
+[Container] 2026/05/29 20:12:11.684718 Entering phase INSTALL
+[Container] 2026/05/29 20:12:11.725015 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2026/05/29 20:12:11.725036 Phase context status code:  Message: 
+[Container] 2026/05/29 20:12:11.762772 Entering phase PRE_BUILD
+[Container] 2026/05/29 20:12:11.764434 Phase complete: PRE_BUILD State: SUCCEEDED
+[Container] 2026/05/29 20:12:11.764454 Phase context status code:  Message: 
+[Container] 2026/05/29 20:12:11.802948 Entering phase BUILD
+[Container] 2026/05/29 20:12:11.838809 Running command npm ci
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@editorjs/attaches@1.3.2',
+npm warn EBADENGINE   required: { node: '>=20.0.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@editorjs/embed@2.8.0',
+npm warn EBADENGINE   required: { node: '>=24.0.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'vitest@4.0.18',
+npm warn EBADENGINE   required: { node: '^20.0.0 || ^22.0.0 || >=24.0.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'vite@7.3.1',
+npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+npm warn EBADENGINE }
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+npm warn deprecated tar@6.2.1: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated gauge@3.0.2: This package is no longer supported.
+npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+npm warn deprecated @types/date-fns@2.6.3: This is a stub types definition. date-fns provides its own type definitions, so you do not need this installed.
+npm warn deprecated @types/diff@8.0.0: This is a stub types definition. diff provides its own type definitions, so you do not need this installed.
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+
+> taiger-portal@0.1.0 prepare
+> husky
+
+.git can't be found
+added 1122 packages, and audited 1123 packages in 43s
+
+314 packages are looking for funding
+  run `npm fund` for details
+
+25 vulnerabilities (7 moderate, 15 high, 3 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+[Container] 2026/05/29 20:13:00.009739 Running command npm run test:ci
+
+> taiger-portal@0.1.0 test:ci
+> vitest run
+
+
+ RUN  v4.0.18 /codebuild/output/src707962462/src
+
+ ✓ src/pages/Utils/util_functions.test.ts > Role checking > is_cv_assigned 3ms
+ ✓ src/pages/Utils/util_functions.test.ts > Role checking > calculateDisplayLength 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > Role checking > truncateText 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > Role checking > isCVFinished 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return false if thread is not provided 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return false if fileType or program is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct essay requirement 8ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return "No" if essay requirement is not specified 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct ML requirement 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct portfolio requirement 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct supplementary form requirement 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct curriculum analysis requirement 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct scholarship form requirement 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return the correct RL requirement 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return "No" if RL requirement is not specified 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getRequirement > should return "No" if file type does not match any condition 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return false if academic_background is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return false if academic_background.language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return false if both english_isPassed and german_isPassed are "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return true if english_isPassed is not "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return true if german_isPassed is not "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isLanguageInfoComplete > should return true if both english_isPassed and german_isPassed are not "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return false if academic_background is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return false if academic_background.language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return false if english_isPassed is "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return true if english_isPassed is not "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return true if english_isPassed is an empty string 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isEnglishLanguageInfoComplete > should return true if english_isPassed is a value other than "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return false if academic_background is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return false if academic_background.language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return false if german_isPassed is "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return true if german_isPassed is not "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return true if german_isPassed is an empty string 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_if_there_is_german_language_info > should return true if german_isPassed is a value other than "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_passed > should return true if english_isPassed is "O" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_passed > should return false if english_isPassed is not "O" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_passed > should return false if academic_background or language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_Notneeded > should return true if english_isPassed is "--" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_Notneeded > should return false if english_isPassed is not "--" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_english_language_Notneeded > should return false if academic_background or language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_passed > should return true if german_isPassed is "O" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_passed > should return false if german_isPassed is not "O" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_passed > should return false if academic_background or language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_Notneeded > should return true if german_isPassed is "--" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_Notneeded > should return false if german_isPassed is not "--" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > Language Check Functions > check_german_language_Notneeded > should return false if academic_background or language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > based_documents_init > should initialize all document statuses to Missing 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > based_documents_init > should update document statuses based on student profile 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > based_documents_init > should handle documents with status Missing 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > based_documents_init > should handle documents with status NotNeeded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > based_documents_init > should not change the status of documents not in the student profile 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_any_base_documents_uploaded > should return true if any base document is uploaded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_any_base_documents_uploaded > should return false if no base document is uploaded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_any_base_documents_uploaded > should return false if students array is empty 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_any_base_documents_uploaded > should return false if students array is null or undefined 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should return false if student applications is undefined 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should ignore applications without "VPD" in uni_assist 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should return false if uni_assist is missing 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should continue if uni_assist status is NotNeeded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should return false if uni_assist status is not Uploaded or vpd_file_path is empty 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_all_uni_assist_vpd_uploaded > should return true if all VPD documents are uploaded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_languages_filled > should return false if academic_background or language is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_languages_filled > should return false if any language test is missing or marked as "-" 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_languages_filled > should return false if any language test date is expired 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_languages_filled > should return true if all language tests are filled and not expired 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_languages_filled > should handle edge cases where test dates are empty strings 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_academic_background_filled > should return false if academic_background or university is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_academic_background_filled > should return false if any mandatory field is missing or marked as "-" 9ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_academic_background_filled > should return true if all mandatory fields are filled 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_academic_background_filled > should handle edge cases where fields are missing or optional fields are not required 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getProgramDocumentStatus > returns empty arrays when no application is provided 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getProgramDocumentStatus > flags missing program-specific documents 9ms
+ ✓ src/pages/Utils/util_functions.test.ts > getProgramDocumentStatus > flags extra program-specific documents 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getProgramDocumentStatus > returns structured RL info for missing recommendation letters 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getProgramDocumentStatus > returns structured RL info for extra recommendation letters 6ms
+ ✓ src/pages/Utils/util_functions.test.ts > getGeneralDocumentStatus > returns empty arrays when applications are not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getGeneralDocumentStatus > flags missing general recommendation letters 1ms
+ ✓ src/pages/Utils/util_functions.test.ts > getGeneralDocumentStatus > flags extra general recommendation letters 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > getGeneralDocumentStatus > ignores RL-specific programs when collecting application metadata 5ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_uploaded > returns 0 when no applications are provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_uploaded > returns 0 when no applications need uni assist for VPD 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_uploaded > returns 0 when no VPD documents are uploaded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_uploaded > returns the number of applications with uploaded VPD documents 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_needed > returns 0 when no applications are provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_needed > returns 0 when no applications need uni assist VPD 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > num_uni_assist_vpd_needed > returns the number of applications needing uni assist for VPD 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_program_ml_rl_essay_finished > returns true when no document modification threads are provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_program_ml_rl_essay_finished > returns false when some document modification threads are not finished 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_program_ml_rl_essay_finished > returns true when all document modification threads are finished 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns false when the program is not decided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns false when programId does not have uni_assist 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns false when uni_assist does not include VPD 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns true when uni_assist includes VPD but no uni_assist property 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns false when uni_assist includes VPD and status is NotNeeded 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns true when uni_assist includes VPD, status is not Uploaded, and vpd_file_path is empty 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > isUniAssistVPDNeeded > returns false when uni_assist includes VPD, status is Uploaded, and vpd_file_path is not empty 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_uni_assist_paid_and_docs_uploaded > returns false when uni assist is not provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_uni_assist_paid_and_docs_uploaded > returns false when uni assist is not paid 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > is_uni_assist_paid_and_docs_uploaded > returns true when uni assist is paid 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_student_needs_uni_assist > returns false when no applications are provided 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_student_needs_uni_assist > returns false when no applications need uni assist 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_student_needs_uni_assist > returns true when at least one application needs uni assist for VPD 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_student_needs_uni_assist > returns true when at least one application needs uni assist for FULL 0ms
+ ✓ src/pages/Utils/util_functions.test.ts > check_student_needs_uni_assist > returns false when no programs are decided 0ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders Languages Test and Certificates heading 452ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders English isPassed dropdown 153ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > renders the guided empty state when there are no conversations 1326ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders German isPassed dropdown 225ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders GRE isPassed dropdown 194ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders GMAT isPassed dropdown 189ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows English certificate select when english_isPassed is "O" 407ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows English certificate select when english_isPassed is "X" 135ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > creates a draft conversation locally without creating a backend conversation 1240ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > does not show English certificate when english_isPassed is "-" 169ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows English score fields when english_isPassed is "O" 338ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > does not show English score fields when english_isPassed is "X" 250ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows German certificate select when german_isPassed is "O" 150ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows passport warning banner when english_isPassed is "X" 180ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows passport warning banner when german_isPassed is "X" 236ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > does not show passport warning banner when all isPassed are not "X" 214ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders Update button disabled when changed_language is false 431ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders Update button enabled when changed_language is true 427ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > does not show Update button for archived users 87ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > calls handleChangeLanguage when German score field changes 207ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > calls handleSurveyLanguageSubmit when Update button is clicked 206ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows GRE certificate select when gre_isPassed is "O" 196ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > keeps a local draft when the initial conversation load resolves late 2995ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows GMAT certificate select when gmat_isPassed is "O" 142ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows GRE score field when gre_isPassed is "O" and gre_certificate is set 220ms
+ ✓ src/pages/Survey/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > shows GMAT score field when gmat_isPassed is "O" and gmat_certificate is set 190ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > loads quick-start student sources for the student-first flow 1144ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders Academic Background Survey heading 479ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders High School section label 296ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders High School Name field 114ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders University (Bachelor degree) section label 178ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > keeps mention text and does not add extra starter prompt text when selecting quick skill 2347ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders Practical Experience section 148ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders GPA section with Corresponding German GPA System label 360ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows high school graduation year field when high_school_isGraduated is not "-" 174ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > does not show high school graduation year field when high_school_isGraduated is "-" 146ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows university name field when isGraduated is "Yes" 245ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows university name field when isGraduated is "pending" 257ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > does not show university name field when isGraduated is "-" 126ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows Second degree section when isGraduated is "Yes" 238ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > does not show Second degree section when isGraduated is "pending" 360ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders Update button disabled when changed_academic is false 340ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders Update button enabled when changed_academic is true 401ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > does not show Update button for archived users 152ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows Edit button for admin users 211ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > renders without crashing 1222ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > calls handleChangeAcademic when High School Name field changes 221ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > calls handleAcademicBackgroundSubmit when Update button is clicked 260ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > renders dialog title 518ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > calls openOffcanvasWindow when Edit button is clicked by admin 162ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders gpa-instructions link 203ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders loading state initially 174ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > renders cancel button 403ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders after data loads 381ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > shows Popover formula text when anchorEl is set 202ms
+ ✓ src/pages/Survey/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders second degree university fields when isSecondGraduated is "Yes" 276ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders breadcrumbs after data loads 131ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > renders submit button 362ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders tab navigation after data loads 108ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders InterviewMetadataSidebar after data loads 91ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > renders deal inputs 326ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders All Interviews breadcrumb link for TaiGer role users 170ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > submits and creates a new deal when no existing open deal 185ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > sends draft messages with Enter and keeps newlines with Alt+Enter 4508ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders My Interviews breadcrumb link for non-TaiGer role users 113ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders Audit tab for non-TaiGer role users 48ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders History tab for TaiGer role users 114ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders error page with HTTP status when interview query fails with axios-style error 37ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders error page 500 when interview query fails without response status 22ms
+ ✓ src/pages/InterviewTraining/SingleInterview.test.tsx > SingleInterview > renders error page 404 when API returns no interview payload 16ms
+stderr | src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > closes modal via callbacks when deal update fails after user creation
+Error: deal failed
+    at /codebuild/output/src707962462/src/src/pages/CRM/components/CreateUserFromLeadModal.test.tsx:229:13
+    at file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///codebuild/output/src707962462/src/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///codebuild/output/src707962462/src/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///codebuild/output/src707962462/src/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > updates existing open deal when one exists 162ms
+ ✓ src/pages/CRM/components/CreateUserFromLeadModal.test.tsx > CreateUserFromLeadModal > closes modal via callbacks when deal update fails after user creation 371ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > sends the selected student as message context 6352ms
+ ✓ src/pages/StudentDatabase/SingleStudentPage.test.tsx > SingleStudentPageMainContent > renders without crashing 465ms
+ ✓ src/pages/StudentDatabase/SingleStudentPage.test.tsx > SingleStudentPageMainContent > renders breadcrumbs with student name 259ms
+ ✓ src/pages/StudentDatabase/SingleStudentPage.test.tsx > SingleStudentPageMainContent > renders the program language not matched banner 239ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > auto-inserts @mention when selecting student from UI picker 1722ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > returns initial survey and handlers 42ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > updates survey_link when onChangeURL is called 17ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > sets changed_academic when handleChangeAcademic is called 3ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > sets changed_application_preference when handleChangeApplicationPreference is called 3ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > setApplicationPreferenceByField updates application_preference 19ms
+ ✓ src/components/SurveyProvider/useSurveyState.test.ts > useSurveyState > calls onSuccess when provided and API succeeds 4ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > submits with only selected student and skill without extra prompt 3206ms
+ ✓ src/pages/Dashboard/StudentDashboard/StudentDashboard.test.tsx > StudentDashboard > renders without crashing 203ms
+ ✓ src/pages/Dashboard/StudentDashboard/StudentDashboard.test.tsx > StudentDashboard > renders the english cert expired banner 30ms
+ ✓ src/pages/Dashboard/StudentDashboard/StudentDashboard.test.tsx > StudentDashboard > renders student tasks table 30ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > sends quick skill context with follow-up messages 4682ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > renders school name 406ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > renders degree 106ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > renders program name 76ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > renders semester 67ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > renders toefl score 99ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > shows delete and edit buttons for non-student users 166ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > calls handleDelete when delete button clicked 174ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > calls handleEdit when edit button clicked 108ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > hides action buttons for student users 39ms
+ ✓ src/pages/StudentApplications/components/ApplicationTableRow.test.tsx > ApplicationTableRow > triggers direct admission update when admission button clicked 793ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.test.tsx > DocModificationThreadPage > renders the tabs 463ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.test.tsx > DocModificationThreadPage > renders the discussion tab panel by default 36ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.test.tsx > DocModificationThreadPage > renders the information block 26ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.test.tsx > DocModificationThreadPage > renders the document checking result modal 21ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > renders without crashing 1024ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows In Progress status when interview is not closed 142ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Completed status when interview is closed 178ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows trainer assignment section 176ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Assign Trainer button for admin/agent users 492ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows trainer names when trainers are assigned 169ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows interview time section 262ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows "To be announced" when no meeting time is set for student 175ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows meeting link section 139ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Join Meeting link when meeting link is available 167ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows program information 132ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > sends new lead-meeting skill context 6220ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows student information 126ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows training documentation card 123ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Interview Training Survey button 84ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Official Details and Actions cards for TaiGer role users 157ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Official Details for non-TaiGer users but hides Actions 123ms
+ ✓ src/pages/InterviewTraining/components/InterviewMetadataSidebar.test.tsx > InterviewMetadataSidebar > shows Delete Interview button for TaiGer role users 160ms
+ ✓ src/pages/Dashboard/AgentDashboard/AgentMainView.test.tsx > AgentMainView > renders without crashing 262ms
+ ✓ src/pages/Dashboard/AgentDashboard/AgentMainView.test.tsx > AgentMainView > renders the ProgramSpecificDocumentCheckCard 46ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentsAgentEditor/StudentsAgentEditor.test.tsx > StudentsAgentEditor > renders without crashing 185ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentsAgentEditor/StudentsAgentEditor.test.tsx > StudentsAgentEditor > renders agent name link 63ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentsAgentEditor/StudentsAgentEditor.test.tsx > StudentsAgentEditor > renders no-agent message when agents list is empty 36ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > renders DocThreadEditor when not read-only and not archived 198ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > renders Mark as finished button for TaiGer users when not locked 113ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > with different props > renders "read-only mode" message when user is archived 167ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > with different props > renders lock warning icon when isLocked is true and thread is read-only 28ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > with different props > renders checkmark icon when thread is finished (isReadOnlyThread and not isLocked) 42ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > with different props > renders Mark as open button when isFinalVersion is true and not locked 75ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DiscussionEditorCard.test.tsx > DiscussionEditorCard > with different props > calls handleAsFinalFile when Mark as finished button is clicked 114ms
+stderr | src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > clears selected skill after each successful send
+Warning: Encountered two children with the same key, `msg_follow_up_user`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Paper (/codebuild/output/src707962462/src/node_modules/@mui/material/node/Paper/Paper.js:70:59)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at AIAssistPage (/codebuild/output/src707962462/src/src/pages/AIAssist/AIAssistPage.tsx:801:58)
+Warning: Encountered two children with the same key, `msg_follow_up_assistant`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Paper (/codebuild/output/src707962462/src/node_modules/@mui/material/node/Paper/Paper.js:70:59)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at AIAssistPage (/codebuild/output/src707962462/src/src/pages/AIAssist/AIAssistPage.tsx:801:58)
+
+stderr | src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > clears selected skill after each successful send
+Warning: Encountered two children with the same key, `msg_follow_up_user`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Paper (/codebuild/output/src707962462/src/node_modules/@mui/material/node/Paper/Paper.js:70:59)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at AIAssistPage (/codebuild/output/src707962462/src/src/pages/AIAssist/AIAssistPage.tsx:801:58)
+Warning: Encountered two children with the same key, `msg_follow_up_assistant`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Paper (/codebuild/output/src707962462/src/node_modules/@mui/material/node/Paper/Paper.js:70:59)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Grid (/codebuild/output/src707962462/src/node_modules/@mui/system/Stack/createStack.js:149:24)
+    at div
+    at /codebuild/output/src707962462/src/node_modules/@emotion/react/dist/emotion-element-e8f4cc37.development.cjs.js:60:23
+    at Box (/codebuild/output/src707962462/src/node_modules/@mui/system/createBox.js:31:41)
+    at AIAssistPage (/codebuild/output/src707962462/src/src/pages/AIAssist/AIAssistPage.tsx:801:58)
+
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > clears selected skill after each successful send 9786ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > renders without crashing 359ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > shows deadline section 121ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > shows team section with Your Team heading 108ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > renders the children in the right column 94ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > does not render TopBar when thread is not final version 106ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > renders TopBar when thread is final version 78ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > shows No Conflicts badge when conflict_list is empty and user is not student 84ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock.test.tsx > InformationBlock > renders deadline label 111ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > resolves @student suggestions into assistContext 5343ms
+ ✓ src/pages/CRM/LeadPage.test.tsx > LeadPage > renders without crashing 223ms
+ ✓ src/pages/CRM/LeadPage.test.tsx > LeadPage > renders the lead fullName via LeadProfileHeader 57ms
+ ✓ src/pages/CRM/LeadPage.test.tsx > LeadPage > renders MeetingsList component 46ms
+ ✓ src/pages/CRM/LeadPage.test.tsx > LeadPage > renders SimilarStudents component 48ms
+ ✓ src/pages/CRM/LeadPage.test.tsx > LeadPage > renders breadcrumbs with CRM link 54ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > matches @student suggestions by chinese name without spaces 2583ms
+ ✓ src/pages/MyCourses/index.test.tsx > MyCourses > renders loading initially 76ms
+ ✓ src/pages/MyCourses/index.test.tsx > MyCourses > renders course data after loading 277ms
+ ✓ src/pages/MyCourses/index.test.tsx > MyCourses > renders breadcrumb after loading 82ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > renders lead fullName 384ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > renders status chip 66ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > shows Edit button in view mode 234ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > calls onEdit when Edit button clicked 124ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > resolves #skill suggestions into assistContext 5897ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > shows edit form fields when isEditing is true 550ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > shows fullName TextField in edit mode 295ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > calls onSave when Save button clicked in edit mode 237ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > shows Create User Account button when not hasPortalUser and status is not closed/converted 37ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > does not show Create User Account button when status is closed 49ms
+ ✓ src/pages/CRM/components/LeadProfileHeader.test.tsx > LeadProfileHeader > does not show Create User Account button when hasPortalUser is true 62ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > does not render when all arrays are empty/undefined 31ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > renders Top Program Subjects when bySubject is non-empty 448ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > renders School Type Distribution when bySchoolType is non-empty 54ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > renders subject items with progress bars 74ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > renders Additional Insights heading when at least one section has data 53ms
+ ✓ src/pages/Program/components/AdditionalInsightsSection.test.tsx > AdditionalInsightsSection > renders Top Contributors when topContributors is non-empty 171ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > renders without crashing 282ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > renders tab list when data is loaded 45ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > respects tab from URL search 34ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > shows loading state when isLoading is true 32ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > redirects non-TaiGer users 7ms
+ ✓ src/pages/Admissions/Admissions.test.tsx > Admissions > shows error when isError is true 39ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (create mode) > renders breadcrumb with company name 324ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (create mode) > renders the Create button 133ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (create mode) > renders course name input fields 61ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (create mode) > does not render Back button in create mode 90ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (edit mode) > renders breadcrumb with company name 119ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (edit mode) > renders the Update button 118ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (edit mode) > renders Chinese and English course name fields 69ms
+ ✓ src/pages/CourseAnalysis/AllCourses/CourseForm.test.tsx > CourseForm (edit mode) > renders Back link in edit mode 206ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > does not bind a selected student to the conversation payload 6687ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/index.test.tsx > InternalDashboard > renders without crashing 246ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/index.test.tsx > InternalDashboard > renders the tabs 68ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/index.test.tsx > InternalDashboard > renders breadcrumbs 52ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/index.test.tsx > InternalDashboard > renders overview tab content 35ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > supports keyboard selection for @student suggestions 3835ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentTasks/StudentTasksResponsive.test.tsx > StudentTasksResponsive > renders without crashing 50ms
+ ✓ src/pages/Dashboard/MainViewTab/RespondedThreads/RespondedThreads.test.tsx > RespondedThreads > renders general doc thread link when student responded 206ms
+ ✓ src/pages/Dashboard/MainViewTab/RespondedThreads/RespondedThreads.test.tsx > RespondedThreads > renders nothing for a student with no applications 8ms
+ ✓ src/pages/Dashboard/MainViewTab/RespondedThreads/RespondedThreads.test.tsx > RespondedThreads > renders application doc thread content for decided programs 48ms
+ ✓ src/pages/Dashboard/MainViewTab/RespondedThreads/RespondedThreads.test.tsx > RespondedThreads > renders date in the table cells 23ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentTasks/StudentTasksResponsive.test.tsx > StudentTasksResponsive > shows profile task when academic background is not filled 99ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentTasks/StudentTasksResponsive.test.tsx > StudentTasksResponsive > shows base document task when docs are missing 24ms
+ ✓ src/pages/StudentApplications/StudentApplicationsTableTemplate.test.tsx > StudentApplicationsTableTemplate > renders the applications table with banners 192ms
+ ✓ src/pages/StudentApplications/StudentApplicationsTableTemplate.test.tsx > StudentApplicationsTableTemplate > renders No University placeholder when applications list is empty 90ms
+ ✓ src/pages/StudentApplications/StudentApplicationsTableTemplate.test.tsx > StudentApplicationsTableTemplate > renders the student preference card 253ms
+ ✓ src/pages/Communications/CommunicationSinglePageBody.test.tsx > CommunicationSinglePageBody > renders Load button and message list 285ms
+ ✓ src/pages/Communications/CommunicationSinglePageBody.test.tsx > CommunicationSinglePageBody > renders thread editor when student is active 70ms
+ ✓ src/pages/Communications/CommunicationSinglePageBody.test.tsx > CommunicationSinglePageBody > shows readonly message when student is archived 58ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > does not send a mentioned student id for unresolved @student text 6231ms
+ ✓ src/pages/CVMLRLCenter/ManualFilesList.test.tsx > ManualFilesList > renders general threads when application is null 75ms
+ ✓ src/pages/CVMLRLCenter/ManualFilesList.test.tsx > ManualFilesList > renders program-specific threads when application is provided 10ms
+ ✓ src/pages/CVMLRLCenter/ManualFilesList.test.tsx > ManualFilesList > renders nothing when application has no doc_modification_thread 16ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionList.test.tsx > ApplicationAccordionList > renders an accordion for each application 183ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionList.test.tsx > ApplicationAccordionList > renders ManualFiles component inside accordion 16ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionList.test.tsx > ApplicationAccordionList > renders no accordions when applications array is empty 2ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > shows a passive fallback hint for unknown #skill tags 7733ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > shows skill used and student used under the assistant message 469ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > highlights mention and skill tokens in message text from metadata 598ms
+ ✓ src/pages/TaiGerOrg/index.test.tsx > TaiGerOrg > renders without crashing 604ms
+ ✓ src/pages/TaiGerOrg/index.test.tsx > TaiGerOrg > renders the team sections 374ms
+ ✓ src/pages/InterviewTraining/InterviewSurveyForm.test.tsx > InterviewSurveyForm > renders Loading while data is being fetched 120ms
+ ✓ src/pages/TaiGerOrg/index.test.tsx > TaiGerOrg > renders breadcrumbs 303ms
+ ✓ src/pages/TaiGerOrg/index.test.tsx > TaiGerOrg > renders admin section when admin user 376ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > preserves the draft text when the first message request fails 3784ms
+ ✓ src/pages/TaiGerOrg/EditorPage.test.tsx > EditorPage > renders without crashing 376ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > shows tool traces as readable collapsed summaries by default 1323ms
+ ✓ src/pages/TaiGerOrg/EditorPage.test.tsx > EditorPage > renders breadcrumbs 95ms
+ ✓ src/pages/TaiGerOrg/EditorPage.test.tsx > EditorPage > renders editor stats cards 164ms
+ ✓ src/pages/TaiGerOrg/EditorPage.test.tsx > EditorPage > renders archived students button 207ms
+ ✓ src/components/StudentOverviewTable/index.test.tsx > StudentOverviewTable > renders without crashing 79ms
+ ✓ src/components/StudentOverviewTable/index.test.tsx > StudentOverviewTable with loading > renders in loading state 37ms
+ ✓ src/components/StudentOverviewTable/index.test.tsx > StudentOverviewTable with loading > renders with null students 4ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > shows go-to-bottom button when transcript is scrolled up 2124ms
+ ✓ src/pages/Dashboard/Dashboard.test.tsx > Dashboard > agent dashboard not crash 152ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > archives a conversation from the side rail and removes it from view 1565ms
+ ✓ src/pages/Communications/CommunicationExpandPage.test.tsx > CommunicationExpandPage > renders embedded chat list for TaiGer role user 131ms
+ ✓ src/pages/Communications/CommunicationExpandPage.test.tsx > CommunicationExpandPage > shows child loading when isLoading is true on desktop 11ms
+ ✓ src/pages/AIAssist/AIAssistPage.test.tsx > AIAssistPage > keeps rename behavior for persisted conversations 4352ms
+ ✓ src/pages/Dashboard/EditorDashboard/EditorMainView.test.tsx > EditorMainView > renders without crashing 203ms
+ ✓ src/pages/Dashboard/EditorDashboard/EditorMainView.test.tsx > EditorMainView > renders the workload chart section 50ms
+ ✓ src/pages/Dashboard/EditorDashboard/EditorMainView.test.tsx > EditorMainView > renders action required card 64ms
+ ✓ src/pages/CVMLRLCenter/EditorDocsProgress.test.tsx > EditorDocsProgress > renders ManualFiles component 142ms
+ ✓ src/pages/CVMLRLCenter/EditorDocsProgress.test.tsx > EditorDocsProgress > renders ApplicationAccordionList components 49ms
+ ✓ src/pages/CVMLRLCenter/EditorDocsProgress.test.tsx > EditorDocsProgress > renders dialogs 29ms
+ ✓ src/pages/CVMLRLCenter/EditorDocsProgress.test.tsx > EditorDocsProgress > renders set program status dialog 15ms
+ ✓ src/pages/CVMLRLCenter/EditorDocsProgress.test.tsx > EditorDocsProgress > passes all student applications to ManualFiles for general docs 16ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage.test.tsx > SingleThreadPage > renders breadcrumbs navigation 358ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage.test.tsx > SingleThreadPage > renders the student name in breadcrumbs 58ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage.test.tsx > SingleThreadPage > renders the doc modification thread page 21ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage.test.tsx > SingleThreadPage > renders a Switch View link or button for non-student users 53ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.test.tsx > DocModificationThreadInput > renders loading state initially 69ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.test.tsx > DocModificationThreadInput > does not render error page while loading 17ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.test.tsx > DocModificationThreadInput > does not render modal while loading 18ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.test.tsx > DocModificationThreadInput > renders without crashing 4ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > renders the Your Team heading 157ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > renders with agents list showing agent names 98ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > renders with editors list showing editor names 53ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > shows "No agents assigned" when agents list is empty 16ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > renders Agent label section 46ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > renders Editor label section 20ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/TeamInformationCard.test.tsx > TeamInformationCard > shows Essay Writer label when file_type is Essay 10ms
+ ✓ src/pages/Program/components/SameProgramStudentsCard.test.tsx > SameProgramStudentsCard > renders column headers 278ms
+ ✓ src/pages/Program/components/SameProgramStudentsCard.test.tsx > SameProgramStudentsCard > renders loading skeleton when isLoading is true 80ms
+ ✓ src/pages/Program/components/SameProgramStudentsCard.test.tsx > SameProgramStudentsCard > renders In Progress students 80ms
+ ✓ src/pages/Program/components/SameProgramStudentsCard.test.tsx > SameProgramStudentsCard > renders agent links for In Progress students 51ms
+ ✓ src/pages/Program/components/SameProgramStudentsCard.test.tsx > SameProgramStudentsCard > renders "In Progress" and "Closed" tabs 33ms
+ ✓ src/pages/TaiGerOrg/TaiGerMember/index.test.tsx > TaiGerMember > renders without crashing 400ms
+ ✓ src/pages/TaiGerOrg/TaiGerMember/index.test.tsx > TaiGerMember > renders breadcrumbs 129ms
+ ✓ src/pages/TaiGerOrg/TaiGerMember/index.test.tsx > TaiGerMember > renders member sections for agent and editor 163ms
+ ✓ src/pages/TaiGerOrg/TaiGerMember/index.test.tsx > TaiGerMember > renders admin section when admin user 110ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (dropdown mode) > renders without crashing 234ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (dropdown mode) > renders search input 38ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (dropdown mode) > renders Chat label 63ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (dropdown) with handleCloseChat prop > renders when handleCloseChat is provided 36ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (embedded mode) > renders without crashing 5ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (embedded mode) > renders search input 3ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (embedded mode) > renders friends list when not loading 16ms
+ ✓ src/components/ChatList/index.test.tsx > ChatList (embedded) with student_id prop > renders with student_id prop 3ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog > renders dialog title when open 371ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog > renders warning content 97ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog > renders Cancel, Edit, and Confirm Unlock buttons 81ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog – Cancel button > calls onClose when Cancel is clicked 73ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog – Confirm Unlock button > calls onConfirmUnlock and onClose when Confirm Unlock is clicked 98ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog – isRefreshing=true > shows Unlocking... when isRefreshing 82ms
+ ✓ src/pages/Program/components/ProgramUnlockDialog.test.tsx > ProgramUnlockDialog – isRefreshing=true > disables Confirm Unlock button when isRefreshing 45ms
+ ✓ src/pages/AgentSupportDocuments/index.test.tsx > AgentSupportDocuments > renders loading state initially 75ms
+ ✓ src/pages/AgentSupportDocuments/index.test.tsx > AgentSupportDocuments > renders overview when loaded 22ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview.test.tsx > StudentBriefOverview > renders student name and email 299ms
+ ✓ src/pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview.test.tsx > StudentBriefOverview > renders application preference info 68ms
+ ✓ src/pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard.test.tsx > NoWritersEssaysCard > renders essay thread row when no writer assigned 189ms
+ ✓ src/pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard.test.tsx > NoWritersEssaysCard > renders nothing when essay already has a writer 11ms
+ ✓ src/pages/Program/SingleProgramView.test.tsx > SingleProgramView > renders without crashing 381ms
+ ✓ src/pages/Program/SingleProgramView.test.tsx > SingleProgramView > renders breadcrumb navigation 212ms
+ ✓ src/pages/Program/SingleProgramView.test.tsx > SingleProgramView > renders ProgramInfoTabs 128ms
+ ✓ src/pages/Program/SingleProgramView.test.tsx > SingleProgramView > renders ProgramReport 65ms
+ ✓ src/pages/CVMLRLCenter/ManualFiles.test.tsx > ManualFiles > renders ManualFilesList 201ms
+ ✓ src/pages/CVMLRLCenter/ManualFiles.test.tsx > ManualFiles > renders ToggleableUploadFileForm for TaiGer role 22ms
+ ✓ src/pages/CVMLRLCenter/ManualFiles.test.tsx > ManualFiles > renders General Documents title when filetype is General 25ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard > renders without crashing 253ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard > renders user full name 49ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard > renders date 28ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard > renders message card with correct structure 48ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard for different user > renders without editable controls for other user message 40ms
+ ✓ src/components/Message/MessageCard.test.tsx > MessageCard for different user > renders Staff TaiGer when user_id is missing 31ms
+ ✓ src/pages/ArchivStudent/index.test.tsx > ArchivStudents > renders without crashing 101ms
+ ✓ src/pages/ArchivStudent/index.test.tsx > ArchivStudents > renders breadcrumbs 6ms
+ ✓ src/pages/ArchivStudent/index.test.tsx > ArchivStudents > renders students table 12ms
+ ✓ src/pages/Program/ProgramsOverviewPage.test.tsx > ProgramsOverviewPage > renders without crashing 424ms
+ ✓ src/pages/Program/ProgramsOverviewPage.test.tsx > ProgramsOverviewPage > renders summary stats grid 161ms
+ ✓ src/pages/Users/UsersList.test.tsx > UsersList > renders the table component 100ms
+ ✓ src/pages/Users/UsersList.test.tsx > UsersList > renders the modal stubs 15ms
+ ✓ src/pages/Program/ProgramsOverviewPage.test.tsx > ProgramsOverviewPage > renders recently updated programs section 189ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLOverview.test.tsx > CVMLRLOverview > renders tabs 186ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLOverview.test.tsx > CVMLRLOverview > renders the first tab panel by default 30ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLOverview.test.tsx > CVMLRLOverview > renders a MuiDataGrid in the active tab 36ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLOverview.test.tsx > CVMLRLOverview > renders a banner in the first tab 32ms
+ ✓ src/pages/Program/ProgramsOverviewPage.test.tsx > ProgramsOverviewPage > renders View All Programs button 309ms
+ ✓ src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.test.tsx > NoEditorsStudentsCard > renders student row when student has no editors 268ms
+ ✓ src/pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard.test.tsx > NoEditorsStudentsCard > renders nothing when student already has editors 20ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders "No similar threads found" when empty array 97ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders student name from similar thread 198ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders application year and file type 65ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders Admitted chip for admission "O" 25ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders Rejected chip for admission "X" 22ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/SimilarThreadsTab.test.tsx > SimilarThreadsTab > renders Pending chip for unknown admission status 20ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/EmbeddedThreadComponent.test.tsx > EmbeddedThreadComponent > renders the doc modification thread page 318ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/EmbeddedThreadComponent.test.tsx > EmbeddedThreadComponent > renders the school name 45ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/EmbeddedThreadComponent.test.tsx > EmbeddedThreadComponent > renders the program name and file type 43ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/EmbeddedThreadComponent.test.tsx > EmbeddedThreadComponent > renders a Switch View link or button 49ms
+ ✓ src/components/NavBar/Drawer.test.tsx > CustomDrawer Component > renders the correct menu items For Student 434ms
+ ✓ src/components/NavBar/Drawer.test.tsx > CustomDrawer Component > renders TaiGer AI for Agent 206ms
+ ✓ src/pages/Dashboard/AdminDashboard/AdminMainView.test.tsx > AdminMainView > renders without crashing 174ms
+ ✓ src/pages/Dashboard/AdminDashboard/AdminMainView.test.tsx > AdminMainView > renders the ProgramReportCard 50ms
+ ✓ src/pages/Dashboard/AdminDashboard/AdminMainView.test.tsx > AdminMainView > renders the MiniAudit card 54ms
+ ✓ src/pages/Communications/Message.test.tsx > Message > shows loading state initially before editorState resolves 38ms
+ ✓ src/pages/Communications/Message.test.tsx > Message > renders without crashing when message has no user_id 4ms
+ ✓ src/pages/ApplicantsOverview/ApplicationOverviewTabs.test.tsx > ApplicationOverviewTabs > renders tabs 320ms
+ ✓ src/pages/ApplicantsOverview/ApplicationOverviewTabs.test.tsx > ApplicationOverviewTabs > renders bar chart 83ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCard.test.tsx > ApplicationProgressCard > renders without crashing 254ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCard.test.tsx > ApplicationProgressCard > renders program school name 41ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCard.test.tsx > ApplicationProgressCard > renders program degree and name 36ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCard.test.tsx > ApplicationProgressCard > renders confirmation modal 45ms
+ ✓ src/pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard.test.tsx > NoTrainersInterviewsCard > renders interview row when interview has no trainers 188ms
+ ✓ src/pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard.test.tsx > NoTrainersInterviewsCard > renders nothing when interview already has trainers 9ms
+ ✓ src/pages/Communications/CommunicationExpandPageMessagesComponent.test.tsx > CommunicationExpandPageMessagesComponent > renders Load button 176ms
+ ✓ src/pages/Communications/CommunicationExpandPageMessagesComponent.test.tsx > CommunicationExpandPageMessagesComponent > renders message list and thread editor when student is active 12ms
+ ✓ src/pages/Communications/CommunicationExpandPageMessagesComponent.test.tsx > CommunicationExpandPageMessagesComponent > shows readonly message when student is archived 10ms
+ ✓ src/pages/BaseDocuments/MyDocumentCard.test.tsx > MyDocumentCard > renders without crashing 257ms
+ ✓ src/components/Buttons/Button.test.tsx > Buttons > DownloadIconButton renders and is clickable 278ms
+ ✓ src/components/Buttons/Button.test.tsx > Buttons > CommentsIconButton renders and calls openCommentWindow on click 76ms
+ ✓ src/components/Buttons/Button.test.tsx > Buttons > DeleteIconButton renders and is disabled when isLoading 64ms
+ ✓ src/components/Buttons/Button.test.tsx > Buttons > SetNotNeededIconButton renders 60ms
+ ✓ src/components/Buttons/Button.test.tsx > Buttons > SetNeededIconButton renders 72ms
+ ✓ src/pages/MyCourses/CourseWidgetBody.test.tsx > CourseWidgetBody > renders Course Analyser heading 326ms
+ ✓ src/pages/MyCourses/CourseWidgetBody.test.tsx > CourseWidgetBody > renders DataSheetGrid 98ms
+ ✓ src/pages/MyCourses/CourseWidgetBody.test.tsx > CourseWidgetBody > renders Edit Keywords button 106ms
+ ✓ src/pages/MyCourses/CourseWidgetBody.test.tsx > CourseWidgetBody > renders ProgramRequirementsTable 64ms
+ ✓ src/pages/TaiGerPublicProfile/AgentProfile.test.tsx > AgentProfile > renders loading initially 84ms
+ ✓ src/pages/TaiGerPublicProfile/AgentProfile.test.tsx > AgentProfile > renders agent profile after loading 258ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > renders with a deadline date 230ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > renders the deadline label when not urgent 24ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > shows URGENT indicator when deadline is urgent 19ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > shows normal display (no URGENT) when deadline is far away 25ms
+ ✓ src/pages/TaiGerPublicProfile/AgentProfile.test.tsx > AgentProfile > renders agent email after loading 67ms
+ ✓ src/pages/TaiGerPublicProfile/AgentProfile.test.tsx > AgentProfile > renders office hours section after loading 66ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > shows star border icon when not favorited 86ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > shows filled star icon when favorited 51ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DeadlineCard.test.tsx > DeadlineCard > renders "Not Set" when no deadline provided 37ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders Top Performers heading 361ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders Top Schools by Program Count card 61ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders Most Popular Programs card 89ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders school rows in the table 114ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders program rows with admission rate chips 194ms
+ ✓ src/pages/Program/components/TopPerformersSection.test.tsx > TopPerformersSection > renders program link pointing to correct path 246ms
+ ✓ src/pages/TaiGerOrg/AgentPage.test.tsx > AgentPage > renders without crashing 292ms
+ ✓ src/pages/TaiGerOrg/AgentPage.test.tsx > AgentPage > renders breadcrumbs 196ms
+ ✓ src/pages/TaiGerOrg/AgentPage.test.tsx > AgentPage > renders agent stats cards 153ms
+ ✓ src/pages/TaiGerOrg/AgentPage.test.tsx > AgentPage > renders archived students button 186ms
+ ✓ src/api/apis.aiAssistStream.test.ts > AI Assist stream API error handling > throws backend JSON message when streaming request is not ok 14ms
+ ✓ src/api/apis.aiAssistStream.test.ts > AI Assist stream API error handling > throws explicit SSE error payload instead of generic empty-stream error 5ms
+ ✓ src/api/apis.aiAssistStream.test.ts > AI Assist stream API error handling > emits token callbacks before final payload 9ms
+ ✓ src/pages/Program/components/ProgramInfoTabs.test.tsx > ProgramInfoTabs > renders overview tab content 388ms
+ ✓ src/pages/Program/components/ProgramInfoTabs.test.tsx > ProgramInfoTabs > renders program school value in overview 107ms
+ ✓ src/pages/Program/components/ProgramInfoTabs.test.tsx > ProgramInfoTabs > does not render Edit History tab when versions has no changes 64ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage.test.tsx > DocumentCommunicationExpandPage > renders without crashing 220ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage.test.tsx > DocumentCommunicationExpandPage > renders the embedded thread component when a thread is selected from params 32ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage.test.tsx > DocumentCommunicationExpandPage > renders a checkbox for showing completed threads 191ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage.test.tsx > DocumentCommunicationExpandPage > renders the student list search input 75ms
+ ✓ src/pages/Program/components/ProgramInfoTabs.test.tsx > ProgramInfoTabs > with different props > renders Edit History tab when changes exist 99ms
+ ✓ src/pages/Program/components/ProgramInfoTabs.test.tsx > ProgramInfoTabs > with different props > renders Others tab when value is 4 145ms
+ ✓ src/pages/UniAssist/UniAssistProgramBlock.test.tsx > UniAssistProgramBlock > renders without crashing 119ms
+ ✓ src/pages/UniAssist/UniAssistProgramBlock.test.tsx > UniAssistProgramBlock - with VPD > renders VPD upload button when uni_assist includes Yes-VPD 159ms
+ ✓ src/pages/CustomerSupport/CustomerTicketDetailPageBody.test.tsx > CustomerTicketDetailPageBody > renders without crashing 338ms
+ ✓ src/pages/CustomerSupport/CustomerTicketDetailPageBody.test.tsx > CustomerTicketDetailPageBody > renders message list component 42ms
+ ✓ src/pages/CustomerSupport/CustomerTicketDetailPageBody.test.tsx > CustomerTicketDetailPageBody > renders Delete Ticket button 323ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict.test.tsx > TabProgramConflict > renders a table container 171ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict.test.tsx > TabProgramConflict > renders table header columns 51ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict.test.tsx > TabProgramConflict > renders ProgramConflict components for each entry 30ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict.test.tsx > TabProgramConflict > renders school names from the data 20ms
+ ✓ src/pages/TaiGerOrg/ProgramConflict/index.test.tsx > ProgramConflictDashboard > renders without crashing 154ms
+ ✓ src/pages/TaiGerOrg/ProgramConflict/index.test.tsx > ProgramConflictDashboard > renders breadcrumbs 40ms
+ ✓ src/pages/TaiGerOrg/ProgramConflict/index.test.tsx > ProgramConflictDashboard > renders program conflict tab 10ms
+ ✓ src/pages/TaiGerOrg/ProgramConflict/index.test.tsx > ProgramConflictDashboard > does not render error page when data loads successfully 16ms
+ ✓ src/components/NavBar/index.test.tsx > NavBar > renders without crashing 663ms
+ ✓ src/components/NavBar/index.test.tsx > NavBar > renders child content 176ms
+ ✓ src/components/NavBar/index.test.tsx > NavBar > renders NavSearch for Agent 154ms
+ ✓ src/components/NavBar/index.test.tsx > NavBar with drawer > renders custom drawer 126ms
+ ✓ src/pages/StudentApplications/StudentApplicationsAssignProgramlistPage.test.tsx > StudentApplicationsAssignProgramlistPage > renders the Applications breadcrumb after lazy load 219ms
+ ✓ src/pages/StudentApplications/StudentApplicationsAssignProgramlistPage.test.tsx > StudentApplicationsAssignProgramlistPage > renders the student preference card after lazy load 43ms
+ ✓ src/pages/StudentApplications/StudentApplicationsAssignProgramlistPage.test.tsx > StudentApplicationsAssignProgramlistPage > renders the Back button after lazy load 91ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.test.tsx > ProgramRequirementsNew > renders Create new program analysis heading when no requirementId 642ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.test.tsx > ProgramRequirementsNew > renders Add Category button 573ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.test.tsx > ProgramRequirementsNew > renders Create submit button 339ms
+ ✓ src/pages/Program/NewProgramEdit.test.tsx > NewProgramEdit > renders without crashing 2773ms
+ ✓ src/pages/Program/NewProgramEdit.test.tsx > NewProgramEdit > renders school name from program prop 3092ms
+ ✓ src/pages/Program/NewProgramEdit.test.tsx > NewProgramEdit > renders for create type without program 1527ms
+ ✓ src/pages/Program/NewProgramEdit.test.tsx > NewProgramEdit > renders submit button 1593ms
+ ✓ src/components/Calendar/components/EventConfirmationCard.test.tsx > EventConfirmationCard > renders without crashing when given an event 403ms
+ ✓ src/components/Calendar/components/EventConfirmationCard.test.tsx > EventConfirmationCard > renders loading state 143ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLDashboard.test.tsx > CVMLRLDashboard > renders the tabs 178ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLDashboard.test.tsx > CVMLRLDashboard > renders the In Progress tab content by default 55ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLDashboard.test.tsx > CVMLRLDashboard > renders a banner in the active tab panel 41ms
+ ✓ src/pages/CVMLRLCenter/CVMLRLDashboard.test.tsx > CVMLRLDashboard > renders correctly with empty open_tasks_arr 133ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard.test.tsx > ProgramSpecificDocumentCheckCard > renders without crashing with empty threads 116ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard.test.tsx > ProgramSpecificDocumentCheckCard > renders data grid 28ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard.test.tsx > ProgramSpecificDocumentCheckCard > filters threads by agent and document type 9ms
+ ✓ src/pages/Documentation/index.test.tsx > Documentation (index) > renders loading state initially 40ms
+ ✓ src/pages/Documentation/index.test.tsx > Documentation (index) > does not render error page while loading 10ms
+ ✓ src/pages/Documentation/index.test.tsx > Documentation (index) > does not show the doc page view while loading 9ms
+ ✓ src/pages/Documentation/index.test.tsx > Documentation (index) > does not render modal initially 8ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta.test.tsx > TabProgramTaskDelta > renders a table container 95ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta.test.tsx > TabProgramTaskDelta > renders table header columns 25ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta.test.tsx > TabProgramTaskDelta > renders ProgramTaskDelta components for each entry 37ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta.test.tsx > TabProgramTaskDelta > renders school names 25ms
+ ✓ src/pages/Contact/index.test.tsx > Contact > renders without crashing 199ms
+ ✓ src/pages/Contact/index.test.tsx > Contact > renders agent and editor contact rows 66ms
+ ✓ src/pages/Contact/index.test.tsx > Contact > renders the team table 49ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage.test.tsx > EditEssayWritersSubpage > renders dialog when show=true 329ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage.test.tsx > EditEssayWritersSubpage > does not render dialog content when show=false 4ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage.test.tsx > EditEssayWritersSubpage > renders with essay_required file type 89ms
+ ✓ src/pages/PortalCredentialPage/PortalCredentialsCard.test.tsx > PortalCredentialsCard > renders loading state initially 117ms
+ ✓ src/pages/PortalCredentialPage/PortalCredentialsCard.test.tsx > PortalCredentialsCard - loaded state > renders card content after loading 245ms
+ ✓ src/pages/Survey/components/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders Application Preference heading 647ms
+ ✓ src/pages/Survey/components/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders expected application year field 320ms
+ ✓ src/pages/Survey/components/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders target degree field 341ms
+ ✓ src/pages/Survey/components/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders update button 286ms
+ ✓ src/pages/Program/SchoolDistributionPage.test.tsx > SchoolDistributionPage > renders without crashing 774ms
+ ✓ src/pages/Program/SchoolDistributionPage.test.tsx > SchoolDistributionPage > renders breadcrumb navigation 349ms
+ ✓ src/pages/StudentDatabase/index.test.tsx > StudentDatabase > renders without crashing when user has TaiGer role 117ms
+ ✓ src/pages/StudentDatabase/index.test.tsx > StudentDatabase > redirects to dashboard when user has no TaiGer role 5ms
+ ✓ src/pages/Program/SchoolDistributionPage.test.tsx > SchoolDistributionPage > renders school data in table 286ms
+ ✓ src/pages/Program/SchoolDistributionPage.test.tsx > SchoolDistributionPage > renders Back to Overview button 356ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/index.test.tsx > AssignEssayWriters > renders without crashing 68ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/index.test.tsx > AssignEssayWriters > renders breadcrumbs navigation 94ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/index.test.tsx > AssignEssayWriters > renders company name in breadcrumb 34ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/index.test.tsx > AssignEssayWriters > renders the assign essay writers page content 4ms
+ ✓ src/pages/CVMLRLCenter/index.test.tsx > CVMLRLCenter (index) > renders the loading state initially 140ms
+ ✓ src/pages/CVMLRLCenter/index.test.tsx > CVMLRLCenter (index) > shows the loading indicator before data is fetched 4ms
+ ✓ src/pages/CVMLRLCenter/index.test.tsx > CVMLRLCenter (index) > does not render the CVMLRLOverview while loading 15ms
+ ✓ src/pages/CVMLRLCenter/index.test.tsx > CVMLRLCenter (index) > does not render error page while loading 3ms
+ ✓ src/pages/Accounting/SingleBalanceSheetOverview.test.tsx > SingleBalanceSheetOverview > shows loading spinner while fetching 114ms
+ ✓ src/pages/Accounting/SingleBalanceSheetOverview.test.tsx > SingleBalanceSheetOverview > renders without crashing for a known user id 18ms
+ ✓ src/pages/Survey/SurveyComponent.test.tsx > SurveyComponent > renders SurveyEditableComponent with survey from useSurveyState 96ms
+ ✓ src/pages/Survey/SurveyComponent.test.tsx > SurveyComponent > calls useSurveyState with initialSurvey and optional onSurveySuccess 23ms
+ ✓ src/pages/MyCourses/components/GeneralCourseAnalysisComponent.test.tsx > GeneralCourseAnalysisComponent > renders Overview tab 468ms
+ ✓ src/pages/MyCourses/components/GeneralCourseAnalysisComponent.test.tsx > GeneralCourseAnalysisComponent > renders Course Sorting tab 109ms
+ ✓ src/pages/MyCourses/components/GeneralCourseAnalysisComponent.test.tsx > GeneralCourseAnalysisComponent > renders Analyzed Programs card 69ms
+ ✓ src/pages/MyCourses/components/GeneralCourseAnalysisComponent.test.tsx > GeneralCourseAnalysisComponent > renders ProgramMatchingScores component 103ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignmentWrapper.test.tsx > AssignmentWrapper (agent role) > renders assignment_agents container 62ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignmentWrapper.test.tsx > AssignmentWrapper (agent role) > renders AssignAgentsPage 3ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignmentWrapper.test.tsx > AssignmentWrapper (editor role) > renders assignment_editors container 4ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignmentWrapper.test.tsx > AssignmentWrapper (editor role) > renders AssignEditorsPage 7ms
+ ✓ src/pages/Accounting/index.test.tsx > Accounting > renders without crashing 176ms
+ ✓ src/pages/Accounting/index.test.tsx > Accounting > renders agents and editors sections 27ms
+ ✓ src/pages/Accounting/index.test.tsx > Accounting > shows loading spinner when data is loading 12ms
+ ✓ src/pages/Authentication/SignIn/SignIn.test.tsx > SignIn > renders sign in form with email and password fields 312ms
+ ✓ src/pages/Authentication/SignIn/SignIn.test.tsx > SignIn > renders the Login submit button 149ms
+ ✓ src/pages/Authentication/SignIn/SignIn.test.tsx > SignIn > renders Google login button 133ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard > renders card with stage title 169ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard > renders subtitle 18ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard > renders direct admission and rejection labels 19ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard > renders table headers 27ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard > renders Total row in footer 33ms
+ ✓ src/pages/MyCourses/components/EstimationCard.test.tsx > EstimationCard — with course round > expands course score row when expand button is clicked 184ms
+ ✓ src/pages/CVMLRLCenter/EditableFileThread.test.tsx > EditableFileThread > renders the document file type name 288ms
+ ✓ src/pages/CVMLRLCenter/EditableFileThread.test.tsx > EditableFileThread > renders a link to the document thread 118ms
+ ✓ src/pages/CVMLRLCenter/EditableFileThread.test.tsx > EditableFileThread > renders General prefix for null application 53ms
+ ✓ src/components/Calendar/components/Calendar.test.tsx > MyCalendar > renders without crashing 59ms
+ ✓ src/components/Calendar/components/Calendar.test.tsx > MyCalendar > renders Popping component 5ms
+ ✓ src/components/Calendar/components/Calendar.test.tsx > MyCalendar with selected event > renders with a selected event 11ms
+ ✓ src/components/Calendar/components/Calendar.test.tsx > MyCalendar with selected event > renders with BookButtonDisable true 5ms
+ ✓ src/pages/StudentDatabase/StudentsTable.test.tsx > StudentsTable > renders without crashing 53ms
+ ✓ src/pages/StudentDatabase/StudentsTable.test.tsx > StudentsTable > renders with empty data array 27ms
+ ✓ src/pages/StudentDatabase/StudentsTable.test.tsx > StudentsTable > renders in loading state 10ms
+ ✓ src/pages/Program/ProgramReport.test.tsx > ProgramReport > renders without crashing and shows Report button 284ms
+ ✓ src/pages/Program/ProgramReport.test.tsx > ProgramReport > renders ProgramReportModal 17ms
+ ✓ src/pages/Program/ProgramReport.test.tsx > ProgramReport > renders ProgramReportDeleteModal 55ms
+ ✓ src/pages/Program/ProgramReport.test.tsx > ProgramReport > renders ProgramReportUpdateModal 45ms
+ ✓ src/pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard.test.tsx > NoAgentsStudentsCard > renders student row when student has no agents 141ms
+ ✓ src/pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard.test.tsx > NoAgentsStudentsCard > renders nothing when student has agents 4ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - view mode > renders without crashing 105ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - view mode > renders field labels 26ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - view mode > renders field values 18ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - grid layout > renders section title 31ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - grid layout > renders field in section 6ms
+ ✓ src/pages/CRM/components/GenericCard.test.tsx > GenericCardContent - edit mode > renders text fields in edit mode 75ms
+ ✓ src/pages/Profile/index.test.tsx > Profile > renders breadcrumb with company name 434ms
+ ✓ src/pages/Profile/index.test.tsx > Profile > renders personal data label 110ms
+ ✓ src/pages/Profile/index.test.tsx > Profile > renders first name field 113ms
+ ✓ src/pages/Profile/index.test.tsx > Profile > renders update button 202ms
+ ✓ src/pages/InterviewTraining/index.test.tsx > InterviewTraining > renders breadcrumb with company name 237ms
+ ✓ src/pages/InterviewTraining/index.test.tsx > InterviewTraining > renders Interview Center breadcrumb label 24ms
+ ✓ src/pages/InterviewTraining/index.test.tsx > InterviewTraining > renders interviews table 13ms
+ ✓ src/pages/InterviewTraining/index.test.tsx > InterviewTraining > renders Add button for TaiGer role 88ms
+ ✓ src/components/ProgramRequirementsTable/ProgramRequirementsTable.test.tsx > ProgramRequirementsTable > renders without crashing 57ms
+ ✓ src/components/ProgramRequirementsTable/ProgramRequirementsTable.test.tsx > ProgramRequirementsTable > renders course analysis dialog 5ms
+ ✓ src/components/ProgramRequirementsTable/ProgramRequirementsTable.test.tsx > ProgramRequirementsTable with empty data > renders with empty data and shows empty info 16ms
+ ✓ src/pages/Program/ProgramDistributionDetailPage.test.tsx > ProgramDistributionDetailPage > renders without crashing 368ms
+ ✓ src/pages/Program/ProgramDistributionDetailPage.test.tsx > ProgramDistributionDetailPage > renders breadcrumb navigation 168ms
+ ✓ src/components/Calendar/components/Popping.test.tsx > Popping with no event id > renders fallback text when event has no id 90ms
+ ✓ src/components/Calendar/components/Popping.test.tsx > Popping with event > renders dialog with event title 606ms
+ ✓ src/pages/Program/ProgramDistributionDetailPage.test.tsx > ProgramDistributionDetailPage > renders distribution items 84ms
+ ✓ src/pages/Program/ProgramDistributionDetailPage.test.tsx > ProgramDistributionDetailPage > renders Back to Overview button 452ms
+ ✓ src/components/Calendar/components/Popping.test.tsx > Popping with event > renders Book and Close buttons 238ms
+ ✓ src/components/Calendar/components/Popping.test.tsx > Popping with event > renders description input 130ms
+ ✓ src/pages/Program/SingleProgram.test.tsx > Single Program Page checking > renders without crashing 68ms
+ ✓ src/pages/Program/SingleProgram.test.tsx > Single Program Page checking > renders SingleProgramView when loader data resolves 20ms
+ ✓ src/pages/Survey/components/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders Languages Test and Certificates heading 645ms
+ ✓ src/pages/Survey/components/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders English passed field 335ms
+ ✓ src/pages/Survey/components/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders German passed field 243ms
+ ✓ src/pages/Survey/components/SurveyLanguagesCard.test.tsx > SurveyLanguagesCard > renders Update button 414ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ReadyToSubmitTasksCard.test.tsx > ReadyToSubmitTasksCard > renders without crashing with empty data 169ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ReadyToSubmitTasksCard.test.tsx > ReadyToSubmitTasksCard > renders table headers 21ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/ReadyToSubmitTasksCard.test.tsx > ReadyToSubmitTasksCard > renders with applications list 19ms
+ ✓ src/pages/Dashboard/DashboardBody.test.tsx > DashboardBody > renders the breadcrumb with company name 144ms
+ ✓ src/pages/Dashboard/DashboardBody.test.tsx > DashboardBody > renders Dashboard breadcrumb text 12ms
+ ✓ src/pages/Dashboard/DashboardBody.test.tsx > DashboardBody > renders GuestDashboard for guest user 16ms
+ ✓ src/components/NavBar/NavSearch/index.test.tsx > NavSearch > renders without crashing 156ms
+ ✓ src/components/NavBar/NavSearch/index.test.tsx > NavSearch > renders search input 17ms
+ ✓ src/components/NavBar/NavSearch/index.test.tsx > NavSearch > has placeholder text 24ms
+ ✓ src/components/NavBar/NavSearch/index.test.tsx > NavSearch search container > renders search container div 6ms
+ ✓ src/pages/Program/ProgramEditPage.test.tsx > ProgramEditPage > renders without crashing 131ms
+ ✓ src/pages/Program/ProgramEditPage.test.tsx > ProgramEditPage > renders NewProgramEdit after data loads 22ms
+ ✓ src/pages/Program/ProgramEditPage.test.tsx > ProgramEditPage > renders a Box container 24ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditInterviewTrainersSubpage.test.tsx > EditInterviewTrainersSubpage > renders dialog when show=true 410ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditInterviewTrainersSubpage.test.tsx > EditInterviewTrainersSubpage > does not render dialog when show=false 6ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditInterviewTrainersSubpage.test.tsx > EditInterviewTrainersSubpage > renders with empty trainer_id list 106ms
+ ✓ src/pages/Communications/CommunicationThreadEditor.test.tsx > CommunicationThreadEditor > renders compose editor component 345ms
+ ✓ src/pages/Communications/CommunicationThreadEditor.test.tsx > CommunicationThreadEditor > renders Send button 41ms
+ ✓ src/pages/Communications/CommunicationThreadEditor.test.tsx > CommunicationThreadEditor > shows user name in editor header 21ms
+
+<--- Last few GCs --->
+57[1202:0x6c648a0]   100532 ms: Mark-sweep (reduce) 1535.2 (1561.7) -> 1534.4 (1562.2) MB, 1772.0 / 0.0 ms  (+ 62.0 ms in 15 steps since start of marking, biggest step 17.4 ms, walltime since start of marking 1869 ms) (average mu = 0.504, current mu = 0.273[1202:0x6c648a0]   104074 ms: Mark-sweep (reduce) 1535.4 (1562.2) -> 1534.6 (1562.4) MB, 2768.1 / 0.0 ms  (+ 29.7 ms in 15 steps since start of marking, biggest step 6.1 ms, walltime since start of marking 2877 ms) (average mu = 0.352, current mu = 0.210)
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+ 1: 0xb9bbf0 node::Abort() [/usr/local/bin/node]
+ 2: 0xaa27ee  [/usr/local/bin/node]
+ 3: 0xd734a0 v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, bool) [/usr/local/bin/node]
+ 4: 0xd73847 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, bool) [/usr/local/bin/node]
+ 5: 0xf50c55  [/usr/local/bin/node]
+ 6: 0xf6312d v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/usr/local/bin/node]
+ 7: 0xf3d81e v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/usr/local/bin/node]
+ 8: 0xf3ebe7 v8::internal::HeapAllocator::AllocateRawWithRetryOrFailSlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/usr/local/bin/node]
+ 9: 0xf1fdea v8::internal::Factory::NewFillerObject(int, v8::internal::AllocationAlignment, v8::internal::AllocationType, v8::internal::AllocationOrigin) [/usr/local/bin/node]
+10: 0x12e505f v8::internal::Runtime_AllocateInYoungGeneration(int, unsigned long*, v8::internal::Isolate*) [/usr/local/bin/node]
+11: 0x1711cb9  [/usr/local/bin/node]
+ ✓ src/pages/StudentDatabase/StudentDatabaseOverview.test.tsx > StudentDatabaseOverview > renders without crashing 181ms
+ ✓ src/pages/StudentDatabase/StudentDatabaseOverview.test.tsx > StudentDatabaseOverview > renders the Distribution Analysis heading 98ms
+ ✓ src/pages/StudentDatabase/StudentDatabaseOverview.test.tsx > StudentDatabaseOverview > renders the Student Database Overview heading 86ms
+ ✓ src/pages/MyCourses/components/CourseAnalysisComponent.test.tsx > CourseAnalysisComponent > renders Back to Overview button 449ms
+ ✓ src/pages/MyCourses/components/CourseAnalysisComponent.test.tsx > CourseAnalysisComponent > renders Program Analysis heading 68ms
+ ✓ src/pages/MyCourses/components/CourseAnalysisComponent.test.tsx > CourseAnalysisComponent > renders gauge 123ms
+ ✓ src/pages/MyCourses/components/CourseAnalysisComponent.test.tsx > CourseAnalysisComponent > renders Matching Score label 57ms
+ ✓ src/components/ChatList/Friends/EmbeddedFriend/index.test.tsx > EmbeddedFriend > renders without crashing 225ms
+ ✓ src/components/ChatList/Friends/EmbeddedFriend/index.test.tsx > EmbeddedFriend > renders friend name text 48ms
+ ✓ src/components/ChatList/Friends/EmbeddedFriend/index.test.tsx > EmbeddedFriend without latestCommunication > renders with minimal data 45ms
+ ✓ src/pages/Program/AssignProgramsToStudentDialog.test.tsx > AssignProgramsToStudentDialog > renders dialog when open 495ms
+ ✓ src/pages/Program/AssignProgramsToStudentDialog.test.tsx > AssignProgramsToStudentDialog > renders Selected Programs title 47ms
+ ✓ src/pages/Program/AssignProgramsToStudentDialog.test.tsx > AssignProgramsToStudentDialog > renders program list items 123ms
+ ✓ src/pages/Program/AssignProgramsToStudentDialog.test.tsx > AssignProgramsToStudentDialog > renders student checkboxes 94ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsEditIndex.test.tsx > ProgramRequirementsEditIndex > renders program_requirements_edit_component container 213ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsEditIndex.test.tsx > ProgramRequirementsEditIndex > renders breadcrumb with company name 37ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsEditIndex.test.tsx > ProgramRequirementsEditIndex > renders ProgramRequirementsNew via Await 35ms
+ ✓ src/pages/CRM/components/DealModal.test.tsx > DealModal > renders create modal without crashing 642ms
+ ✓ src/pages/CRM/components/DealModal.test.tsx > DealModal > does not render when closed 8ms
+ ✓ src/pages/CRM/components/DealModal.test.tsx > DealModal > renders edit modal with deal prop 345ms
+[vitest-pool]: Timeout terminating forks worker for test files /codebuild/output/src707962462/src/src/pages/Program/ProgramsTable.test.tsx.
+ ✓ src/pages/DownloadCenter/DownloadPage.test.tsx > DownloadPage > initially shows loading spinner 136ms
+ ✓ src/pages/DownloadCenter/DownloadPage.test.tsx > DownloadPage > renders download center after loading 146ms
+ ✓ src/pages/DownloadCenter/DownloadPage.test.tsx > DownloadPage > renders breadcrumb company name after loading 26ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.test.tsx > AssignInterviewTrainers > renders without crashing 141ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.test.tsx > AssignInterviewTrainers > renders breadcrumbs navigation 18ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.test.tsx > AssignInterviewTrainers > renders company name in breadcrumb 11ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.test.tsx > AssignInterviewTrainers > renders the assign interview trainers page with data 17ms
+ ✓ src/pages/CRM/components/SimilarStudents.test.tsx > SimilarStudents - with leadId > renders without crashing 359ms
+ ✓ src/pages/CRM/components/SimilarStudents.test.tsx > SimilarStudents - with leadId > renders similar students header 60ms
+ ✓ src/pages/CRM/components/SimilarStudents.test.tsx > SimilarStudents - with leadId > renders the manual fetch CTA text 70ms
+ ✓ src/pages/CRM/components/SimilarStudents.test.tsx > SimilarStudents - with leadId > renders fetch suggestions button 20ms
+ ✓ src/pages/CRM/components/SimilarStudents.test.tsx > SimilarStudents - without leadId > renders without crashing 11ms
+ ✓ src/pages/Users/UsersTable.test.tsx > UsersTable > renders without crashing 310ms
+ ✓ src/components/table/students-table/TopToolbar.test.tsx > TopToolbar (students-table) with no selection > renders without crashing 204ms
+ ✓ src/components/table/students-table/TopToolbar.test.tsx > TopToolbar (students-table) with no selection > renders Export CSV button 50ms
+ ✓ src/components/table/students-table/TopToolbar.test.tsx > TopToolbar (students-table) with no selection > renders Archive button 75ms
+ ✓ src/components/table/students-table/TopToolbar.test.tsx > TopToolbar (students-table) with no selection > renders Assign Agents button 33ms
+ ✓ src/components/table/students-table/TopToolbar.test.tsx > TopToolbar (students-table) with selection > renders with one row selected 47ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTasks.test.tsx > BaseDocumentCheckingTasks > renders table row for uploaded profile doc 182ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTasks.test.tsx > BaseDocumentCheckingTasks > does not render rows for non-uploaded docs 3ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTasks.test.tsx > BaseDocumentCheckingTasks > renders nothing when profile is empty 11ms
+ ✓ src/pages/Documentation/InternalDocCreatePage.test.tsx > InternalDocCreatePage > renders loading state initially 112ms
+ ✓ src/pages/Documentation/InternalDocCreatePage.test.tsx > InternalDocCreatePage > renders without crashing 31ms
+ ✓ src/pages/Survey/components/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders Academic Background Survey heading 428ms
+ ✓ src/pages/Survey/components/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders High School section 162ms
+ ✓ src/pages/Survey/components/SurveyAcademicBackgroundCard.test.tsx > SurveyAcademicBackgroundCard > renders update button 296ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (default layout) > renders global filter 195ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (default layout) > renders toggle filters button 33ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (default layout) > renders passed actions 21ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (default layout) > renders filterExtras when provided 20ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (inline layout) > renders global filter without toggle-filters button 28ms
+ ✓ src/components/table/GenericTopToolbar.test.tsx > GenericTopToolbar (inline layout) > renders passed actions 12ms
+ ✓ src/pages/Survey/SurveyEditableComponent.test.tsx > SurveyEditableComponent > renders without crashing when given survey and handlers 1137ms
+ ✓ src/pages/Survey/SurveyEditableComponent.test.tsx > SurveyEditableComponent > renders Application Preference section 752ms
+ ✓ src/pages/Survey/SurveyEditableComponent.test.tsx > SurveyEditableComponent > renders Languages Test and Certificates section 707ms
+ ✓ src/pages/InterviewTraining/InterviewFeedback.test.tsx > InterviewFeedback > renders Previous Interview Questionnaire section for TaiGer role 184ms
+ ✓ src/pages/InterviewTraining/InterviewFeedback.test.tsx > InterviewFeedback > renders Student Interview Records section for TaiGer role 12ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEditors/AssignEditorsPage.test.tsx > AssignEditorsPage > renders without crashing 189ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEditors/AssignEditorsPage.test.tsx > AssignEditorsPage > renders No Editors Students heading 67ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEditors/AssignEditorsPage.test.tsx > AssignEditorsPage > renders editor card rows 20ms
+ ✓ src/pages/Authentication/ResetPassword/ResetPassword.test.tsx > ResetPassword > renders the Reset Login Password heading 414ms
+ ✓ src/pages/Authentication/ResetPassword/ResetPassword.test.tsx > ResetPassword > renders password input fields 50ms
+ ✓ src/pages/Authentication/ResetPassword/ResetPassword.test.tsx > ResetPassword > renders the Reset button 73ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/GeneralRLRequirementsTab.test.tsx > GeneralRLRequirementsTab > renders the table with RL requirements 215ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/GeneralRLRequirementsTab.test.tsx > GeneralRLRequirementsTab > renders table head with column headers 134ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/GeneralRLRequirementsTab.test.tsx > GeneralRLRequirementsTab > renders school name in the table 74ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/GeneralRLRequirementsTab.test.tsx > GeneralRLRequirementsTab > renders program name in the table 79ms
+ ✓ src/pages/Documentation/DocCreatePage.test.tsx > DocCreatePage > renders loading state initially 41ms
+ ✓ src/pages/Documentation/DocCreatePage.test.tsx > DocCreatePage > renders without crashing 3ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.test.tsx > VPDToSubmitTasksCard > renders without crashing with empty applications 138ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.test.tsx > VPDToSubmitTasksCard > renders table headers 37ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/VPDToSubmitTasksCard.test.tsx > VPDToSubmitTasksCard > renders with applications list without showing VPD rows when not needed 22ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionSummary.test.tsx > ApplicationAccordionSummary > renders school, degree and program name 226ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionSummary.test.tsx > ApplicationAccordionSummary > renders Undecided status when decided is "-" 38ms
+ ✓ src/pages/CVMLRLCenter/components/ApplicationAccordionSummary.test.tsx > ApplicationAccordionSummary > renders deadline 31ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders Distribution Analysis heading 344ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders Programs by Country card 209ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders Programs by Degree card 124ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders Programs by Language card 141ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders country items in the list 127ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders LinearProgress bars for country items 135ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders degree items in the list 125ms
+ ✓ src/pages/Program/components/DistributionAnalysisSection.test.tsx > DistributionAnalysisSection > renders language items in the list 122ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > renders nothing when meetings array is empty 31ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > with a single baseMeeting > renders meeting title 272ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > with a single baseMeeting > renders meeting date 18ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > with a single baseMeeting > renders meeting summary gist 30ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > with a single baseMeeting > renders a link to the meeting page 56ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > renders no summary placeholder when gist is missing 15ms
+ ✓ src/pages/CRM/components/MeetingsList.test.tsx > MeetingsList > renders multiple meetings 26ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignAgents/AssignAgentsPage.test.tsx > AssignAgentsPage > renders without crashing 87ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignAgents/AssignAgentsPage.test.tsx > AssignAgentsPage > renders No Agents Students heading 14ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignAgents/AssignAgentsPage.test.tsx > AssignAgentsPage > renders student rows 14ms
+ ✓ src/pages/Documentation/SingleInternalDoc.test.tsx > SingleInternalDoc > renders loading state initially 74ms
+ ✓ src/pages/Documentation/SingleInternalDoc.test.tsx > SingleInternalDoc > renders without crashing 7ms
+ ✓ src/pages/TaiGerOrg/ProgramTaskDelta/index.test.tsx > ProgramTaskDeltaDashboard > renders without crashing 92ms
+ ✓ src/pages/TaiGerOrg/ProgramTaskDelta/index.test.tsx > ProgramTaskDeltaDashboard > shows loading initially 14ms
+ ✓ src/pages/TaiGerOrg/ProgramTaskDelta/index.test.tsx > ProgramTaskDeltaDashboard > does not render error page initially 3ms
+ ✓ src/pages/TaiGerOrg/ProgramTaskDelta/index.test.tsx > ProgramTaskDeltaDashboard > renders breadcrumbs after loading 11ms
+ ✓ src/pages/CRM/DealDashboard.test.tsx > DealDashboard > renders without crashing 273ms
+ ✓ src/pages/CRM/DealDashboard.test.tsx > DealDashboard > renders the table 44ms
+ ✓ src/pages/CRM/DealDashboard.test.tsx > DealDashboard > renders create deal button 103ms
+ ✓ src/pages/Documentation/internal_index.test.tsx > InternaldocsPage (internal_index) > renders loading state initially 135ms
+ ✓ src/pages/Documentation/internal_index.test.tsx > InternaldocsPage (internal_index) > does not render error page while loading 3ms
+ ✓ src/pages/Documentation/internal_index.test.tsx > InternaldocsPage (internal_index) > does not show doc page view while loading 11ms
+ ✓ src/pages/Documentation/internal_index.test.tsx > InternaldocsPage (internal_index) > does not render modal initially 3ms
+ ✓ src/pages/Documentation/SingleDoc.test.tsx > SingleDoc > renders loading state initially 75ms
+ ✓ src/pages/Documentation/SingleDoc.test.tsx > SingleDoc > renders without crashing 3ms
+ ✓ src/pages/CourseAnalysis/AllCourses/AllCourses.test.tsx > AllCourses > renders breadcrumb with company name 125ms
+ ✓ src/pages/CourseAnalysis/AllCourses/AllCourses.test.tsx > AllCourses > renders AllCoursesTable when not loading 24ms
+ ✓ src/pages/CourseAnalysis/AllCourses/AllCourses.test.tsx > AllCourses > renders Loading when isLoading is true 29ms
+ ✓ src/components/Calendar/components/CreateNewEventModal.test.tsx > CreateNewEventModal > renders without crashing 583ms
+ ✓ src/components/Calendar/components/CreateNewEventModal.test.tsx > CreateNewEventModal > renders Create and Cancel buttons 334ms
+ ✓ src/components/Calendar/components/CreateNewEventModal.test.tsx > CreateNewEventModal > renders description textarea 205ms
+ ✓ src/components/Calendar/components/CreateNewEventModal.test.tsx > CreateNewEventModal closed > does not render dialog content when closed 11ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard > renders GPA Information title 216ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard > renders My GPA section 45ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard > renders German GPA Equivalent section 27ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard > displays German scale note 23ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard – variant props > displays student My_GPA_Uni value 17ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard – variant props > displays the german GPA value 35ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard – variant props > shows N/A when My_GPA_Uni is missing 19ms
+ ✓ src/pages/MyCourses/components/GPACard.test.tsx > GPACard – variant props > displays passing grade 17ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentCheckingResultModal.test.tsx > DocumentCheckingResultModal > renders without crashing when closed 94ms
+ ✓ src/components/StudentOverviewTable/finalDecisionOverview.test.tsx > FinalDecisionOverview > renders without crashing 119ms
+ ✓ src/components/StudentOverviewTable/finalDecisionOverview.test.tsx > FinalDecisionOverview with no enrollments > renders with students without final enrolments 13ms
+ ✓ src/components/StudentOverviewTable/finalDecisionOverview.test.tsx > FinalDecisionOverview with no enrollments > renders with empty students array 4ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentCheckingResultModal.test.tsx > DocumentCheckingResultModal > renders a Yes button 19ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentCheckingResultModal.test.tsx > DocumentCheckingResultModal > renders the modal when open=true 309ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentCheckingResultModal.test.tsx > DocumentCheckingResultModal > renders the isFinalVersion=true content when open 115ms
+ ✓ src/pages/EssayDashboard/EssayOverview.test.tsx > EssayOverview > renders NO ESSAY WRITER tab 237ms
+ ✓ src/pages/EssayDashboard/EssayOverview.test.tsx > EssayOverview > renders TODO tab 71ms
+ ✓ src/pages/EssayDashboard/EssayOverview.test.tsx > EssayOverview > renders FOLLOW UP tab 93ms
+ ✓ src/pages/EssayDashboard/EssayOverview.test.tsx > EssayOverview > renders data grid 85ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage.test.tsx > EditAttributesSubpage > renders modal when show=true 53ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage.test.tsx > EditAttributesSubpage > does not render modal when show=false 3ms
+ ✓ src/pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage.test.tsx > EditAttributesSubpage > modal title contains student name 33ms
+ ✓ src/pages/InterviewTraining/AddInterview.test.tsx > AddInterview > renders Loading while data is not yet fetched 62ms
+ ✓ src/components/SurveyProvider/InterviewExperienceStep.test.tsx > InterviewExperienceStep > renders without crashing 256ms
+ ✓ src/components/SurveyProvider/InterviewExperienceStep.test.tsx > InterviewExperienceStep > renders three star rating components 77ms
+ ✓ src/components/SurveyProvider/InterviewExperienceStep.test.tsx > InterviewExperienceStep > renders description text 30ms
+ ✓ src/components/SurveyProvider/InterviewExperienceStep.test.tsx > InterviewExperienceStep with values > renders with pre-filled values 25ms
+ ✓ src/components/SurveyProvider/InterviewExperienceStep.test.tsx > InterviewExperienceStep with values > renders disabled state 67ms
+ ✓ src/components/MuiDataGrid/index.test.tsx > MuiDataGrid > renders without crashing 123ms
+ ✓ src/components/MuiDataGrid/index.test.tsx > MuiDataGrid with empty rows > renders with empty rows 18ms
+ ✓ src/components/MuiDataGrid/index.test.tsx > MuiDataGrid with empty rows > renders in simple mode 13ms
+ ✓ src/components/MuiDataGrid/index.test.tsx > MuiDataGrid with empty rows > renders in loading mode 12ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FilesList.test.tsx > FilesList > renders FileItem for messages with files 200ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FilesList.test.tsx > FilesList > renders no files message when thread has no messages 43ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FilesList.test.tsx > FilesList > renders no files uploaded message when messages have no files 10ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FilesList.test.tsx > FilesList > renders null thread shows no messages text 18ms
+ ✓ src/pages/Communications/MessageContainer.test.tsx > MessageContainer > renders Message component by default 69ms
+ ✓ src/pages/Communications/MessageContainer.test.tsx > MessageContainer > renders with no user_id on message 46ms
+ ✓ src/pages/MyCourses/ProgramRequirementsTableWrapper.test.tsx > ProgramRequirementsTableWrapper > renders ProgramRequirementsTable 59ms
+ ✓ src/pages/MyCourses/ProgramRequirementsTableWrapper.test.tsx > ProgramRequirementsTableWrapper - loading > shows loading while fetching 7ms
+ ✓ src/pages/StudentDatabase/MeetingTab.test.tsx > MeetingTab > renders without crashing 312ms
+ ✓ src/pages/StudentDatabase/MeetingTab.test.tsx > MeetingTab > renders the Arrange Meeting button 66ms
+ ✓ src/pages/StudentDatabase/MeetingTab.test.tsx > MeetingTab > shows no meetings message when there are no meetings 52ms
+ ✓ src/pages/CRM/MeetingDashboard.test.tsx > MeetingDashboard > renders without crashing 320ms
+ ✓ src/pages/CRM/MeetingDashboard.test.tsx > MeetingDashboard > renders the meetings table 56ms
+ ✓ src/pages/CustomerSupport/CustomerTicketDetailPage.test.tsx > CustomerTicketDetailPage > renders without crashing 102ms
+ ✓ src/pages/CustomerSupport/CustomerTicketDetailPage.test.tsx > CustomerTicketDetailPage > renders ticket detail body 4ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoProgramStudentTable.test.tsx > NoProgramStudentTable > renders when there are students without applications 192ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoProgramStudentTable.test.tsx > NoProgramStudentTable > renders table headers 33ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoProgramStudentTable.test.tsx > NoProgramStudentTable > renders nothing when no students without applications 3ms
+ ✓ src/components/ConfirmDialog/ConfirmDialog.test.tsx > ConfirmDialog > renders when open with title and content 306ms
+ ✓ src/components/ConfirmDialog/ConfirmDialog.test.tsx > ConfirmDialog > calls onConfirm when confirm button is clicked 87ms
+ ✓ src/components/ConfirmDialog/ConfirmDialog.test.tsx > ConfirmDialog > calls onClose when cancel button is clicked 55ms
+ ✓ src/components/ConfirmDialog/ConfirmDialog.test.tsx > ConfirmDialog > renders content as ReactNode 20ms
+ ✓ src/pages/ApplicantsOverview/index.test.tsx > ApplicantsOverview > renders without crashing 239ms
+ ✓ src/pages/ApplicantsOverview/index.test.tsx > ApplicantsOverview > renders ApplicationOverviewTabs when not loading 23ms
+ ✓ src/pages/EssayDashboard/index.test.tsx > EssayDashboard > renders breadcrumbs 108ms
+ ✓ src/pages/EssayDashboard/index.test.tsx > EssayDashboard > renders Essay Dashboard breadcrumb label 11ms
+ ✓ src/pages/EssayDashboard/index.test.tsx > EssayDashboard > renders EssayOverview component 8ms
+ ✓ src/pages/Authentication/ResetPasswordRequest/ResetPasswordRequest.test.tsx > ResetPasswordRequest > renders the heading and email field 282ms
+ ✓ src/pages/Authentication/ResetPasswordRequest/ResetPasswordRequest.test.tsx > ResetPasswordRequest > renders the Reset button 108ms
+ ✓ src/pages/Authentication/ResetPasswordRequest/ResetPasswordRequest.test.tsx > ResetPasswordRequest > renders a link to Login page 110ms
+ ✓ src/components/ChatList/Friends/Friend/index.test.tsx > Friend > renders without crashing 242ms
+ ✓ src/components/ChatList/Friends/Friend/index.test.tsx > Friend > renders friend name 34ms
+ ✓ src/components/ChatList/Friends/Friend/index.test.tsx > Friend without latestCommunication > renders without communication data 43ms
+ ✓ src/components/Message/MessageList.test.tsx > MessageList with no messages > renders empty state message 95ms
+ ✓ src/components/Message/MessageList.test.tsx > MessageList with messages > renders message cards 6ms
+ ✓ src/components/Message/MessageList.test.tsx > MessageList with many messages > renders load more button when messages exceed visible count 49ms
+ ✓ src/pages/CustomerSupport/CustomerSupportBody.test.tsx > CustomerSupportBody > renders without crashing with empty tickets 387ms
+ ✓ src/pages/CustomerSupport/CustomerSupportBody.test.tsx > CustomerSupportBody > renders ticket list items 75ms
+ ✓ src/pages/CustomerSupport/CustomerSupportBody.test.tsx > CustomerSupportBody > renders Add Ticket button 295ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/ProgramConflict.test.tsx > ProgramConflict > renders the school name link 219ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/ProgramConflict.test.tsx > ProgramConflict > renders the program name link 30ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/ProgramConflict.test.tsx > ProgramConflict > renders student name links 31ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramConflict/ProgramConflict.test.tsx > ProgramConflict > renders the application deadline 20ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InstructionsSection.test.tsx > InstructionsSection > renders Instructions label 120ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InstructionsSection.test.tsx > InstructionsSection > renders Read More button 19ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InstructionsSection.test.tsx > InstructionsSection > calls setInstructionsDialogOpen when Read More clicked 23ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/InstructionsSection.test.tsx > InstructionsSection > renders dialog when instructionsDialogOpen is true 132ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNewIndex.test.tsx > ProgramRequirementsNewIndex > renders program_requirements_new_component container 183ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNewIndex.test.tsx > ProgramRequirementsNewIndex > renders breadcrumb with company name 39ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNewIndex.test.tsx > ProgramRequirementsNewIndex > renders ProgramRequirementsNew when data is loaded 20ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoEnoughDecidedProgramsTasksCard.test.tsx > NoEnoughDecidedProgramsTasksCard > renders without crashing with empty students 130ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoEnoughDecidedProgramsTasksCard.test.tsx > NoEnoughDecidedProgramsTasksCard > renders table headers 63ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoEnoughDecidedProgramsTasksCard.test.tsx > NoEnoughDecidedProgramsTasksCard > renders with student list 47ms
+ ✓ src/components/EditorJs/ComposeEditor.test.tsx > ComposeEditor > renders EditorSimple with holder and initial empty state 56ms
+ ✓ src/components/EditorJs/ComposeEditor.test.tsx > ComposeEditor > renders with initial value when provided 3ms
+ ✓ src/components/EditorJs/ComposeEditor.test.tsx > ComposeEditor > exposes getValue, reset, isEmpty via ref 36ms
+ ✓ src/components/EditorJs/ComposeEditor.test.tsx > ComposeEditor > calls onContentChange when content would change (via EditorSimple) 7ms
+ ✓ src/components/table/users-table/TopToolbar.test.tsx > TopToolbar (users-table) with no selection > renders without crashing 275ms
+ ✓ src/components/table/users-table/TopToolbar.test.tsx > TopToolbar (users-table) with no selection > renders Delete button 53ms
+ ✓ src/components/table/users-table/TopToolbar.test.tsx > TopToolbar (users-table) with no selection > renders Edit button 34ms
+ ✓ src/components/table/users-table/TopToolbar.test.tsx > TopToolbar (users-table) with no selection > renders Archive button 34ms
+ ✓ src/components/table/users-table/TopToolbar.test.tsx > TopToolbar (users-table) with selection > renders with a selected user row 41ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > renders when open 309ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > shows "final" when isFinal is true 54ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > shows "open" when isFinal is false 67ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > calls onConfirm when Yes is clicked 51ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > calls onClose when No is clicked 74ms
+ ✓ src/pages/CVMLRLCenter/components/SetAsFinalFileDialog.test.tsx > SetAsFinalFileDialog > disables confirm when not loaded 105ms
+ ✓ src/pages/Program/SchoolConfig.test.tsx > SchoolConfig > renders without crashing 165ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > renders the dialog when open 457ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > shows docName in the content 73ms
+ ✓ src/pages/Program/SchoolConfig.test.tsx > SchoolConfig > renders SchoolConfigContent after data resolves 48ms
+ ✓ src/pages/Program/SchoolConfig.test.tsx > SchoolConfig > renders breadcrumb navigation 50ms
+ ✓ src/pages/Program/SchoolConfig.test.tsx > SchoolConfig > renders School Configuration breadcrumb text 32ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > disables confirm button when deleteField is not "delete" 72ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > enables confirm button when deleteField is "delete" 67ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > calls onClose when No is clicked 90ms
+ ✓ src/pages/CVMLRLCenter/components/DeleteFileThreadDialog.test.tsx > DeleteFileThreadDialog > calls onConfirm when Yes is clicked and deleteField is "delete" 117ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > renders Previous, Save and Next buttons 230ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > disables Previous on step 0 23ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > enables Previous when not on first step 27ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > shows Submit feedback button on last step 26ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > calls onNext when Next is clicked 13ms
+ ✓ src/components/SurveyProvider/StepNavigation.test.tsx > StepNavigation > calls onPrevious when Previous is clicked 18ms
+ ✓ src/pages/Program/ProgramCreatePage.test.tsx > ProgramCreatePage > renders without crashing 99ms
+ ✓ src/pages/Program/ProgramCreatePage.test.tsx > ProgramCreatePage > renders NewProgramEdit with create type 27ms
+ ✓ src/pages/Program/ProgramCreatePage.test.tsx > ProgramCreatePage > renders a container div 23ms
+ ✓ src/pages/CVMLRLCenter/components/SetProgramStatusDialog.test.tsx > SetProgramStatusDialog > renders when open 241ms
+ ✓ src/pages/CVMLRLCenter/components/SetProgramStatusDialog.test.tsx > SetProgramStatusDialog > shows "close" when isApplicationSubmitted is false 66ms
+ ✓ src/pages/CVMLRLCenter/components/SetProgramStatusDialog.test.tsx > SetProgramStatusDialog > when isApplicationSubmitted is true > shows "re-open" 113ms
+ ✓ src/pages/CVMLRLCenter/components/SetProgramStatusDialog.test.tsx > SetProgramStatusDialog > button interactions > calls onConfirm when Yes is clicked 95ms
+ ✓ src/pages/CVMLRLCenter/components/SetProgramStatusDialog.test.tsx > SetProgramStatusDialog > button interactions > calls onClose when No is clicked 116ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoProgramStudentTask.test.tsx > NoProgramStudentTask > renders link when student has no applications 95ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/NoProgramStudentTask.test.tsx > NoProgramStudentTask > renders nothing when student has applications 13ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCardBody.test.tsx > ApplicationProgressCardBody > renders without crashing 164ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCardBody.test.tsx > ApplicationProgressCardBody > renders submit link 54ms
+ ✓ src/components/ApplicationProgressCard/ApplicationProgressCardBody.test.tsx > ApplicationProgressCardBody > renders a list element 25ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingList.test.tsx > MeetingList - empty state > shows no meetings found message when empty 39ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingList.test.tsx > MeetingList - with upcoming meetings > renders upcoming meetings section 11ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingList.test.tsx > MeetingList - with upcoming meetings > renders meeting card for upcoming meeting 6ms
+ ✓ src/components/Charts/TasksDistributionBarChart.test.tsx > TasksDistributionBarChart > renders without crashing 49ms
+ ✓ src/components/Charts/TasksDistributionBarChart.test.tsx > TasksDistributionBarChart > renders with yLabel prop 3ms
+ ✓ src/components/Charts/TasksDistributionBarChart.test.tsx > TasksDistributionBarChart > renders with empty data 7ms
+ ✓ src/components/Charts/TasksDistributionBarChart.test.tsx > TasksDistributionBarChart > renders with single data point 15ms
+ ✓ src/pages/Documentation/SingleDocEdit.test.tsx > SingleDocEdit > renders the editor for public category 293ms
+ ✓ src/pages/Documentation/SingleDocEdit.test.tsx > SingleDocEdit > renders Category: Public label 56ms
+ ✓ src/pages/Documentation/SingleDocEdit.test.tsx > SingleDocEdit > renders internal category label when internal=true 36ms
+ ✓ src/pages/Documentation/DocumentsListItems.test.tsx > DocumentsListItems > renders the document title as a link 212ms
+ ✓ src/pages/Documentation/DocumentsListItems.test.tsx > DocumentsListItems > renders the link with correct href 43ms
+ ✓ src/pages/Documentation/DocumentsListItems.test.tsx > DocumentsListItems > renders the index number 14ms
+ ✓ src/hooks/useEditorState.test.ts > useEditorState > returns empty value and isEmpty true when no initialValue 61ms
+ ✓ src/hooks/useEditorState.test.ts > useEditorState > uses initialValue when provided 2ms
+ ✓ src/hooks/useEditorState.test.ts > useEditorState > onChange updates value 13ms
+ ✓ src/hooks/useEditorState.test.ts > useEditorState > reset sets value to empty and increments editorKey 12ms
+ ✓ src/pages/Admissions/Overview.test.tsx > Overview > renders without crashing 441ms
+ ✓ src/pages/Admissions/Overview.test.tsx > Overview > renders student and application tabs 155ms
+ ✓ src/pages/Admissions/Overview.test.tsx > Overview > renders map and country breakdown tabs 215ms
+ ✓ src/pages/TaiGerOrg/AdminPage.test.tsx > AdminPage > renders without crashing 185ms
+ ✓ src/pages/TaiGerOrg/AdminPage.test.tsx > AdminPage > renders breadcrumbs 37ms
+ ✓ src/pages/TaiGerOrg/AdminPage.test.tsx > AdminPage > does not render error page initially 40ms
+ ✓ src/pages/TaiGerOrg/AdminPage.test.tsx > AdminPage > renders admin label 24ms
+ ✓ src/pages/StudentOverview/MyStudentsOverview.test.tsx > MyStudentsOverview > renders breadcrumb with company name 146ms
+ ✓ src/pages/StudentOverview/MyStudentsOverview.test.tsx > MyStudentsOverview > renders student overview label 10ms
+ ✓ src/pages/StudentOverview/MyStudentsOverview.test.tsx > MyStudentsOverview > renders StudentOverviewTable 7ms
+ ✓ src/pages/CRM/MeetingPage.test.tsx > MeetingPage > renders without crashing 291ms
+ ✓ src/pages/CRM/MeetingPage.test.tsx > MeetingPage > shows meeting details area 76ms
+ ✓ src/pages/StudentApplications/assignPage.test.tsx > StudentApplicationsAssignPage > renders Loading when isLoading is true 72ms
+ ✓ src/pages/StudentApplications/assignPage.test.tsx > StudentApplicationsAssignPage > renders null when isError is true and no data 8ms
+ ✓ src/pages/StudentApplications/assignPage.test.tsx > StudentApplicationsAssignPage > renders StudentApplicationsAssignProgramlistPage when student data is available 3ms
+ ✓ src/components/table/programs-table/TopToolbar.test.tsx > TopToolbar (programs-table) > renders without crashing 461ms
+ ✓ src/components/table/programs-table/TopToolbar.test.tsx > TopToolbar (programs-table) > renders Add New Program button 138ms
+ ✓ src/components/table/programs-table/TopToolbar.test.tsx > TopToolbar (programs-table) > renders Program Requirements button 147ms
+ ✓ src/components/table/programs-table/TopToolbar.test.tsx > TopToolbar (programs-table) > renders Assign button 104ms
+ ✓ src/components/table/programs-table/TopToolbar.test.tsx > TopToolbar (programs-table) school config > renders School Configuration button 144ms
+ ✓ src/pages/CRM/index.test.tsx > CRMDashboard > renders loading state without crashing 115ms
+ ✓ src/pages/CRM/index.test.tsx > CRMDashboard > renders dashboard content when data is available 272ms
+ ✓ src/pages/Program/ProgramReportCard.test.tsx > ProgramReportCard > renders without crashing 188ms
+ ✓ src/pages/Program/ProgramReportCard.test.tsx > ProgramReportCard > renders table headers 29ms
+ ✓ src/pages/Program/ProgramReportCard.test.tsx > ProgramReportCard > renders ticket rows 45ms
+ ✓ src/pages/Program/ProgramReportCard.test.tsx > ProgramReportCard > renders alert with error severity 77ms
+ ✓ src/pages/Settings/index.test.tsx > Settings > renders settings page breadcrumb 232ms
+ ✓ src/pages/Settings/index.test.tsx > Settings > renders password reset section 112ms
+ ✓ src/pages/Settings/index.test.tsx > Settings > renders theme preference section 110ms
+ ✓ src/pages/Settings/index.test.tsx > Settings > renders reset password button 201ms
+ ✓ src/pages/UniAssist/index.test.tsx > UniAssistList > renders breadcrumb with company name 179ms
+ ✓ src/pages/UniAssist/index.test.tsx > UniAssistList > renders Uni-Assist breadcrumb label 23ms
+ ✓ src/pages/UniAssist/index.test.tsx > UniAssistList > renders not needed message when no uni-assist required 45ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DescriptionBlock.test.tsx > DescriptionBlock > renders View Documentation button when template_obj provided 208ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DescriptionBlock.test.tsx > DescriptionBlock > renders Portfolio fallback when no template_obj 9ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/DescriptionBlock.test.tsx > DescriptionBlock > renders Supplementary_Form fallback 4ms
+ ✓ src/pages/InterviewTraining/InterviewsTable.test.tsx > InterviewsTable > renders the MaterialReactTable 112ms
+ ✓ src/pages/InterviewTraining/InterviewsTable.test.tsx > InterviewsTable > renders with isLoading true 5ms
+ ✓ src/pages/StudentApplications/StudentApplicationsIndividual.test.tsx > StudentApplicationsIndividual > renders Loading when isLoading is true 38ms
+ ✓ src/pages/StudentApplications/StudentApplicationsIndividual.test.tsx > StudentApplicationsIndividual > renders null when isError is true and no data 10ms
+ ✓ src/pages/StudentApplications/StudentApplicationsIndividual.test.tsx > StudentApplicationsIndividual > renders StudentApplicationsTableTemplate when student data is available 3ms
+ ✓ src/components/Charts/VerticalDistributionBarChart.test.tsx > VerticalDistributionBarCharts > renders without crashing 58ms
+ ✓ src/components/Charts/VerticalDistributionBarChart.test.tsx > VerticalDistributionBarCharts > renders with optional label props 11ms
+ ✓ src/components/Charts/VerticalDistributionBarChart.test.tsx > VerticalDistributionBarCharts > renders with empty data 2ms
+ ✓ src/components/Charts/VerticalDistributionBarChart.test.tsx > VerticalDistributionBarCharts > renders with xLabel only 10ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/AssignInterviewTrainersPage.test.tsx > AssignInterviewTrainersPage > renders without crashing with empty interviews 135ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/AssignInterviewTrainersPage.test.tsx > AssignInterviewTrainersPage > renders interview trainer cards 15ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/AssignInterviewTrainersPage.test.tsx > AssignInterviewTrainersPage > does not render modal by default 24ms
+ ✓ src/pages/Audit/MiniAudit.test.tsx > MiniAudit > renders without crashing with empty audit 151ms
+ ✓ src/pages/Audit/MiniAudit.test.tsx > MiniAudit > renders table column headers 31ms
+ ✓ src/pages/Audit/MiniAudit.test.tsx > MiniAudit > renders audit record data 26ms
+ ✓ src/pages/CVMLRLCenter/indexAll.test.tsx > CVMLRLCenterAll (indexAll) > renders breadcrumbs navigation 189ms
+ ✓ src/pages/CVMLRLCenter/indexAll.test.tsx > CVMLRLCenterAll (indexAll) > renders the CVMLRLDashboard component 19ms
+ ✓ src/pages/CVMLRLCenter/indexAll.test.tsx > CVMLRLCenterAll (indexAll) > renders All Students breadcrumb text 17ms
+ ✓ src/pages/CVMLRLCenter/indexAll.test.tsx > CVMLRLCenterAll (indexAll) > renders company name link in breadcrumbs 34ms
+ ✓ src/pages/StudentApplications/ImportStudentProgramsCard.test.tsx > ImportStudentProgramsCard > renders the import programs heading 82ms
+ ✓ src/pages/StudentApplications/ImportStudentProgramsCard.test.tsx > ImportStudentProgramsCard > renders the search student text field 21ms
+ ✓ src/pages/StudentApplications/ImportStudentProgramsCard.test.tsx > ImportStudentProgramsCard > renders the find student instruction text 23ms
+ ✓ src/pages/CRM/components/CardConfigurations.test.tsx > CardConfigurations > getLeadCardConfigurations returns array with expected ids 25ms
+ ✓ src/pages/CRM/components/CardConfigurations.test.tsx > CardConfigurations > getStudentCardConfigurations returns array with expected ids 2ms
+ ✓ src/pages/CRM/components/CardConfigurations.test.tsx > CardConfigurations > lead card education config has sections 1ms
+ ✓ src/pages/CRM/components/CardConfigurations.test.tsx > CardConfigurations > lead card work config has custom render field 2ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/ProgramTaskDelta.test.tsx > ProgramTaskDelta > renders the school name link 251ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/ProgramTaskDelta.test.tsx > ProgramTaskDelta > renders the program name link 68ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/ProgramTaskDelta.test.tsx > ProgramTaskDelta > renders student name link 52ms
+ ✓ src/pages/Dashboard/MainViewTab/ProgramTaskDelta/ProgramTaskDelta.test.tsx > ProgramTaskDelta > renders missing file types (delta add) 45ms
+ ✓ src/pages/Survey/index.test.tsx > Survey > renders without crashing 176ms
+ ✓ src/pages/Survey/index.test.tsx > Survey > renders survey component when student 27ms
+ ✓ src/pages/Admissions/AdmissionsTables.test.tsx > AdmissionsTables > renders without crashing 204ms
+ ✓ src/pages/Admissions/AdmissionsTables.test.tsx > AdmissionsTables > renders all four tabs 80ms
+ ✓ src/pages/Admissions/AdmissionsTables.test.tsx > AdmissionsTables > shows admission table for the active tab 39ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/CVAssignTasksCard.test.tsx > CVAssignTasksCard > renders without crashing 191ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/CVAssignTasksCard.test.tsx > CVAssignTasksCard > renders table headers 36ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/CVAssignTasksCard.test.tsx > CVAssignTasksCard > renders task row for matching agent student 32ms
+ ✓ src/components/table/all-courses-table/TopToolbar.test.tsx > TopToolbar (all-courses-table) with no selection > renders without crashing 217ms
+ ✓ src/components/table/all-courses-table/TopToolbar.test.tsx > TopToolbar (all-courses-table) with no selection > renders Delete and Edit buttons disabled 18ms
+ ✓ src/components/table/all-courses-table/TopToolbar.test.tsx > TopToolbar (all-courses-table) with no selection > renders Add New Course button 22ms
+ ✓ src/components/table/all-courses-table/TopToolbar.test.tsx > TopToolbar (all-courses-table) with selection > renders with a selected row 37ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/AssignEssayWritersPage.test.tsx > AssignEssayWritersPage > renders without crashing with empty threads 190ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/AssignEssayWritersPage.test.tsx > AssignEssayWritersPage > renders essay table with threads 31ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEssayWriters/AssignEssayWritersPage.test.tsx > AssignEssayWritersPage > does not render modal by default 17ms
+ ✓ src/components/ApplicationLockControl/ApplicationLockControl.test.tsx > ApplicationLockControl > returns null when application is missing 29ms
+ ✓ src/components/ApplicationLockControl/ApplicationLockControl.test.tsx > ApplicationLockControl > returns null when application has no programId 2ms
+ ✓ src/components/ApplicationLockControl/ApplicationLockControl.test.tsx > ApplicationLockControl > renders chip when application and programId provided 166ms
+ ✓ src/pages/MyCourses/CourseWidget.test.tsx > CourseWidget > renders breadcrumb with company name 209ms
+ ✓ src/pages/MyCourses/CourseWidget.test.tsx > CourseWidget > renders Course Analyser breadcrumb label 31ms
+ ✓ src/pages/Dashboard/index.test.tsx > Dashboard > renders without crashing 112ms
+ ✓ src/pages/Dashboard/index.test.tsx > Dashboard > renders the dashboard body 5ms
+ ✓ src/pages/Dashboard/index.test.tsx > Dashboard > renders with data-testid on wrapper 4ms
+ ✓ src/pages/Dashboard/MainViewTab/AdminTasks/index.test.tsx > AdminTasks > renders without crashing with empty students 62ms
+ ✓ src/pages/Dashboard/MainViewTab/AdminTasks/index.test.tsx > AdminTasks > renders AssignEditorRow 12ms
+ ✓ src/pages/Dashboard/MainViewTab/AdminTasks/index.test.tsx > AdminTasks > renders AssignEssayWriterRow 12ms
+ ✓ src/pages/BaseDocuments/BaseDocumentsTable.test.tsx > BaseDocumentsTable > renders MaterialReactTable 222ms
+ ✓ src/pages/BaseDocuments/BaseDocumentsTable.test.tsx > BaseDocumentsTable > renders statistics card for Total Students 81ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsSection.test.tsx > RequirementsSection > renders Requirements label 184ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsSection.test.tsx > RequirementsSection > renders Read More button 38ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsSection.test.tsx > RequirementsSection > calls setRequirementsDialogOpen when Read More clicked 45ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsSection.test.tsx > RequirementsSection > renders dialog when requirementsDialogOpen is true 174ms
+ ✓ src/components/table/interviews-table/TopToolbar.test.tsx > TopToolbar (interviews-table) as admin, no selection > renders without crashing 171ms
+ ✓ src/components/table/interviews-table/TopToolbar.test.tsx > TopToolbar (interviews-table) as admin, no selection > renders Assign button 39ms
+ ✓ src/components/table/interviews-table/TopToolbar.test.tsx > TopToolbar (interviews-table) as admin, no selection > renders toggle filters button 29ms
+ ✓ src/components/table/interviews-table/TopToolbar.test.tsx > TopToolbar (interviews-table) with selection > renders with a selected row 28ms
+ ✓ src/components/Input/searchableMuliselect.test.tsx > SearchableMultiSelect with array data > renders without crashing 199ms
+ ✓ src/components/Input/searchableMuliselect.test.tsx > SearchableMultiSelect with array data > renders the autocomplete input 22ms
+ ✓ src/components/Input/searchableMuliselect.test.tsx > SearchableMultiSelect with record data > renders with record data 117ms
+ ✓ src/components/Input/searchableMuliselect.test.tsx > SearchableMultiSelect with record data > renders selected chip for key1 35ms
+ ✓ src/components/Input/searchableMuliselect.test.tsx > SearchableMultiSelect with custom label > renders custom label text 24ms
+ ✓ src/components/FilePreview/FilePreview.test.tsx > FilePreview for non-PDF file > renders image preview for non-PDF 66ms
+ ✓ src/components/FilePreview/FilePreview.test.tsx > FilePreview for non-PDF file > renders download button 20ms
+ ✓ src/components/FilePreview/FilePreview.test.tsx > FilePreview for PDF file > renders PDFViewer for pdf extension 3ms
+ ✓ src/components/FilePreview/FilePreview.test.tsx > FilePreview with different file types > renders image preview for jpg 8ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTable.test.tsx > BaseDocumentCheckingTable > renders without crashing with empty students 168ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTable.test.tsx > BaseDocumentCheckingTable > renders list headers 20ms
+ ✓ src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTable.test.tsx > BaseDocumentCheckingTable > filters students by agent id 25ms
+ ✓ src/pages/CRM/LeadDashboard.test.tsx > LeadDashboard > renders without crashing 259ms
+ ✓ src/pages/CRM/LeadDashboard.test.tsx > LeadDashboard > renders the leads table 112ms
+ ✓ src/pages/CRM/components/StatusMenu.test.tsx > StatusMenu - closed (terminal status) > renders without crashing 263ms
+ ✓ src/pages/CRM/components/StatusMenu.test.tsx > StatusMenu - closed (terminal status) > renders current status label 82ms
+ ✓ src/pages/CRM/components/StatusMenu.test.tsx > StatusMenu - initiated (non-terminal) > renders without crashing 111ms
+ ✓ src/pages/CRM/components/StatusMenu.test.tsx > StatusMenu - initiated (non-terminal) > renders current status 111ms
+ ✓ src/pages/CRM/components/StatusMenu.test.tsx > StatusMenu - initiated (non-terminal) > renders cancel option for non-terminal status 102ms
+ ✓ src/pages/InterviewTraining/AssignTrainerDialog.test.tsx > AssignTrainerDialog > renders dialog title and trainer names 527ms
+ ✓ src/pages/InterviewTraining/AssignTrainerDialog.test.tsx > AssignTrainerDialog > renders Assign and Close buttons 87ms
+ ✓ src/pages/InterviewTraining/AssignTrainerDialog.test.tsx > AssignTrainerDialog > renders checked checkbox for trainer in trainerId set 249ms
+ ✓ src/components/MaterialReactTable/index.test.tsx > ExampleWithLocalizationProvider > renders without crashing 70ms
+ ✓ src/components/MaterialReactTable/index.test.tsx > ExampleWithLocalizationProvider with row selection > renders with row selection enabled 15ms
+ ✓ src/components/MaterialReactTable/index.test.tsx > ExampleWithLocalizationProvider with row selection > renders with empty data 6ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/OverviewDashboardTab.test.tsx > OverviewDashboardTab > renders without crashing 138ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/OverviewDashboardTab.test.tsx > OverviewDashboardTab > renders Month View and Week View buttons 58ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/OverviewDashboardTab.test.tsx > OverviewDashboardTab > renders line chart 43ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/OverviewDashboardTab.test.tsx > OverviewDashboardTab > renders bar charts 38ms
+ ✓ src/pages/Program/SchoolConfigContent.test.tsx > SchoolConfigContent > renders without crashing 160ms
+ ✓ src/pages/Program/SchoolConfigContent.test.tsx > SchoolConfigContent > renders the MRT table component 15ms
+ ✓ src/pages/Program/SchoolConfigContent.test.tsx > SchoolConfigContent > renders with empty data 6ms
+ ✓ src/pages/Utils/ErrorPage.test.tsx > ErrorPage > renders 400 server problem message 100ms
+ ✓ src/pages/Utils/ErrorPage.test.tsx > ErrorPage > renders 404 PageNotFoundError 4ms
+ ✓ src/pages/Utils/ErrorPage.test.tsx > ErrorPage > renders 401 UnauthenticatedError 3ms
+ ✓ src/pages/Utils/ErrorPage.test.tsx > ErrorPage > renders 500 server problem message 15ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/index.test.tsx > ProgramRequirements (index) > renders ProgramRequirementsOverview via Await 129ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/ResponseTimeDashboardTab.test.tsx > ResponseTimeDashboardTab > renders without crashing 200ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/ResponseTimeDashboardTab.test.tsx > ResponseTimeDashboardTab > renders Agent View and Editor View buttons 40ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/ResponseTimeDashboardTab.test.tsx > ResponseTimeDashboardTab > renders team overview section 35ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/ResponseTimeDashboardTab.test.tsx > ResponseTimeDashboardTab > does not render Return button initially 23ms
+ ✓ src/pages/Program/ProgramDeleteWarning.test.tsx > ProgramDeleteWarning > renders ConfirmationModal when open 75ms
+ ✓ src/pages/Program/ProgramDeleteWarning.test.tsx > ProgramDeleteWarning > displays the university and program name in confirmation content 6ms
+ ✓ src/pages/Program/ProgramDeleteWarning.test.tsx > ProgramDeleteWarning > displays Warning title 12ms
+ ✓ src/pages/Program/ProgramDeleteWarning.test.tsx > ProgramDeleteWarning > does not render modal when deleteProgramWarning is false 3ms
+ ✓ src/components/ExtendableTable/ExtendableTable.test.tsx > ExtendableTable > renders without crashing 241ms
+ ✓ src/components/ExtendableTable/ExtendableTable.test.tsx > ExtendableTable > renders column headers 19ms
+ ✓ src/components/ExtendableTable/ExtendableTable.test.tsx > ExtendableTable > shows expense count for student 22ms
+ ✓ src/components/ExtendableTable/ExtendableTable.test.tsx > ExtendableTable with empty data > renders table headers with no rows 7ms
+ ✓ src/pages/Authentication/LandingPage/index.test.tsx > LandingPage > renders a login link and footer 421ms
+ ✓ src/pages/Authentication/LandingPage/index.test.tsx > LandingPage > renders the welcome heading 52ms
+ ✓ src/pages/Authentication/LandingPage/index.test.tsx > LandingPage > renders feature cards 32ms
+ ✓ src/pages/CustomerSupport/CreateTicket.test.tsx > CreateComplaintTicket > renders without crashing 523ms
+ ✓ src/pages/CustomerSupport/CreateTicket.test.tsx > CreateComplaintTicket > renders submit button 214ms
+ ✓ src/pages/CustomerSupport/CreateTicket.test.tsx > CreateComplaintTicket > renders category select 133ms
+ ✓ src/pages/Audit/index.test.tsx > Audit > renders without crashing with empty audit 70ms
+ ✓ src/pages/Audit/index.test.tsx > Audit > renders table headers 16ms
+ ✓ src/pages/Audit/index.test.tsx > Audit > renders audit records 28ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/index.test.tsx > CourseKeywords (index) > renders the course-keywords-component container 174ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/index.test.tsx > CourseKeywords (index) > renders breadcrumb with company name 44ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/index.test.tsx > CourseKeywords (index) > renders CourseKeywordsOverview 12ms
+ ✓ src/pages/Program/ProgramDetailsComparisonTable.test.tsx > ProgramDetailsComparisonTable > renders without crashing 185ms
+ ✓ src/pages/Program/ProgramDetailsComparisonTable.test.tsx > ProgramDetailsComparisonTable > renders field names from program_fields 22ms
+ ✓ src/pages/Program/ProgramDetailsComparisonTable.test.tsx > ProgramDetailsComparisonTable > renders program data values 13ms
+ ✓ src/pages/Program/ProgramDetailsComparisonTable.test.tsx > ProgramDetailsComparisonTable > renders Country row 14ms
+ ✓ src/pages/StudentDatabase/FetchStudentLayer.test.tsx > FetchStudentLayer > renders loading spinner when isLoading is true 103ms
+ ✓ src/pages/StudentDatabase/FetchStudentLayer.test.tsx > FetchStudentLayer > renders without crashing 21ms
+ ✓ src/pages/StudentDatabase/FetchStudentLayer.test.tsx > FetchStudentLayer > shows loading state when data is undefined 7ms
+ ✓ src/pages/PortalCredentialPage/index.test.tsx > PortalCredentialPage > renders PortalCredentialsCard for student user 57ms
+ ✓ src/pages/PortalCredentialPage/index.test.tsx > PortalCredentialPage - with student_id prop > renders PortalCredentialsCard with explicit student_id prop 3ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.test.tsx > CourseKeywordsOverview > renders Categories heading 263ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.test.tsx > CourseKeywordsOverview > renders Create link/button 30ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.test.tsx > CourseKeywordsOverview > renders the MRT localization table 48ms
+ ✓ src/pages/Documentation/DocPageView.test.tsx > DocPageView > renders the editor 73ms
+ ✓ src/pages/Documentation/DocPageView.test.tsx > DocPageView > renders Edit button for admin agent 78ms
+ ✓ src/pages/Documentation/DocPageView.test.tsx > DocPageView > renders author info 24ms
+ ✓ src/pages/CourseAnalysis/AllCourses/DeleteCourseDialog.test.tsx > DeleteCourseDialog > renders dialog with title when open 275ms
+ ✓ src/pages/CourseAnalysis/AllCourses/DeleteCourseDialog.test.tsx > DeleteCourseDialog > displays course names in the dialog content 23ms
+ ✓ src/pages/CourseAnalysis/AllCourses/DeleteCourseDialog.test.tsx > DeleteCourseDialog > renders Delete and Close buttons 25ms
+ ✓ src/pages/StudentOverview/index.test.tsx > StudentOverviewPage > renders without crashing 190ms
+ ✓ src/pages/StudentOverview/index.test.tsx > StudentOverviewPage > renders StudentOverviewTable 26ms
+ ✓ src/pages/MyCourses/components/ProgramMatchingScores.test.tsx > ProgramMatchingScores > renders Program-wise Matching Scores header 206ms
+ ✓ src/pages/MyCourses/components/ProgramMatchingScores.test.tsx > ProgramMatchingScores > renders gauge card for each program 18ms
+ ✓ src/pages/MyCourses/components/ProgramMatchingScores.test.tsx > ProgramMatchingScores > renders view toggle buttons 16ms
+ ✓ src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsOverview.test.tsx > ProgramRequirementsOverview > renders MaterialReactTable with empty data 38ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/OriginAuthorStatementBar.test.tsx > OriginAuthorStatementBar > renders Read More link when confirmed 203ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/OriginAuthorStatementBar.test.tsx > OriginAuthorStatementBar > renders Read More link when unconfirmed 28ms
+ ✓ src/pages/Survey/components/SurveyMissingFieldsAlerts.test.tsx > SurveyMissingFieldsAlerts > shows missing fields card when background incomplete 136ms
+ ✓ src/pages/Survey/components/SurveyMissingFieldsAlerts.test.tsx > SurveyMissingFieldsAlerts > shows missing field items 16ms
+ ✓ src/pages/Survey/components/SurveyMissingFieldsAlerts.test.tsx > SurveyMissingFieldsAlerts > shows language missing card 7ms
+ ✓ src/pages/CustomerSupport/index.test.tsx > CustomerSupport > renders without crashing 126ms
+ ✓ src/pages/CustomerSupport/index.test.tsx > CustomerSupport > renders CustomerSupportBody via Await 4ms
+ ✓ src/pages/UniAssist/UniAssistListCard.test.tsx > UniAssistListCard - not needed > renders not needed message 153ms
+ ✓ src/pages/UniAssist/UniAssistListCard.test.tsx > UniAssistListCard - needed > renders uni-assist needed info when needed 7ms
+ ✓ src/pages/CVMLRLCenter/ToggleableUploadFileForm.test.tsx > ToggleableUploadFileForm > renders Category select dropdown 308ms
+ ✓ src/pages/CVMLRLCenter/ToggleableUploadFileForm.test.tsx > ToggleableUploadFileForm > renders Add Task button 46ms
+ ✓ src/pages/CVMLRLCenter/ToggleableUploadFileForm.test.tsx > ToggleableUploadFileForm > renders Add Task button when filetype is ProgramSpecific 45ms
+ ✓ src/pages/CRM/components/DealItem.test.tsx > DealItem > renders without crashing 345ms
+ ✓ src/pages/CRM/components/DealItem.test.tsx > DealItem > renders the deal note 72ms
+ ✓ src/pages/CRM/components/DealItem.test.tsx > DealItem > renders deal size 84ms
+ ✓ src/pages/CRM/components/DealItem.test.tsx > DealItem > renders expand/collapse button when events exist 54ms
+ ✓ src/pages/Admissions/AdmissionTable.test.tsx > AdmissionTable > renders without crashing 101ms
+ ✓ src/pages/Admissions/AdmissionTable.test.tsx > AdmissionTable > renders with empty query object 3ms
+ ✓ src/pages/Notes/index.test.tsx > Notes > initially renders loading 60ms
+ ✓ src/pages/Notes/index.test.tsx > Notes - loaded state > renders notes card after loading 58ms
+ ✓ src/components/SurveyProvider/FinalThoughtsStep.test.tsx > FinalThoughtsStep > renders without crashing 229ms
+ ✓ src/components/SurveyProvider/FinalThoughtsStep.test.tsx > FinalThoughtsStep > renders the textarea with placeholder 77ms
+ ✓ src/components/SurveyProvider/FinalThoughtsStep.test.tsx > FinalThoughtsStep > renders subtitle text 75ms
+ ✓ src/components/SurveyProvider/FinalThoughtsStep.test.tsx > FinalThoughtsStep with initial value > renders with a pre-filled value 77ms
+ ✓ src/components/SurveyProvider/FinalThoughtsStep.test.tsx > FinalThoughtsStep with initial value > renders disabled state 45ms
+ ✓ src/pages/Admissions/StudentAdmissionTables.test.tsx > StudentAdmissionTables > renders without crashing 268ms
+ ✓ src/pages/Admissions/StudentAdmissionTables.test.tsx > StudentAdmissionTables > renders two tabs: Students at Risk and Final Decisions 89ms
+ ✓ src/pages/Admissions/StudentAdmissionTables.test.tsx > StudentAdmissionTables > shows loading spinner when data is loading 54ms
+ ✓ src/pages/BaseDocuments/BaseDocumentStudentView.test.tsx > BaseDocumentStudentView > renders loading initially before ready 70ms
+ ✓ src/components/SurveyProvider/ProgramFeedbackStep.test.tsx > ProgramFeedbackStep > renders without crashing 226ms
+ ✓ src/components/SurveyProvider/ProgramFeedbackStep.test.tsx > ProgramFeedbackStep > renders the textarea with placeholder 72ms
+ ✓ src/components/SurveyProvider/ProgramFeedbackStep.test.tsx > ProgramFeedbackStep > renders required asterisk 78ms
+ ✓ src/components/SurveyProvider/ProgramFeedbackStep.test.tsx > ProgramFeedbackStep with initial value > renders with a pre-filled value 42ms
+ ✓ src/components/SurveyProvider/ProgramFeedbackStep.test.tsx > ProgramFeedbackStep with initial value > renders disabled state 53ms
+ ✓ src/pages/BaseDocuments/BaseDocuments.test.tsx > BaseDocuments > renders Loading when isLoading is true 191ms
+ ✓ src/pages/BaseDocuments/BaseDocuments.test.tsx > BaseDocuments > renders company name in breadcrumb 24ms
+ ✓ src/pages/DownloadCenter/EditDownloadFiles.test.tsx > EditDownloadFiles > renders template list table 168ms
+ ✓ src/pages/DownloadCenter/EditDownloadFiles.test.tsx > EditDownloadFiles > renders CV Template row 28ms
+ ✓ src/pages/DownloadCenter/EditDownloadFiles.test.tsx > EditDownloadFiles > renders ML Template row 25ms
+ ✓ src/pages/DownloadCenter/EditDownloadFiles.test.tsx > EditDownloadFiles > shows Unavailable for non-admin when template not uploaded 16ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsBlock.test.tsx > RequirementsBlock > renders requirement text when program_id exists 120ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsBlock.test.tsx > RequirementsBlock > renders CV requirements when file_type is CV 58ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsBlock.test.tsx > RequirementsBlock > renders RL requirements when isGeneralRL is true 55ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/RequirementsBlock.test.tsx > RequirementsBlock > renders fallback "No" when no special case 12ms
+ ✓ src/pages/Communications/CommunicationSinglePage.test.tsx > CommunicationSinglePage > shows loading indicator when data is loading 40ms
+ ✓ src/pages/Communications/CommunicationSinglePage.test.tsx > CommunicationSinglePage > shows page body when data is loaded 23ms
+ ✓ src/pages/Program/ProgramReportUpdateModal.test.tsx > ProgramReportUpdateModal > renders dialog when open 407ms
+ ✓ src/pages/Program/ProgramReportUpdateModal.test.tsx > ProgramReportUpdateModal > renders Report title 80ms
+ ✓ src/pages/Program/ProgramReportUpdateModal.test.tsx > ProgramReportUpdateModal > renders university and program name 101ms
+ ✓ src/pages/Program/ProgramReportUpdateModal.test.tsx > ProgramReportUpdateModal > does not render dialog when closed 7ms
+ ✓ src/pages/BaseDocuments/AllBaseDocuments.test.tsx > AllBaseDocuments > renders Loading when isLoading is true 63ms
+ ✓ src/pages/BaseDocuments/AllBaseDocuments.test.tsx > AllBaseDocuments > renders breadcrumbs navigation 10ms
+ ✓ src/pages/Survey/SurveyMissingFieldsAlerts.test.tsx > SurveyMissingFieldsAlerts > renders missing academic/application card when data is incomplete 122ms
+ ✓ src/pages/Survey/SurveyMissingFieldsAlerts.test.tsx > SurveyMissingFieldsAlerts > renders missing language skills card when languages not filled 8ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingCard.test.tsx > MeetingCard > renders meeting title 349ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingCard.test.tsx > MeetingCard > renders meeting location 91ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingCard.test.tsx > MeetingCard > renders meeting description 64ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingCard.test.tsx > MeetingCard > renders pending status chip for unconfirmed meeting 68ms
+ ✓ src/components/ChatList/Friends/index.test.tsx > Friends with empty students > renders no-students message when empty 72ms
+ ✓ src/components/ChatList/Friends/index.test.tsx > Friends with students > renders friend items 32ms
+ ✓ src/components/ChatList/Friends/index.test.tsx > Friends with students > renders first friend name 8ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FileItem.test.tsx > FileItem > renders the file name 156ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FileItem.test.tsx > FileItem > renders the uploader name 24ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FileItem.test.tsx > FileItem > renders a file icon 7ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/FileItem.test.tsx > FileItem > renders a download link 52ms
+ ✓ src/pages/Users/AddUserModal.test.tsx > AddUserModal > renders the dialog when open 534ms
+ ✓ src/pages/Users/AddUserModal.test.tsx > AddUserModal > renders form fields for user information 194ms
+ ✓ src/pages/Users/AddUserModal.test.tsx > AddUserModal — cancel > calls cloaseAddUserModal when Cancel is clicked 236ms
+ ✓ src/pages/Program/ProgramDiffModal.test.tsx > ProgramDiffModal > renders modal when open 325ms
+ ✓ src/pages/Program/ProgramDiffModal.test.tsx > ProgramDiffModal > renders Merge Program input heading 77ms
+ ✓ src/pages/Program/ProgramDiffModal.test.tsx > ProgramDiffModal > renders ProgramCompare component 44ms
+ ✓ src/pages/Program/ProgramDiffModal.test.tsx > ProgramDiffModal > does not render modal when closed 10ms
+ ✓ src/pages/Program/ProgramCompare.test.tsx > ProgramCompare > renders without crashing 516ms
+ ✓ src/pages/Program/ProgramCompare.test.tsx > ProgramCompare > renders Reject All button 168ms
+ ✓ src/pages/Program/ProgramCompare.test.tsx > ProgramCompare > renders comparison table headers 81ms
+ ✓ src/pages/Program/ProgramCompare.test.tsx > ProgramCompare > renders Submit button disabled when no delta 214ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsNew.test.tsx > CourseKeywordsNew > renders the course-keywords-new-component container 690ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsNew.test.tsx > CourseKeywordsNew > renders company name in breadcrumb 309ms
+ ✓ src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsNew.test.tsx > CourseKeywordsNew > renders the Categories heading 276ms
+ ✓ src/pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress.test.tsx > ApplicationProgress > renders without crashing when student has no applications 129ms
+ ✓ src/pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress.test.tsx > ApplicationProgress > shows no university row when applications array is empty 46ms
+ ✓ src/pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress.test.tsx > ApplicationProgress > renders without crashing when applications is undefined 16ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - view mode > renders without crashing 122ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - view mode > renders the card title 31ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - view mode > renders view content in view mode 21ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - view mode > does not render edit content in view mode 8ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - edit mode > renders edit content in edit mode 33ms
+ ✓ src/pages/CRM/components/EditableCard.test.tsx > EditableCard - edit mode > renders save and cancel buttons in edit mode 81ms
+ ✓ src/pages/Admissions/AdmissionsStat.test.tsx > AdmissionsStat > renders without crashing with empty results 51ms
+ ✓ src/pages/Admissions/AdmissionsStat.test.tsx > AdmissionsStat > renders with result data 4ms
+ ✓ src/pages/MyCourses/components/CourseTable.test.tsx > CourseTable > renders empty table with headers 161ms
+ ✓ src/pages/MyCourses/components/CourseTable.test.tsx > CourseTable > renders rows with course data 41ms
+ ✓ src/pages/MyCourses/components/CourseTable.test.tsx > CourseTable > renders with default empty array when data is not provided 34ms
+ ✓ src/pages/BaseDocuments/AcceptedFilePreviewModal.test.tsx > AcceptProfileFileModel > renders dialog with path as title 364ms
+ ✓ src/pages/BaseDocuments/AcceptedFilePreviewModal.test.tsx > AcceptProfileFileModel > renders FilePreview component 29ms
+ ✓ src/pages/BaseDocuments/AcceptedFilePreviewModal.test.tsx > AcceptProfileFileModel > renders Close button when isLoaded is true 46ms
+ ✓ src/pages/MyCourses/CourseAnalysisV2.test.tsx > CourseAnalysisV2 > renders loading state initially 68ms
+ ✓ src/pages/MyCourses/CourseAnalysisV2.test.tsx > CourseAnalysisV2 > calls the download API on mount 14ms
+ ✓ src/pages/Communications/MessageEdit.test.tsx > MessageEdit > renders editor when editorState is provided 281ms
+ ✓ src/pages/Communications/MessageEdit.test.tsx > MessageEdit > shows full name in accordion summary 108ms
+ ✓ src/pages/Communications/MessageEdit.test.tsx > MessageEdit > shows Loading when editorState is null 2ms
+ ✓ src/utils/authRedirect.test.ts > authRedirect > prefers state over p for post-login redirects 8ms
+ ✓ src/utils/authRedirect.test.ts > authRedirect > falls back to p when state is missing 0ms
+ ✓ src/utils/authRedirect.test.ts > authRedirect > normalizes relative internal paths by adding a leading slash 0ms
+ ✓ src/utils/authRedirect.test.ts > authRedirect > rejects unsafe internal paths 1ms
+ ✓ src/utils/authRedirect.test.ts > authRedirect > rejects paths containing backslashes 0ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignInterviewTrainerRow.test.tsx > AssignInterviewTrainerRow > renders the assign interview trainers link with count 159ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignInterviewTrainerRow.test.tsx > AssignInterviewTrainerRow > renders description text 24ms
+ ✓ src/pages/Program/ProgramList.test.tsx > ProgramList > renders without crashing 177ms
+ ✓ src/pages/Program/ProgramList.test.tsx > ProgramList > renders ProgramsTable component 69ms
+ ✓ src/pages/Authentication/GoogleOauthCallback/index.test.tsx > GoogleOAuthCallback > renders loading state when isPending is true 152ms
+ ✓ src/pages/Program/ProgramList.test.tsx > ProgramList > renders View Overview button 96ms
+ ✓ src/pages/Program/ProgramList.test.tsx > ProgramList > renders breadcrumb navigation 16ms
+ ✓ src/pages/Users/UsersListSubpage.test.tsx > UsersListSubpage > renders the dialog when open 586ms
+ ✓ src/pages/Users/UsersListSubpage.test.tsx > UsersListSubpage > shows user name in the dialog title 145ms
+ ✓ src/pages/Users/UsersListSubpage.test.tsx > UsersListSubpage — submit > calls onSubmit2 when Assign button is clicked 92ms
+ ✓ src/pages/Dashboard/ExternalDashboard/ExternalMainView.test.tsx > ExternalMainView > renders without crashing with empty students array 151ms
+ ✓ src/pages/Dashboard/ExternalDashboard/ExternalMainView.test.tsx > ExternalMainView > renders the External Dashboard text 46ms
+ ✓ src/pages/Dashboard/ExternalDashboard/ExternalMainView.test.tsx > ExternalMainView > renders the ProgramReportCard 16ms
+ ✓ src/pages/Survey/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders Application Preference title 694ms
+ ✓ src/pages/Survey/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders Expected Application Year field 428ms
+ ✓ src/pages/Survey/SurveyApplicationPreferenceCard.test.tsx > SurveyApplicationPreferenceCard > renders Update button when user is not archived 432ms
+ ✓ src/components/Modal/ConfirmationModal.test.tsx > ConfirmationModal > renders when open 357ms
+ ✓ src/components/Modal/ConfirmationModal.test.tsx > ConfirmationModal > calls onConfirm when confirm button clicked 200ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignEssayWriterRow.test.tsx > AssignEssayWriterRow > renders the assign essay writer link with count 132ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignEssayWriterRow.test.tsx > AssignEssayWriterRow > renders description text 17ms
+ ✓ src/pages/Communications/MessageList.test.tsx > MessageList > renders one MessageContainer per thread item 47ms
+ ✓ src/pages/Communications/MessageList.test.tsx > MessageList > renders empty list when thread is empty 5ms
+ ✓ src/pages/Survey/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > renders when open 389ms
+ ✓ src/pages/Survey/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > shows survey link in text field 44ms
+ ✓ src/pages/Survey/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > calls onSave when Save is clicked 108ms
+ ✓ src/pages/Survey/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > disables Save button when saving is true 54ms
+ ✓ src/pages/Notes/NotesCard.test.tsx > NotesCard > renders NotesEditor 54ms
+ ✓ src/pages/Notes/NotesCard.test.tsx > NotesCard > passes correct notes_id to NotesEditor 3ms
+ ✓ src/pages/Notes/NotesCard.test.tsx > NotesCard > renders with initial notes data 10ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid > renders Total Programs value 256ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid > renders Countries value 90ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid > renders Total Universities value 41ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid > renders Avg Admission Rate with % sign 20ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid > renders 4 stat card labels 20ms
+ ✓ src/pages/Program/components/SummaryStatsGrid.test.tsx > SummaryStatsGrid – variant props > renders numeric avgAdmissionRate as number prop 77ms
+ ✓ src/pages/ApplicantsOverview/ProgramUpdateStatusTable.test.tsx > ProgramUpdateStatusTable > renders MaterialReactTable 55ms
+ ✓ src/pages/ApplicantsOverview/ProgramUpdateStatusTable.test.tsx > ProgramUpdateStatusTable > renders with data without crashing 8ms
+ ✓ src/pages/Program/ProgramReportDeleteModal.test.tsx > ProgramReportDeleteModal > renders dialog when open 566ms
+ ✓ src/components/Charts/VerticalSingleChart.test.tsx > VerticalSingleBarChart > renders without crashing 22ms
+ ✓ src/components/Charts/VerticalSingleChart.test.tsx > VerticalSingleBarChart > renders with xLabel prop 3ms
+ ✓ src/components/Charts/VerticalSingleChart.test.tsx > VerticalSingleBarChart > renders with empty data 2ms
+ ✓ src/components/Charts/VerticalSingleChart.test.tsx > VerticalSingleBarChart > renders with single item 2ms
+ ✓ src/pages/Program/ProgramReportDeleteModal.test.tsx > ProgramReportDeleteModal > renders dialog title 171ms
+ ✓ src/pages/Program/ProgramReportDeleteModal.test.tsx > ProgramReportDeleteModal > renders the university and program name in content 206ms
+ ✓ src/pages/Program/ProgramReportDeleteModal.test.tsx > ProgramReportDeleteModal � closed > does not render dialog when closed 3ms
+ ✓ src/components/Offcanvas/OffcanvasBaseDocument.test.tsx > OffcanvasBaseDocument > renders when open 351ms
+ ✓ src/components/Offcanvas/OffcanvasBaseDocument.test.tsx > OffcanvasBaseDocument > does not render content when closed 15ms
+ ✓ src/pages/Survey/components/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > renders dialog title 410ms
+ ✓ src/pages/Survey/components/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > renders text field with doc name label 67ms
+ ✓ src/pages/Survey/components/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > renders save button 110ms
+ ✓ src/pages/Survey/components/SurveyDocLinkEditDialog.test.tsx > SurveyDocLinkEditDialog > shows current survey link value 78ms
+ ✓ src/pages/ApplicantsOverview/allStudentIndex.test.tsx > AllApplicantsOverview > renders Loading when data is loading 59ms
+ ✓ src/pages/Utils/DefaultErrorPage.test.tsx > DefaultErrorPage > renders without crashing 247ms
+ ✓ src/pages/Utils/DefaultErrorPage.test.tsx > DefaultErrorPage > shows error status 43ms
+ ✓ src/pages/Utils/DefaultErrorPage.test.tsx > DefaultErrorPage > renders Go to Home button 119ms
+ ✓ src/pages/Utils/DefaultErrorPage.test.tsx > DefaultErrorPage > renders Retry button 68ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignEditorRow.test.tsx > AssignEditorRow > renders the assign editors link with count 162ms
+ ✓ src/pages/Dashboard/MainViewTab/Common/AssignEditorRow.test.tsx > AssignEditorRow > renders description text 27ms
+ ✓ src/pages/Notes/NotesEditor.test.tsx > NotesEditor > renders EditorNote component 147ms
+ ✓ src/pages/Notes/NotesEditor.test.tsx > NotesEditor > renders disabled Save button when buttonDisabled is true 48ms
+ ✓ src/pages/Notes/NotesEditor.test.tsx > NotesEditor > renders enabled Save button when buttonDisabled is false 36ms
+ ✓ src/pages/StudentApplications/StudentPreferenceCard.test.tsx > StudentPreferenceCard > renders preference labels 164ms
+ ✓ src/pages/StudentApplications/StudentPreferenceCard.test.tsx > StudentPreferenceCard > renders the target application field value 43ms
+ ✓ src/pages/StudentApplications/StudentPreferenceCard.test.tsx > StudentPreferenceCard > renders targetApplicationSubjects joined by comma 35ms
+ ✓ src/pages/Authentication/Activation/Activation.test.tsx > Activation > renders the Link Expired state initially (before API resolves) 100ms
+ ✓ src/pages/Authentication/Activation/Activation.test.tsx > Activation > renders the Resend button in the initial state 78ms
+ ✓ src/pages/CVMLRLCenter/components/RequirementsModal.test.tsx > RequirementsModal > renders when open 279ms
+ ✓ src/pages/CVMLRLCenter/components/RequirementsModal.test.tsx > RequirementsModal > displays requirements text 45ms
+ ✓ src/pages/CVMLRLCenter/components/RequirementsModal.test.tsx > RequirementsModal > button interactions > calls onClose when Close is clicked 98ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/AgentDashboard.test.tsx > AgentDashboard > renders without crashing 170ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/AgentDashboard.test.tsx > AgentDashboard > renders section header 76ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/AgentDashboard.test.tsx > AgentDashboard > renders agent names 20ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/AgentDashboard.test.tsx > AgentDashboard > renders bar charts for each agent 16ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/ProgramDetailsCard.test.tsx > ProgramDetailsCard > renders semester and language 187ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/ProgramDetailsCard.test.tsx > ProgramDetailsCard > renders Program Details header 27ms
+ ✓ src/pages/CVMLRLCenter/DocModificationThreadPage/components/ProgramDetailsCard.test.tsx > ProgramDetailsCard > returns null when program_id is missing 2ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingFormModal.test.tsx > MeetingFormModal > renders dialog title for new meeting 599ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingFormModal.test.tsx > MeetingFormModal > renders title input field 249ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingFormModal.test.tsx > MeetingFormModal > renders save button 439ms
+ ✓ src/pages/StudentDatabase/Meetings/MeetingFormModal.test.tsx > MeetingFormModal > renders cancel button 301ms
+ ✓ src/pages/TaiGerOrg/GrantPermissionModal.test.tsx > GrantPermissionModal > renders without crashing 782ms
+ ✓ src/pages/TaiGerOrg/GrantPermissionModal.test.tsx > GrantPermissionModal > renders the dialog title with name 217ms
+ ✓ src/pages/TaiGerOrg/GrantPermissionModal.test.tsx > GrantPermissionModal > renders update and cancel buttons 275ms
+ ✓ src/pages/TaiGerOrg/GrantPermissionModal.test.tsx > GrantPermissionModal > renders permissions table headers 185ms
+ ✓ src/pages/Documentation/DocPageEdit.test.tsx > DocPageEdit > renders without crashing 77ms
+ ✓ src/pages/Documentation/DocPageEdit.test.tsx > DocPageEdit > renders a Card wrapper 10ms
+ ✓ src/pages/StudentApplications/components/ApplicationsTableBanners.test.tsx > ApplicationsTableBanners > renders three banners 119ms
+ ✓ src/pages/StudentApplications/components/ApplicationsTableBanners.test.tsx > ApplicationsTableBanners > renders primary info banner with company name 26ms
+ ✓ src/pages/StudentApplications/components/ApplicationsTableBanners.test.tsx > ApplicationsTableBanners > renders secondary warning banner 19ms
+ ✓ src/pages/StudentApplications/components/ApplicationsTableBanners.test.tsx > ApplicationsTableBanners > renders danger warning banner 20ms
+ ✓ src/pages/CourseAnalysis/AllCourses/AllCoursesTable.test.tsx > AllCoursesTable > renders MaterialReactTable 75ms
+ ✓ src/pages/CourseAnalysis/AllCourses/AllCoursesTable.test.tsx > AllCoursesTable > renders DeleteCourseDialog 3ms
+ ✓ src/pages/Documentation/DocumentsListItemsEditor.test.tsx > DocumentsListItemsEditor > renders the EditorNew component 53ms
+ ✓ src/pages/Documentation/DocumentsListItemsEditor.test.tsx > DocumentsListItemsEditor > renders without crashing with minimal props 15ms
+ ✓ src/pages/TaiGerOrg/GrantManagerModal.test.tsx > GrantManagerModal > renders without crashing 511ms
+ ✓ src/pages/Program/ProgramReportModal.test.tsx > ProgramReportModal > renders dialog when open 327ms
+ ✓ src/pages/Program/ProgramReportModal.test.tsx > ProgramReportModal > renders Report title 65ms
+ ✓ src/pages/Program/ProgramReportModal.test.tsx > ProgramReportModal > renders university and program name in content 169ms
+ ✓ src/pages/Program/ProgramReportModal.test.tsx > ProgramReportModal > does not render dialog when closed 3ms
+ ✓ src/pages/TaiGerOrg/GrantManagerModal.test.tsx > GrantManagerModal > renders the dialog title with name 91ms
+ ✓ src/pages/TaiGerOrg/GrantManagerModal.test.tsx > GrantManagerModal > renders confirm and cancel buttons 141ms
+ ✓ src/pages/TaiGerOrg/GrantManagerModal.test.tsx > GrantManagerModal > renders manager type select 81ms
+ ✓ src/components/Tabs/index.test.tsx > Tabs > CustomTabPanel > renders without crashing 68ms
+ ✓ src/components/Tabs/index.test.tsx > Tabs > CustomTabPanel > hides content when value does not match index 10ms
+ ✓ src/components/Tabs/index.test.tsx > Tabs > a11yProps > returns id and aria-controls 2ms
+ ✓ src/pages/Authentication/Activation/Reactivation.test.tsx > Reactivation > renders the not-activated message and Resend button initially 187ms
+ ✓ src/pages/Authentication/Activation/Reactivation.test.tsx > Reactivation > renders without crashing when email is undefined 35ms
+ ✓ src/pages/LearningResources/index.test.tsx > LearningResources > renders without crashing 131ms
+ ✓ src/pages/LearningResources/index.test.tsx > LearningResources > shows coming soon text 38ms
+ ✓ src/components/BreadcrumbsNavigation/BreadcrumbsNavigation.test.tsx > BreadcrumbsNavigation > renders without crashing 197ms
+ ✓ src/components/BreadcrumbsNavigation/BreadcrumbsNavigation.test.tsx > BreadcrumbsNavigation > renders last item as text only 81ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/KPIDashboardTab.test.tsx > KPIDashboardTab > renders without crashing 158ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/KPIDashboardTab.test.tsx > KPIDashboardTab > renders CV KPI card 26ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/KPIDashboardTab.test.tsx > KPIDashboardTab > renders ML KPI card 22ms
+ ✓ src/pages/TaiGerOrg/InternalDashboard/KPIDashboardTab.test.tsx > KPIDashboardTab > renders RL KPI card 29ms
+ ✓ src/components/SurveyProvider/StepIndicators.test.tsx > StepIndicators > renders all step labels 246ms
+ ✓ src/components/SurveyProvider/StepIndicators.test.tsx > StepIndicators > renders a progress bar 30ms
+ ✓ src/components/SurveyProvider/StepIndicators.test.tsx > StepIndicators > renders with single step 7ms
+ ✓ src/components/AuthWrapper/index.test.tsx > AuthWrapper > renders children without crashing 246ms
+ ✓ src/components/AuthWrapper/index.test.tsx > AuthWrapper > renders logo 133ms
+ ✓ src/components/SurveyProvider/StarRating.test.tsx > StarRating > renders without crashing 242ms
+ ✓ src/components/SurveyProvider/StarRating.test.tsx > StarRating > calls onRatingChange when a star is clicked 80ms
+ ✓ src/components/SurveyProvider/StarRating.test.tsx > StarRating > shows current rating when rating prop is provided 68ms
+ ✓ src/pages/Utils/UnauthorizedError.test.tsx > UnauthorizedError > renders without crashing 135ms
+ ✓ src/pages/Utils/UnauthorizedError.test.tsx > UnauthorizedError > shows company name 16ms
+ ✓ src/components/Loading/Loading.test.tsx > Loading (full variant) > renders without crashing 206ms
+ ✓ src/components/Loading/Loading.test.tsx > Loading (full variant) > shows loading text 34ms
+ ✓ src/components/Loading/Loading.test.tsx > Loading (child variant) > renders without crashing 19ms
+ ✓ src/components/Loading/Loading.test.tsx > Loading (child variant) > shows loading text 25ms
+ ✓ src/components/Modal/index.test.tsx > ModalNew > renders without crashing when open 170ms
+ ✓ src/components/Modal/index.test.tsx > ModalNew > does not render children when closed 11ms
+ ✓ src/components/AuthProvider/index.test.tsx > AuthProvider > renders without crashing 52ms
+ ✓ src/pages/Utils/UnauthenticatedError.test.tsx > UnauthenticatedError > renders without crashing 140ms
+ ✓ src/pages/Utils/UnauthenticatedError.test.tsx > UnauthenticatedError > shows login again prompt 8ms
+ ✓ src/pages/Utils/TooManyRequestsError.test.tsx > TooManyRequestsError > renders without crashing 101ms
+ ✓ src/pages/Utils/TooManyRequestsError.test.tsx > TooManyRequestsError > shows try later message 7ms
+ ✓ src/pages/Utils/ResourceLockedError.test.tsx > ResourceLockedError > renders without crashing 158ms
+ ✓ src/pages/Utils/ResourceLockedError.test.tsx > ResourceLockedError > shows resource locked message 25ms
+ ✓ src/components/SurveyProvider/SurveyHeader.test.tsx > SurveyHeader > renders without crashing 115ms
+ ✓ src/components/SurveyProvider/SurveyHeader.test.tsx > SurveyHeader > renders subtitle when provided 9ms
+ ✓ src/components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner.test.tsx > EnglishCertificateExpiredBeforeDeadlineBanner > renders without crashing when condition is false 32ms
+ ✓ src/components/GaugeCard/index.test.tsx > GaugeCard > renders without crashing 300ms
+ ✓ src/components/GaugeCard/index.test.tsx > GaugeCard > renders score 29ms
+ ✓ src/pages/Utils/PageNotFoundError.test.tsx > PageNotFoundError > renders without crashing 94ms
+ ✓ src/pages/Utils/PageNotFoundError.test.tsx > PageNotFoundError > renders heading text 40ms
+ ✓ src/components/SurveyProvider/index.test.tsx > SurveyProvider barrel exports > exports InterviewExperienceStep 2ms
+ ✓ src/components/SurveyProvider/index.test.tsx > SurveyProvider barrel exports > exports ProgramFeedbackStep 1ms
+ ✓ src/components/SurveyProvider/index.test.tsx > SurveyProvider barrel exports > exports FinalThoughtsStep 0ms
+ ✓ src/components/SurveyProvider/index.test.tsx > SurveyProvider barrel exports > exports StarRating 1ms
+ ✓ src/pages/Dashboard/GuestDashboard/GuestMainView.test.tsx > GuestMainView > renders welcome heading 102ms
+ ✓ src/pages/Dashboard/GuestDashboard/GuestMainView.test.tsx > GuestMainView > renders welcome message text 7ms
+ ✓ src/pages/Dashboard/GuestDashboard/GuestMainView.test.tsx > GuestMainView > renders a Card container 4ms
+ ✓ src/pages/Utils/TimeOutErrors.test.tsx > TimeOutErrors > renders without crashing 66ms
+ ✓ src/pages/Utils/TimeOutErrors.test.tsx > TimeOutErrors > shows login again message 7ms
+ ✓ src/pages/Communications/CommunicationSinglePage.test.ts > Communication page checking > Communication page not crash 2ms
+ ✓ src/components/TopBar/TopBar.test.tsx > TopBar > renders without crashing 182ms
+ ✓ src/components/TopBar/TopBar.test.tsx > TopBar > renders message when provided 29ms
+ ✓ src/pages/Dashboard/GuestDashboard/GuestDashboard.test.tsx > GuestDashboard > renders without crashing 85ms
+ ✓ src/pages/Dashboard/GuestDashboard/GuestDashboard.test.tsx > GuestDashboard > renders welcome text 18ms
+ ✓ src/components/Banner/ProgramLanguageNotMatchedBanner.test.tsx > ProgramLanguageNotMatchedBanner > renders without crashing when condition is false 36ms
+ ✓ src/components/Overlay/OverlayButton.test.tsx > OverlayButton > renders without crashing 268ms
+ ✓ src/components/Overlay/OverlayButton.test.tsx > OverlayButton > toggles on click 236ms
+ ✓ src/pages/AIAssist/index.test.tsx > AIAssist > renders the AI Assist page 60ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignEditors/index.test.tsx > AssignEditors > renders AssignmentWrapper with role="editor" 24ms
+ ✓ src/pages/AssignmentAgentsEditors/AssignAgents/index.test.tsx > AssignAgents > renders AssignmentWrapper with role="agent" 64ms
+ ✓ src/components/Footer/Footer.test.tsx > Footer > renders without crashing 412ms
+ ✓ src/components/Footer/Footer.test.tsx > Footer > shows copyright and TaiGer link 142ms
+ ✓ src/components/Charts/SingleBarChart.test.tsx > SingleBarChart > renders without crashing 332ms
+ ✓ src/components/ThemeProvider/index.test.tsx > CustomThemeProvider > renders children without crashing 49ms
+ ✓ src/components/DateComponent/index.test.tsx > EventDateComponent > renders without crashing 109ms
+ ✓ src/App.test.ts > example test 2ms
+ ✓ src/components/Buttons/GoolgeSignInButton.test.tsx > GoogleLoginButton (GoolgeSignInButton) > renders without crashing 74ms
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.<anonymous> node_modules/vitest/dist/chunks/cli-api.B7PN_QUv.js:8043:22
+ ❯ EventEmitter.emit node:events:517:28
+ ❯ ChildProcess.emitUnexpectedExit node_modules/vitest/dist/chunks/cli-api.B7PN_QUv.js:7610:22
+ ❯ ChildProcess.emit node:events:517:28
+ ❯ Process.ChildProcess._handle.onexit node:internal/child_process:292:12
+
+Caused by: Error: Worker exited unexpectedly
+ ❯ ChildProcess.emitUnexpectedExit node_modules/vitest/dist/chunks/cli-api.B7PN_QUv.js:7609:33
+ ❯ ChildProcess.emit node:events:517:28
+ ❯ Process.ChildProcess._handle.onexit node:internal/child_process:292:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  358 passed (359)
+      Tests  1373 passed (1375)
+     Errors  1 error
+   Start at  20:13:00
+   Duration  636.43s (transform 25.16s, setup 280.30s, import 1385.05s, tests 259.75s, environment 332.37s)
+
+
+[Container] 2026/05/29 20:23:37.441027 Command did not exit successfully npm run test:ci exit status 1
+[Container] 2026/05/29 20:23:37.450906 Phase complete: BUILD State: FAILED
+[Container] 2026/05/29 20:23:37.450924 Phase context status code: COMMAND_EXECUTION_ERROR Message: Error while executing command: npm run test:ci. Reason: exit status 1
+[Container] 2026/05/29 20:23:37.508270 Entering phase POST_BUILD
+[Container] 2026/05/29 20:23:37.510314 Phase complete: POST_BUILD State: SUCCEEDED
+[Container] 2026/05/29 20:23:37.510333 Phase context status code:  Message: 
+[Container] 2026/05/29 20:23:37.663233 Expanding base directory path: .
+[Container] 2026/05/29 20:23:37.665071 Assembling file list
+[Container] 2026/05/29 20:23:37.665085 Expanding .
+[Container] 2026/05/29 20:23:37.666787 Expanding file paths for base directory .
+[Container] 2026/05/29 20:23:37.666798 Assembling file list
+[Container] 2026/05/29 20:23:37.666802 Expanding **/*
+[Container] 2026/05/29 20:23:38.260687 Found 84122 file(s)
+[Container] 2026/05/29 20:24:35.296872 Set report auto-discover timeout to 5 seconds
+[Container] 2026/05/29 20:24:35.297890 Expanding base directory path:  .
+[Container] 2026/05/29 20:24:35.299716 Assembling file list
+[Container] 2026/05/29 20:24:35.299730 Expanding .
+[Container] 2026/05/29 20:24:35.301934 Expanding file paths for base directory .
+[Container] 2026/05/29 20:24:35.301954 Assembling file list
+[Container] 2026/05/29 20:24:35.301957 Expanding **/*
+[Container] 2026/05/29 20:24:35.622849 Found 5 file(s)
+[Container] 2026/05/29 20:24:35.622894 Report auto-discover file discovery took 0.326022 seconds
+[Container] 2026/05/29 20:24:35.623783 Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED
+[Container] 2026/05/29 20:24:35.623814 Phase context status code:  Message: 
