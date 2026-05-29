@@ -4,13 +4,16 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  CI_TEST_BATCHES: 18
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        batch: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     steps:
       - uses: actions/checkout@v4
 
@@ -23,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests (shard ${{ matrix.shard }}/8)
+      - name: Run tests (batch ${{ matrix.batch }}/${{ env.CI_TEST_BATCHES }})
         env:
-          NODE_OPTIONS: --max-old-space-size=6144
-        run: npm run test:ci -- --shard=${{ matrix.shard }}/8
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: node scripts/run-ci-test-batch.mjs ${{ matrix.batch }} ${{ env.CI_TEST_BATCHES }}

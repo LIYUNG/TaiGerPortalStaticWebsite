@@ -5,7 +5,7 @@ import path, { resolve } from 'path';
 
 const root = resolve(__dirname, 'src');
 const isCI = !!process.env.CI;
-const ciHeapMb = 6144;
+const ciHeapMb = 4096;
 
 export default defineConfig({
     plugins: [react(), tsconfigPaths()],
@@ -22,6 +22,7 @@ export default defineConfig({
         minWorkers: 1,
         fileParallelism: !isCI,
         isolate: true,
+        vmMemoryLimit: isCI ? '1GB' : undefined,
         execArgv: isCI ? [`--max-old-space-size=${ciHeapMb}`] : undefined
     },
     resolve: {

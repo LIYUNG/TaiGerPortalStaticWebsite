@@ -82,6 +82,7 @@
         "translations-scan": "i18next-scanner --config i18next-scanner.config.engine.cjs",
         "test": "vitest",
         "test:ci": "vitest run",
+        "test:ci:batch": "node scripts/run-ci-test-batch.mjs",
         "typecheck": "tsc --noEmit",
         "test:coverage": "vitest run --coverage",
         "test:coverage:html": "vitest run --coverage --reporter=html",
