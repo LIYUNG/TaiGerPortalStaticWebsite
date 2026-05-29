@@ -6,6 +6,9 @@ import { cleanup } from '@testing-library/react';
 
 afterEach(() => {
     cleanup();
+    // Drop pending timers so a forgotten setTimeout in a component can't hold
+    // a reference to the rendered tree across tests when isolate is off.
+    vi.useRealTimers();
 });
 
 // Defaults for env when running in Vitest (no import.meta.env)

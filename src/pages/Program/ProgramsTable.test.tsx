@@ -3,34 +3,41 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ProgramsTable } from './ProgramsTable';
 
+// IMPORTANT: these mock return values are module-scoped constants so they
+// keep referential identity across every render. Returning a fresh object
+// from the mock on each render would cause the component's
+// `useEffect(..., [rowSelection, data?.programs])` to fire every render and
+// loop forever, exhausting the worker heap.
+const mockUseProgramsResult = {
+    data: {
+        programs: [
+            {
+                _id: 'p1',
+                school: 'TU Berlin',
+                program_name: 'Computer Science',
+                programSubjects: ['CS'],
+                tags: ['top']
+            }
+        ],
+        total: 1,
+        page: 1,
+        limit: 20
+    },
+    isLoading: false,
+    isFetching: false
+};
 vi.mock('@hooks/usePrograms', () => ({
-    usePrograms: () => ({
-        data: {
-            programs: [
-                {
-                    _id: 'p1',
-                    school: 'TU Berlin',
-                    program_name: 'Computer Science',
-                    programSubjects: ['CS'],
-                    tags: ['top']
-                }
-            ],
-            total: 1,
-            page: 1,
-            limit: 20
-        },
-        isLoading: false,
-        isFetching: false
-    })
+    usePrograms: () => mockUseProgramsResult
 }));
 
+const mockUseMaterialReactTableResult = {
+    getSelectedRowModel: () => ({ rows: [] }),
+    resetRowSelection: vi.fn(),
+    options: {} as Record<string, unknown>
+};
 vi.mock('material-react-table', () => ({
     MaterialReactTable: () => <div data-testid="material-react-table" />,
-    useMaterialReactTable: () => ({
-        getSelectedRowModel: () => ({ rows: [] }),
-        resetRowSelection: vi.fn(),
-        options: {}
-    })
+    useMaterialReactTable: () => mockUseMaterialReactTableResult
 }));
 
 vi.mock('@components/table', () => ({
