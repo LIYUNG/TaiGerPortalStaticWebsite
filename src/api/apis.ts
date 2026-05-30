@@ -383,9 +383,6 @@ export const updateUser = (user: IUserWithId) =>
 export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
     updateUser({ _id: id, role } as IUserWithId);
 
-export const getStudents = () =>
-    request.get<GetStudentsResponse>(`/api/students`);
-
 export const getStudentsV3 = (queryString: QueryString) =>
     getData<GetStudentsResponse>(`/api/students/v3?${queryString}`);
 
