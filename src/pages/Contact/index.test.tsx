@@ -6,36 +6,36 @@ vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({ user: { role: 'Student', _id: 'u1' } })
 }));
 
-vi.mock('react-router-dom', async (orig) => {
-    const actual = await orig<typeof import('react-router-dom')>();
-    return {
-        ...actual,
-        Navigate: () => null,
-        useLoaderData: vi.fn(() => ({
+vi.mock('@tanstack/react-query', () => ({
+    useQuery: () => ({
+        data: {
             data: {
-                data: [
-                    {
-                        editors: [
-                            {
-                                firstname: 'Alice',
-                                lastname: 'Editor',
-                                email: 'alice@example.com'
-                            }
-                        ],
-                        agents: [
-                            {
-                                _id: { toString: () => 'agent1' },
-                                firstname: 'Bob',
-                                lastname: 'Agent',
-                                email: 'bob@example.com'
-                            }
-                        ]
-                    }
-                ]
+                data: {
+                    editors: [
+                        {
+                            firstname: 'Alice',
+                            lastname: 'Editor',
+                            email: 'alice@example.com'
+                        }
+                    ],
+                    agents: [
+                        {
+                            _id: { toString: () => 'agent1' },
+                            firstname: 'Bob',
+                            lastname: 'Agent',
+                            email: 'bob@example.com'
+                        }
+                    ]
+                }
             }
-        }))
-    };
-});
+        },
+        isLoading: false
+    })
+}));
+
+vi.mock('@/api/query', () => ({
+    getStudentQuery: vi.fn(() => ({ queryKey: ['student', 'u1'] }))
+}));
 
 vi.mock('@store/constant', () => ({
     default: {
@@ -50,6 +50,10 @@ vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 
 vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
     BreadcrumbsNavigation: () => <nav data-testid="breadcrumbs" />
+}));
+
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
 }));
 
 vi.mock('react-i18next', () => ({
@@ -68,25 +72,27 @@ describe('Contact', () => {
         expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
     });
 
-    it('renders agent and editor contact rows', () => {
+    it('renders agent and editor contact cards', () => {
         render(
             <MemoryRouter>
                 <Contact />
             </MemoryRouter>
         );
-        // Multiple elements may contain "Alice" and "Bob" as parts of text
         const aliceEls = screen.getAllByText(/Alice/i);
         expect(aliceEls.length).toBeGreaterThan(0);
         const bobEls = screen.getAllByText(/Bob/i);
         expect(bobEls.length).toBeGreaterThan(0);
+        expect(screen.getByText('alice@example.com')).toBeInTheDocument();
+        expect(screen.getByText('bob@example.com')).toBeInTheDocument();
     });
 
-    it('renders the team table', () => {
+    it('renders team section headings', () => {
         render(
             <MemoryRouter>
                 <Contact />
             </MemoryRouter>
         );
-        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.getByText('Agents')).toBeInTheDocument();
+        expect(screen.getByText('Editors')).toBeInTheDocument();
     });
 });

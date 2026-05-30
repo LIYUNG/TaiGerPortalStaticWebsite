@@ -2,7 +2,6 @@ import { lazy } from 'react';
 import { appConfig } from './config';
 import {
     getMyAcademicBackgroundLoader,
-    getStudentsLoader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
@@ -487,7 +486,6 @@ const routes = [
     {
         path: '/contact',
         errorElement: <DefaultErrorPage />,
-        loader: getStudentsLoader,
         element: <ContactUs />
     },
     {

@@ -1,7 +1,6 @@
 import { defer, json } from 'react-router-dom';
 import type { Params } from 'react-router-dom';
 import {
-    getStudents,
     getArchivStudents,
     getMyAcademicBackground,
     getComplaintsTickets,
@@ -13,18 +12,6 @@ import {
 } from '.';
 import { queryClient } from './client';
 import { getCoursessQuery, getProgramRequirementsQuery } from './query';
-
-export async function getStudentsLoader() {
-    const response = await getStudents();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}
 
 export async function getCourseLoader({ params }: { params: Params<string> }) {
     const courseId = params.courseId ?? '';
@@ -182,4 +169,3 @@ export function getProgramRequirementsLoader() {
 export async function getProgramRequirementsV2Loader() {
     return queryClient.fetchQuery(getProgramRequirementsQuery());
 }
-
