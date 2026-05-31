@@ -51,6 +51,9 @@ vi.mock('./ProgramUpdateStatusTable', () => ({
 vi.mock('@components/MuiDataGrid', () => ({
     MuiDataGrid: () => <div data-testid="mui-data-grid" />
 }));
+vi.mock('./ApplicationOverviewPaginatedTable', () => ({
+    default: () => <div data-testid="application-overview-paginated-table" />
+}));
 vi.mock('@components/Charts/TasksDistributionBarChart', () => ({
     default: () => <div data-testid="tasks-distribution-bar-chart" />
 }));

@@ -55,6 +55,21 @@ export type ApiPayload = Record<string, unknown>;
 /** Query string (e.g. for list filters) */
 export type QueryString = string;
 
+/**
+ * Server-side paginated response for the active students' applications table.
+ * Mirrors the `/api/applications/all/active/applications/paginated` contract:
+ * `data.applications` is one page, `total` is the unpaginated match count.
+ */
+export interface GetActiveStudentsApplicationsPaginatedResponse {
+    success: boolean;
+    data: {
+        applications: IApplicationPopulated[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
 // --- Extended frontend response/display types ---
 
 /** Program response from API (includes string _id; API may return date as string) */
