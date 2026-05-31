@@ -13,8 +13,7 @@ vi.mock('@taiger-common/core', () => ({
 vi.mock('@store/constant', () => ({
     default: {
         DASHBOARD_LINK: '/',
-        STUDENT_DATABASE_STUDENTID_LINK: (_id: string, _hash: string) =>
-            `/student/${_id}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (_id: string) => `/student/${_id}`,
         SINGLE_PROGRAM_LINK: (id: string) => `/program/${id}`,
         PROFILE_HASH: '#profile'
     }
@@ -38,8 +37,15 @@ vi.mock(
     })
 );
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: any) =>
-        index === value ? <div>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) => (index === value ? <div>{children}</div> : null),
     a11yProps: (_value: number, index: number) => ({
         id: `tab-${index}`,
         'aria-controls': `tabpanel-${index}`
