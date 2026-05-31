@@ -1,11 +1,6 @@
 import { SyntheticEvent, useMemo, useState } from 'react';
-import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
-import { Link as LinkDom } from 'react-router-dom';
-import {
-    is_TaiGer_role,
-    isProgramDecided,
-    isProgramSubmitted
-} from '@taiger-common/core';
+import { Tabs, Tab, Box, Typography, Card } from '@mui/material';
+import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
 
 type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
 
@@ -14,21 +9,17 @@ import {
     programs_refactor_v2,
     student_transform
 } from '../Utils/util_functions';
-import ApplicationProgressCardBody from '@components/ApplicationProgressCard/ApplicationProgressCardBody';
-import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
 import ProgramUpdateStatusTable, {
     type ProgramUpdateStatusRow
 } from './ProgramUpdateStatusTable';
-import { MuiDataGrid } from '@components/MuiDataGrid';
 import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
 import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '@utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-import type { Application } from '@/api/types';
+import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTable';
 import type {
     IStudentResponse,
     IApplicationPopulated
@@ -37,22 +28,21 @@ import type {
 export interface ApplicationOverviewTabsProps {
     students: IStudentResponse[];
     applications: IApplicationPopulated[];
+    /**
+     * When set, the Application Overview tab scopes to this TaiGer user's
+     * supervised students (My Students view). Omit for the all-students view.
+     */
+    userId?: string;
 }
 
 const ApplicationOverviewTabs = ({
     students: stds,
-    applications
+    applications,
+    userId
 }: ApplicationOverviewTabsProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
-    const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
-        null
-    );
-    const [selectedRowData, setSelectedRowData] = useState<Record<
-        string,
-        unknown
-    > | null>(null);
     const {
         res_modal_status,
         res_modal_message,
@@ -73,18 +63,6 @@ const ApplicationOverviewTabs = ({
         setValue(newValue);
     };
 
-    const handleRowClick = (
-        row: Record<string, unknown>,
-        event: React.MouseEvent<HTMLTableRowElement>
-    ) => {
-        setPopoverAnchorEl(event.currentTarget);
-        setSelectedRowData(row);
-    };
-
-    const handlePopoverClose = () => {
-        setPopoverAnchorEl(null);
-        setSelectedRowData(null);
-    };
     const open_applications_arr = useMemo(() => {
         return programs_refactor_v2(applications);
     }, [applications]);
@@ -130,125 +108,6 @@ const ApplicationOverviewTabs = ({
             potentials: entry?.potentials ?? 0
         });
     });
-
-    const applicationFileOverviewMuiHeader = [
-        {
-            field: 'target_year',
-            headerName: t('Target', { ns: 'common' }),
-            align: 'left' as const,
-            headerAlign: 'left' as const,
-            width: 100
-        },
-        {
-            field: 'firstname_lastname',
-            headerName: t('First-, Last Name', { ns: 'common' }),
-            width: 180,
-            renderCell: (params: {
-                value: unknown;
-                row: Record<string, unknown>;
-                field: string;
-            }) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id as string,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {String(params.value)}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'agents',
-            headerName: t('Agent', { ns: 'common' }),
-            width: 180
-        },
-        {
-            field: 'editors',
-            headerName: t('Editor', { ns: 'common' }),
-            width: 180
-        },
-        {
-            field: 'country',
-            headerName: t('Country', { ns: 'common' }),
-            width: 180
-        },
-        {
-            field: 'program',
-            headerName: t('Program', { ns: 'common' }),
-            width: 250,
-            renderCell: (params: {
-                value: unknown;
-                row: Record<string, unknown>;
-                field: string;
-            }) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.program_id as string)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {String(params.value)}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'decided',
-            headerName: t('Decided', { ns: 'common' }),
-            width: 120,
-            renderCell: (params: {
-                value: unknown;
-                row: Record<string, unknown>;
-                field: string;
-            }) => {
-                return params.row.decided === '-'
-                    ? DECISION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramDecided(params.row as ApplicationDecisionLike)
-                      ? DECISION_STATUS_E.OK_SYMBOL
-                      : DECISION_STATUS_E.NOT_OK_SYMBOL;
-            }
-        },
-        {
-            field: 'closed',
-            headerName: t('Closed', { ns: 'common' }),
-            width: 120,
-            renderCell: (params: {
-                value: unknown;
-                row: Record<string, unknown>;
-                field: string;
-            }) => {
-                return params.row.closed === '-'
-                    ? SUBMISSION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramSubmitted(params.row as ApplicationDecisionLike)
-                      ? SUBMISSION_STATUS_E.OK_SYMBOL
-                      : SUBMISSION_STATUS_E.NOT_OK_SYMBOL;
-            }
-        },
-        {
-            field: 'deadline',
-            headerName: t('Deadline', { ns: 'common' }),
-            width: 120
-        },
-        {
-            field: 'days_left',
-            headerName: t('Days left', { ns: 'common' }),
-            width: 120
-        },
-        {
-            field: 'status',
-            headerName: t('Status(%)', { ns: 'common' }),
-            width: 120
-        }
-    ];
 
     const studentsTransformed = student_transform(
         students?.filter((student) => !student.archiv)
@@ -329,53 +188,7 @@ const ApplicationOverviewTabs = ({
                     ) : null}
                 </CustomTabPanel>
                 <CustomTabPanel index={1} value={value}>
-                    <MuiDataGrid
-                        columns={applicationFileOverviewMuiHeader}
-                        getRowId={(row: Record<string, unknown>) =>
-                            String(row.id)
-                        }
-                        onRowClick={handleRowClick}
-                        rows={open_applications_arr}
-                    />
-                    <Popover
-                        anchorEl={popoverAnchorEl}
-                        anchorOrigin={{
-                            vertical: 'center',
-                            horizontal: 'right'
-                        }}
-                        onClose={handlePopoverClose}
-                        open={Boolean(popoverAnchorEl)}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left'
-                        }}
-                    >
-                        <Box sx={{ p: 2, maxWidth: 400 }}>
-                            <Typography gutterBottom variant="h6">
-                                {String(
-                                    selectedRowData?.firstname_lastname ?? ''
-                                )}
-                            </Typography>
-                            <Typography
-                                color="text.secondary"
-                                gutterBottom
-                                variant="body2"
-                            >
-                                {String(selectedRowData?.program ?? '')}
-                            </Typography>
-                            {selectedRowData?.application &&
-                            selectedRowData?.student ? (
-                                <ApplicationProgressCardBody
-                                    application={
-                                        selectedRowData.application as Application
-                                    }
-                                    student={
-                                        selectedRowData.student as IStudentResponse
-                                    }
-                                />
-                            ) : null}
-                        </Box>
-                    </Popover>
+                    <ApplicationOverviewPaginatedTable userId={userId} />
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
                     <ProgramUpdateStatusTable

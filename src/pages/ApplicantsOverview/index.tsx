@@ -71,6 +71,7 @@ const ApplicantsOverview = () => {
                     myStudentsApplications.applications as IApplicationPopulated[]
                 }
                 students={fetchedMyStudents ?? []}
+                userId={userIdStr}
             />
         </Box>
     );

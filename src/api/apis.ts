@@ -15,6 +15,7 @@ import type {
     ForgotPasswordPayload,
     ApiPayload,
     QueryString,
+    GetActiveStudentsApplicationsPaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
@@ -406,6 +407,22 @@ export const getMyStudentsApplications = ({
 export const getActiveStudentsApplications = () =>
     getData<GetActiveStudentsApplicationsResponse>(
         `/api/applications/all/active/applications`
+    );
+
+export const getActiveStudentsApplicationsV3 = (queryString: QueryString) =>
+    getData<GetActiveStudentsApplicationsPaginatedResponse>(
+        `/api/applications/all/active/applications/paginated?${queryString}`
+    );
+
+export const getMyStudentsApplicationsV3 = ({
+    userId,
+    queryString
+}: {
+    userId: UserId;
+    queryString: QueryString;
+}) =>
+    getData<GetActiveStudentsApplicationsPaginatedResponse>(
+        `/api/applications/taiger-user/${userId}/paginated?${queryString}`
     );
 
 export const getActiveStudents = (queryString: QueryString) =>
