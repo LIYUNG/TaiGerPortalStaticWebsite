@@ -7,6 +7,7 @@ vi.mock('@components/AuthProvider', () => ({
 }));
 vi.mock('@taiger-common/core', () => ({
     is_TaiGer_role: vi.fn(() => true),
+    is_TaiGer_Editor: vi.fn(() => false),
     isProgramDecided: vi.fn(() => false),
     isProgramSubmitted: vi.fn(() => false)
 }));
@@ -66,6 +67,9 @@ vi.mock('@components/Charts/TasksDistributionBarChart', () => ({
 vi.mock('../StudentDatabase/StudentsTable', () => ({
     StudentsTable: () => <div data-testid="students-table" />
 }));
+vi.mock('../StudentDatabase/StudentsTablePaginated', () => ({
+    StudentsTablePaginated: () => <div data-testid="students-table-paginated" />
+}));
 vi.mock('../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
 }));
@@ -91,7 +95,7 @@ describe('ApplicationOverviewTabs', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <ApplicationOverviewTabs applications={[]} students={[]} />
+                <ApplicationOverviewTabs applications={[]} />
             </MemoryRouter>
         );
     });

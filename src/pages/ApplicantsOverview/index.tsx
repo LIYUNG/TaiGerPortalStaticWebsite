@@ -15,15 +15,11 @@ import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/Breadcr
 import Loading from '@components/Loading/Loading';
 import type { IApplicationPopulated } from '@taiger-common/model';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
-import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
 
-    const role = user != null && is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const userIdStr = user?._id?.toString() ?? '';
-    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
-        useStudentsV3({ [role]: userIdStr, archiv: false });
 
     const { data: myStudentsApplications, isLoading } =
         useMyStudentsApplicationsV2({ userId: userIdStr });
@@ -40,7 +36,7 @@ const ApplicantsOverview = () => {
         );
     }
 
-    if (isLoading || isLoadingMyStudents) {
+    if (isLoading) {
         return <Loading />;
     }
 
@@ -70,8 +66,10 @@ const ApplicantsOverview = () => {
                 applications={
                     myStudentsApplications.applications as IApplicationPopulated[]
                 }
-                students={fetchedMyStudents ?? []}
                 userId={userIdStr}
+                {...(is_TaiGer_Editor(user)
+                    ? { editors: userIdStr }
+                    : { agents: userIdStr })}
             />
         </Box>
     );

@@ -4,7 +4,11 @@ import {
     MaterialReactTable,
     useMaterialReactTable,
     createMRTColumnHelper,
-    type MRT_RowData
+    type MRT_RowData,
+    type MRT_PaginationState,
+    type MRT_SortingState,
+    type MRT_ColumnFiltersState,
+    type MRT_Updater
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '@components/table';
 import { useTranslation } from 'react-i18next';
@@ -31,9 +35,30 @@ import type { IStudentResponse } from '@taiger-common/model';
 
 const columnHelper = createMRTColumnHelper<MRT_RowData>();
 
+/**
+ * Opt-in server-side mode. When provided, the table reflects the controlled
+ * state and forwards pagination/sort/filter changes to the parent (which
+ * refetches). Omit for the default client-side behaviour.
+ */
+export interface StudentsTableServerMode {
+    rowCount: number;
+    pagination: MRT_PaginationState;
+    onPaginationChange: (updater: MRT_Updater<MRT_PaginationState>) => void;
+    sorting: MRT_SortingState;
+    onSortingChange: (updater: MRT_Updater<MRT_SortingState>) => void;
+    globalFilter: string;
+    onGlobalFilterChange: (updater: MRT_Updater<string>) => void;
+    columnFilters: MRT_ColumnFiltersState;
+    onColumnFiltersChange: (
+        updater: MRT_Updater<MRT_ColumnFiltersState>
+    ) => void;
+}
+
 interface StudentsTableProps {
     isLoading: boolean;
     data: Record<string, unknown>[];
+    /** When set, the table runs in server-side pagination/sort/filter mode. */
+    serverMode?: StudentsTableServerMode;
     submitUpdateAgentlist: (
         e: React.SyntheticEvent,
         updateAgentList: Record<string, boolean>,
@@ -59,6 +84,7 @@ interface StudentsTableProps {
 export const StudentsTable = ({
     isLoading,
     data,
+    serverMode,
     submitUpdateAgentlist,
     submitUpdateEditorlist,
     submitUpdateAttributeslist,
@@ -229,6 +255,8 @@ export const StudentsTable = ({
         columnHelper.accessor('archiv', {
             header: t('Archive', { ns: 'common' }),
             size: 90,
+            // archiv is a base scoping param (not a server column filter).
+            ...(serverMode ? { enableColumnFilter: false } : {}),
             Cell: (params) => {
                 return params.row.original.archiv ? 'true' : 'false';
             }
@@ -249,6 +277,8 @@ export const StudentsTable = ({
         }),
         columnHelper.accessor('attributesString', {
             header: t('Attributes', { ns: 'common' }),
+            // Backend can filter by attribute name but cannot sort by it.
+            ...(serverMode ? { enableSorting: false } : {}),
             Cell: (params) => {
                 return params.row.original.attributes?.map(
                     (attribute: { name: string }) => (
@@ -313,8 +343,31 @@ export const StudentsTable = ({
     const table = useMaterialReactTable({
         ...(tableConfig as Record<string, unknown>),
         columns,
-        state: { isLoading },
-        data: data || []
+        getRowId: (row) => (row as { _id: string })._id,
+        state: {
+            isLoading,
+            ...(serverMode
+                ? {
+                      pagination: serverMode.pagination,
+                      sorting: serverMode.sorting,
+                      globalFilter: serverMode.globalFilter,
+                      columnFilters: serverMode.columnFilters
+                  }
+                : {})
+        },
+        data: data || [],
+        ...(serverMode
+            ? {
+                  manualPagination: true,
+                  manualSorting: true,
+                  manualFiltering: true,
+                  rowCount: serverMode.rowCount,
+                  onPaginationChange: serverMode.onPaginationChange,
+                  onSortingChange: serverMode.onSortingChange,
+                  onGlobalFilterChange: serverMode.onGlobalFilterChange,
+                  onColumnFiltersChange: serverMode.onColumnFiltersChange
+              }
+            : {})
     });
 
     table.options.renderTopToolbar = (

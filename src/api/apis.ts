@@ -16,6 +16,7 @@ import type {
     ApiPayload,
     QueryString,
     GetActiveStudentsApplicationsPaginatedResponse,
+    GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
@@ -386,6 +387,11 @@ export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
 
 export const getStudentsV3 = (queryString: QueryString) =>
     getData<GetStudentsResponse>(`/api/students/v3?${queryString}`);
+
+export const getStudentsV3Paginated = (queryString: QueryString) =>
+    getData<GetStudentsV3PaginatedResponse>(
+        `/api/students/v3/paginated?${queryString}`
+    );
 
 export const getStudent = (studentId: string) =>
     request.get<GetStudentResponse>(`/api/students/${studentId}`);

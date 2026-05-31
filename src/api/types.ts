@@ -70,6 +70,21 @@ export interface GetActiveStudentsApplicationsPaginatedResponse {
     };
 }
 
+/**
+ * Server-side paginated response for the students table.
+ * Mirrors the `/api/students/v3/paginated` contract: `data.students` is one
+ * page, `total` is the unpaginated match count.
+ */
+export interface GetStudentsV3PaginatedResponse {
+    success: boolean;
+    data: {
+        students: IStudentResponse[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
 // --- Extended frontend response/display types ---
 
 /** Program response from API (includes string _id; API may return date as string) */

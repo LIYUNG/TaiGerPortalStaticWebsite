@@ -6,8 +6,7 @@ type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
 
 import {
     frequencyDistribution,
-    programs_refactor_v2,
-    student_transform
+    programs_refactor_v2
 } from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
@@ -16,48 +15,32 @@ import ProgramUpdateStatusTable, {
     type ProgramUpdateStatusRow
 } from './ProgramUpdateStatusTable';
 import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
-import useStudents from '@hooks/useStudents';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { StudentsTable } from '../StudentDatabase/StudentsTable';
 import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTable';
-import type {
-    IStudentResponse,
-    IApplicationPopulated
-} from '@taiger-common/model';
+import { StudentsTablePaginated } from '../StudentDatabase/StudentsTablePaginated';
+import type { IApplicationPopulated } from '@taiger-common/model';
 
 export interface ApplicationOverviewTabsProps {
-    students: IStudentResponse[];
     applications: IApplicationPopulated[];
     /**
      * When set, the Application Overview tab scopes to this TaiGer user's
-     * supervised students (My Students view). Omit for the all-students view.
+     * supervised students (agent OR editor). Omit for the all-students view.
      */
     userId?: string;
+    /** Scope the Active-Student-List tab to students of this agent id. */
+    agents?: string;
+    /** Scope the Active-Student-List tab to students of this editor id. */
+    editors?: string;
 }
 
 const ApplicationOverviewTabs = ({
-    students: stds,
     applications,
-    userId
+    userId,
+    agents,
+    editors
 }: ApplicationOverviewTabsProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
-    const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
-        students,
-        submitUpdateAgentlist,
-        submitUpdateEditorlist,
-        submitUpdateAttributeslist,
-        updateStudentArchivStatus
-    } = useStudents({
-        students: stds as unknown as Array<{
-            _id: string;
-            [key: string]: unknown;
-        }>
-    });
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
@@ -108,10 +91,6 @@ const ApplicationOverviewTabs = ({
             potentials: entry?.potentials ?? 0
         });
     });
-
-    const studentsTransformed = student_transform(
-        students?.filter((student) => !student.archiv)
-    );
 
     return (
         <>
@@ -173,17 +152,10 @@ const ApplicationOverviewTabs = ({
                     {user &&
                     user.role &&
                     is_TaiGer_role(user as unknown as { role: string }) ? (
-                        <StudentsTable
-                            data={studentsTransformed}
-                            isLoading={false}
-                            submitUpdateAgentlist={submitUpdateAgentlist}
-                            submitUpdateAttributeslist={
-                                submitUpdateAttributeslist
-                            }
-                            submitUpdateEditorlist={submitUpdateEditorlist}
-                            updateStudentArchivStatus={
-                                updateStudentArchivStatus
-                            }
+                        <StudentsTablePaginated
+                            agents={agents}
+                            archiv={false}
+                            editors={editors}
                         />
                     ) : null}
                 </CustomTabPanel>
@@ -207,13 +179,6 @@ const ApplicationOverviewTabs = ({
                     />
                 </CustomTabPanel>
             </Box>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
         </>
     );
 };
