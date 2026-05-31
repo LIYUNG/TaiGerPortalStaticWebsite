@@ -64,6 +64,11 @@ vi.mock('./ApplicationOverviewPaginatedTable', () => ({
 vi.mock('@components/Charts/TasksDistributionBarChart', () => ({
     default: () => <div data-testid="tasks-distribution-bar-chart" />
 }));
+vi.mock('./OpenApplicationsDistributionChart', () => ({
+    OpenApplicationsDistributionChart: () => (
+        <div data-testid="tasks-distribution-bar-chart" />
+    )
+}));
 vi.mock('../StudentDatabase/StudentsTable', () => ({
     StudentsTable: () => <div data-testid="students-table" />
 }));

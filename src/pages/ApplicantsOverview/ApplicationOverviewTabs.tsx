@@ -1,21 +1,18 @@
 import { SyntheticEvent, useMemo, useState } from 'react';
-import { Tabs, Tab, Box, Typography, Card } from '@mui/material';
+import { Tabs, Tab, Box } from '@mui/material';
 import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
 
 type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
 
-import {
-    frequencyDistribution,
-    programs_refactor_v2
-} from '../Utils/util_functions';
+import { programs_refactor_v2 } from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
 import ProgramUpdateStatusTable, {
     type ProgramUpdateStatusRow
 } from './ProgramUpdateStatusTable';
-import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
 import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTable';
+import { OpenApplicationsDistributionChart } from './OpenApplicationsDistributionChart';
 import { StudentsTablePaginated } from '../StudentDatabase/StudentsTablePaginated';
 import type { IApplicationPopulated } from '@taiger-common/model';
 
@@ -50,74 +47,10 @@ const ApplicationOverviewTabs = ({
         return programs_refactor_v2(applications);
     }, [applications]);
 
-    interface ApplicationDistributionItem {
-        closed?: string;
-        deadline?: string;
-        file_type?: string;
-        isPotentials?: boolean;
-        show?: boolean;
-    }
-    const applications_distribution = open_applications_arr.map(
-        ({
-            closed,
-            deadline,
-            file_type,
-            isPotentials,
-            show
-        }: ApplicationDistributionItem) => ({
-            closed,
-            deadline,
-            file_type,
-            isPotentials,
-            show
-        })
-    );
-    const open_distr = frequencyDistribution(applications_distribution);
-
-    const sort_date = Object.keys(open_distr).sort();
-
-    const sorted_date_freq_pair: Array<
-        Record<string, string | number> & {
-            name: string;
-            active: number;
-            potentials: number;
-        }
-    > = [];
-    sort_date.forEach((date: string) => {
-        const entry = open_distr[date];
-        sorted_date_freq_pair.push({
-            name: `${date}`,
-            active: entry?.show ?? 0,
-            potentials: entry?.potentials ?? 0
-        });
-    });
-
     return (
         <>
             <Box sx={{ width: '100%' }}>
-                <Card sx={{ p: 2 }}>
-                    <Typography variant="h6">
-                        {t('Open Applications Distribution', { ns: 'common' })}
-                    </Typography>
-                    <Typography>
-                        <b style={{ color: 'red' }}>active:</b>{' '}
-                        {t('Students decided programs', { ns: 'common' })}
-                    </Typography>
-                    <Typography>
-                        <b style={{ color: '#A9A9A9' }}>potentials:</b>{' '}
-                        {t(
-                            'Students do not decide programs yet. But the applications will be potentially activated when they would decide',
-                            { ns: 'common' }
-                        )}
-                    </Typography>
-                    <TasksDistributionBarChart
-                        data={sorted_date_freq_pair}
-                        k="name"
-                        value1="active"
-                        value2="potentials"
-                        yLabel="Applications"
-                    />
-                </Card>
+                <OpenApplicationsDistributionChart userId={userId} />
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs
                         aria-label="basic tabs example"

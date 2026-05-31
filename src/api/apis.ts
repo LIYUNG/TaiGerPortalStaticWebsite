@@ -16,6 +16,7 @@ import type {
     ApiPayload,
     QueryString,
     GetActiveStudentsApplicationsPaginatedResponse,
+    GetApplicationsDeadlineDistributionResponse,
     GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
@@ -429,6 +430,11 @@ export const getMyStudentsApplicationsV3 = ({
 }) =>
     getData<GetActiveStudentsApplicationsPaginatedResponse>(
         `/api/applications/taiger-user/${userId}/paginated?${queryString}`
+    );
+
+export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
+    getData<GetApplicationsDeadlineDistributionResponse>(
+        `/api/applications/distribution${userId ? `?userId=${userId}` : ''}`
     );
 
 export const getActiveStudents = (queryString: QueryString) =>

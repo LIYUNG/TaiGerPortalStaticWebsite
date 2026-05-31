@@ -70,6 +70,25 @@ export interface GetActiveStudentsApplicationsPaginatedResponse {
     };
 }
 
+/** One bucket of the open-applications deadline distribution chart. */
+export interface ApplicationsDeadlineDistributionBucket {
+    /** Deadline label, e.g. "2025/01/15" or "2025-Rolling". */
+    name: string;
+    /** Count of decided applications with this deadline. */
+    active: number;
+    /** Count of undecided applications with this deadline. */
+    potentials: number;
+}
+
+/**
+ * Deadline distribution for the "Open Applications Distribution" chart,
+ * computed in the DB (only the buckets are returned, not the full applications).
+ */
+export interface GetApplicationsDeadlineDistributionResponse {
+    success: boolean;
+    data: ApplicationsDeadlineDistributionBucket[];
+}
+
 /**
  * Server-side paginated response for the students table.
  * Mirrors the `/api/students/v3/paginated` contract: `data.students` is one
