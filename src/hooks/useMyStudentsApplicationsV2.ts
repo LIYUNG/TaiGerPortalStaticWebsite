@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getMyStudentsApplications } from '@/api';
+import { getActiveStudentsApplications } from '@/api';
 import type {
     GetMyStudentsApplicationsResponse,
     IApplicationPopulated,
@@ -29,7 +29,9 @@ export function useMyStudentsApplicationsV2(
     options?: UseMyStudentsApplicationsV2Options
 ) {
     const { userId, ...rest } = params;
-    const queryStringValue = queryString.stringify(rest);
+    // The merged endpoint scopes to a TaiGer user's students via the `userId`
+    // query param (omit it for all active students).
+    const queryStringValue = queryString.stringify({ userId, ...rest });
     const queryKey = [
         'applications/taiger-user',
         userId,
@@ -42,11 +44,7 @@ export function useMyStudentsApplicationsV2(
         MyStudentsApplicationsV2Data
     >({
         queryKey,
-        queryFn: () =>
-            getMyStudentsApplications({
-                userId,
-                queryString: queryStringValue
-            }),
+        queryFn: () => getActiveStudentsApplications(queryStringValue),
         staleTime: 1000 * 60 * 5, // 5 minutes
         select: (response) => response.data ?? { applications: [] },
         enabled: options?.enabled ?? true

@@ -100,7 +100,6 @@ import {
     // Applications
     type GetApplicationsResponse,
     type GetMyStudentsApplicationsResponse,
-    type GetActiveStudentsApplicationsResponse,
     type GetStudentApplicationsResponse,
     type CreateApplicationResponse,
     type UpdateStudentApplicationsResponse,
@@ -404,20 +403,11 @@ export const getStudent = (studentId: string) =>
 export const getApplications = (queryString: QueryString) =>
     getData<GetApplicationsResponse>(`/api/applications?${queryString}`);
 
-export const getMyStudentsApplications = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}) =>
+// Active students' applications. Pass `userId` in the query string to scope to a
+// TaiGer user's supervised students; omit it for all active students.
+export const getActiveStudentsApplications = (queryString: QueryString) =>
     getData<GetMyStudentsApplicationsResponse>(
-        `/api/applications/taiger-user/${userId}?${queryString}`
-    );
-
-export const getActiveStudentsApplications = () =>
-    getData<GetActiveStudentsApplicationsResponse>(
-        `/api/applications/all/active/applications`
+        `/api/applications/all/active/applications?${queryString}`
     );
 
 export const getActiveStudentsApplicationsV3 = (queryString: QueryString) =>
