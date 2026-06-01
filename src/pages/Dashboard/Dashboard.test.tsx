@@ -9,14 +9,6 @@ import { mockSingleData } from '../../test/testingStudentData';
 vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
-vi.mock('@hooks/useMyStudentsApplicationsV2', () => ({
-    useMyStudentsApplicationsV2: () => ({
-        data: { applications: [] },
-        isLoading: false,
-        isError: false
-    })
-}));
-
 vi.mock('@hooks/useStudentsV3', () => ({
     useStudentsV3: () => ({
         data: [],

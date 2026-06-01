@@ -27,9 +27,10 @@ vi.mock('@taiger-common/core', () => ({
     isProgramDecided: vi.fn(() => false)
 }));
 
-vi.mock('@hooks/useMyStudentsApplicationsV2', () => ({
-    useMyStudentsApplicationsV2: vi.fn(() => ({
-        data: { applications: [] },
+vi.mock('@hooks/useActiveStudentsApplicationsV3', () => ({
+    useActiveStudentsApplicationsV3: vi.fn(() => ({
+        rows: [],
+        rowCount: 0,
         isLoading: false
     }))
 }));

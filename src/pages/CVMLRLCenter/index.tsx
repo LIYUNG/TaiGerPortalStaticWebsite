@@ -14,12 +14,9 @@ import type { IDocumentthreadPopulated } from '@taiger-common/model';
 import type { OpenTaskRow } from '@/api/types';
 
 import CVMLRLOverview from './CVMLRLOverview';
+import CVMLRLOverviewPaginated from './CVMLRLOverviewPaginated';
 import ErrorPage from '../Utils/ErrorPage';
-import {
-    getMyStudentsThreads,
-    getThreadsByStudent,
-    putThreadFavorite
-} from '@/api';
+import { getThreadsByStudent, putThreadFavorite } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
@@ -36,6 +33,13 @@ import {
     is_new_message_status,
     is_pending_status
 } from '@utils/contants';
+
+// CVMLRL center hides agent-support docs and essays unless the viewer is an
+// outsourced collaborator on the thread; the core CV/ML/RL docs remain visible.
+const EXCLUDE_FILE_TYPES = [
+    ...AGENT_SUPPORT_DOCUMENTS_A,
+    FILE_TYPE_E.essay_required
+].join(',');
 
 interface CVMLRLCenterState {
     error: string;
@@ -77,20 +81,24 @@ const CVMLRLCenter = () => {
     });
 
     useEffect(() => {
-        if (!user) {
+        // TaiGer users use the paginated view below; only students fetch here.
+        if (!user || is_TaiGer_role(user)) {
             return;
         }
-        const apiCall = is_TaiGer_role(user)
-            ? getMyStudentsThreads({ userId: user._id, queryString: '' })
-            : getThreadsByStudent(user._id);
+        const apiCall = getThreadsByStudent(user._id);
         apiCall.then(
             (resp) => {
                 const { success } = resp;
                 const threads: IDocumentthreadPopulated[] =
                     'threads' in (resp.data ?? {})
-                        ? ((resp.data as { threads: IDocumentthreadPopulated[] })
-                              .threads ?? [])
-                        : ((resp.data as IDocumentthreadPopulated[] | undefined) ?? []);
+                        ? ((
+                              resp.data as {
+                                  threads: IDocumentthreadPopulated[];
+                              }
+                          ).threads ?? [])
+                        : ((resp.data as
+                              | IDocumentthreadPopulated[]
+                              | undefined) ?? []);
                 const tasksData = open_tasks_v2(threads);
                 if (success) {
                     setIndexState((prevState) => ({
@@ -121,7 +129,54 @@ const CVMLRLCenter = () => {
 
     const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle('CV ML RL Overview');
-    if (!isLoaded || !user) {
+    if (!user) {
+        return <Loading />;
+    }
+
+    // TaiGer users: server-side paginated view (My Students scope).
+    if (is_TaiGer_role(user)) {
+        return (
+            <Box data-testid="cvmlrlcenter_component">
+                <Box
+                    alignItems="center"
+                    display="flex"
+                    justifyContent="space-between"
+                >
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Link
+                            color="inherit"
+                            component={LinkDom}
+                            to={`${DEMO.DASHBOARD_LINK}`}
+                            underline="hover"
+                        >
+                            {appConfig.companyName}
+                        </Link>
+                        <Typography color="text.primary">
+                            {t('My Students', { ns: 'common' })}
+                        </Typography>
+                        <Typography color="text.primary">
+                            {t('CV/ML/RL Center', { ns: 'common' })}
+                        </Typography>
+                    </Breadcrumbs>
+                    <Button
+                        color="primary"
+                        component={LinkDom}
+                        size="small"
+                        to="/doc-communications/"
+                        variant="contained"
+                    >
+                        {t('Switch View', { ns: 'common' })}
+                    </Button>
+                </Box>
+                <CVMLRLOverviewPaginated
+                    excludeFileType={EXCLUDE_FILE_TYPES}
+                    userId={user._id.toString()}
+                />
+            </Box>
+        );
+    }
+
+    if (!isLoaded) {
         return <Loading />;
     }
 

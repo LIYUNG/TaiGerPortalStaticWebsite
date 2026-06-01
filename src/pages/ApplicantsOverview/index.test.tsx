@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react';
 import ApplicantsOverview from '.';
 import { useAuth } from '@components/AuthProvider';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
-import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { mockSingleData } from '../../test/testingStudentData';
 
 vi.mock('react-router-dom', () => ({
@@ -27,7 +26,6 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('@components/AuthProvider');
 vi.mock('@hooks/useStudentsV3');
-vi.mock('@hooks/useMyStudentsApplicationsV2');
 
 vi.mock('./ApplicationOverviewTabs', () => ({
     default: () =>
@@ -54,10 +52,6 @@ describe('ApplicantsOverview', () => {
         } as never);
         vi.mocked(useStudentsV3).mockReturnValue({
             data: mockSingleData.data,
-            isLoading: false
-        } as never);
-        vi.mocked(useMyStudentsApplicationsV2).mockReturnValue({
-            data: { applications: [] },
             isLoading: false
         } as never);
     });

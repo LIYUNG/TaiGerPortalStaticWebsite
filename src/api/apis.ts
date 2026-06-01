@@ -19,6 +19,8 @@ import type {
     GetApplicationsDeadlineDistributionResponse,
     GetApplicationProgramsUpdateStatusResponse,
     GetMyStudentsApplicationsStatsResponse,
+    GetActiveThreadsPaginatedResponse,
+    GetActiveThreadsCountsResponse,
     GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
@@ -97,8 +99,6 @@ import {
     type GetSameProgramStudentsResponse,
     // Applications
     type GetApplicationsResponse,
-    type GetMyStudentsApplicationsResponse,
-    type GetActiveStudentsApplicationsResponse,
     type GetStudentApplicationsResponse,
     type CreateApplicationResponse,
     type UpdateStudentApplicationsResponse,
@@ -402,36 +402,11 @@ export const getStudent = (studentId: string) =>
 export const getApplications = (queryString: QueryString) =>
     getData<GetApplicationsResponse>(`/api/applications?${queryString}`);
 
-export const getMyStudentsApplications = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}) =>
-    getData<GetMyStudentsApplicationsResponse>(
-        `/api/applications/taiger-user/${userId}?${queryString}`
-    );
-
-export const getActiveStudentsApplications = () =>
-    getData<GetActiveStudentsApplicationsResponse>(
-        `/api/applications/all/active/applications`
-    );
-
+// Paginated active students' applications. Pass `userId` in the query string to
+// scope to a TaiGer user's supervised students; omit it for all active students.
 export const getActiveStudentsApplicationsV3 = (queryString: QueryString) =>
     getData<GetActiveStudentsApplicationsPaginatedResponse>(
         `/api/applications/all/active/applications/paginated?${queryString}`
-    );
-
-export const getMyStudentsApplicationsV3 = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}) =>
-    getData<GetActiveStudentsApplicationsPaginatedResponse>(
-        `/api/applications/taiger-user/${userId}/paginated?${queryString}`
     );
 
 export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
@@ -1158,6 +1133,38 @@ export const getCheckDocumentPatternIsPassed = (
 export const getActiveThreads = (queryString: QueryString) =>
     getData<GetActiveThreadsResponse>(
         `/api/document-threads/overview/all?${queryString}`
+    );
+
+export const getActiveThreadsV2 = (queryString: QueryString) =>
+    getData<GetActiveThreadsPaginatedResponse>(
+        `/api/document-threads/overview/all/paginated?${queryString}`
+    );
+
+export const getActiveThreadsCounts = (queryString: QueryString) =>
+    getData<GetActiveThreadsCountsResponse>(
+        `/api/document-threads/overview/all/counts?${queryString}`
+    );
+
+export const getMyStudentsThreadsV2 = ({
+    userId,
+    queryString
+}: {
+    userId: UserId;
+    queryString: QueryString;
+}) =>
+    getData<GetActiveThreadsPaginatedResponse>(
+        `/api/document-threads/overview/taiger-user/${userId}/paginated?${queryString}`
+    );
+
+export const getMyStudentsThreadsCounts = ({
+    userId,
+    queryString
+}: {
+    userId: UserId;
+    queryString: QueryString;
+}) =>
+    getData<GetActiveThreadsCountsResponse>(
+        `/api/document-threads/overview/taiger-user/${userId}/counts?${queryString}`
     );
 
 export const getMyStudentThreadMetrics = () =>

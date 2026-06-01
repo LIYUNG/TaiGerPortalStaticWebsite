@@ -3,10 +3,34 @@ import {
     useMaterialReactTable,
     type MRT_ColumnDef,
     type MRT_RowSelectionState,
-    type MRT_VisibilityState
+    type MRT_VisibilityState,
+    type MRT_PaginationState,
+    type MRT_SortingState,
+    type MRT_ColumnFiltersState,
+    type MRT_Updater
 } from 'material-react-table';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
+/**
+ * Opt-in server-side mode: the table reflects controlled pagination/sort/filter
+ * state and forwards changes to the parent (which refetches). Omit for the
+ * default client-side behaviour.
+ */
+export interface MRTableServerMode {
+    rowCount: number;
+    isLoading?: boolean;
+    pagination: MRT_PaginationState;
+    onPaginationChange: (updater: MRT_Updater<MRT_PaginationState>) => void;
+    sorting: MRT_SortingState;
+    onSortingChange: (updater: MRT_Updater<MRT_SortingState>) => void;
+    globalFilter: string;
+    onGlobalFilterChange: (updater: MRT_Updater<string>) => void;
+    columnFilters: MRT_ColumnFiltersState;
+    onColumnFiltersChange: (
+        updater: MRT_Updater<MRT_ColumnFiltersState>
+    ) => void;
+}
 
 export interface MRTableProps<T extends Record<string, unknown>> {
     columns: MRT_ColumnDef<T>[];
@@ -19,6 +43,7 @@ export interface MRTableProps<T extends Record<string, unknown>> {
     ) => void;
     rowSelection?: MRT_RowSelectionState;
     columnVisibilityModel?: MRT_VisibilityState;
+    serverMode?: MRTableServerMode;
 }
 
 function MRTable<T extends Record<string, unknown>>({
@@ -29,7 +54,8 @@ function MRTable<T extends Record<string, unknown>>({
     muiTableBodyRowProps,
     onRowSelectionChange,
     rowSelection,
-    columnVisibilityModel = {}
+    columnVisibilityModel = {},
+    serverMode
 }: MRTableProps<T>) {
     const table = useMaterialReactTable({
         columns,
@@ -37,7 +63,30 @@ function MRTable<T extends Record<string, unknown>>({
         onRowSelectionChange: onRowSelectionChange as
             | undefined
             | ((value: unknown) => void),
-        state: rowSelection ? { rowSelection } : undefined,
+        state: {
+            ...(rowSelection ? { rowSelection } : {}),
+            ...(serverMode
+                ? {
+                      isLoading: serverMode.isLoading ?? false,
+                      pagination: serverMode.pagination,
+                      sorting: serverMode.sorting,
+                      globalFilter: serverMode.globalFilter,
+                      columnFilters: serverMode.columnFilters
+                  }
+                : {})
+        },
+        ...(serverMode
+            ? {
+                  manualPagination: true,
+                  manualSorting: true,
+                  manualFiltering: true,
+                  rowCount: serverMode.rowCount,
+                  onPaginationChange: serverMode.onPaginationChange,
+                  onSortingChange: serverMode.onSortingChange,
+                  onGlobalFilterChange: serverMode.onGlobalFilterChange,
+                  onColumnFiltersChange: serverMode.onColumnFiltersChange
+              }
+            : {}),
         enableColumnFilterModes: true,
         enableColumnOrdering: true,
         enableColumnPinning: true,
@@ -86,6 +135,7 @@ export interface ExampleWithLocalizationProviderProps<
         updater: (old: MRT_RowSelectionState) => MRT_RowSelectionState
     ) => void;
     rowSelection?: MRT_RowSelectionState;
+    serverMode?: MRTableServerMode;
 }
 
 function ExampleWithLocalizationProvider<T extends Record<string, unknown>>({
@@ -95,7 +145,8 @@ function ExampleWithLocalizationProvider<T extends Record<string, unknown>>({
     enableMultiRowSelection,
     muiTableBodyRowProps,
     onRowSelectionChange,
-    rowSelection
+    rowSelection,
+    serverMode
 }: ExampleWithLocalizationProviderProps<T>) {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -107,6 +158,7 @@ function ExampleWithLocalizationProvider<T extends Record<string, unknown>>({
                 muiTableBodyRowProps={muiTableBodyRowProps}
                 onRowSelectionChange={onRowSelectionChange}
                 rowSelection={rowSelection}
+                serverMode={serverMode}
             />
         </LocalizationProvider>
     );
