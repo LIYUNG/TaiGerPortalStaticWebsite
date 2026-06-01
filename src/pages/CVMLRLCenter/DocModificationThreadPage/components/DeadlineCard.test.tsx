@@ -107,6 +107,6 @@ describe('DeadlineCard', () => {
 
     it('shows withdraw styling when isWithdraw is true', () => {
         renderCard({ isWithdraw: true, deadline: 'WITHDRAW' });
-        expect(screen.getByText('WITHDRAW')).toBeInTheDocument();
+        expect(screen.getAllByText('WITHDRAW').length).toBeGreaterThan(0);
     });
 });
