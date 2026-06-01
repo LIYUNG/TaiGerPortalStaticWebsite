@@ -47,6 +47,7 @@ interface InformationBlockProps {
     documentsthreadId: string;
     isFavorite: boolean;
     isGeneralRL: boolean;
+    isWithdraw: boolean;
     template_obj: ITemplateWithId | null;
     startEditingEditor: () => void;
     handleFavoriteToggle: (threadId: string) => void;
@@ -63,6 +64,7 @@ const InformationBlock = ({
     documentsthreadId,
     isFavorite,
     isGeneralRL,
+    isWithdraw,
     template_obj,
     startEditingEditor,
     handleFavoriteToggle,
@@ -212,19 +214,22 @@ const InformationBlock = ({
                                 deadlineGradient={deadlineGradient}
                                 handleFavoriteToggle={handleFavoriteToggle}
                                 isFavorite={isFavorite}
+                                isWithdraw={isWithdraw}
                                 thread={thread}
                                 urgent={urgent}
                                 user={user}
                             />
 
-                            {is_TaiGer_role(user) && thread?.file_type === 'Essay' && (
-                                <EssayDifficultyIndicator
-                                    essayDifficulty={
-                                        (thread.program_id as IProgramWithId)
-                                            .essay_difficulty
-                                    }
-                                />
-                            )}
+                            {is_TaiGer_role(user) &&
+                                thread?.file_type === 'Essay' && (
+                                    <EssayDifficultyIndicator
+                                        essayDifficulty={
+                                            (
+                                                thread.program_id as IProgramWithId
+                                            ).essay_difficulty
+                                        }
+                                    />
+                                )}
 
                             {thread?.file_type === 'Essay' ? (
                                 <OriginAuthorStatementBar

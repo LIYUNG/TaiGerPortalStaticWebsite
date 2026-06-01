@@ -40,6 +40,7 @@ export interface DiscussionEditorCardUser {
 export interface DiscussionEditorCardProps {
     isReadOnlyThread: boolean;
     isLocked: boolean;
+    isWithdraw: boolean;
     lockTooltip: string;
     user: DiscussionEditorCardUser;
     thread: DiscussionEditorCardThread;
@@ -63,6 +64,7 @@ export interface DiscussionEditorCardProps {
 const DiscussionEditorCard = ({
     isReadOnlyThread,
     isLocked,
+    isWithdraw,
     lockTooltip,
     user,
     thread,
@@ -77,6 +79,7 @@ const DiscussionEditorCard = ({
     t
 }: DiscussionEditorCardProps) => {
     const theme = useTheme();
+    const isToggleBlocked = isLocked || isWithdraw;
 
     return (
         <>
@@ -107,6 +110,11 @@ const DiscussionEditorCard = ({
                                     color="warning"
                                     sx={{ fontSize: 48, mb: 1 }}
                                 />
+                            ) : isWithdraw ? (
+                                <CancelOutlinedIcon
+                                    color="error"
+                                    sx={{ fontSize: 48, mb: 1 }}
+                                />
                             ) : (
                                 <CheckCircleIcon
                                     color="success"
@@ -116,7 +124,12 @@ const DiscussionEditorCard = ({
                             <Typography color="text.secondary" variant="body1">
                                 {isLocked
                                     ? lockTooltip
-                                    : i18next.t('thread-close')}
+                                    : isWithdraw
+                                      ? i18next.t('thread-withdrawn', {
+                                            defaultValue:
+                                                'This thread is withdrawn.'
+                                        })
+                                      : i18next.t('thread-close')}
                             </Typography>
                         </Box>
                     ) : (
@@ -180,8 +193,17 @@ const DiscussionEditorCard = ({
                                     file={file}
                                     handleClickSave={handleClickSave}
                                     onFileChange={onFileChange}
-                                    readOnly={isLocked}
-                                    readOnlyTooltip={lockTooltip}
+                                    readOnly={isReadOnlyThread}
+                                    readOnlyTooltip={
+                                        isLocked
+                                            ? lockTooltip
+                                            : isWithdraw
+                                              ? i18next.t('thread-withdrawn', {
+                                                    defaultValue:
+                                                        'This thread is withdrawn.'
+                                                })
+                                              : i18next.t('thread-close')
+                                    }
                                     thread={thread}
                                 />
                             </Box>
@@ -210,8 +232,19 @@ const DiscussionEditorCard = ({
                 </Card>
             )}
             {is_TaiGer_role(user) ? (
-                isLocked ? (
-                    <Tooltip title={lockTooltip}>
+                isToggleBlocked ? (
+                    <Tooltip
+                        title={
+                            isLocked
+                                ? lockTooltip
+                                : isWithdraw
+                                  ? i18next.t('thread-withdrawn', {
+                                        defaultValue:
+                                            'This thread is withdrawn.'
+                                    })
+                                  : i18next.t('thread-close')
+                        }
+                    >
                         <span>
                             <Button
                                 color="success"
@@ -224,9 +257,13 @@ const DiscussionEditorCard = ({
                                         : 'contained'
                                 }
                             >
-                                {thread.isFinalVersion
-                                    ? i18next.t('Mark as open')
-                                    : i18next.t('Mark as finished')}
+                                {isWithdraw
+                                    ? i18next.t('Withdrawn', {
+                                          defaultValue: 'Withdrawn'
+                                      })
+                                    : thread.isFinalVersion
+                                      ? i18next.t('Mark as open')
+                                      : i18next.t('Mark as finished')}
                             </Button>
                         </span>
                     </Tooltip>

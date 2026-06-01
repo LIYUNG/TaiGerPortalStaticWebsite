@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import LaunchIcon from '@mui/icons-material/Launch';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -26,6 +27,7 @@ import DEMO from '@store/constant';
 
 interface DeadlineCardProps {
     deadline: string;
+    isWithdraw: boolean;
     isFavorite: boolean;
     thread: IDocumentthreadPopulated;
     user: IUserWithId;
@@ -36,6 +38,7 @@ interface DeadlineCardProps {
 
 const DeadlineCard = ({
     deadline,
+    isWithdraw,
     isFavorite,
     thread,
     user,
@@ -54,9 +57,10 @@ const DeadlineCard = ({
                 color: 'white',
                 borderRadius: 2,
                 boxShadow: urgent ? theme.shadows[4] : theme.shadows[1],
-                border: urgent
-                    ? `2px solid ${theme.palette.error.light}`
-                    : `1px solid ${theme.palette.divider}`
+                border:
+                    urgent || isWithdraw
+                        ? `2px solid ${theme.palette.error.light}`
+                        : `1px solid ${theme.palette.divider}`
             }}
         >
             <Box sx={{ p: 1.5 }}>
@@ -70,7 +74,8 @@ const DeadlineCard = ({
                     <Typography
                         sx={{
                             opacity: 0.85,
-                            fontSize: '0.65rem'
+                            fontSize: '0.65rem',
+                            letterSpacing: isWithdraw ? 0.6 : 0
                         }}
                         variant="caption"
                     >
@@ -84,6 +89,22 @@ const DeadlineCard = ({
                                 <WarningAmberIcon sx={{ fontSize: 12 }} />
                                 <span>URGENT</span>
                             </Stack>
+                        ) : isWithdraw ? (
+                            <Stack
+                                alignItems="center"
+                                component="span"
+                                direction="row"
+                                spacing={0.3}
+                                sx={{
+                                    color: theme.palette.error.light,
+                                    fontWeight: 700
+                                }}
+                            >
+                                <ErrorOutlineRoundedIcon
+                                    sx={{ fontSize: 12 }}
+                                />
+                                <span>WITHDRAW</span>
+                            </Stack>
                         ) : (
                             t('Deadline', { ns: 'common' })
                         )}
@@ -95,7 +116,22 @@ const DeadlineCard = ({
                     justifyContent="space-between"
                 >
                     <Box>
-                        <Typography fontWeight="700" variant="body1">
+                        <Typography
+                            sx={{
+                                color: isWithdraw
+                                    ? theme.palette.error.light
+                                    : 'inherit',
+                                fontWeight: isWithdraw ? 900 : 700,
+                                textTransform: isWithdraw
+                                    ? 'uppercase'
+                                    : 'none',
+                                letterSpacing: isWithdraw ? 1 : 0,
+                                textShadow: isWithdraw
+                                    ? '0 0 10px rgba(255,255,255,0.18)'
+                                    : 'none'
+                            }}
+                            variant="body1"
+                        >
                             {deadline || 'Not Set'}
                         </Typography>
                     </Box>
