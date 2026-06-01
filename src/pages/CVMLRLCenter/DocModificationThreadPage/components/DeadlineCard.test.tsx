@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import type {
+    IDocumentthreadPopulated,
+    IUserWithId
+} from '@taiger-common/model';
 
 import DeadlineCard from './DeadlineCard';
 
@@ -27,14 +31,14 @@ const baseThread = {
     program_id: null,
     student_id: { _id: 'student-1' },
     outsourced_user_id: []
-} as any;
+} as unknown as IDocumentthreadPopulated;
 
 const baseUser = {
     _id: 'user-1',
     role: 'Student',
     firstname: 'Jane',
     lastname: 'Doe'
-} as any;
+} as unknown as IUserWithId;
 
 const baseGradient = { start: '#1565c0', end: '#1976d2' };
 
@@ -47,6 +51,7 @@ const renderCard = (props = {}) =>
                     deadlineGradient={baseGradient}
                     handleFavoriteToggle={vi.fn()}
                     isFavorite={false}
+                    isWithdraw={false}
                     thread={baseThread}
                     urgent={false}
                     user={baseUser}
@@ -98,5 +103,10 @@ describe('DeadlineCard', () => {
     it('renders "Not Set" when no deadline provided', () => {
         renderCard({ deadline: '' });
         expect(screen.getByText('Not Set')).toBeInTheDocument();
+    });
+
+    it('shows withdraw styling when isWithdraw is true', () => {
+        renderCard({ isWithdraw: true, deadline: 'WITHDRAW' });
+        expect(screen.getByText('WITHDRAW')).toBeInTheDocument();
     });
 });
