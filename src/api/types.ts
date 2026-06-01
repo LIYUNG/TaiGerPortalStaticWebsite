@@ -89,6 +89,29 @@ export interface GetApplicationsDeadlineDistributionResponse {
     data: ApplicationsDeadlineDistributionBucket[];
 }
 
+/** Aggregated application status counts for the AgentPage stat cards. */
+export interface MyStudentsApplicationsStats {
+    totalStudents: number;
+    totalApplications: number;
+    decidedYesApplications: number;
+    decidedNoApplications: number;
+    undecidedApplications: number;
+    submittedApplications: number;
+    pendingApplications: number;
+}
+
+/**
+ * Aggregated application stats + the agent's user record, computed in the DB
+ * for the AgentPage (no full applications payload).
+ */
+export interface GetMyStudentsApplicationsStatsResponse {
+    success: boolean;
+    data: {
+        user: IUserWithId | null;
+        stats: MyStudentsApplicationsStats;
+    };
+}
+
 /** A distinct program row for the "Programs Update Status" tabs. */
 export interface ApplicationProgramUpdateStatusRow {
     program_id: string;

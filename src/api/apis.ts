@@ -18,6 +18,7 @@ import type {
     GetActiveStudentsApplicationsPaginatedResponse,
     GetApplicationsDeadlineDistributionResponse,
     GetApplicationProgramsUpdateStatusResponse,
+    GetMyStudentsApplicationsStatsResponse,
     GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
@@ -436,6 +437,11 @@ export const getMyStudentsApplicationsV3 = ({
 export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
     getData<GetApplicationsDeadlineDistributionResponse>(
         `/api/applications/distribution${userId ? `?userId=${userId}` : ''}`
+    );
+
+export const getMyStudentsApplicationsStats = (userId: UserId) =>
+    getData<GetMyStudentsApplicationsStatsResponse>(
+        `/api/applications/taiger-user/${userId}/stats`
     );
 
 export const getApplicationProgramsUpdateStatus = ({
