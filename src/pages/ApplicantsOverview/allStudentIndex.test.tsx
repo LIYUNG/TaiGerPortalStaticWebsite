@@ -5,12 +5,6 @@ import AllApplicantsOverview from './allStudentIndex';
 vi.mock('@hooks/useStudentsV3', () => ({
     useStudentsV3: vi.fn(() => ({ data: undefined, isLoading: true }))
 }));
-vi.mock('@hooks/useActiveStudentsApplicationsV2', () => ({
-    useActiveStudentsApplicationsV2: vi.fn(() => ({
-        applications: [],
-        isLoading: true
-    }))
-}));
 vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="loading" />
 }));
@@ -27,12 +21,14 @@ vi.mock('../../config', () => ({ appConfig: { companyName: 'TaiGer' } }));
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 
 describe('AllApplicantsOverview', () => {
-    test('renders Loading when data is loading', () => {
+    test('renders the applications overview tabs', () => {
         render(
             <MemoryRouter>
                 <AllApplicantsOverview />
             </MemoryRouter>
         );
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('application-overview-tabs')
+        ).toBeInTheDocument();
     });
 });

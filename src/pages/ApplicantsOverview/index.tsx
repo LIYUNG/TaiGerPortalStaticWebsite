@@ -12,17 +12,11 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import Loading from '@components/Loading/Loading';
-import type { IApplicationPopulated } from '@taiger-common/model';
-import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
 
     const userIdStr = user?._id?.toString() ?? '';
-
-    const { data: myStudentsApplications, isLoading } =
-        useMyStudentsApplicationsV2({ userId: userIdStr });
 
     if (!user) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -34,10 +28,6 @@ const ApplicantsOverview = () => {
                 to={`${DEMO.STUDENT_APPLICATIONS_LINK}/${user._id?.toString()}`}
             />
         );
-    }
-
-    if (isLoading) {
-        return <Loading />;
     }
 
     if (!is_TaiGer_role(user)) {
@@ -63,9 +53,6 @@ const ApplicantsOverview = () => {
                 ]}
             />
             <ApplicationOverviewTabs
-                applications={
-                    myStudentsApplications.applications as IApplicationPopulated[]
-                }
                 userId={userIdStr}
                 {...(is_TaiGer_Editor(user)
                     ? { editors: userIdStr }

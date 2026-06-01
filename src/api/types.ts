@@ -89,6 +89,26 @@ export interface GetApplicationsDeadlineDistributionResponse {
     data: ApplicationsDeadlineDistributionBucket[];
 }
 
+/** A distinct program row for the "Programs Update Status" tabs. */
+export interface ApplicationProgramUpdateStatusRow {
+    program_id: string;
+    school: string;
+    program_name: string;
+    degree: string;
+    semester: string;
+    whoupdated?: string;
+    updatedAt?: string;
+}
+
+/**
+ * Distinct programs (with update metadata) referenced by active students'
+ * applications, computed in the DB for the Programs Update Status tabs.
+ */
+export interface GetApplicationProgramsUpdateStatusResponse {
+    success: boolean;
+    data: ApplicationProgramUpdateStatusRow[];
+}
+
 /**
  * Server-side paginated response for the students table.
  * Mirrors the `/api/students/v3/paginated` contract: `data.students` is one

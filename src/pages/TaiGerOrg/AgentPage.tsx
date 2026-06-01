@@ -640,11 +640,7 @@ const AgentPage = () => {
 
             <Divider sx={{ my: 3 }} />
 
-            <ApplicationOverviewTabs
-                agents={user_id}
-                applications={myStudentsApplications.applications}
-                userId={user_id}
-            />
+            <ApplicationOverviewTabs agents={user_id} userId={user_id} />
 
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
                 <Link

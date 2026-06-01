@@ -1,26 +1,20 @@
-import { SyntheticEvent, useMemo, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
-import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
+import { is_TaiGer_role } from '@taiger-common/core';
 
-type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
-
-import { programs_refactor_v2 } from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
-import ProgramUpdateStatusTable, {
-    type ProgramUpdateStatusRow
-} from './ProgramUpdateStatusTable';
 import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTable';
 import { OpenApplicationsDistributionChart } from './OpenApplicationsDistributionChart';
+import { ProgramUpdateStatusTab } from './ProgramUpdateStatusTab';
 import { StudentsTablePaginated } from '../StudentDatabase/StudentsTablePaginated';
-import type { IApplicationPopulated } from '@taiger-common/model';
 
 export interface ApplicationOverviewTabsProps {
-    applications: IApplicationPopulated[];
     /**
-     * When set, the Application Overview tab scopes to this TaiGer user's
-     * supervised students (agent OR editor). Omit for the all-students view.
+     * When set, the chart, Application Overview, and Programs Update tabs scope
+     * to this TaiGer user's supervised students (agent OR editor). Omit for the
+     * all-students view.
      */
     userId?: string;
     /** Scope the Active-Student-List tab to students of this agent id. */
@@ -30,7 +24,6 @@ export interface ApplicationOverviewTabsProps {
 }
 
 const ApplicationOverviewTabs = ({
-    applications,
     userId,
     agents,
     editors
@@ -42,10 +35,6 @@ const ApplicationOverviewTabs = ({
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
-
-    const open_applications_arr = useMemo(() => {
-        return programs_refactor_v2(applications);
-    }, [applications]);
 
     return (
         <>
@@ -96,20 +85,10 @@ const ApplicationOverviewTabs = ({
                     <ApplicationOverviewPaginatedTable userId={userId} />
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
-                    <ProgramUpdateStatusTable
-                        data={open_applications_arr as ProgramUpdateStatusRow[]}
-                    />
+                    <ProgramUpdateStatusTab userId={userId} />
                 </CustomTabPanel>
                 <CustomTabPanel index={3} value={value}>
-                    <ProgramUpdateStatusTable
-                        data={
-                            open_applications_arr.filter((application) =>
-                                isProgramDecided(
-                                    application as ApplicationDecisionLike
-                                )
-                            ) as ProgramUpdateStatusRow[]
-                        }
-                    />
+                    <ProgramUpdateStatusTab decidedOnly userId={userId} />
                 </CustomTabPanel>
             </Box>
         </>

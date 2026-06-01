@@ -17,6 +17,7 @@ import type {
     QueryString,
     GetActiveStudentsApplicationsPaginatedResponse,
     GetApplicationsDeadlineDistributionResponse,
+    GetApplicationProgramsUpdateStatusResponse,
     GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
@@ -436,6 +437,22 @@ export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
     getData<GetApplicationsDeadlineDistributionResponse>(
         `/api/applications/distribution${userId ? `?userId=${userId}` : ''}`
     );
+
+export const getApplicationProgramsUpdateStatus = ({
+    userId,
+    decided
+}: {
+    userId?: UserId;
+    decided?: string;
+} = {}) => {
+    const params = new URLSearchParams();
+    if (userId) params.set('userId', userId);
+    if (decided) params.set('decided', decided);
+    const qs = params.toString();
+    return getData<GetApplicationProgramsUpdateStatusResponse>(
+        `/api/applications/program-update-status${qs ? `?${qs}` : ''}`
+    );
+};
 
 export const getActiveStudents = (queryString: QueryString) =>
     getData<GetActiveStudentsResponse>(`/api/students/active?${queryString}`);

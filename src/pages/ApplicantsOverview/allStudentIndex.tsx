@@ -5,19 +5,10 @@ import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
-import type { IApplicationPopulated } from '@taiger-common/model';
-import { useActiveStudentsApplicationsV2 } from '@hooks/useActiveStudentsApplicationsV2';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import Loading from '@components/Loading/Loading';
 
 const AllApplicantsOverview = () => {
-    const { data: activeStudentsApplications, isLoading } =
-        useActiveStudentsApplicationsV2();
-
     TabTitle(i18next.t('All Applications Overview'));
-    if (isLoading) {
-        return <Loading />;
-    }
     return (
         <Box>
             <BreadcrumbsNavigation
@@ -34,11 +25,7 @@ const AllApplicantsOverview = () => {
                     }
                 ]}
             />
-            <ApplicationOverviewTabs
-                applications={
-                    activeStudentsApplications as IApplicationPopulated[]
-                }
-            />
+            <ApplicationOverviewTabs />
         </Box>
     );
 };

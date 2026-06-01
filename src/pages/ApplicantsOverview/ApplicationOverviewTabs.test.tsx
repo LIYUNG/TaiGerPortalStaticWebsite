@@ -55,6 +55,11 @@ vi.mock('@components/Tabs', () => ({
 vi.mock('./ProgramUpdateStatusTable', () => ({
     default: () => <div data-testid="program-update-status-table" />
 }));
+vi.mock('./ProgramUpdateStatusTab', () => ({
+    ProgramUpdateStatusTab: () => (
+        <div data-testid="program-update-status-tab" />
+    )
+}));
 vi.mock('@components/MuiDataGrid', () => ({
     MuiDataGrid: () => <div data-testid="mui-data-grid" />
 }));
@@ -100,7 +105,7 @@ describe('ApplicationOverviewTabs', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <ApplicationOverviewTabs applications={[]} />
+                <ApplicationOverviewTabs />
             </MemoryRouter>
         );
     });
