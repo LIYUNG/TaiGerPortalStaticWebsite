@@ -27,6 +27,10 @@ vi.mock('./CVMLRLOverview', () => ({
     default: () => <div data-testid="cvmlrl-overview" />
 }));
 
+vi.mock('./CVMLRLOverviewPaginated', () => ({
+    default: () => <div data-testid="cvmlrl-overview-paginated" />
+}));
+
 vi.mock('../Utils/ErrorPage', () => ({
     default: () => <div data-testid="error-page" />
 }));
@@ -77,20 +81,13 @@ describe('CVMLRLCenter (index)', () => {
         );
     });
 
-    it('renders the loading state initially', () => {
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
+    it('renders the paginated overview for a TaiGer user', () => {
+        expect(
+            screen.getByTestId('cvmlrl-overview-paginated')
+        ).toBeInTheDocument();
     });
 
-    it('shows the loading indicator before data is fetched', () => {
-        const loading = screen.queryByTestId('loading');
-        expect(loading).toBeInTheDocument();
-    });
-
-    it('does not render the CVMLRLOverview while loading', () => {
-        expect(screen.queryByTestId('cvmlrl-overview')).not.toBeInTheDocument();
-    });
-
-    it('does not render error page while loading', () => {
+    it('does not render the error page', () => {
         expect(screen.queryByTestId('error-page')).not.toBeInTheDocument();
     });
 });

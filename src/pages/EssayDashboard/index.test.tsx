@@ -23,8 +23,10 @@ vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('@components/Loading/Loading', () => ({
     default: () => <div>Loading</div>
 }));
-vi.mock('./EssayOverview', () => ({
-    default: () => <div data-testid="essay-overview">EssayOverview</div>
+vi.mock('./EssayDashboardPaginated', () => ({
+    default: () => (
+        <div data-testid="essay-overview">EssayDashboardPaginated</div>
+    )
 }));
 
 vi.mock('@hooks/useActiveThreads', () => ({

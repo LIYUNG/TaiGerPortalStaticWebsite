@@ -89,6 +89,39 @@ export interface GetApplicationsDeadlineDistributionResponse {
     data: ApplicationsDeadlineDistributionBucket[];
 }
 
+/**
+ * Server-side paginated active document threads (CVMLRL center). Rows are slim
+ * and pre-computed in the DB (deadline, document_name, message-derived fields,
+ * lock status); `total` is the unpaginated match count.
+ */
+export interface GetActiveThreadsPaginatedResponse {
+    success: boolean;
+    data: {
+        threads: OpenTaskRow[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
+/** Per-tab thread counts for the CVMLRL / Essay dashboards. */
+export interface ActiveThreadsCounts {
+    all: number;
+    closed: number;
+    in_progress: number;
+    no_input: number;
+    no_writer: number;
+    new_message: number;
+    fav: number;
+    followup: number;
+    pending_progress: number;
+}
+
+export interface GetActiveThreadsCountsResponse {
+    success: boolean;
+    data: ActiveThreadsCounts;
+}
+
 /** Aggregated application status counts for the AgentPage stat cards. */
 export interface MyStudentsApplicationsStats {
     totalStudents: number;

@@ -19,7 +19,7 @@ vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string) => key })
 }));
 
-vi.mock('./CVMLRLDashboard', () => ({
+vi.mock('./CVMLRLDashboardPaginated', () => ({
     default: () => <div data-testid="cvmlrl-dashboard" />
 }));
 

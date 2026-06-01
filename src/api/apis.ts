@@ -19,6 +19,8 @@ import type {
     GetApplicationsDeadlineDistributionResponse,
     GetApplicationProgramsUpdateStatusResponse,
     GetMyStudentsApplicationsStatsResponse,
+    GetActiveThreadsPaginatedResponse,
+    GetActiveThreadsCountsResponse,
     GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
@@ -1158,6 +1160,38 @@ export const getCheckDocumentPatternIsPassed = (
 export const getActiveThreads = (queryString: QueryString) =>
     getData<GetActiveThreadsResponse>(
         `/api/document-threads/overview/all?${queryString}`
+    );
+
+export const getActiveThreadsV2 = (queryString: QueryString) =>
+    getData<GetActiveThreadsPaginatedResponse>(
+        `/api/document-threads/overview/all/paginated?${queryString}`
+    );
+
+export const getActiveThreadsCounts = (queryString: QueryString) =>
+    getData<GetActiveThreadsCountsResponse>(
+        `/api/document-threads/overview/all/counts?${queryString}`
+    );
+
+export const getMyStudentsThreadsV2 = ({
+    userId,
+    queryString
+}: {
+    userId: UserId;
+    queryString: QueryString;
+}) =>
+    getData<GetActiveThreadsPaginatedResponse>(
+        `/api/document-threads/overview/taiger-user/${userId}/paginated?${queryString}`
+    );
+
+export const getMyStudentsThreadsCounts = ({
+    userId,
+    queryString
+}: {
+    userId: UserId;
+    queryString: QueryString;
+}) =>
+    getData<GetActiveThreadsCountsResponse>(
+        `/api/document-threads/overview/taiger-user/${userId}/counts?${queryString}`
     );
 
 export const getMyStudentThreadMetrics = () =>

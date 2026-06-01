@@ -1,31 +1,21 @@
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import CVMLRLDashboard from './CVMLRLDashboard';
+import CVMLRLDashboardPaginated from './CVMLRLDashboardPaginated';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
-import { open_tasks_v2 } from '../Utils/util_functions';
-import { useActiveThreads } from '@hooks/useActiveThreads';
 
 const CVMLRLCenterAll = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { data, isLoading } = useActiveThreads();
-
-    const open_tasks_arr = open_tasks_v2(data);
-
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle('CV ML RL Center');
-    if (isLoading) {
-        return <Loading />;
-    }
 
     return (
         <Box>
@@ -45,11 +35,7 @@ const CVMLRLCenterAll = () => {
                     {t('Tasks Dashboard', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            {isLoading ? (
-                <Loading />
-            ) : (
-                <CVMLRLDashboard open_tasks_arr={open_tasks_arr} user={user} />
-            )}
+            <CVMLRLDashboardPaginated />
         </Box>
     );
 };
