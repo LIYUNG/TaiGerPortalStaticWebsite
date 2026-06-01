@@ -1,144 +1,45 @@
-import { SyntheticEvent, useMemo, useState } from 'react';
-import { Tabs, Tab, Box, Typography, Card } from '@mui/material';
-import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
+import { SyntheticEvent, useState } from 'react';
+import { Tabs, Tab, Box } from '@mui/material';
+import { is_TaiGer_role } from '@taiger-common/core';
 
-type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
-
-import {
-    frequencyDistribution,
-    programs_refactor_v2,
-    student_transform
-} from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
-import ProgramUpdateStatusTable, {
-    type ProgramUpdateStatusRow
-} from './ProgramUpdateStatusTable';
-import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
-import useStudents from '@hooks/useStudents';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { StudentsTable } from '../StudentDatabase/StudentsTable';
 import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTable';
-import type {
-    IStudentResponse,
-    IApplicationPopulated
-} from '@taiger-common/model';
+import { OpenApplicationsDistributionChart } from './OpenApplicationsDistributionChart';
+import { ProgramUpdateStatusTab } from './ProgramUpdateStatusTab';
+import { StudentsTablePaginated } from '../StudentDatabase/StudentsTablePaginated';
 
 export interface ApplicationOverviewTabsProps {
-    students: IStudentResponse[];
-    applications: IApplicationPopulated[];
     /**
-     * When set, the Application Overview tab scopes to this TaiGer user's
-     * supervised students (My Students view). Omit for the all-students view.
+     * When set, the chart, Application Overview, and Programs Update tabs scope
+     * to this TaiGer user's supervised students (agent OR editor). Omit for the
+     * all-students view.
      */
     userId?: string;
+    /** Scope the Active-Student-List tab to students of this agent id. */
+    agents?: string;
+    /** Scope the Active-Student-List tab to students of this editor id. */
+    editors?: string;
 }
 
 const ApplicationOverviewTabs = ({
-    students: stds,
-    applications,
-    userId
+    userId,
+    agents,
+    editors
 }: ApplicationOverviewTabsProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
-    const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
-        students,
-        submitUpdateAgentlist,
-        submitUpdateEditorlist,
-        submitUpdateAttributeslist,
-        updateStudentArchivStatus
-    } = useStudents({
-        students: stds as unknown as Array<{
-            _id: string;
-            [key: string]: unknown;
-        }>
-    });
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
-    const open_applications_arr = useMemo(() => {
-        return programs_refactor_v2(applications);
-    }, [applications]);
-
-    interface ApplicationDistributionItem {
-        closed?: string;
-        deadline?: string;
-        file_type?: string;
-        isPotentials?: boolean;
-        show?: boolean;
-    }
-    const applications_distribution = open_applications_arr.map(
-        ({
-            closed,
-            deadline,
-            file_type,
-            isPotentials,
-            show
-        }: ApplicationDistributionItem) => ({
-            closed,
-            deadline,
-            file_type,
-            isPotentials,
-            show
-        })
-    );
-    const open_distr = frequencyDistribution(applications_distribution);
-
-    const sort_date = Object.keys(open_distr).sort();
-
-    const sorted_date_freq_pair: Array<
-        Record<string, string | number> & {
-            name: string;
-            active: number;
-            potentials: number;
-        }
-    > = [];
-    sort_date.forEach((date: string) => {
-        const entry = open_distr[date];
-        sorted_date_freq_pair.push({
-            name: `${date}`,
-            active: entry?.show ?? 0,
-            potentials: entry?.potentials ?? 0
-        });
-    });
-
-    const studentsTransformed = student_transform(
-        students?.filter((student) => !student.archiv)
-    );
-
     return (
         <>
             <Box sx={{ width: '100%' }}>
-                <Card sx={{ p: 2 }}>
-                    <Typography variant="h6">
-                        {t('Open Applications Distribution', { ns: 'common' })}
-                    </Typography>
-                    <Typography>
-                        <b style={{ color: 'red' }}>active:</b>{' '}
-                        {t('Students decided programs', { ns: 'common' })}
-                    </Typography>
-                    <Typography>
-                        <b style={{ color: '#A9A9A9' }}>potentials:</b>{' '}
-                        {t(
-                            'Students do not decide programs yet. But the applications will be potentially activated when they would decide',
-                            { ns: 'common' }
-                        )}
-                    </Typography>
-                    <TasksDistributionBarChart
-                        data={sorted_date_freq_pair}
-                        k="name"
-                        value1="active"
-                        value2="potentials"
-                        yLabel="Applications"
-                    />
-                </Card>
+                <OpenApplicationsDistributionChart userId={userId} />
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs
                         aria-label="basic tabs example"
@@ -173,17 +74,10 @@ const ApplicationOverviewTabs = ({
                     {user &&
                     user.role &&
                     is_TaiGer_role(user as unknown as { role: string }) ? (
-                        <StudentsTable
-                            data={studentsTransformed}
-                            isLoading={false}
-                            submitUpdateAgentlist={submitUpdateAgentlist}
-                            submitUpdateAttributeslist={
-                                submitUpdateAttributeslist
-                            }
-                            submitUpdateEditorlist={submitUpdateEditorlist}
-                            updateStudentArchivStatus={
-                                updateStudentArchivStatus
-                            }
+                        <StudentsTablePaginated
+                            agents={agents}
+                            archiv={false}
+                            editors={editors}
                         />
                     ) : null}
                 </CustomTabPanel>
@@ -191,29 +85,12 @@ const ApplicationOverviewTabs = ({
                     <ApplicationOverviewPaginatedTable userId={userId} />
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
-                    <ProgramUpdateStatusTable
-                        data={open_applications_arr as ProgramUpdateStatusRow[]}
-                    />
+                    <ProgramUpdateStatusTab userId={userId} />
                 </CustomTabPanel>
                 <CustomTabPanel index={3} value={value}>
-                    <ProgramUpdateStatusTable
-                        data={
-                            open_applications_arr.filter((application) =>
-                                isProgramDecided(
-                                    application as ApplicationDecisionLike
-                                )
-                            ) as ProgramUpdateStatusRow[]
-                        }
-                    />
+                    <ProgramUpdateStatusTab decidedOnly userId={userId} />
                 </CustomTabPanel>
             </Box>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
         </>
     );
 };

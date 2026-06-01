@@ -16,6 +16,10 @@ import type {
     ApiPayload,
     QueryString,
     GetActiveStudentsApplicationsPaginatedResponse,
+    GetApplicationsDeadlineDistributionResponse,
+    GetApplicationProgramsUpdateStatusResponse,
+    GetMyStudentsApplicationsStatsResponse,
+    GetStudentsV3PaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
@@ -387,6 +391,11 @@ export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
 export const getStudentsV3 = (queryString: QueryString) =>
     getData<GetStudentsResponse>(`/api/students/v3?${queryString}`);
 
+export const getStudentsV3Paginated = (queryString: QueryString) =>
+    getData<GetStudentsV3PaginatedResponse>(
+        `/api/students/v3/paginated?${queryString}`
+    );
+
 export const getStudent = (studentId: string) =>
     request.get<GetStudentResponse>(`/api/students/${studentId}`);
 
@@ -424,6 +433,32 @@ export const getMyStudentsApplicationsV3 = ({
     getData<GetActiveStudentsApplicationsPaginatedResponse>(
         `/api/applications/taiger-user/${userId}/paginated?${queryString}`
     );
+
+export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
+    getData<GetApplicationsDeadlineDistributionResponse>(
+        `/api/applications/distribution${userId ? `?userId=${userId}` : ''}`
+    );
+
+export const getMyStudentsApplicationsStats = (userId: UserId) =>
+    getData<GetMyStudentsApplicationsStatsResponse>(
+        `/api/applications/taiger-user/${userId}/stats`
+    );
+
+export const getApplicationProgramsUpdateStatus = ({
+    userId,
+    decided
+}: {
+    userId?: UserId;
+    decided?: string;
+} = {}) => {
+    const params = new URLSearchParams();
+    if (userId) params.set('userId', userId);
+    if (decided) params.set('decided', decided);
+    const qs = params.toString();
+    return getData<GetApplicationProgramsUpdateStatusResponse>(
+        `/api/applications/program-update-status${qs ? `?${qs}` : ''}`
+    );
+};
 
 export const getActiveStudents = (queryString: QueryString) =>
     getData<GetActiveStudentsResponse>(`/api/students/active?${queryString}`);

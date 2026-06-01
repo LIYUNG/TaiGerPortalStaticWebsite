@@ -6,36 +6,16 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import useStudents from '@hooks/useStudents';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
-import { useStudentsV3 } from '@hooks/useStudentsV3';
-import { StudentsTable } from './StudentsTable';
-import { student_transform } from '../Utils/util_functions';
+import { StudentsTablePaginated } from './StudentsTablePaginated';
 
 const StudentDatabase = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data: fetchedAllStudents, isLoading } = useStudentsV3();
-
-    const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
-        students,
-        submitUpdateAgentlist,
-        submitUpdateEditorlist,
-        submitUpdateAttributeslist,
-        updateStudentArchivStatus
-    } = useStudents({
-        students: fetchedAllStudents
-    });
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const studentsTransformed = student_transform(students);
 
     TabTitle(t('Students Database', { ns: 'common' }));
     return (
@@ -53,8 +33,7 @@ const StudentDatabase = () => {
                     {t('All Students', { ns: 'common' })}
                 </Typography>
                 <Typography color="text.primary">
-                    {t('Students Database', { ns: 'common' })} (
-                    {students?.length})
+                    {t('Students Database', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
             <Box
@@ -74,22 +53,7 @@ const StudentDatabase = () => {
                     {t('View Overview', { ns: 'common' })}
                 </Button>
             </Box>
-            <StudentsTable
-                data={studentsTransformed}
-                isLoading={isLoading}
-                submitUpdateAgentlist={submitUpdateAgentlist}
-                submitUpdateAttributeslist={submitUpdateAttributeslist}
-                submitUpdateEditorlist={submitUpdateEditorlist}
-                updateStudentArchivStatus={updateStudentArchivStatus}
-            />
-
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
+            <StudentsTablePaginated />
         </Box>
     );
 };

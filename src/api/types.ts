@@ -70,6 +70,83 @@ export interface GetActiveStudentsApplicationsPaginatedResponse {
     };
 }
 
+/** One bucket of the open-applications deadline distribution chart. */
+export interface ApplicationsDeadlineDistributionBucket {
+    /** Deadline label, e.g. "2025/01/15" or "2025-Rolling". */
+    name: string;
+    /** Count of decided applications with this deadline. */
+    active: number;
+    /** Count of undecided applications with this deadline. */
+    potentials: number;
+}
+
+/**
+ * Deadline distribution for the "Open Applications Distribution" chart,
+ * computed in the DB (only the buckets are returned, not the full applications).
+ */
+export interface GetApplicationsDeadlineDistributionResponse {
+    success: boolean;
+    data: ApplicationsDeadlineDistributionBucket[];
+}
+
+/** Aggregated application status counts for the AgentPage stat cards. */
+export interface MyStudentsApplicationsStats {
+    totalStudents: number;
+    totalApplications: number;
+    decidedYesApplications: number;
+    decidedNoApplications: number;
+    undecidedApplications: number;
+    submittedApplications: number;
+    pendingApplications: number;
+}
+
+/**
+ * Aggregated application stats + the agent's user record, computed in the DB
+ * for the AgentPage (no full applications payload).
+ */
+export interface GetMyStudentsApplicationsStatsResponse {
+    success: boolean;
+    data: {
+        user: IUserWithId | null;
+        stats: MyStudentsApplicationsStats;
+    };
+}
+
+/** A distinct program row for the "Programs Update Status" tabs. */
+export interface ApplicationProgramUpdateStatusRow {
+    program_id: string;
+    school: string;
+    program_name: string;
+    degree: string;
+    semester: string;
+    whoupdated?: string;
+    updatedAt?: string;
+}
+
+/**
+ * Distinct programs (with update metadata) referenced by active students'
+ * applications, computed in the DB for the Programs Update Status tabs.
+ */
+export interface GetApplicationProgramsUpdateStatusResponse {
+    success: boolean;
+    data: ApplicationProgramUpdateStatusRow[];
+}
+
+/**
+ * Server-side paginated response for the students table.
+ * Mirrors the `/api/students/v3/paginated` contract: `data.students` is one
+ * page, `total` is the unpaginated match count.
+ */
+export interface GetStudentsV3PaginatedResponse {
+    success: boolean;
+    data: {
+        students: IStudentResponse[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
 // --- Extended frontend response/display types ---
 
 /** Program response from API (includes string _id; API may return date as string) */

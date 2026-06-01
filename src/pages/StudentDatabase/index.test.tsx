@@ -18,6 +18,12 @@ vi.mock('./StudentsTable', () => ({
     StudentsTable: () => <div data-testid="students-table">StudentsTable</div>
 }));
 
+vi.mock('./StudentsTablePaginated', () => ({
+    StudentsTablePaginated: () => (
+        <div data-testid="students-table">StudentsTablePaginated</div>
+    )
+}));
+
 import { useAuth } from '@components/AuthProvider';
 import useStudents from '@hooks/useStudents';
 import { useStudentsV3 } from '@hooks/useStudentsV3';

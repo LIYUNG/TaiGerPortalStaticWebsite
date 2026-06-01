@@ -15,11 +15,7 @@ import {
     Divider,
     Tooltip
 } from '@mui/material';
-import {
-    is_TaiGer_role,
-    isProgramDecided,
-    isProgramSubmitted
-} from '@taiger-common/core';
+import { is_TaiGer_role } from '@taiger-common/core';
 import {
     PersonOutline as PersonIcon,
     Assignment as AssignmentIcon,
@@ -41,8 +37,7 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
-import { useStudentsV3 } from '@hooks/useStudentsV3';
+import { useMyStudentsApplicationsStats } from '@hooks/useMyStudentsApplicationsStats';
 import { formatDate } from '../Utils/util_functions';
 
 const AgentPage = () => {
@@ -50,20 +45,14 @@ const AgentPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
-        useStudentsV3({ agents: user_id, archiv: false });
-
-    const { data: myStudentsApplications, isLoading } =
-        useMyStudentsApplicationsV2(
-            { userId: user_id ?? '' },
-            { enabled: !!user_id }
-        );
+    const { data: statsData, isLoading } = useMyStudentsApplicationsStats(
+        user_id ?? '',
+        { enabled: !!user_id }
+    );
 
     const stats = useMemo(() => {
-        if (
-            !myStudentsApplications?.applications?.length ||
-            !fetchedMyStudents
-        ) {
+        const s = statsData?.stats;
+        if (!s) {
             return {
                 totalStudents: 0,
                 totalApplications: 0,
@@ -77,47 +66,28 @@ const AgentPage = () => {
             };
         }
 
-        const applications = myStudentsApplications.applications ?? [];
-        const decidedYesCount = applications.filter(
-            (app: { decided?: string }) => isProgramDecided(app)
-        ).length;
-        const decidedNoCount = applications.filter(
-            (app: { decided?: string }) => app.decided === 'X'
-        ).length;
-        const undecidedCount = applications.filter(
-            (app: { decided?: string }) => app.decided === '-' || !app.decided
-        ).length;
-        const submittedCount = applications.filter(
-            (app: { decided?: string }) => isProgramSubmitted(app)
-        ).length;
-        const pendingCount = applications.filter(
-            (app: { decided?: string }) =>
-                isProgramDecided(app) && !isProgramSubmitted(app)
-        ).length;
-        const totalDecidedCount = decidedYesCount + decidedNoCount;
+        const totalDecidedCount =
+            s.decidedYesApplications + s.decidedNoApplications;
 
         return {
-            totalStudents: fetchedMyStudents.length,
-            totalApplications: applications.length,
-            decidedYesApplications: decidedYesCount,
-            decidedNoApplications: decidedNoCount,
-            undecidedApplications: undecidedCount,
-            submittedApplications: submittedCount,
-            pendingApplications: pendingCount,
+            ...s,
             submissionRate:
-                decidedYesCount > 0
-                    ? ((submittedCount / decidedYesCount) * 100).toFixed(1)
+                s.decidedYesApplications > 0
+                    ? (
+                          (s.submittedApplications / s.decidedYesApplications) *
+                          100
+                      ).toFixed(1)
                     : 0,
             decisionRate:
-                applications.length > 0
-                    ? ((totalDecidedCount / applications.length) * 100).toFixed(
+                s.totalApplications > 0
+                    ? ((totalDecidedCount / s.totalApplications) * 100).toFixed(
                           1
                       )
                     : 0
         };
-    }, [myStudentsApplications, fetchedMyStudents]);
+    }, [statsData]);
 
-    if (isLoading || isLoadingMyStudents) {
+    if (isLoading) {
         return <Loading />;
     }
 
@@ -125,9 +95,9 @@ const AgentPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const agentUser = myStudentsApplications?.user;
+    const agentUser = statsData?.user;
 
-    if (!myStudentsApplications?.applications) {
+    if (!statsData) {
         return <Loading />;
     }
 
@@ -640,10 +610,7 @@ const AgentPage = () => {
 
             <Divider sx={{ my: 3 }} />
 
-            <ApplicationOverviewTabs
-                applications={myStudentsApplications.applications}
-                students={fetchedMyStudents}
-            />
+            <ApplicationOverviewTabs agents={user_id} userId={user_id} />
 
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
                 <Link

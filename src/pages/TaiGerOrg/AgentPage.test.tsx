@@ -30,8 +30,8 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-vi.mock('@hooks/useMyStudentsApplicationsV2', () => ({
-    useMyStudentsApplicationsV2: () => ({
+vi.mock('@hooks/useMyStudentsApplicationsStats', () => ({
+    useMyStudentsApplicationsStats: () => ({
         data: {
             user: {
                 _id: 'agent1',
@@ -39,15 +39,16 @@ vi.mock('@hooks/useMyStudentsApplicationsV2', () => ({
                 lastname: 'Agent',
                 pictureUrl: ''
             },
-            applications: []
+            stats: {
+                totalStudents: 0,
+                totalApplications: 0,
+                decidedYesApplications: 0,
+                decidedNoApplications: 0,
+                undecidedApplications: 0,
+                submittedApplications: 0,
+                pendingApplications: 0
+            }
         },
-        isLoading: false
-    })
-}));
-
-vi.mock('@hooks/useStudentsV3', () => ({
-    useStudentsV3: () => ({
-        data: [],
         isLoading: false
     })
 }));
