@@ -1,10 +1,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import {
-    getActiveStudentsApplicationsV3,
-    getMyStudentsApplicationsV3
-} from '@/api';
+import { getActiveStudentsApplicationsV3 } from '@/api';
 import type { GetActiveStudentsApplicationsPaginatedResponse } from '@/api/types';
 import type { IApplicationPopulated } from '@taiger-common/model';
 
@@ -36,6 +33,7 @@ const buildQueryString = ({
     sortBy,
     sortOrder,
     search,
+    userId,
     filters
 }: UseActiveStudentsApplicationsV3Params): string =>
     queryString.stringify(
@@ -46,6 +44,8 @@ const buildQueryString = ({
             sortBy,
             sortOrder,
             search,
+            // Scope to a TaiGer user's supervised students (omit for all active).
+            userId,
             ...filters
         },
         { skipNull: true, skipEmptyString: true }
@@ -59,26 +59,17 @@ export function useActiveStudentsApplicationsV3(
     params: UseActiveStudentsApplicationsV3Params
 ) {
     const queryStringValue = buildQueryString(params);
-    const { userId } = params;
 
     const result = useQuery<
         GetActiveStudentsApplicationsPaginatedResponse,
         Error,
         { applications: IApplicationPopulated[]; total: number }
     >({
-        queryKey: userId
-            ? ['applications/taiger-user/paginated', userId, queryStringValue]
-            : [
-                  'applications/all/active/applications/paginated',
-                  queryStringValue
-              ],
-        queryFn: () =>
-            userId
-                ? getMyStudentsApplicationsV3({
-                      userId,
-                      queryString: queryStringValue
-                  })
-                : getActiveStudentsApplicationsV3(queryStringValue),
+        queryKey: [
+            'applications/all/active/applications/paginated',
+            queryStringValue
+        ],
+        queryFn: () => getActiveStudentsApplicationsV3(queryStringValue),
         staleTime: 1000 * 60 * 5, // 5 minutes
         // Keep the previous page visible while the next one loads (no flicker).
         placeholderData: keepPreviousData,

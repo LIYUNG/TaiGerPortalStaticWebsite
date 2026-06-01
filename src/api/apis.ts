@@ -99,7 +99,6 @@ import {
     type GetSameProgramStudentsResponse,
     // Applications
     type GetApplicationsResponse,
-    type GetMyStudentsApplicationsResponse,
     type GetStudentApplicationsResponse,
     type CreateApplicationResponse,
     type UpdateStudentApplicationsResponse,
@@ -403,27 +402,11 @@ export const getStudent = (studentId: string) =>
 export const getApplications = (queryString: QueryString) =>
     getData<GetApplicationsResponse>(`/api/applications?${queryString}`);
 
-// Active students' applications. Pass `userId` in the query string to scope to a
-// TaiGer user's supervised students; omit it for all active students.
-export const getActiveStudentsApplications = (queryString: QueryString) =>
-    getData<GetMyStudentsApplicationsResponse>(
-        `/api/applications/all/active/applications?${queryString}`
-    );
-
+// Paginated active students' applications. Pass `userId` in the query string to
+// scope to a TaiGer user's supervised students; omit it for all active students.
 export const getActiveStudentsApplicationsV3 = (queryString: QueryString) =>
     getData<GetActiveStudentsApplicationsPaginatedResponse>(
         `/api/applications/all/active/applications/paginated?${queryString}`
-    );
-
-export const getMyStudentsApplicationsV3 = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}) =>
-    getData<GetActiveStudentsApplicationsPaginatedResponse>(
-        `/api/applications/taiger-user/${userId}/paginated?${queryString}`
     );
 
 export const getApplicationsDeadlineDistribution = (userId?: UserId) =>

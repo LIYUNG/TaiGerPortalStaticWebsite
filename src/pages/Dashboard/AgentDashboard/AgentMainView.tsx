@@ -37,7 +37,7 @@ import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentChe
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
 import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
-import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
+import { useActiveStudentsApplicationsV3 } from '@hooks/useActiveStudentsApplicationsV3';
 import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
@@ -65,12 +65,21 @@ type RefactoredApplication = {
 const AgentMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useMyStudentsApplicationsV2({
-            userId: user!._id,
-            decided: 'O',
-            closed: '-'
-        });
+    // Nearest-deadline open applications for this agent's active students. The
+    // server sorts by the derived deadlineDate and caps the page at 50, so the
+    // dashboard never pulls the full (potentially huge) application set.
+    const {
+        rows: myStudentsApplicationRows,
+        rowCount: myStudentsApplicationsTotal,
+        isLoading: isLoadingApplications
+    } = useActiveStudentsApplicationsV3({
+        userId: user!._id,
+        page: 0,
+        pageSize: 50,
+        sortBy: 'deadline',
+        sortOrder: 'asc',
+        filters: { decided: 'O', closed: '-' }
+    });
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ agents: user!._id, archiv: false });
@@ -108,15 +117,12 @@ const AgentMainView = () => {
     if (isLoadingApplications || isLoadingThreads || isLoadingMyStudents) {
         return <Loading />;
     }
+    // Already deadline-sorted by the server; just drop any "No Program" rows.
     const applications_arr = (
         programs_refactor_v2(
-            myStudentsApplications.applications ?? []
+            myStudentsApplicationRows ?? []
         ) as RefactoredApplication[]
-    )
-        .filter((application) => application.program_name !== 'No Program')
-        .sort((a, b) =>
-            a.application_deadline > b.application_deadline ? 1 : -1
-        );
+    ).filter((application) => application.program_name !== 'No Program');
 
     const myStudents = fetchedMyStudents ?? [];
 
@@ -211,7 +217,7 @@ const AgentMainView = () => {
                                 {t('Upcoming Applications', {
                                     ns: 'dashboard'
                                 })}{' '}
-                                ({applications_arr?.length}):
+                                ({myStudentsApplicationsTotal}):
                             </Typography>
                         </Alert>
                         <div className="card-scrollable-body">
