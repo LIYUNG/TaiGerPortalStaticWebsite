@@ -1,6 +1,6 @@
-import { describe, it, vi, beforeEach } from 'vitest';
+import { describe, it, vi, beforeEach, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('../../../AuthProvider', () => ({
     useAuth: () => ({ user: { _id: { toString: () => 'u1' }, role: 'Agent' } })
@@ -68,6 +68,32 @@ describe('EmbeddedFriend', () => {
 
     it('renders friend name text', () => {
         expect(screen.getByText(/Alice Smith/)).toBeDefined();
+    });
+});
+
+describe('EmbeddedFriend active highlight', () => {
+    const renderAtRoute = (path: string) =>
+        render(
+            <MemoryRouter initialEntries={[path]}>
+                <Routes>
+                    <Route
+                        element={
+                            <EmbeddedFriend activeId="u1" data={mockData} />
+                        }
+                        path="/communications/t/:studentId"
+                    />
+                </Routes>
+            </MemoryRouter>
+        );
+
+    it('marks the item selected when the route studentId matches', () => {
+        renderAtRoute('/communications/t/s1');
+        expect(document.querySelector('.Mui-selected')).not.toBeNull();
+    });
+
+    it('does not mark the item selected for a different studentId', () => {
+        renderAtRoute('/communications/t/other');
+        expect(document.querySelector('.Mui-selected')).toBeNull();
     });
 });
 

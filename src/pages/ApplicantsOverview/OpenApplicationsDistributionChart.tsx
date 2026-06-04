@@ -1,4 +1,4 @@
-import { Card, Typography } from '@mui/material';
+import { Card, Chip, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
@@ -13,23 +13,37 @@ export interface OpenApplicationsDistributionChartProps {
 }
 
 /**
- * "Open Applications Distribution" bar chart. Self-contained: the deadline
- * buckets (active vs potentials) are computed in the DB, so this only fetches a
- * small key-value list instead of every application.
+ * "Open Applications Distribution" chart. Self-contained: the deadline buckets
+ * (active vs potentials) are computed in the DB, so this only fetches a small
+ * key-value list instead of every application. Stacked bars per deadline, with a
+ * cumulative line of active (decided) applications overlaid.
  */
 export const OpenApplicationsDistributionChart = ({
     userId
 }: OpenApplicationsDistributionChartProps = {}) => {
     const { t } = useTranslation();
     const { buckets } = useApplicationsDeadlineDistribution({ userId });
+    const total = buckets.reduce((sum, b) => sum + b.active + b.potentials, 0);
 
     return (
         <Card sx={{ p: 2 }}>
-            <Typography variant="h6">
-                {t('Open Applications Distribution', { ns: 'common' })}
-            </Typography>
+            <Stack
+                alignItems="center"
+                direction="row"
+                justifyContent="space-between"
+            >
+                <Typography variant="h6">
+                    {t('Open Applications Distribution', { ns: 'common' })}
+                </Typography>
+                <Chip
+                    color="primary"
+                    label={`${total} ${t('Applications', { ns: 'common' })}`}
+                    size="small"
+                    variant="outlined"
+                />
+            </Stack>
             <Typography>
-                <b style={{ color: 'red' }}>active:</b>{' '}
+                <b style={{ color: '#d32f2f' }}>active:</b>{' '}
                 {t('Students decided programs', { ns: 'common' })}
             </Typography>
             <Typography>
@@ -42,6 +56,7 @@ export const OpenApplicationsDistributionChart = ({
             <TasksDistributionBarChart
                 data={buckets}
                 k="name"
+                showCumulative
                 value1="active"
                 value2="potentials"
                 yLabel="Applications"

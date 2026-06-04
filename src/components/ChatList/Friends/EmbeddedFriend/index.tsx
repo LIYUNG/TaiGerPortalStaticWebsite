@@ -81,7 +81,7 @@ interface EmbeddedFriendProps {
 }
 
 const EmbeddedFriend = (props: EmbeddedFriendProps) => {
-    const { student_id } = useParams<{ student_id?: string }>();
+    const { studentId } = useParams<{ studentId?: string }>();
     const { user } = useAuth();
     const { t } = useTranslation();
     const theme = useTheme();
@@ -103,6 +103,8 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
         props.data?.latestCommunication?.readBy?.includes(props.activeId) ||
         props.data?.latestCommunication?.user_id?.toString() ===
             user?._id?.toString();
+
+    const isActive = props.data?._id?.toString() === studentId;
 
     const backgroundColor = isMessageRead
         ? theme.palette.background.default
@@ -130,7 +132,17 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
         >
             <ListItemButton
                 component={LinkDom}
-                selected={props.data?._id?.toString() === student_id}
+                selected={isActive}
+                sx={{
+                    borderLeft: '3px solid transparent',
+                    '&.Mui-selected': {
+                        borderLeftColor: theme.palette.primary.main,
+                        backgroundColor: theme.palette.action.selected,
+                        '&:hover': {
+                            backgroundColor: theme.palette.action.selected
+                        }
+                    }
+                }}
                 title={`${
                     props.data.lastname_chinese
                         ? props.data.lastname_chinese
