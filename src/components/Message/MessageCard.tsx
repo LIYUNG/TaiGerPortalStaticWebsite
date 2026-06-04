@@ -20,7 +20,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { FileIcon, defaultStyles } from 'react-file-icon';
-import { is_TaiGer_Student } from '@taiger-common/core';
+import { is_TaiGer_Admin, is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
 
 import { BASE_URL, IgnoreMessageThread } from '@/api';
@@ -185,8 +185,10 @@ const MessageCard = (props: MessageCardProps) => {
     );
 
     const editable = useMemo(
-        () => message.user_id?._id?.toString() === user?._id?.toString(),
-        [message.user_id?._id, user?._id]
+        () =>
+            message.user_id?._id?.toString() === user?._id?.toString() ||
+            is_TaiGer_Admin(user),
+        [message.user_id?._id, user]
     );
 
     const fileChips = useMemo(() => {
