@@ -3,7 +3,6 @@ import {
     useMemo,
     useState,
     type ChangeEvent,
-    type FormEvent,
     type MouseEvent,
     type RefObject
 } from 'react';
@@ -16,7 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { pdfjs } from 'react-pdf';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_role, isProgramWithdraw } from '@taiger-common/core';
 
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
@@ -43,7 +42,9 @@ import FilesList from './FilesList';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
-import MessageList, { type MessageThread } from '@components/Message/MessageList';
+import MessageList, {
+    type MessageThread
+} from '@components/Message/MessageList';
 import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import Audit from '../../Audit';
@@ -185,6 +186,16 @@ const DocModificationThreadPage = ({
     const thread: DocModificationThreadPageThread =
         (docModificationThreadPageState.thread as DocModificationThreadPageThread) ||
         {};
+    const deadlineText = String(
+        docModificationThreadPageState.deadline ?? deadline ?? ''
+    ).trim();
+    const isWithdrawThread =
+        deadlineText.toUpperCase() === 'WITHDRAW' ||
+        (thread?.application_id != null &&
+            typeof thread.application_id !== 'string' &&
+            isProgramWithdraw(
+                thread.application_id as unknown as IApplicationPopulated
+            ));
 
     // Use application-level lock status if application_id exists and has programId
     // Otherwise fall back to program-level lock status
@@ -215,7 +226,17 @@ const DocModificationThreadPage = ({
               }
           );
     const isThreadClosed = thread?.isFinalVersion === true;
-    const isReadOnlyThread = isLocked || isThreadClosed;
+    const readOnlyTooltip = isWithdrawThread
+        ? i18next.t('Thread is withdrawn. This thread is read-only.', {
+              ns: 'common'
+          })
+        : isThreadClosed
+          ? i18next.t('Thread is closed. This thread is read-only.', {
+                ns: 'common'
+            })
+          : lockTooltip;
+    const isReadOnlyThread = isLocked || isThreadClosed || isWithdrawThread;
+    const isToggleBlocked = isLocked || isWithdrawThread;
     const hashKey = hash?.replace('#', '') || '';
     const [value, setValue] = useState(
         (THREAD_TABS as Record<string, number>)[hashKey] ?? 0
@@ -243,6 +264,7 @@ const DocModificationThreadPage = ({
     }, []);
 
     const closeSetAsFinalFileModelWindow = () => {
+        if (isReadOnlyThread) return;
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             SetAsFinalFileModel: false
@@ -251,9 +273,9 @@ const DocModificationThreadPage = ({
 
     const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        if (isLocked) {
+        if (isReadOnlyThread) {
             setSeverity('warning');
-            setMessage(lockTooltip);
+            setMessage(readOnlyTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -380,9 +402,7 @@ const DocModificationThreadPage = ({
                     : String(error ?? 'Submission failed.');
             setSeverity('error');
             setMessage(
-                snackbarText.trim() !== ''
-                    ? snackbarText
-                    : 'Submission failed.'
+                snackbarText.trim() !== '' ? snackbarText : 'Submission failed.'
             );
             setOpenSnackbar(true);
             setDocModificationThreadPageState((prevState) => ({
@@ -404,9 +424,9 @@ const DocModificationThreadPage = ({
         editorState: unknown
     ) => {
         e.preventDefault();
-        if (isLocked) {
+        if (isReadOnlyThread) {
             setSeverity('warning');
-            setMessage(lockTooltip);
+            setMessage(readOnlyTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -423,10 +443,8 @@ const DocModificationThreadPage = ({
 
         submitMessageMutation.mutate({
             threadId: documentsthreadId ?? '',
-            studentId: docModificationThreadPageState.thread
-                .student_id?._id as Parameters<
-                typeof SubmitMessageWithAttachment
-            >[1],
+            studentId: docModificationThreadPageState.thread.student_id
+                ?._id as Parameters<typeof SubmitMessageWithAttachment>[1],
             formData
         });
     };
@@ -454,15 +472,15 @@ const DocModificationThreadPage = ({
     // }
 
     const handleAsFinalFile = (
-        doc_thread_id: string | { toString(): string } | undefined,
+        doc_thread_id: unknown,
         student_id: unknown,
-        program_id: DocModificationThreadPageThread['program_id'],
-        isFinalVersion: boolean,
+        program_id: unknown,
+        isFinalVersion: unknown,
         application_id: unknown
     ) => {
-        if (isLocked) {
+        if (isToggleBlocked) {
             setSeverity('warning');
-            setMessage(lockTooltip);
+            setMessage(readOnlyTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -472,16 +490,16 @@ const DocModificationThreadPage = ({
             student_id,
             program_id,
             application_id,
-            isFinalVersion,
+            isFinalVersion: Boolean(isFinalVersion),
             SetAsFinalFileModel: true
         }));
     };
 
     const ConfirmSetAsFinalFileHandler = (e: React.FormEvent) => {
         e.preventDefault();
-        if (isLocked) {
+        if (isToggleBlocked) {
             setSeverity('warning');
-            setMessage(lockTooltip);
+            setMessage(readOnlyTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -492,8 +510,8 @@ const DocModificationThreadPage = ({
 
         SetFileAsFinal(
             docModificationThreadPageState.doc_thread_id as string,
-            docModificationThreadPageState.student_id,
-            docModificationThreadPageState.application_id
+            docModificationThreadPageState.student_id as string,
+            docModificationThreadPageState.application_id as string
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -553,7 +571,8 @@ const DocModificationThreadPage = ({
                 if (success) {
                     // TODO: remove that message
                     const currentMessages =
-                        (docModificationThreadPageState.thread.messages as Array<{
+                        (docModificationThreadPageState.thread
+                            .messages as Array<{
                             _id: { toString(): string };
                             [key: string]: unknown;
                         }>) ?? [];
@@ -614,6 +633,12 @@ const DocModificationThreadPage = ({
     };
 
     const startEditingEditor = () => {
+        if (isReadOnlyThread) {
+            setSeverity('warning');
+            setMessage(readOnlyTooltip);
+            setOpenSnackbar(true);
+            return;
+        }
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             subpage: 2,
@@ -639,7 +664,9 @@ const DocModificationThreadPage = ({
                     const essays_temp = {
                         ...docModificationThreadPageState.thread
                     };
-                    essays_temp.outsourced_user_id = (data as Record<string, unknown>).outsourced_user_id; // data is single student updated
+                    essays_temp.outsourced_user_id = (
+                        data as Record<string, unknown>
+                    ).outsourced_user_id; // data is single student updated
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true, //false to reload everything
@@ -686,7 +713,8 @@ const DocModificationThreadPage = ({
             thread: {
                 ...prevState.thread,
                 flag_by_user_id: toogleItemInArray(
-                    docModificationThreadPageState.thread?.flag_by_user_id ?? [],
+                    docModificationThreadPageState.thread?.flag_by_user_id ??
+                        [],
                     user?._id?.toString() ?? ''
                 )
             }
@@ -824,7 +852,8 @@ const DocModificationThreadPage = ({
         }
     };
 
-    const isFavorite = thread.flag_by_user_id?.includes(user?._id?.toString() ?? '') ?? false;
+    const isFavorite =
+        thread.flag_by_user_id?.includes(user?._id?.toString() ?? '') ?? false;
     TabTitle(`${student_name} ${docName}`);
     return (
         <Box>
@@ -891,17 +920,33 @@ const DocModificationThreadPage = ({
             </Tabs>
             <CustomTabPanel index={discussionTabIndex} value={value}>
                 <InformationBlock
-                    agents={docModificationThreadPageState.agents as IUserWithId[]}
-                    conflict_list={conflict_list as Array<{ _id: { toString: () => string }; firstname?: string; lastname?: string }>}
-                    deadline={(docModificationThreadPageState.deadline as string) ?? ''}
+                    agents={
+                        docModificationThreadPageState.agents as IUserWithId[]
+                    }
+                    conflict_list={
+                        conflict_list as Array<{
+                            _id: { toString: () => string };
+                            firstname?: string;
+                            lastname?: string;
+                        }>
+                    }
+                    deadline={
+                        (docModificationThreadPageState.deadline as string) ??
+                        ''
+                    }
                     documentsthreadId={documentsthreadId ?? ''}
-                    editors={docModificationThreadPageState.editors as IUserWithId[]}
+                    editors={
+                        docModificationThreadPageState.editors as IUserWithId[]
+                    }
                     handleFavoriteToggle={handleFavoriteToggle}
                     isFavorite={isFavorite}
                     isGeneralRL={isGeneralRL ?? false}
+                    isWithdraw={isWithdrawThread}
                     startEditingEditor={startEditingEditor}
                     template_obj={template_obj as ITemplateWithId | null}
-                    thread={docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated}
+                    thread={
+                        docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated
+                    }
                     user={user as IUserWithId}
                 >
                     <MessageList
@@ -916,12 +961,15 @@ const DocModificationThreadPage = ({
                             docModificationThreadPageState.buttonDisabled
                         }
                         checkResult={checkResult}
-                        editorState={docModificationThreadPageState.editorState as OutputData}
+                        editorState={
+                            docModificationThreadPageState.editorState as unknown as OutputData
+                        }
                         file={docModificationThreadPageState.file}
                         handleAsFinalFile={handleAsFinalFile}
                         handleClickSave={handleClickSave}
                         isLocked={isLocked}
                         isReadOnlyThread={isReadOnlyThread}
+                        isWithdraw={isWithdrawThread}
                         isSubmissionLoaded={isSubmissionLoaded}
                         lockTooltip={lockTooltip}
                         onFileChange={onFileChange}
@@ -934,7 +982,7 @@ const DocModificationThreadPage = ({
             {isGeneralRL ? (
                 <CustomTabPanel index={rlReqTabIndex} value={value}>
                     <GeneralRLRequirementsTab
-                        studentId={thread?.student_id?._id}
+                        studentId={thread?.student_id?._id?.toString() ?? ''}
                     />
                 </CustomTabPanel>
             ) : null}
@@ -954,7 +1002,9 @@ const DocModificationThreadPage = ({
                         )}
                     </Typography>
                 </Box>
-                <FilesList thread={thread as unknown as DocumentThreadResponse} />
+                <FilesList
+                    thread={thread as unknown as DocumentThreadResponse}
+                />
             </CustomTabPanel>
             {isTaiGerUser ? (
                 <CustomTabPanel index={databaseTabIndex} value={value}>
@@ -986,15 +1036,18 @@ const DocModificationThreadPage = ({
                 thread_id={String(thread._id ?? '')}
                 title={t('Warning', { ns: 'common' })}
             />
-            {isTaiGerUser &&
-            docModificationThreadPageState.showEditorPage ? (
+            {isTaiGerUser && docModificationThreadPageState.showEditorPage ? (
                 <EditEssayWritersSubpage
                     actor={
-                        [FILE_TYPE_E.essay_required].includes(thread.file_type ?? '')
+                        [FILE_TYPE_E.essay_required].includes(
+                            thread.file_type ?? ''
+                        )
                             ? 'Essay Writer'
                             : 'Editor'
                     }
-                    essayDocumentThread={thread as unknown as EssayDocumentThreadForWriters}
+                    essayDocumentThread={
+                        thread as unknown as EssayDocumentThreadForWriters
+                    }
                     isSubmitting={docModificationThreadPageState.isSubmitting}
                     onHide={setEditorModalhide}
                     show={docModificationThreadPageState.showEditorPage}

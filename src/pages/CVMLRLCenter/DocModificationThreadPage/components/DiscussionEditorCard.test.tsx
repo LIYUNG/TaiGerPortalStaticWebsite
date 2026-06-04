@@ -58,6 +58,7 @@ const baseThread = {
 const baseProps: DiscussionEditorCardProps = {
     isReadOnlyThread: false,
     isLocked: false,
+    isWithdraw: false,
     lockTooltip: 'locked msg',
     user: baseUser,
     thread: baseThread,
@@ -109,6 +110,7 @@ describe('DiscussionEditorCard', () => {
                     {...baseProps}
                     isLocked={true}
                     isReadOnlyThread={true}
+                    isWithdraw={false}
                 />
             );
             // The lockTooltip text is shown when isLocked is true
@@ -121,6 +123,7 @@ describe('DiscussionEditorCard', () => {
                     {...baseProps}
                     isLocked={false}
                     isReadOnlyThread={true}
+                    isWithdraw={false}
                 />
             );
             // i18next.t('thread-close') returns 'thread-close' from our mock
@@ -131,6 +134,7 @@ describe('DiscussionEditorCard', () => {
             render(
                 <DiscussionEditorCard
                     {...baseProps}
+                    isWithdraw={false}
                     thread={{ ...baseThread, isFinalVersion: true }}
                 />
             );
@@ -144,6 +148,7 @@ describe('DiscussionEditorCard', () => {
             render(
                 <DiscussionEditorCard
                     {...baseProps}
+                    isWithdraw={false}
                     handleAsFinalFile={handleAsFinalFile}
                 />
             );
