@@ -7,7 +7,8 @@ vi.mock('../AuthProvider', () => ({
 }));
 
 vi.mock('@taiger-common/core', () => ({
-    is_TaiGer_Student: vi.fn(() => false)
+    is_TaiGer_Student: vi.fn(() => false),
+    is_TaiGer_Admin: vi.fn(() => false)
 }));
 
 vi.mock('@/api', () => ({
