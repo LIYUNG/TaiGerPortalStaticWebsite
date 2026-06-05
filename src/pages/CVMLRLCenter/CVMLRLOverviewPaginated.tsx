@@ -50,7 +50,8 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     firstname_lastname: 'name',
     document_name: 'document_name',
     lang: 'lang',
-    status: 'status'
+    status: 'status',
+    deadline: 'deadline'
 };
 const TAB_CATEGORIES: ThreadCategory[] = [
     'new_message',
@@ -233,7 +234,10 @@ const CVMLRLOverviewPaginated = ({
                 field: 'deadline',
                 headerName: t('Deadline', { ns: 'common' }),
                 minWidth: 100,
-                enableColumnFilter: false
+                // Year/month text match against the displayed deadline string
+                // (e.g. "2025/09"); also matches "Rolling"/"WITHDRAW". Filtered
+                // server-side via a regex on the computed deadline field.
+                filterVariant: 'text'
             },
             {
                 field: 'days_left',
