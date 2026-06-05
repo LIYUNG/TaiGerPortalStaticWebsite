@@ -1,4 +1,8 @@
-import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios, {
+    type AxiosRequestConfig,
+    type AxiosResponse,
+    type InternalAxiosRequestConfig
+} from 'axios';
 import { baseUrl, tenantId as envTenantId } from '../env';
 
 export const BASE_URL = baseUrl;
@@ -14,6 +18,38 @@ const request = axios.create({
     withCredentials: true,
     validateStatus: (status) => status < 500
 });
+
+/**
+ * Multipart uploads must NOT carry the instance's default
+ * `Content-Type: application/json`. axios 0.x stripped it automatically for
+ * FormData bodies; axios 1.x sends the pre-set default verbatim, so the request
+ * goes out without a `multipart/form-data; boundary=...` header and the backend
+ * (multer `.array('files')`) parses zero files — which broke multi-file uploads.
+ *
+ * Deleting the header here lets axios/the browser set multipart with the correct
+ * boundary. Exported for unit testing. Cross-version safe: axios 1.x headers are
+ * an `AxiosHeaders` instance (`.delete()`); 0.x headers are a plain object.
+ */
+export const stripJsonContentTypeForFormData = (
+    config: InternalAxiosRequestConfig
+): InternalAxiosRequestConfig => {
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+        const headers = config.headers as unknown as {
+            delete?: (name: string) => void;
+            [key: string]: unknown;
+        };
+        if (headers) {
+            if (typeof headers.delete === 'function') {
+                headers.delete('Content-Type');
+            } else {
+                delete headers['Content-Type'];
+            }
+        }
+    }
+    return config;
+};
+
+request.interceptors.request.use(stripJsonContentTypeForFormData);
 
 const DEFAULT_ERROR_MESSAGE = 'An unknown error occurred';
 

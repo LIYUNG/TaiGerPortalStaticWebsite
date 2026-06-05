@@ -55,7 +55,14 @@ const { mockAxiosInstance } = vi.hoisted(() => {
         post: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
         put: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
         delete: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
-        request: vi.fn().mockResolvedValue({ data: {}, status: 200 })
+        request: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
+        // axios 1.x instances expose interceptors; request.ts registers a
+        // request interceptor at module load, so the mock must provide them or
+        // every test that imports src/api would throw.
+        interceptors: {
+            request: { use: vi.fn(), eject: vi.fn() },
+            response: { use: vi.fn(), eject: vi.fn() }
+        }
     };
     return { mockAxiosInstance };
 });
