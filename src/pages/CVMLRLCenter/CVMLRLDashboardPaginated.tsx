@@ -30,6 +30,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 const FILTER_FIELD_MAP: Record<string, string> = {
     firstname_lastname: 'name',
     document_name: 'document_name',
+    deadline: 'deadline',
     lang: 'lang',
     status: 'status'
 };
