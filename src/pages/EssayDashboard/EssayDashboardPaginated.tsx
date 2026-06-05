@@ -52,6 +52,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 const FILTER_FIELD_MAP: Record<string, string> = {
     firstname_lastname: 'name',
     document_name: 'document_name',
+    deadline: 'deadline',
     status: 'status'
 };
 // Tab index -> backend category.
@@ -287,7 +288,7 @@ const EssayDashboardPaginated = () => {
                 field: 'deadline',
                 headerName: t('Deadline', { ns: 'common' }),
                 width: 110,
-                enableColumnFilter: false
+                filterFn: 'contains'
             },
             {
                 field: 'semester',
