@@ -45,7 +45,10 @@ export const StudentsTablePaginated = ({
         pageIndex: 0,
         pageSize: DEFAULT_PAGE_SIZE
     });
-    const [sorting, setSorting] = useState<MRT_SortingState>([]);
+    // Default to newest students first (by creation date).
+    const [sorting, setSorting] = useState<MRT_SortingState>([
+        { id: 'createdAt', desc: true }
+    ]);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
         []
