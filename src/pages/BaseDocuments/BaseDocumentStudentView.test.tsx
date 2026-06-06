@@ -27,10 +27,17 @@ vi.mock('./MyDocumentCard', () => ({
 vi.mock('../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
 }));
-vi.mock('@utils/contants', () => ({
-    SYMBOL_EXPLANATION: <span data-testid="symbol-explanation" />,
-    updateDocumentationHelperLink: vi.fn()
-}));
+// Build the element via createElement (no JSX): the mock factory is hoisted
+// above imports, so JSX here would reference the not-yet-initialised jsx runtime.
+vi.mock('@utils/contants', async () => {
+    const { createElement } = await import('react');
+    return {
+        SYMBOL_EXPLANATION: createElement('span', {
+            'data-testid': 'symbol-explanation'
+        }),
+        updateDocumentationHelperLink: vi.fn()
+    };
+});
 
 const student = {
     _id: 'stu1',
