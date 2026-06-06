@@ -27,6 +27,7 @@ import {
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 
 import DEMO from '@store/constant';
+import { convertDate } from '@utils/contants';
 import { TopToolbar } from '@components/table/students-table/TopToolbar';
 import EditAttributesSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
 import { is_User_Archived } from '../Utils/util_functions';
@@ -312,6 +313,16 @@ export const StudentsTable = ({
         columnHelper.accessor('application_semester', {
             header: t('Application Year', { ns: 'common' }),
             size: 80
+        }),
+        columnHelper.accessor('createdAt', {
+            header: t('Created At', { ns: 'common' }),
+            size: 120,
+            // Backend supports sorting by createdAt but not filtering by it.
+            ...(serverMode ? { enableColumnFilter: false } : {}),
+            Cell: (params) =>
+                params.row.original.createdAt
+                    ? convertDate(params.row.original.createdAt)
+                    : ''
         })
     ];
 
