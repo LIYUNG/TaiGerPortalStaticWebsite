@@ -78,7 +78,6 @@ function mapLeadToStudentAcademic(lead: CreateUserFromLeadLead) {
             }
         },
         application_preference: {
-            expected_application_date: lead.intendedStartTime || '',
             target_program_level: lead.intendedProgramLevel || '',
             target_application_field: lead.intendedDirection || '',
             special_wished: [
