@@ -49,6 +49,9 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     application_year: 'application_year',
     semester: 'semester',
     firstname_lastname: 'studentName',
+    agents: 'agentName',
+    editors: 'editorName',
+    program: 'program',
     decided: 'decided',
     closed: 'closed',
     country: 'country'
@@ -197,7 +200,7 @@ export const ApplicationOverviewPaginatedTable = ({
             {
                 field: 'semester',
                 headerName: t('Semester', { ns: 'common' }),
-                width: 100,
+                width: 100
             },
             {
                 field: 'firstname_lastname',
@@ -248,13 +251,16 @@ export const ApplicationOverviewPaginatedTable = ({
                         );
                     });
                 },
-                sortable: false,
-                enableColumnFilter: false
+                // Backend cannot sort by agent, but supports an agent-name
+                // contains filter (matches any supervising agent's name).
+                sortable: false
             },
             {
                 field: 'editors',
                 headerName: t('Editor', { ns: 'common' }),
                 width: 180,
+                // Backend cannot sort by editor, but supports an editor-name
+                // contains filter (matches any supervising editor's name).
                 sortable: false,
                 renderCell: (params: {
                     value: unknown;
@@ -275,8 +281,7 @@ export const ApplicationOverviewPaginatedTable = ({
                             </Link>
                         );
                     });
-                },
-                enableColumnFilter: false
+                }
             },
             {
                 field: 'country',
@@ -289,8 +294,6 @@ export const ApplicationOverviewPaginatedTable = ({
                 field: 'program',
                 headerName: t('Program', { ns: 'common' }),
                 width: 250,
-                // Program is covered by the global search box, so no column filter.
-                enableColumnFilter: false,
                 renderCell: (params: {
                     value: unknown;
                     row: Record<string, unknown>;
