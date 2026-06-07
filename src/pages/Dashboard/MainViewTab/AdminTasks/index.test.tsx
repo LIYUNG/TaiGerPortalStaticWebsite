@@ -37,22 +37,19 @@ const mockTasksOverview = {
     noInterviewTrainersStudents: 0
 };
 
-const renderWithTable = (students = [], tasksOverview = mockTasksOverview) =>
+const renderWithTable = (tasksOverview = mockTasksOverview) =>
     render(
         <MemoryRouter>
             <table>
                 <tbody>
-                    <AdminTasks
-                        students={students}
-                        tasksOverview={tasksOverview}
-                    />
+                    <AdminTasks tasksOverview={tasksOverview} />
                 </tbody>
             </table>
         </MemoryRouter>
     );
 
 describe('AdminTasks', () => {
-    it('renders without crashing with empty students', () => {
+    it('renders without crashing', () => {
         renderWithTable();
         expect(document.body).toBeTruthy();
     });

@@ -11,24 +11,16 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import AdminTasks from '../MainViewTab/AdminTasks/index';
-import useStudents from '@hooks/useStudents';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
-import { StudentsTable } from '../../StudentDatabase/StudentsTable';
-import { student_transform } from '../../Utils/util_functions';
+import { StudentsTablePaginated } from '../../StudentDatabase/StudentsTablePaginated';
 import { useQuery } from '@tanstack/react-query';
 import { getAuditLogQuery } from '@/api/query';
 import { useTasksOverview } from '@hooks/useTasksOverview';
-import Loading from '@components/Loading/Loading';
-import { useStudentsV3 } from '@hooks/useStudentsV3';
 import queryString from 'query-string';
 
 const AdminMainView = () => {
     const { t } = useTranslation();
-
-    const { data: allStudentsApplications, isLoading } = useStudentsV3({
-        archiv: false
-    });
 
     const { data: tasksOverview } = useTasksOverview();
 
@@ -41,36 +33,7 @@ const AdminMainView = () => {
         )
     );
 
-    const {
-        students: initStudents,
-        submitUpdateAgentlist,
-        submitUpdateEditorlist,
-        submitUpdateAttributeslist,
-        updateStudentArchivStatus
-    } = useStudents({
-        students: allStudentsApplications || []
-    });
-
-    if (isLoading) {
-        return <Loading />;
-    }
-
-    const students = initStudents
-        ?.filter((student) => !student.archiv)
-        .sort((a, b) =>
-            a.agents.length === 0 && a.agents.length < b.agents.length
-                ? -2
-                : a.editors.length < b.editors.length
-                  ? -1
-                  : 1
-        );
-    const admin_tasks = (
-        <AdminTasks students={students} tasksOverview={tasksOverview} />
-    );
-
-    const studentsTransformed = student_transform(
-        students?.filter((student) => !student.archiv)
-    );
+    const admin_tasks = <AdminTasks tasksOverview={tasksOverview} />;
 
     return (
         <Grid container spacing={2} sx={{ mt: 0 }}>
@@ -105,14 +68,7 @@ const AdminMainView = () => {
                 </Card>
             </Grid>
             <Grid item xs={12}>
-                <StudentsTable
-                    data={studentsTransformed}
-                    isLoading={false}
-                    submitUpdateAgentlist={submitUpdateAgentlist}
-                    submitUpdateAttributeslist={submitUpdateAttributeslist}
-                    submitUpdateEditorlist={submitUpdateEditorlist}
-                    updateStudentArchivStatus={updateStudentArchivStatus}
-                />
+                <StudentsTablePaginated archiv={false} />
             </Grid>
         </Grid>
     );
