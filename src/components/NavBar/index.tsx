@@ -394,7 +394,9 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                 </MenuItem>
             ) : null}
             {user != null &&
-            (is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user)) ? (
+            (is_TaiGer_AdminAgent(user) ||
+                is_TaiGer_Student(user) ||
+                is_TaiGer_Editor(user)) ? (
                 <MenuItem onClick={handleOpenChat}>
                     <IconButton
                         aria-controls={menuId}
@@ -509,7 +511,8 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                         ) : null}
                         {user != null &&
                         (is_TaiGer_AdminAgent(user) ||
-                            is_TaiGer_Student(user)) ? (
+                            is_TaiGer_Student(user) ||
+                            is_TaiGer_Editor(user)) ? (
                             <IconButton
                                 aria-controls={chatId}
                                 aria-haspopup="true"
@@ -570,7 +573,8 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                         ) : null}
                         {user != null &&
                         (is_TaiGer_AdminAgent(user) ||
-                            is_TaiGer_Student(user)) ? (
+                            is_TaiGer_Student(user) ||
+                            is_TaiGer_Editor(user)) ? (
                             <IconButton
                                 aria-controls={chatId}
                                 aria-haspopup="true"
