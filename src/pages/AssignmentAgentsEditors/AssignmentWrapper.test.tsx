@@ -11,9 +11,12 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('@components/AuthProvider');
 
-vi.mock('@hooks/useStudentsV3', () => ({
-    useStudentsV3: () => ({
-        data: mockTwoNoAgentNoStudentsData.data
+vi.mock('@hooks/useStudentsV3Paginated', () => ({
+    useStudentsV3Paginated: () => ({
+        rows: mockTwoNoAgentNoStudentsData.data,
+        rowCount: mockTwoNoAgentNoStudentsData.data.length,
+        isLoading: false,
+        isFetching: false
     })
 }));
 

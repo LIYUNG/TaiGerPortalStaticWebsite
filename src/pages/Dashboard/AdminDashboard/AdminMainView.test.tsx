@@ -37,26 +37,12 @@ vi.mock('material-react-table', () => ({
     }))
 }));
 
-vi.mock('@hooks/useStudents', () => ({
-    default: vi.fn(() => ({
-        students: [],
-        submitUpdateAgentlist: vi.fn(),
-        submitUpdateEditorlist: vi.fn(),
-        submitUpdateAttributeslist: vi.fn(),
-        updateStudentArchivStatus: vi.fn()
-    }))
-}));
-
-vi.mock('@hooks/useStudentsV3', () => ({
-    useStudentsV3: vi.fn(() => ({ data: [], isLoading: false }))
-}));
-
 vi.mock('@hooks/useTasksOverview', () => ({
     useTasksOverview: vi.fn(() => ({ data: undefined }))
 }));
 
-vi.mock('../../StudentDatabase/StudentsTable', () => ({
-    StudentsTable: () => <div data-testid="students-table" />
+vi.mock('../../StudentDatabase/StudentsTablePaginated', () => ({
+    StudentsTablePaginated: () => <div data-testid="students-table" />
 }));
 
 vi.mock('../../Program/ProgramReportCard', () => ({
@@ -77,10 +63,6 @@ vi.mock('../MainViewTab/AdminTasks/index', () => ({
 
 vi.mock('@/api/query', () => ({
     getAuditLogQuery: vi.fn(() => ({ queryKey: ['audit'], queryFn: vi.fn() }))
-}));
-
-vi.mock('../../Utils/util_functions', () => ({
-    student_transform: vi.fn(() => [])
 }));
 
 vi.mock('@components/Loading/Loading', () => ({

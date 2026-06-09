@@ -295,6 +295,7 @@ export interface AdmissionsStatRow {
 
 /** Tasks overview (admin/editor dashboard counts) */
 export interface TasksOverview {
+    noAgentsStudents?: number;
     noEditorsStudents?: number;
     noEssayWritersEssays?: number;
     noTrainerInInterviewsStudents?: number;

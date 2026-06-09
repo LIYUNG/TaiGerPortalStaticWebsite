@@ -1,20 +1,32 @@
 import {
     Box,
     Card,
+    CircularProgress,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { ChangeEvent, FormEvent, MouseEvent } from 'react';
+import { IStudentResponse } from '@taiger-common/model';
 
 import NoEditorsStudentsCard from '@pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard';
 import { appConfig } from '../../../config';
 import DEMO from '@store/constant';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+
+const ROWS_PER_PAGE_OPTIONS = [25, 50, 100];
+
+type SubmitUpdateEditorlist = (
+    e: FormEvent<HTMLFormElement>,
+    updateEditorList: unknown,
+    student_id: string
+) => void;
 
 const NoEditorsTableHeader = () => {
     const { t } = useTranslation();
@@ -37,20 +49,31 @@ const NoEditorsTableHeader = () => {
 
 interface AssignEditorsPageProps {
     students: IStudentResponse[];
-    submitUpdateEditorlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
-        student_id: string
-    ) => void;
+    submitUpdateEditorlist: SubmitUpdateEditorlist;
+    /** Server-side pagination. Optional so the page renders standalone in tests. */
+    isLoading?: boolean;
+    page?: number;
+    pageSize?: number;
+    rowCount?: number;
+    onPageChange?: (page: number) => void;
+    onPageSizeChange?: (pageSize: number) => void;
 }
+
 const AssignEditorsPage = ({
     students,
-    submitUpdateEditorlist
+    submitUpdateEditorlist,
+    isLoading = false,
+    page = 0,
+    pageSize = ROWS_PER_PAGE_OPTIONS[0],
+    rowCount,
+    onPageChange,
+    onPageSizeChange
 }: AssignEditorsPageProps) => {
     const { t } = useTranslation();
     const no_editor_students = students?.map((student, i) => (
         <NoEditorsStudentsCard
-            key={i}
+            key={student._id?.toString() ?? i}
+            isArchivPage={false}
             student={student}
             submitUpdateEditorlist={submitUpdateEditorlist}
         />
@@ -69,10 +92,34 @@ const AssignEditorsPage = ({
                 <TableContainer style={{ overflowX: 'auto' }}>
                     <Table size="small">
                         <NoEditorsTableHeader />
-                        <TableBody>{no_editor_students}</TableBody>
+                        <TableBody>
+                            {isLoading && students.length === 0 ? (
+                                <TableRow>
+                                    <TableCell align="center" colSpan={7}>
+                                        <CircularProgress size={24} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                no_editor_students
+                            )}
+                        </TableBody>
                     </Table>
                 </TableContainer>
             </Card>
+            <TablePagination
+                component="div"
+                count={rowCount ?? students.length}
+                onPageChange={(
+                    _e: MouseEvent<HTMLButtonElement> | null,
+                    newPage: number
+                ) => onPageChange?.(newPage)}
+                onRowsPerPageChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onPageSizeChange?.(parseInt(e.target.value, 10))
+                }
+                page={page}
+                rowsPerPage={pageSize}
+                rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+            />
         </Box>
     );
 };
