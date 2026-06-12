@@ -48,13 +48,7 @@ vi.mock('./InterviewsTable', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    getMyInterviews: vi.fn(),
-    getAllInterviews: vi.fn(() =>
-        Promise.resolve({
-            data: { success: true, data: [], student: null },
-            status: 200
-        })
-    )
+    getMyInterviews: vi.fn()
 }));
 
 vi.mock('@utils/contants', () => ({

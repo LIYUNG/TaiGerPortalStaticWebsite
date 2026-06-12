@@ -1793,10 +1793,6 @@ export const cvmlrlAi = (
     });
 
 //Interview:
-export const getAllInterviews = () =>
-    request.get<GetInterviewsResponse>('/api/interviews');
-export const getInterviews = (queryString: QueryString) =>
-    getData<GetInterviewsResponse>(`/api/interviews?${queryString}`);
 // Server-side paginated staff "All Interviews" table.
 export const getInterviewsPaginated = (queryString: QueryString) =>
     getData<GetInterviewsPaginatedResponse>(

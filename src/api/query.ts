@@ -19,7 +19,6 @@ import {
     getApplicationStudentV2,
     getQueryStudentsResults,
     getStudentAndDocLinks,
-    getInterviews,
     getInterview,
     getAuditLog,
     getIsManager,
@@ -282,14 +281,6 @@ export const getAdmissionsQuery = (
 export const getAdmissionsOverviewQuery = (): UseQueryOptions => ({
     queryKey: ['admissions'],
     queryFn: () => getAdmissionsOverview(),
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getInterviewsQuery = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['interviews', queryString],
-    queryFn: () => getInterviews(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
