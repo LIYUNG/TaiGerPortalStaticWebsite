@@ -8,7 +8,8 @@ import type {
     IProgramWithId,
     IUserWithId,
     IStudentResponse,
-    IApplicationPopulated
+    IApplicationPopulated,
+    IInterviewWithId
 } from '@taiger-common/model';
 
 /** Application object as returned by API / used in student.applications. */
@@ -68,6 +69,43 @@ export interface GetActiveStudentsApplicationsPaginatedResponse {
         page: number;
         limit: number;
     };
+}
+
+/**
+ * Interview row as returned by the paginated interview endpoints. The base
+ * interview document is augmented with the three columns the server computes in
+ * the aggregation (so they stay filterable/sortable under pagination).
+ */
+export type PaginatedInterview = IInterviewWithId & {
+    status: string;
+    isDuplicate: boolean;
+    surveySubmitted: boolean;
+};
+
+/**
+ * Server-side paginated response for the staff "All Interviews" table. Mirrors
+ * `/api/interviews/all/paginated`: `data.interviews` is one page, `total` is the
+ * unpaginated match count.
+ */
+export interface GetInterviewsPaginatedResponse {
+    success: boolean;
+    data: {
+        interviews: PaginatedInterview[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
+/**
+ * Server-side paginated response for the student "My Interviews" view. Adds the
+ * student (with applications) and the program ids the student already has an
+ * interview for, so the "Add interview" list can be built without the full set.
+ */
+export interface GetMyInterviewsPaginatedResponse
+    extends GetInterviewsPaginatedResponse {
+    student?: IStudentResponse;
+    existingInterviewProgramIds?: string[];
 }
 
 /** One bucket of the open-applications deadline distribution chart. */

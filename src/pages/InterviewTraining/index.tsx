@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import { Box, Button, Breadcrumbs, Link, Typography } from '@mui/material';
@@ -14,175 +14,173 @@ import type {
     IUser,
     IUserWithId,
     IStudentResponse,
-    IProgram,
-    IProgramWithId
+    IProgram
 } from '@taiger-common/model';
+import type {
+    MRT_ColumnDef,
+    MRT_ColumnFiltersState,
+    MRT_PaginationState,
+    MRT_SortingState,
+    MRT_Updater
+} from 'material-react-table';
 
 import ErrorPage from '../Utils/ErrorPage';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getMyInterviews, getAllInterviews } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { convertDate, showTimezoneOffset } from '@utils/contants';
+import { useInterviewsPaginated } from '@hooks/useInterviewsPaginated';
 import { InterviewsTable } from './InterviewsTable';
 
 import {
     CheckCircle as CheckCircleIcon,
     Error as ErrorIcon
 } from '@mui/icons-material';
-import { MRT_ColumnDef } from 'material-react-table';
 
-interface InterviewTrainingState {
-    error: string;
-    isLoaded: boolean;
-    data: IInterviewWithId[] | null;
-    success: boolean;
-    interviewslist: IInterviewWithId[];
-    student?: IStudentResponse;
-    program_id: string;
-    category: string;
-    available_interview_request_programs: { key: string; value: string }[];
-    res_status: number;
-    res_modal_message: string;
-    res_modal_status: number;
-}
+// MRT column id (= row field) -> backend sortBy value. Columns not listed get
+// enableSorting: false (the backend cannot sort by them).
+const SORT_FIELD_MAP: Record<string, string> = {
+    status: 'status',
+    isDuplicate: 'isDuplicate',
+    surveySubmitted: 'surveySubmitted',
+    firstname_lastname: 'firstname_lastname',
+    start: 'start',
+    interview_date: 'interview_date',
+    program_name: 'program_name'
+};
+
+// MRT column id (= row field) -> backend filter query key.
+const FILTER_FIELD_MAP: Record<string, string> = {
+    status: 'status',
+    isDuplicate: 'isDuplicate',
+    surveySubmitted: 'surveySubmitted',
+    firstname_lastname: 'studentName',
+    trainer_name: 'trainerName',
+    program_name: 'program'
+};
+
+// Status values are computed server-side (see addInterviewStatus); list them
+// explicitly because faceted values would only reflect the current page.
+const STATUS_FILTER_OPTIONS = [
+    'Open',
+    'Scheduled',
+    'Trained',
+    'Interviewed',
+    'Closed',
+    'N/A'
+];
+
+/** Apply an MRT updater (value | (old) => new) to the current value. */
+const applyUpdater = <T,>(updater: MRT_Updater<T>, current: T): T =>
+    typeof updater === 'function'
+        ? (updater as (old: T) => T)(current)
+        : updater;
+
+const DEFAULT_PAGE_SIZE = 20;
 
 const InterviewTraining = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [interviewTrainingState, setInterviewTrainingState] =
-        useState<InterviewTrainingState>({
-            error: '',
-            isLoaded: false,
-            data: null,
-            success: false,
-            interviewslist: [],
-            program_id: '',
-            category: '',
-            available_interview_request_programs: [],
-            res_status: 0,
-            res_modal_message: '',
-            res_modal_status: 0
+
+    const scope = is_TaiGer_role(user as IUser) ? 'all' : 'my';
+
+    const [pagination, setPagination] = useState<MRT_PaginationState>({
+        pageIndex: 0,
+        pageSize: DEFAULT_PAGE_SIZE
+    });
+    const [sorting, setSorting] = useState<MRT_SortingState>([
+        { id: 'interview_date', desc: true }
+    ]);
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+        []
+    );
+
+    const sortColumn = sorting[0];
+    const sortBy = sortColumn ? SORT_FIELD_MAP[sortColumn.id] : undefined;
+    const sortOrder = sortColumn?.desc ? 'desc' : 'asc';
+
+    // Translate MRT column filters into the backend's filter query keys.
+    // Multi-select filters (e.g. status) arrive as arrays -> comma-joined,
+    // which the backend splits and matches with $in.
+    const filters = useMemo(() => {
+        const out: Record<string, string> = {};
+        columnFilters.forEach(({ id, value }) => {
+            const key = FILTER_FIELD_MAP[id];
+            if (!key) return;
+            if (Array.isArray(value)) {
+                const joined = value.filter(Boolean).join(',');
+                if (joined !== '') out[key] = joined;
+            } else if (typeof value === 'string' && value !== '') {
+                out[key] = value;
+            }
         });
+        return out;
+    }, [columnFilters]);
 
     const {
-        res_status,
-        isLoaded,
-        res_modal_status,
-        res_modal_message,
-        interviewslist
-    } = interviewTrainingState;
+        rows,
+        rowCount,
+        isLoading,
+        isFetching,
+        isError,
+        student,
+        existingInterviewProgramIds
+    } = useInterviewsPaginated({
+        page: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+        sortBy,
+        sortOrder,
+        search: globalFilter || undefined,
+        filters,
+        scope
+    });
 
-    useEffect(() => {
-        if (is_TaiGer_role(user as IUser)) {
-            getAllInterviews().then(
-                (resp) => {
-                    const { data, success } = resp.data;
-                    const student = (resp.data as Record<string, unknown>)
-                        .student as IStudentResponse | undefined;
-                    const { status } = resp;
-                    if (success) {
-                        setInterviewTrainingState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            interviewslist:
-                                (data as unknown as IInterviewWithId[]) ?? [],
-                            student,
-                            success: success,
-                            res_status: status
-                        }));
-                    } else {
-                        setInterviewTrainingState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            res_status: status
-                        }));
-                    }
-                },
-                (error) => {
-                    setInterviewTrainingState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        error,
-                        res_status: 500
-                    }));
-                }
-            );
-        } else {
-            getMyInterviews().then(
-                (resp) => {
-                    const { data, success } = resp.data;
-                    const student = (resp.data as Record<string, unknown>)
-                        .student as IStudentResponse | undefined;
-                    const { status } = resp;
-                    if (success) {
-                        const available_interview_request_programs =
-                            student?.applications
-                                ?.filter(
-                                    (application) =>
-                                        isProgramDecided(application) &&
-                                        !isProgramAdmitted(application) &&
-                                        !isProgramRejected(application) &&
-                                        !(
-                                            (data as unknown as IInterviewWithId[]) ||
-                                            []
-                                        ).find(
-                                            (interview) =>
-                                                (
-                                                    interview.program_id as unknown as IProgramWithId
-                                                )?._id?.toString() ===
-                                                application.programId?._id?.toString()
-                                        )
-                                )
-                                ?.map((application) => ({
-                                    key:
-                                        application.programId?._id?.toString() ??
-                                        '',
-                                    value: `${application.programId?.school ?? ''} ${application.programId?.program_name ?? ''} ${application.programId?.degree ?? ''} ${application.programId?.semester ?? ''}`
-                                })) || [];
-                        setInterviewTrainingState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            interviewslist:
-                                (data as unknown as IInterviewWithId[]) ?? [],
-                            student,
-                            available_interview_request_programs,
-                            success: success,
-                            res_status: status
-                        }));
-                    } else {
-                        setInterviewTrainingState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            res_status: status
-                        }));
-                    }
-                },
-                (error) => {
-                    setInterviewTrainingState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        error,
-                        res_status: 500
-                    }));
-                }
-            );
-        }
-    }, [user]);
+    // Reset to the first page whenever the sort / search / filters change.
+    const handleSortingChange = (updater: MRT_Updater<MRT_SortingState>) => {
+        setSorting((prev) => applyUpdater(updater, prev));
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+    const handleGlobalFilterChange = (updater: MRT_Updater<string>) => {
+        setGlobalFilter((prev) => applyUpdater(updater, prev));
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+    const handleColumnFiltersChange = (
+        updater: MRT_Updater<MRT_ColumnFiltersState>
+    ) => {
+        setColumnFilters((prev) => applyUpdater(updater, prev));
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+    const handlePaginationChange = (
+        updater: MRT_Updater<MRT_PaginationState>
+    ) => {
+        setPagination((prev) => applyUpdater(updater, prev));
+    };
+
+    // Programs the student can still request an interview for: decided, not yet
+    // admitted/rejected, and not already interviewed (using the server-provided
+    // existing-program-id list so it is correct across all pages).
+    const available_interview_request_programs = useMemo(() => {
+        if (scope !== 'my' || !student?.applications) return [];
+        const existing = new Set(existingInterviewProgramIds);
+        return student.applications
+            .filter(
+                (application) =>
+                    isProgramDecided(application) &&
+                    !isProgramAdmitted(application) &&
+                    !isProgramRejected(application) &&
+                    !existing.has(application.programId?._id?.toString() ?? '')
+            )
+            .map((application) => ({
+                key: application.programId?._id?.toString() ?? '',
+                value: `${application.programId?.school ?? ''} ${application.programId?.program_name ?? ''} ${application.programId?.degree ?? ''} ${application.programId?.semester ?? ''}`
+            }));
+    }, [scope, student, existingInterviewProgramIds]);
 
     const handleClick = () => {
         navigate(`${DEMO.INTERVIEW_ADD_LINK}`);
-    };
-
-    const ConfirmError = () => {
-        setInterviewTrainingState((prevState) => ({
-            ...prevState,
-            res_modal_status: 0,
-            res_modal_message: ''
-        }));
     };
 
     TabTitle('Interview training');
@@ -190,6 +188,7 @@ const InterviewTraining = () => {
         {
             accessorKey: 'status',
             filterVariant: 'multi-select',
+            filterSelectOptions: STATUS_FILTER_OPTIONS,
             header: t('Status', { ns: 'common' }),
             size: 180
         },
@@ -197,12 +196,9 @@ const InterviewTraining = () => {
             accessorKey: 'isDuplicate',
             filterVariant: 'select',
             filterSelectOptions: [
-                { value: true, label: t('Yes', { ns: 'common' }) },
-                { value: false, label: t('No', { ns: 'common' }) }
+                { value: 'true', label: t('Yes', { ns: 'common' }) },
+                { value: 'false', label: t('No', { ns: 'common' }) }
             ],
-            filterFn: (row, id, filterValue) => {
-                return row.getValue(id) === filterValue;
-            },
             header: t('Duplicate', { ns: 'common' }),
             size: 150,
             Cell: ({ cell }) =>
@@ -212,12 +208,9 @@ const InterviewTraining = () => {
             accessorKey: 'surveySubmitted',
             filterVariant: 'select',
             filterSelectOptions: [
-                { value: true, label: t('Closed', { ns: 'common' }) },
-                { value: false, label: t('Pending', { ns: 'common' }) }
+                { value: 'true', label: t('Closed', { ns: 'common' }) },
+                { value: 'false', label: t('Pending', { ns: 'common' }) }
             ],
-            filterFn: (row, id, filterValue) => {
-                return row.getValue(id) === filterValue;
-            },
             header: t('Survey', { ns: 'common' }),
             size: 150,
             Cell: ({ cell }) =>
@@ -253,6 +246,8 @@ const InterviewTraining = () => {
         {
             accessorKey: 'trainer_name',
             header: t('Trainer', { ns: 'common' }),
+            // Backend cannot sort by trainer, but supports a trainer-name filter.
+            enableSorting: false,
             size: 150
         },
         {
@@ -260,7 +255,8 @@ const InterviewTraining = () => {
             header: `${t('Training Time', { ns: 'interviews' })} (${
                 Intl.DateTimeFormat().resolvedOptions().timeZone
             } ${showTimezoneOffset()})`,
-            filterFn: 'contains',
+            // Formatted date string can't be filtered server-side; sortable only.
+            enableColumnFilter: false,
             size: 280,
             Cell: (params) => {
                 const { row } = params;
@@ -270,7 +266,7 @@ const InterviewTraining = () => {
         {
             accessorKey: 'interview_date',
             header: t('Official Interview Time', { ns: 'interviews' }),
-            filterFn: 'contains',
+            enableColumnFilter: false,
             size: 220,
             Cell: (params) => {
                 const { row } = params;
@@ -299,20 +295,14 @@ const InterviewTraining = () => {
             }
         }
     ];
+
+    // Transform one page of populated interview documents into table rows. The
+    // computed columns (status, isDuplicate, surveySubmitted) come from the
+    // server via the spread; here we only format dates/names for display.
     const transform = (interviews: IInterviewWithId[]) => {
         const result: Record<string, unknown>[] = [];
         if (!interviews) {
             return [];
-        }
-
-        // Count occurrences of each student_id
-        const studentIdCounts: Record<string, number> = {};
-        for (const interview of interviews) {
-            const studentId = (
-                interview.student_id as unknown as IStudentResponse
-            )._id;
-            studentIdCounts[studentId] =
-                (studentIdCounts[studentId] || 0) + 1;
         }
 
         for (const interview of interviews) {
@@ -322,53 +312,38 @@ const InterviewTraining = () => {
             const eventStart = (
                 interview.event_id as unknown as IEvent | undefined
             )?.start;
-            const programId =
-                interview.program_id as unknown as IProgram;
-            const student =
+            const programId = interview.program_id as unknown as IProgram;
+            const student_obj =
                 interview.student_id as unknown as IStudentResponse;
             result.push({
                 ...interview,
                 id: `${interview._id}`,
                 start:
-                    (eventStart &&
-                        convertDate(eventStart ?? new Date())) ||
-                    '',
+                    (eventStart && convertDate(eventStart ?? new Date())) || '',
                 interview_date:
                     (interview.interview_date &&
                         convertDate(interview.interview_date)) ||
                     '',
                 student_id: studentId,
-                isDuplicate: studentIdCounts[studentId] > 1,
                 trainer_name:
-                    (
-                        interview.trainer_id as unknown as IUserWithId[]
-                    )
+                    (interview.trainer_id as unknown as IUserWithId[])
                         ?.map((trainer) => trainer.firstname)
                         ?.join(', ') || '',
                 program_name: `${programId.school} ${programId.program_name} ${programId.degree} ${programId.semester}`,
-                firstname_lastname: `${student.firstname} ${student.lastname}`
+                firstname_lastname: `${student_obj.firstname} ${student_obj.lastname}`
             });
         }
         return result;
     };
-    // const memoizedColumns = useMemo(() => column, [column]);
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
+    if (isError) {
+        return <ErrorPage res_status={500} />;
     }
 
-    const rows = isLoaded ? transform(interviewslist) : undefined;
+    const tableRows = transform(rows as unknown as IInterviewWithId[]);
 
     return (
         <Box>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
-
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"
@@ -399,8 +374,7 @@ const InterviewTraining = () => {
                 {/* Button on the right */}
                 <Box>
                     {!is_TaiGer_role(user as IUser) &&
-                    interviewTrainingState.available_interview_request_programs
-                        ?.length > 0 ? (
+                    available_interview_request_programs.length > 0 ? (
                         <Button
                             color="primary"
                             onClick={handleClick}
@@ -424,8 +398,19 @@ const InterviewTraining = () => {
             </Box>
             <InterviewsTable
                 columns={columns}
-                data={rows}
-                isLoading={!isLoaded}
+                data={tableRows}
+                isLoading={isLoading || isFetching}
+                serverMode={{
+                    rowCount,
+                    pagination,
+                    onPaginationChange: handlePaginationChange,
+                    sorting,
+                    onSortingChange: handleSortingChange,
+                    globalFilter,
+                    onGlobalFilterChange: handleGlobalFilterChange,
+                    columnFilters,
+                    onColumnFiltersChange: handleColumnFiltersChange
+                }}
             />
         </Box>
     );

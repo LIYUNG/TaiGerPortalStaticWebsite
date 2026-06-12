@@ -22,6 +22,8 @@ import type {
     GetActiveThreadsPaginatedResponse,
     GetActiveThreadsCountsResponse,
     GetStudentsV3PaginatedResponse,
+    GetInterviewsPaginatedResponse,
+    GetMyInterviewsPaginatedResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
@@ -1795,6 +1797,17 @@ export const getAllInterviews = () =>
     request.get<GetInterviewsResponse>('/api/interviews');
 export const getInterviews = (queryString: QueryString) =>
     getData<GetInterviewsResponse>(`/api/interviews?${queryString}`);
+// Server-side paginated staff "All Interviews" table.
+export const getInterviewsPaginated = (queryString: QueryString) =>
+    getData<GetInterviewsPaginatedResponse>(
+        `/api/interviews/all/paginated?${queryString}`
+    );
+// Server-side paginated student "My Interviews" view (adds student + existing
+// interview program ids for the "Add interview" list).
+export const getMyInterviewsPaginated = (queryString: QueryString) =>
+    getData<GetMyInterviewsPaginatedResponse>(
+        `/api/interviews/my-interviews/paginated?${queryString}`
+    );
 export const getAllOpenInterviews = () =>
     request.get<GetInterviewsResponse>('/api/interviews/open');
 export const getInterview = (interview_id: InterviewId) =>
