@@ -10,18 +10,46 @@ import { AssignTrainerDialog } from './AssignTrainerDialog';
 import { getUsers, updateInterview, ESSAY_WRITERS_QUERY_STRING } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
-import type { MRT_ColumnDef } from 'material-react-table';
+import type {
+    MRT_ColumnDef,
+    MRT_ColumnFiltersState,
+    MRT_PaginationState,
+    MRT_SortingState,
+    MRT_Updater
+} from 'material-react-table';
+
+/**
+ * Opt-in server-side mode. When provided, the table stops doing its own
+ * pagination/sorting/filtering and reflects the controlled state, forwarding
+ * user interactions to the parent (which refetches a page).
+ */
+export interface InterviewsTableServerMode {
+    rowCount: number;
+    pagination: MRT_PaginationState;
+    onPaginationChange: (updater: MRT_Updater<MRT_PaginationState>) => void;
+    sorting: MRT_SortingState;
+    onSortingChange: (updater: MRT_Updater<MRT_SortingState>) => void;
+    globalFilter: string;
+    onGlobalFilterChange: (updater: MRT_Updater<string>) => void;
+    columnFilters: MRT_ColumnFiltersState;
+    onColumnFiltersChange: (
+        updater: MRT_Updater<MRT_ColumnFiltersState>
+    ) => void;
+}
 
 export interface InterviewsTableProps {
     isLoading: boolean;
     data: Record<string, unknown>[] | undefined;
     columns: MRT_ColumnDef<Record<string, unknown>>[];
+    /** When set, the table runs in server-side pagination/sort/filter mode. */
+    serverMode?: InterviewsTableServerMode;
 }
 
 export const InterviewsTable = ({
     isLoading,
     data,
-    columns
+    columns,
+    serverMode
 }: InterviewsTableProps) => {
     const { user } = useAuth();
     const customTableStyles = useTableStyles();
@@ -34,9 +62,32 @@ export const InterviewsTable = ({
     const table = useMaterialReactTable({
         ...tableConfig,
         columns,
-        state: { isLoading },
+        state: {
+            isLoading,
+            ...(serverMode
+                ? {
+                      pagination: serverMode.pagination,
+                      sorting: serverMode.sorting,
+                      globalFilter: serverMode.globalFilter,
+                      columnFilters: serverMode.columnFilters
+                  }
+                : {})
+        },
         data: data || [],
-        enableFacetedValues: true
+        // Facets would only reflect the current page in server mode.
+        enableFacetedValues: !serverMode,
+        ...(serverMode
+            ? {
+                  manualPagination: true,
+                  manualSorting: true,
+                  manualFiltering: true,
+                  rowCount: serverMode.rowCount,
+                  onPaginationChange: serverMode.onPaginationChange,
+                  onSortingChange: serverMode.onSortingChange,
+                  onGlobalFilterChange: serverMode.onGlobalFilterChange,
+                  onColumnFiltersChange: serverMode.onColumnFiltersChange
+              }
+            : {})
     });
 
     const updateTrainer = async () => {
