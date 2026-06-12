@@ -47,8 +47,17 @@ vi.mock('./InterviewsTable', () => ({
     )
 }));
 
-vi.mock('@/api', () => ({
-    getMyInterviews: vi.fn()
+// Mock the data hook directly so the page test needs no QueryClientProvider.
+vi.mock('@hooks/useInterviewsPaginated', () => ({
+    useInterviewsPaginated: () => ({
+        rows: [],
+        rowCount: 0,
+        isLoading: false,
+        isFetching: false,
+        isError: false,
+        student: undefined,
+        existingInterviewProgramIds: []
+    })
 }));
 
 vi.mock('@utils/contants', () => ({
