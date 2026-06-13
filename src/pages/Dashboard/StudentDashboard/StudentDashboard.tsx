@@ -14,7 +14,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
     Typography
@@ -26,10 +25,9 @@ import type { IUser } from '@taiger-common/model';
 import type { IStudentResponse } from '@taiger-common/model';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
-import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';
+import StudentTaskList from '../MainViewTab/StudentTasks/StudentTaskList';
 import {
     check_academic_background_filled,
-    check_applications_to_decided,
     is_all_uni_assist_vpd_uploaded,
     are_base_documents_missing,
     isBaseDocumentsRejected,
@@ -72,23 +70,26 @@ const StudentDashboard = ({
         res_status: 0
     });
     const { studentId: stdIdParam } = useParams();
-    const studentId = user && is_TaiGer_Student(user as IUser) ? user._id : stdIdParam;
+    const studentId =
+        user && is_TaiGer_Student(user as IUser) ? user._id : stdIdParam;
     const {
         data: student,
         archiv,
         isLoading: isLoadingApplications
     } = useApplicationStudent(studentId);
 
-    const removeBanner = (
-        e: SyntheticEvent,
-        notification_key: string
-    ) => {
+    const removeBanner = (e: SyntheticEvent, notification_key: string) => {
         e.preventDefault();
         const temp_student = student;
         if (temp_student && temp_student.notification) {
-            (temp_student.notification as Record<string, boolean>)[`${notification_key}`] = true;
+            (temp_student.notification as Record<string, boolean>)[
+                `${notification_key}`
+            ] = true;
         }
-        setStudentDashboardState((prev) => ({ ...prev, student: temp_student! }));
+        setStudentDashboardState((prev) => ({
+            ...prev,
+            student: temp_student!
+        }));
         updateBanner(notification_key).then(
             (resp) => {
                 const { success } = resp.data;
@@ -128,13 +129,6 @@ const StudentDashboard = ({
 
     const hasUpcomingAppointment = false;
     const read_thread = <RespondedThreads student={student!} />;
-
-    const student_tasks = (
-        <StudentTasksResponsive
-            isCoursesFilled={isCoursesFilled}
-            student={student!}
-        />
-    );
 
     return (
         <>
@@ -234,146 +228,6 @@ const StudentDashboard = ({
                         </Alert>
                     </Grid>
                 ) : null}
-                {/* new agents assigned banner */}
-                {student?.notification &&
-                !student?.notification.isRead_new_agent_assigned ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_new_agent_assigned')
-                            }
-                            severity="success"
-                        >
-                            {t('New agent is assigned to you')}
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {/* new editors assigned banner */}
-                {student?.notification &&
-                !student?.notification.isRead_new_editor_assigned ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_new_editor_assigned')
-                            }
-                            severity="success"
-                        >
-                            {t('New editor is assigned to you')}
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {/* new CV ML RL Essay message */}
-                {student?.notification &&
-                !student.notification.isRead_new_cvmlrl_messsage ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_new_cvmlrl_messsage')
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t('New feedback from your Editor')}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
-                                    underline="hover"
-                                >
-                                    {t('CV/ML/RL Center', { ns: 'common' })}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {/* TODO: check function : new cv ml rl tasks are asigned to you */}
-                {student?.notification &&
-                !student?.notification.isRead_new_cvmlrl_tasks_created ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(
-                                    e,
-                                    'isRead_new_cvmlrl_tasks_created'
-                                )
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t('New tasks are assigned to you')}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB(
-                                        'follow-up'
-                                    )}
-                                    underline="hover"
-                                >
-                                    {t('CV/ML/RL Center', { ns: 'common' })}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {student?.notification &&
-                !student?.notification.isRead_new_programs_assigned &&
-                !check_applications_to_decided(student) ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_new_programs_assigned')
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t('It looks like you did not decide programs')}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.STUDENT_APPLICATIONS_LINK}
-                                    underline="hover"
-                                >
-                                    {t('Application Overview', {
-                                        ns: 'common'
-                                    })}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
                 {student?.notification &&
                 !student.notification.isRead_base_documents_missing &&
                 are_base_documents_missing(student) ? (
@@ -448,7 +302,8 @@ const StudentDashboard = ({
                     </Grid>
                 ) : null}
                 <Grid item md={12} xs={12}>
-                    {student && needGraduatedApplicantsButStudentNotGraduated(student) ? (
+                    {student &&
+                    needGraduatedApplicantsButStudentNotGraduated(student) ? (
                         <Card sx={{ border: '4px solid red' }}>
                             <Alert severity="warning">
                                 {t(
@@ -487,30 +342,10 @@ const StudentDashboard = ({
                     student={student as unknown as Record<string, unknown>}
                 />
                 <Grid item md={8} xs={12}>
-                    <Card style={{ border: '4px solid red' }}>
-                        <Alert severity="warning">
-                            {t('To Do Tasks', { ns: 'common' })} &nbsp;:&nbsp;
-                            {t('Please finish it as soon as possible')}
-                        </Alert>
-                        <TableContainer style={{ overflowX: 'auto' }}>
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            {t('Tasks', { ns: 'common' })}
-                                        </TableCell>
-                                        <TableCell>
-                                            {t('Description', { ns: 'common' })}
-                                        </TableCell>
-                                        <TableCell>
-                                            {t('Last update', { ns: 'common' })}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>{student_tasks}</TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Card>
+                    <StudentTaskList
+                        isCoursesFilled={isCoursesFilled}
+                        student={student!}
+                    />
                 </Grid>
                 <Grid item md={4} xs={12}>
                     <Box>
@@ -553,7 +388,8 @@ const StudentDashboard = ({
                                                         color="inherit"
                                                         component={LinkDom}
                                                         to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
-                                                            student?._id?.toString() ?? ''
+                                                            student?._id?.toString() ??
+                                                                ''
                                                         )}?tab=timeslots`}
                                                         underline="hover"
                                                     >
@@ -632,8 +468,18 @@ const StudentDashboard = ({
                     .map((application, idx) => (
                         <Grid item key={idx} lg={3} md={4} sm={6} xs={12}>
                             <ApplicationProgressCard
-                                application={application as unknown as Record<string, unknown>}
-                                student={student as unknown as Record<string, unknown>}
+                                application={
+                                    application as unknown as Record<
+                                        string,
+                                        unknown
+                                    >
+                                }
+                                student={
+                                    student as unknown as Record<
+                                        string,
+                                        unknown
+                                    >
+                                }
                             />
                         </Grid>
                     ))}
