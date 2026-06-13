@@ -1,7 +1,6 @@
 import { createElement, forwardRef } from 'react';
 import { render } from '@testing-library/react';
 import Dashboard from './';
-import { getProgramTickets } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { mockSingleData } from '../../test/testingStudentData';
@@ -96,9 +95,6 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
 
 describe('Dashboard', () => {
     test('agent dashboard not crash', () => {
-        vi.mocked(getProgramTickets).mockResolvedValue({
-            data: { success: true, data: [] }
-        });
         vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         } as never);

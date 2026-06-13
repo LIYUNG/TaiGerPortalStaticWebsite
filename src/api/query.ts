@@ -2,7 +2,6 @@ import { UseQueryOptions } from '@tanstack/react-query';
 import {
     getAdmissions,
     getAdmissionsOverview,
-    verifyV2,
     getProgramTicketsV2,
     getStatisticsOverviewV2,
     getStatisticsAgentsV2,
@@ -27,7 +26,6 @@ import {
     getCRMMeetings,
     getCRMMeeting,
     getCRMDeals,
-    getCRMSalesReps,
     getInterviewsByStudentId,
     getInterviewsByProgramId,
     getUsers,
@@ -234,12 +232,6 @@ export const getSameProgramStudentsQuery = ({
     enabled: enabled ?? false
 });
 
-export const getVerifyQuery = (): UseQueryOptions => ({
-    queryKey: ['verify'],
-    queryFn: verifyV2,
-    staleTime: 1000 * 60 * 10 // 10 minutes
-});
-
 export const getApplicationStudentV2Query = ({
     studentId
 }: {
@@ -319,12 +311,6 @@ export const getCRMMeetingQuery = (meetingId: string): UseQueryOptions => ({
 export const getCRMDealsQuery = (): UseQueryOptions => ({
     queryKey: ['crm/deals'],
     queryFn: getCRMDeals,
-    gcTime: 1000 * 60 * 15 // 15 minutes
-});
-
-export const getCRMSalesRepsQuery = (): UseQueryOptions => ({
-    queryKey: ['crm/sales-reps'],
-    queryFn: getCRMSalesReps,
     gcTime: 1000 * 60 * 15 // 15 minutes
 });
 
