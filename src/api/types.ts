@@ -72,6 +72,21 @@ export interface GetActiveStudentsApplicationsPaginatedResponse {
 }
 
 /**
+ * Server-side paginated events (office-hours "Past" list). Mirrors the
+ * `/api/events/paginated` contract: `data.events` is one role-scoped page,
+ * `total` is the unpaginated match count.
+ */
+export interface GetEventsPaginatedResponse {
+    success: boolean;
+    data: {
+        events: import('@components/Calendar/components/EventConfirmationCard').EventConfirmationCardEvent[];
+        total: number;
+        page: number;
+        limit: number;
+    };
+}
+
+/**
  * Interview row as returned by the paginated interview endpoints. The base
  * interview document is augmented with the three columns the server computes in
  * the aggregation (so they stay filterable/sortable under pagination).

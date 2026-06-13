@@ -79,6 +79,26 @@ describe('MyCalendar', () => {
     });
 });
 
+describe('MyCalendar loading overlay', () => {
+    it('shows a spinner while the visible range is fetching', () => {
+        render(
+            <MemoryRouter>
+                <MyCalendar {...defaultProps} isLoading />
+            </MemoryRouter>
+        );
+        expect(screen.getByRole('progressbar')).toBeDefined();
+    });
+
+    it('hides the spinner when not loading', () => {
+        render(
+            <MemoryRouter>
+                <MyCalendar {...defaultProps} isLoading={false} />
+            </MemoryRouter>
+        );
+        expect(screen.queryByRole('progressbar')).toBeNull();
+    });
+});
+
 describe('MyCalendar with selected event', () => {
     it('renders with a selected event', () => {
         render(
