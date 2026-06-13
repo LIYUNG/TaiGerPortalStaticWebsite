@@ -88,6 +88,10 @@ export const ProgramsMobileView = ({
             label: t('View Overview', { ns: 'common' })
         },
         {
+            to: DEMO.PROGRAM_TICKETS,
+            label: t('Program Update Requests', { ns: 'common' })
+        },
+        {
             to: DEMO.PROGRAM_ANALYSIS,
             label: t('Program Requirements', { ns: 'common' })
         },

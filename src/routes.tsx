@@ -196,6 +196,9 @@ const ProgramList = lazy(
 const ProgramsOverviewPage = lazy(
     async () => await import('@pages/Program/ProgramsOverviewPage')
 );
+const ProgramTicketsPage = lazy(
+    async () => await import('@pages/Program/ProgramTicketsPage')
+);
 const ProgramDistributionDetailPage = lazy(
     async () => await import('@pages/Program/ProgramDistributionDetailPage')
 );
@@ -424,6 +427,13 @@ const routes = [
                 name: 'Programs Overview',
                 errorElement: <DefaultErrorPage />,
                 Component: ProgramsOverviewPage
+            },
+            {
+                path: 'tickets',
+                exact: true,
+                name: 'Program Update Requests',
+                errorElement: <DefaultErrorPage />,
+                Component: ProgramTicketsPage
             },
             {
                 path: 'distribution/:distributionType',

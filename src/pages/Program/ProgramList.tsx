@@ -1,7 +1,14 @@
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs, Link, Typography, Box, Button } from '@mui/material';
-import { BarChart } from '@mui/icons-material';
+import {
+    Breadcrumbs,
+    Link,
+    Typography,
+    Box,
+    Button,
+    Stack
+} from '@mui/material';
+import { BarChart, ConfirmationNumber } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -39,8 +46,10 @@ const ProgramList = (props: ProgramListProps) => {
                     {t('Program List', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            {/* On mobile this lives in the card view's overflow menu. */}
-            <Box
+            {/* On mobile these live in the card view's overflow menu. */}
+            <Stack
+                direction="row"
+                spacing={1}
                 sx={{
                     display: { xs: 'none', md: 'flex' },
                     justifyContent: 'flex-end',
@@ -51,13 +60,22 @@ const ProgramList = (props: ProgramListProps) => {
                 <Button
                     color="primary"
                     component={LinkDom}
+                    startIcon={<ConfirmationNumber />}
+                    to={DEMO.PROGRAM_TICKETS}
+                    variant="outlined"
+                >
+                    {t('Program Update Requests', { ns: 'common' })}
+                </Button>
+                <Button
+                    color="primary"
+                    component={LinkDom}
                     startIcon={<BarChart />}
                     to={DEMO.PROGRAMS_OVERVIEW}
                     variant="outlined"
                 >
                     {t('View Overview', { ns: 'common' })}
                 </Button>
-            </Box>
+            </Stack>
             <ProgramsTable student={props.student ?? undefined} />
         </Box>
     );
