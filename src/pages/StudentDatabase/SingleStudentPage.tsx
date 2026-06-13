@@ -32,7 +32,11 @@ import {
     ListItem,
     Grid,
     Badge,
-    CircularProgress
+    CircularProgress,
+    Chip,
+    Stack,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -52,6 +56,7 @@ import UniAssistListCard from '../UniAssist/UniAssistListCard';
 import SurveyComponent from '../Survey/SurveyComponent';
 import Notes from '../Notes/index';
 import ApplicationProgress from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress';
+import ApplicationProgressCards from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgressCards';
 import StudentDashboard from '@pages/Dashboard/StudentDashboard/StudentDashboard';
 import {
     convertDate,
@@ -109,6 +114,8 @@ export const SingleStudentPageMainContent = ({
 }: SingleStudentPageMainContentProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const queryClient = useQueryClient();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [singleStudentPage, setSingleStudentPage] = useState({
@@ -559,77 +566,118 @@ export const SingleStudentPageMainContent = ({
                         </Tabs>
                     </Box>
                     <CustomTabPanel index={0} value={value}>
-                        <Box>
-                            <Button
-                                color="secondary"
-                                onClick={onChangeProgramsDetailView}
-                                variant="contained"
+                        <Box sx={{ mb: 2 }}>
+                            <Stack
+                                direction={{ xs: 'column', sm: 'row' }}
+                                spacing={1}
+                                sx={{
+                                    alignItems: { sm: 'center' },
+                                    flexWrap: 'wrap'
+                                }}
+                                useFlexGap
                             >
-                                {singleStudentPage.detailedView
-                                    ? t('Simple View', { ns: 'common' })
-                                    : t('Details View', { ns: 'common' })}
-                            </Button>
-                            <Badge badgeContent="new" color="error">
                                 <Button
-                                    color="primary"
-                                    component={LinkDom}
-                                    sx={{ mx: 1 }}
-                                    target="_blank"
-                                    to={`${TENFOLD_AI_DOMAIN}/${singleStudentPage.student._id}`}
+                                    color="secondary"
+                                    fullWidth={isMobile}
+                                    onClick={onChangeProgramsDetailView}
+                                    size="small"
                                     variant="contained"
                                 >
-                                    {t('Program Recommender', { ns: 'common' })}
+                                    {singleStudentPage.detailedView
+                                        ? t('Simple View', { ns: 'common' })
+                                        : t('Details View', { ns: 'common' })}
                                 </Button>
-                            </Badge>
-                            {!is_TaiGer_Editor(user as IUser) ? (
-                                <Link
-                                    component={LinkDom}
-                                    sx={{ mr: 1 }}
-                                    target="_blank"
-                                    to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(
-                                        singleStudentPage.student._id
-                                    )}`}
-                                    underline="hover"
+                                <Badge
+                                    badgeContent="new"
+                                    color="error"
+                                    sx={{
+                                        width: { xs: '100%', sm: 'auto' }
+                                    }}
                                 >
                                     <Button
+                                        color="primary"
+                                        component={LinkDom}
+                                        fullWidth={isMobile}
+                                        size="small"
+                                        target="_blank"
+                                        to={`${TENFOLD_AI_DOMAIN}/${singleStudentPage.student._id}`}
+                                        variant="contained"
+                                    >
+                                        {t('Program Recommender', {
+                                            ns: 'common'
+                                        })}
+                                    </Button>
+                                </Badge>
+                                {!is_TaiGer_Editor(user as IUser) ? (
+                                    <Button
                                         color="secondary"
+                                        component={LinkDom}
+                                        fullWidth={isMobile}
+                                        size="small"
                                         startIcon={<EditIcon />}
+                                        target="_blank"
+                                        to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(
+                                            singleStudentPage.student._id
+                                        )}`}
                                         variant="contained"
                                     >
                                         {t('Edit', { ns: 'common' })}
                                     </Button>
-                                </Link>
-                            ) : null}
-                            <Typography variant="body1">
-                                Applications (Selected / Decided / Contract):{' '}
-                                {singleStudentPage.student
-                                    .applying_program_count ? (
-                                    <>
-                                        {singleStudentPage.student.applications
-                                            ?.length ?? 0}{' '}
-                                        /{' '}
-                                        {
-                                            singleStudentPage.student.applications?.filter(
-                                                (app) => isProgramDecided(app)
-                                            )?.length
-                                        }{' '}
-                                        /{' '}
-                                        {
-                                            singleStudentPage.student
-                                                .applying_program_count
-                                        }
-                                    </>
-                                ) : (
-                                    <b className="text-danger">0</b>
-                                )}
-                            </Typography>
+                                ) : null}
+                            </Stack>
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                sx={{ flexWrap: 'wrap', mt: 1.5 }}
+                                useFlexGap
+                            >
+                                <Chip
+                                    color="primary"
+                                    label={`${t('Selected', { ns: 'common' })}: ${
+                                        singleStudentPage.student.applications
+                                            ?.length ?? 0
+                                    }`}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                                <Chip
+                                    color="success"
+                                    label={`${t('Decided', { ns: 'common' })}: ${
+                                        singleStudentPage.student.applications?.filter(
+                                            (app) => isProgramDecided(app)
+                                        )?.length ?? 0
+                                    }`}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                                <Chip
+                                    color={
+                                        singleStudentPage.student
+                                            .applying_program_count
+                                            ? 'default'
+                                            : 'error'
+                                    }
+                                    label={`${t('Contract', { ns: 'common' })}: ${
+                                        singleStudentPage.student
+                                            .applying_program_count ?? 0
+                                    }`}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                            </Stack>
                         </Box>
                         {singleStudentPage.detailedView ? (
-                            <ProgramDetailsComparisonTable
-                                applications={
-                                    singleStudentPage.student?.applications ??
-                                    []
-                                }
+                            <TableContainer style={{ overflowX: 'auto' }}>
+                                <ProgramDetailsComparisonTable
+                                    applications={
+                                        singleStudentPage.student
+                                            ?.applications ?? []
+                                    }
+                                />
+                            </TableContainer>
+                        ) : isMobile ? (
+                            <ApplicationProgressCards
+                                student={singleStudentPage.student}
                             />
                         ) : (
                             <TableContainer style={{ overflowX: 'auto' }}>
