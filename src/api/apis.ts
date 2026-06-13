@@ -47,13 +47,10 @@ import {
     type ProgramId,
     type DocumentThreadId,
     type MessageId,
-    type SurveyId,
     type TicketId,
     type MeetingId,
     type InterviewId,
     type LeadId,
-    // Auth
-    type AuthVerifyResponse,
     type AuthLoginResponse,
     type AuthOAuthCallbackResponse,
     type AuthRegisterResponse,
@@ -139,7 +136,6 @@ import {
     type UpdateAllCourseResponse,
     type DeleteAllCourseResponse,
     type GetCourseKeywordsetsResponse,
-    type GetCourseKeywordsetResponse,
     type CreateKeywordsetResponse,
     type UpdateKeywordsetResponse,
     type DeleteKeywordsetResponse,
@@ -159,9 +155,7 @@ import {
     type UpdatePersonalDataResponse,
     type UpdateCredentialsResponse,
     type UpdateOfficehoursResponse,
-    // Documentations
-    type GetCategorizedDocumentationResponse,
-    type GetAllDocumentationsResponse,
+    // Documentations    type GetAllDocumentationsResponse,
     type GetDocumentationResponse,
     type CreateDocumentationResponse,
     type UpdateDocumentationResponse,
@@ -198,9 +192,7 @@ import {
     type PutThreadFavoriteResponse,
     type GetSurveyInputsResponse,
     type PostSurveyInputResponse,
-    type PutSurveyInputResponse,
-    type DeleteSurveyInputResponse,
-    // Portals
+    type PutSurveyInputResponse, // Portals
     type GetPortalCredentialsResponse,
     type CreatePortalCredentialsResponse,
     // Communications
@@ -279,8 +271,6 @@ import {
     type TranscriptAnalyserResponse,
     type AnalyzedFileDownloadResponse,
     type ProcessProgramListResponse,
-    type TaigerAiResponse,
-    type CvmlrlAiResponse,
     type GetProgramResponse,
     GetAllCoursesResponseSchema,
     GetProgramResponseSchema
@@ -323,7 +313,6 @@ export const resendActivation = ({ email }: ForgotPasswordPayload) =>
     });
 
 export const verify = () => request.get('/auth/verify');
-export const verifyV2 = () => getData<AuthVerifyResponse>('/auth/verify');
 
 // Audit Log APIs
 export const getAuditLog = (queryString: QueryString) =>
@@ -804,11 +793,6 @@ export const updateAttributes = (
         attributesId
     );
 
-export const downloadProfile = (category: string, studentId: StudentId) =>
-    request.get(`/api/students/${studentId}/files/${category}`, {
-        responseType: 'blob'
-    });
-
 export const getPdfV2 = ({ apiPath }: { apiPath: string }) =>
     getDataBlob(apiPath, {
         responseType: 'blob'
@@ -961,11 +945,6 @@ export const deleteTemplateFile = (category: string) =>
     request.delete<DeleteTemplateFileResponse>(
         `/api/account/files/template/${category}`
     );
-export const getTemplateDownload = (category: string) =>
-    request.get(`/api/account/files/template/${category}`, {
-        responseType: 'blob'
-    });
-
 export const WidgetTranscriptanalyserV2 = (
     language: string,
     courses: ApiPayload,
@@ -1021,10 +1000,6 @@ export async function getCourseKeywordSets(): Promise<GetCourseKeywordsetsRespon
         data
     ) as GetCourseKeywordsetsResponse;
 }
-export const getCourseKeywordSet = (keywordsSetId: string) =>
-    request.get<GetCourseKeywordsetResponse>(
-        `/api/course-keywords/${keywordsSetId}`
-    );
 export const postKeywordSet = (keywordsSet: ApiPayload) =>
     request.post<CreateKeywordsetResponse>(
         '/api/course-keywords/new',
@@ -1261,8 +1236,6 @@ export const getCategorizedDocumentationPage = (category: string) =>
     request.get<GetDocspageResponse>(`/api/docs/pages/${category}`);
 export const updateDocumentationPage = (category: string, doc: ApiPayload) =>
     request.put<UpdateDocspageResponse>(`/api/docs/pages/${category}`, doc);
-export const getCategorizedDocumentation = (category: string) =>
-    request.get<GetCategorizedDocumentationResponse>(`/api/docs/${category}`);
 export const deleteDocumentation = (doc_id: string) =>
     request.delete<DeleteDocumentationResponse>(`/api/docs/${doc_id}`);
 export const getDocumentation = (doc_id: string) =>
@@ -1411,18 +1384,6 @@ export const SubmitMessageWithAttachment = (
         newFile
     );
 
-export const getMessageFileDownload = (
-    documentsthreadId: DocumentThreadId,
-    messageId: MessageId,
-    fileId: string
-) =>
-    request.get(
-        `/api/document-threads/${documentsthreadId}/${messageId}/${fileId}`,
-        {
-            responseType: 'blob'
-        }
-    );
-
 export const getMyCommunicationUnreadNumber = () =>
     request.get<GetCommunicationUnreadNumberResponse>(
         '/api/communications/ping/all'
@@ -1431,10 +1392,6 @@ export const getMyCommunicationThread = () =>
     request.get<GetMyCommunicationThreadResponse>('/api/communications/all');
 export const getMyCommunicationThreadV2 = () =>
     getData<GetMyCommunicationThreadResponse>('/api/communications/all');
-export const getCommunicationThread = (studentId: StudentId) =>
-    request.get<GetCommunicationThreadResponse>(
-        `/api/communications/${studentId}`
-    );
 export const getCommunicationThreadV2 = ({
     studentId
 }: {
@@ -1525,11 +1482,6 @@ export const postSurveyInput = (input: ApiPayload, informEditor: boolean) =>
             input,
             informEditor
         }
-    );
-
-export const resetSurveyInput = (surveyId: SurveyId) =>
-    request.delete<DeleteSurveyInputResponse>(
-        `/api/document-threads/survey-input/${surveyId}`
     );
 
 export const getMessagThread = (documentsthreadId: DocumentThreadId) =>
@@ -1729,21 +1681,6 @@ export const processProgramList = (programId: ProgramId) =>
     request.get<ProcessProgramListResponse>(
         `/api/taigerai/program/${programId}`
     );
-export const TaiGerAiGeneral = (prompt: string) =>
-    request.post<TaigerAiResponse>(`/api/taigerai/general`, {
-        prompt
-    });
-export const TaiGerAiGeneral2 = (prompt: string) =>
-    fetch(`${BASE_URL}/api/taigerai/general`, {
-        method: 'post', // HTTP POST to send query to server
-        headers: {
-            'Content-Type': 'application/json'
-            // 'Content-Type': 'text/event-stream' // indicates what the server actually sent
-        },
-        credentials: 'include',
-        body: JSON.stringify({ prompt }) // server is expecting JSON
-    });
-
 export const TaiGerChatAssistant = (prompt: string, studentId: StudentId) =>
     fetch(`${BASE_URL}/api/taigerai/chat/${studentId}`, {
         method: 'post', // HTTP POST to send query to server
@@ -1781,22 +1718,6 @@ export const cvmlrlAi2 = (prompt: string) =>
 //     program_full_name,
 //     file_type
 //   });
-export const cvmlrlAi = (
-    student_input: string,
-    document_requirements = '',
-    editor_requirements = '',
-    student_id = '',
-    program_full_name = '',
-    file_type = ''
-) =>
-    request.post<CvmlrlAiResponse>(`/api/taigerai/cvmlrl`, {
-        student_input,
-        document_requirements,
-        editor_requirements,
-        student_id,
-        program_full_name,
-        file_type
-    });
 
 //Interview:
 // Server-side paginated staff "All Interviews" table.
@@ -1890,10 +1811,6 @@ export const updateProgramTicket = (
     );
 export const deleteProgramTicket = (ticket_id: TicketId) =>
     request.delete<DeleteTicketResponse>(`/api/tickets/${ticket_id}`);
-export const getProgramTickets = (type: string, status: string) =>
-    request.get<GetProgramTicketsResponse>(
-        `/api/tickets?type=${type}&status=${status}`
-    );
 export const getProgramTicketsV2 = ({
     type,
     status
@@ -1948,34 +1865,11 @@ export const getCRMLead = (leadId: LeadId) =>
     getData<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
 export const updateCRMLead = (leadId: LeadId, payload: ApiPayload) =>
     request.put(`/api/crm/leads/${leadId}`, payload);
-const getCRMData = async <T = unknown>(url: string): Promise<T> => {
-    const response = await request.get<T>(url);
-    if (response.status >= 400) {
-        throw new Error(
-            (response.data as { message?: string })?.message || 'Request failed'
-        );
-    }
-    return response.data;
-};
-
 const postCRMData = async <T = unknown>(
     url: string,
     payload: unknown
 ): Promise<T> => {
     const response = await request.post<T>(url, payload);
-    if (response.status >= 400) {
-        throw new Error(
-            (response.data as { message?: string })?.message || 'Request failed'
-        );
-    }
-    return response.data;
-};
-
-const putCRMData = async <T = unknown>(
-    url: string,
-    payload: unknown
-): Promise<T> => {
-    const response = await request.put<T>(url, payload);
     if (response.status >= 400) {
         throw new Error(
             (response.data as { message?: string })?.message || 'Request failed'
@@ -2014,20 +1908,12 @@ export const getLeadIdByUserId = (userId: UserId) =>
     request.get(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId: UserId) =>
     request.post(`/api/crm/students/${userId}/lead`);
-export const getCRMLeadTags = (leadId: LeadId) =>
-    getCRMData(`/api/crm/leads/${leadId}/tags`);
-export const updateCRMLeadTags = (leadId: LeadId, tags: string[]) =>
-    putCRMData(`/api/crm/leads/${leadId}/tags`, { tags });
 export const appendCRMLeadTags = (leadId: LeadId, tags: string[]) =>
     postCRMData(`/api/crm/leads/${leadId}/tags`, { tags });
 export const deleteCRMLeadTags = (leadId: LeadId, tagIds: string[]) =>
     deleteCRMData(`/api/crm/leads/${leadId}/tags`, { data: { tagIds } });
-export const getCRMLeadNotes = (leadId: LeadId) =>
-    getCRMData(`/api/crm/leads/${leadId}/notes`);
 export const createCRMLeadNote = (leadId: LeadId, payload: ApiPayload) =>
     postCRMData(`/api/crm/leads/${leadId}/notes`, payload);
-export const replaceCRMLeadNotes = (leadId: LeadId, notes: string[]) =>
-    putCRMData(`/api/crm/leads/${leadId}/notes`, { notes });
 export const updateCRMLeadNote = (
     leadId: LeadId,
     noteId: string,
