@@ -39,7 +39,15 @@ const ProgramList = (props: ProgramListProps) => {
                     {t('Program List', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Box display="flex" justifyContent="flex-end" mb={2} mt={2}>
+            {/* On mobile this lives in the card view's overflow menu. */}
+            <Box
+                sx={{
+                    display: { xs: 'none', md: 'flex' },
+                    justifyContent: 'flex-end',
+                    mb: 2,
+                    mt: 2
+                }}
+            >
                 <Button
                     color="primary"
                     component={LinkDom}

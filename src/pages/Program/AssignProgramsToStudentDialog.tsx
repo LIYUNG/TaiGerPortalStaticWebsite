@@ -13,7 +13,9 @@ import {
     Typography,
     Switch,
     FormControl,
-    FormGroup
+    FormGroup,
+    useMediaQuery,
+    useTheme
 } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -44,6 +46,8 @@ export const AssignProgramsToStudentDialog = ({
 }: AssignProgramsToStudentDialogProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(true);
 
     const baseFilter = { archiv: false };
@@ -111,7 +115,13 @@ export const AssignProgramsToStudentDialog = ({
     const students = data ? (student ? [student] : data) : [];
 
     return (
-        <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>
+        <Dialog
+            fullScreen={isMobile}
+            fullWidth
+            maxWidth="sm"
+            onClose={onClose}
+            open={open}
+        >
             <DialogTitle>
                 {t('Selected Programs', { ns: 'programList' })}
             </DialogTitle>

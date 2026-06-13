@@ -10,13 +10,22 @@ import {
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '@components/table';
 import { useTranslation } from 'react-i18next';
-import { Link, Box, Chip, Button, Typography } from '@mui/material';
+import {
+    Link,
+    Box,
+    Chip,
+    Button,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 import DEMO from '@store/constant';
 import { TopToolbar } from '@components/table/programs-table/TopToolbar';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
+import { ProgramsMobileView } from './mobile/ProgramsMobileView';
 import { COUNTRIES_ARRAY_OPTIONS } from '@utils/contants';
 import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
 import { calculateProgramLockStatus } from '../Utils/util_functions';
@@ -50,6 +59,9 @@ const getProgramRowId = (program: ProgramsTableProgramRow) =>
 export const ProgramsTable = ({ student }: ProgramsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
+    const theme = useTheme();
+    // Below md the 13-column table forces horizontal scroll; render a card list.
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
     const [pagination, setPagination] = useState<MRT_PaginationState>({
         pageIndex: 0,
@@ -97,6 +109,20 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
     const clearSelection = useCallback(() => {
         setRowSelection({});
         setSelectedProgramsById({});
+    }, []);
+
+    // Toggle a single program's selection (used by the mobile card list). Feeds
+    // the same rowSelection state the desktop table + assign flow rely on.
+    const toggleProgramSelection = useCallback((programId: string) => {
+        setRowSelection((previous) => {
+            const next = { ...previous };
+            if (next[programId]) {
+                delete next[programId];
+            } else {
+                next[programId] = true;
+            }
+            return next;
+        });
     }, []);
 
     const handleRowSelectionChange = useCallback(
@@ -160,6 +186,31 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
                 label
             })),
         []
+    );
+
+    // Filter option lists shared with the mobile filter drawer.
+    const statusOptions = useMemo(
+        () => [
+            { value: 'Locked', label: t('Locked', { ns: 'common' }) },
+            { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
+        ],
+        [t]
+    );
+    const countryOptions = useMemo(
+        () =>
+            COUNTRIES_ARRAY_OPTIONS.map((item) => ({
+                value: String(item.value),
+                label: String(item.label ?? item.value)
+            })),
+        []
+    );
+    const subjectFilterOptions = useMemo(
+        () =>
+            subjectGroups.map((item) => ({
+                value: item.code,
+                label: item.label
+            })),
+        [subjectGroups]
     );
     const columns: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
         {
@@ -431,7 +482,30 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
 
     return (
         <>
-            <MaterialReactTable table={table} />
+            {isMobile ? (
+                <ProgramsMobileView
+                    clearSelection={clearSelection}
+                    columnFilters={columnFilters}
+                    countryOptions={countryOptions}
+                    globalFilter={globalFilter}
+                    isLoading={isLoading || isFetching}
+                    onAssignClick={handleAssignClick}
+                    onToggleSelect={toggleProgramSelection}
+                    pagination={pagination}
+                    programs={(data?.programs ?? []) as never[]}
+                    rowSelection={rowSelection}
+                    selectedCount={selectedCount}
+                    setColumnFilters={setColumnFilters}
+                    setGlobalFilter={setGlobalFilter}
+                    setPagination={setPagination}
+                    statusOptions={statusOptions}
+                    subjectOptions={subjectFilterOptions}
+                    tagOptions={tagFilterOptions}
+                    total={data?.total ?? 0}
+                />
+            ) : (
+                <MaterialReactTable table={table} />
+            )}
             <AssignProgramsToStudentDialog
                 handleOnSuccess={handleOnSuccess}
                 onClose={handleDialogClose}
