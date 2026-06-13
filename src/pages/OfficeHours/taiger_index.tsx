@@ -38,7 +38,6 @@ import {
     Link as LinkDom,
     useSearchParams
 } from 'react-router-dom';
-import DeleteIcon from '@mui/icons-material/Delete';
 import moment from 'moment-timezone';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
@@ -60,7 +59,9 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
-import EventConfirmationCard, { type EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
+import EventConfirmationCard, {
+    type EventConfirmationCardEvent
+} from '@components/Calendar/components/EventConfirmationCard';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
@@ -68,6 +69,8 @@ import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { CreateNewEventModal } from '@components/Calendar/components/CreateNewEventModal';
 import useCalendarEvents from '@hooks/useCalendarEvents';
+import { useCalendarRangeEvents } from '@hooks/useCalendarRangeEvents';
+import { DeleteAppointmentDialog } from './components/DeleteAppointmentDialog';
 import { updateOfficehours } from '@/api';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -216,7 +219,6 @@ const TaiGerOfficeHours = () => {
     );
     const {
         events,
-        booked_events,
         res_status,
         isLoaded,
         isConfirmModalOpen,
@@ -231,6 +233,7 @@ const TaiGerOfficeHours = () => {
         newEventEnd,
         isNewEventModalOpen,
         isDeleteModalOpen,
+        deleteMode,
         available_termins_full,
         student_id,
         students,
@@ -263,6 +266,17 @@ const TaiGerOfficeHours = () => {
         startTime: startTime || new Date().toISOString().slice(0, 16) + 'Z',
         endTime: endTime || '',
         receiver_id: user_id
+    });
+
+    // Calendar fetches only the visible month for this agent (receiver_id), and
+    // refetches as the user navigates months.
+    const {
+        calendarEvents,
+        handleRangeChange,
+        isFetching: isCalendarFetching
+    } = useCalendarRangeEvents({
+        receiver_id: user_id,
+        enabled: !!user_id
     });
 
     const tabNameToIndex = {
@@ -416,64 +430,59 @@ const TaiGerOfficeHours = () => {
     available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
         [agentWithOH].flatMap((agent) =>
             agent?.timezone && moment.tz.zone(agent.timezone)
-                ? (getReorderWeekday(getTodayAsWeekday(agent.timezone)) as string[]).flatMap(
-                      (weekday: string, i: number) => {
-                          const slots =
-                              agent.officehours?.[weekday]?.time_slots;
-                          const timeSlots =
-                              agent.officehours &&
-                              agent.officehours[weekday]?.active &&
-                              Array.isArray(slots)
-                                  ? slots.flatMap(
-                                        (
-                                            time_slot: {
-                                                value: string;
-                                                label: string;
-                                            },
-                                            j: number
-                                        ) => {
-                                            const { year, month, day } =
-                                                getNextDayDate(
-                                                    getReorderWeekday(
-                                                        getTodayAsWeekday(
-                                                            agent.timezone!
-                                                        )
-                                                    ) as string[],
-                                                    weekday,
-                                                    agent.timezone!,
-                                                    iter
-                                                );
-                                            const test_date = getUTCWithDST(
-                                                year,
-                                                month,
-                                                day,
+                ? (
+                      getReorderWeekday(
+                          getTodayAsWeekday(agent.timezone)
+                      ) as string[]
+                  ).flatMap((weekday: string, i: number) => {
+                      const slots = agent.officehours?.[weekday]?.time_slots;
+                      const timeSlots =
+                          agent.officehours &&
+                          agent.officehours[weekday]?.active &&
+                          Array.isArray(slots)
+                              ? slots.flatMap(
+                                    (
+                                        time_slot: {
+                                            value: string;
+                                            label: string;
+                                        },
+                                        j: number
+                                    ) => {
+                                        const { year, month, day } =
+                                            getNextDayDate(
+                                                getReorderWeekday(
+                                                    getTodayAsWeekday(
+                                                        agent.timezone!
+                                                    )
+                                                ) as string[],
+                                                weekday,
                                                 agent.timezone!,
-                                                time_slot.value
+                                                iter
                                             );
+                                        const test_date = getUTCWithDST(
+                                            year,
+                                            month,
+                                            day,
+                                            agent.timezone!,
+                                            time_slot.value
+                                        );
 
-                                            const end_date = new Date(
-                                                test_date
-                                            );
-                                            end_date.setMinutes(
-                                                end_date.getMinutes() + 30
-                                            );
-                                            return {
-                                                id:
-                                                    j * 10 +
-                                                    i * 100 +
-                                                    x * 1000 +
-                                                    1,
-                                                title: `${new Date(test_date)}`,
-                                                start: new Date(test_date),
-                                                end: end_date,
-                                                provider: agent as typeof user
-                                            };
-                                        }
-                                    )
-                                  : [];
-                          return timeSlots;
-                      }
-                  )
+                                        const end_date = new Date(test_date);
+                                        end_date.setMinutes(
+                                            end_date.getMinutes() + 30
+                                        );
+                                        return {
+                                            id: j * 10 + i * 100 + x * 1000 + 1,
+                                            title: `${new Date(test_date)}`,
+                                            start: new Date(test_date),
+                                            end: end_date,
+                                            provider: agent as typeof user
+                                        };
+                                    }
+                                )
+                              : [];
+                      return timeSlots;
+                  })
                 : []
         )
     );
@@ -528,8 +537,20 @@ const TaiGerOfficeHours = () => {
                 <CustomTabPanel index={0} value={mainTabValue}>
                     <MyCalendar
                         BookButtonDisable={BookButtonDisable}
-                        events={booked_events.map((ev) => ({ ...ev, start: new Date(ev.start), end: new Date(ev.end) }))}
+                        events={calendarEvents.map((ev) => ({
+                            ...ev,
+                            start: new Date(ev.start),
+                            end: new Date(ev.end),
+                            provider: (ev.requester_id?.[0] as
+                                | { firstname?: string; lastname?: string }
+                                | undefined) || {
+                                firstname: 'TBD',
+                                lastname: 'TBD'
+                            }
+                        }))}
                         handleChange={handleChange}
+                        isLoading={isCalendarFetching}
+                        onRangeChange={handleRangeChange}
                         handleChangeReceiver={handleChangeReceiver}
                         handleModalBook={handleModalBook}
                         handleModalClose={handleModalClose}
@@ -543,7 +564,11 @@ const TaiGerOfficeHours = () => {
                         newDescription={newDescription}
                         newEventEnd={newEventEnd}
                         newReceiver={newReceiver}
-                        selectedEvent={selectedEvent as Partial<import('@components/Calendar/components/Calendar').CalendarEventType> | null}
+                        selectedEvent={
+                            selectedEvent as Partial<
+                                import('@components/Calendar/components/Calendar').CalendarEventType
+                            > | null
+                        }
                     />
                 </CustomTabPanel>
 
@@ -610,7 +635,9 @@ const TaiGerOfficeHours = () => {
                                         ? _.reverse(
                                               _.sortBy(
                                                   events?.filter(
-                                                      (event: EventConfirmationCardEvent) =>
+                                                      (
+                                                          event: EventConfirmationCardEvent
+                                                      ) =>
                                                           isInTheFuture(
                                                               event.end
                                                           ) &&
@@ -643,7 +670,9 @@ const TaiGerOfficeHours = () => {
                                         </Typography>
                                         <Box>
                                             {events?.filter(
-                                                (event: EventConfirmationCardEvent) =>
+                                                (
+                                                    event: EventConfirmationCardEvent
+                                                ) =>
                                                     isInTheFuture(event.end) &&
                                                     event.isConfirmedRequester &&
                                                     event.isConfirmedReceiver
@@ -773,46 +802,14 @@ const TaiGerOfficeHours = () => {
                                     </Button>
                                 </DialogActions>
                             </Dialog>
-                            <Dialog
+                            <DeleteAppointmentDialog
+                                bookButtonDisable={BookButtonDisable}
+                                eventId={event_id}
+                                mode={deleteMode}
                                 onClose={handleDeleteAppointmentModalClose}
+                                onDelete={handleDeleteAppointmentModal}
                                 open={isDeleteModalOpen}
-                            >
-                                <DialogTitle>
-                                    {t('Warning', { ns: 'common' })}
-                                </DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText>
-                                        {t(
-                                            'Do you want to cancel this meeting?'
-                                        )}
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button
-                                        color="secondary"
-                                        disabled={
-                                            event_id === '' || BookButtonDisable
-                                        }
-                                        onClick={(e) =>
-                                            handleDeleteAppointmentModal(
-                                                e,
-                                                event_id
-                                            )
-                                        }
-                                        size="small"
-                                        startIcon={
-                                            BookButtonDisable ? (
-                                                <CircularProgress size={16} />
-                                            ) : (
-                                                <DeleteIcon />
-                                            )
-                                        }
-                                        variant="contained"
-                                    >
-                                        {t('Delete', { ns: 'common' })}
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
+                            />
                         </>
                     </Box>
                 </CustomTabPanel>

@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Popping from './Popping';
@@ -22,7 +23,11 @@ export interface CalendarEventType {
     start: Date;
     end: Date;
     description?: string;
-    provider?: { firstname?: string; lastname?: string; [key: string]: unknown };
+    provider?: {
+        firstname?: string;
+        lastname?: string;
+        [key: string]: unknown;
+    };
     [key: string]: unknown;
 }
 
@@ -52,14 +57,23 @@ interface MyCalendarProps {
     selectedEvent: Partial<CalendarEventType> | null;
     handleModalClose: () => void;
     handleModalBook: (e?: React.FormEvent) => void;
-    handleChange: (
-        e: { target: { value: string } }
+    handleChange: (e: { target: { value: string } }) => void;
+    handleSelectEvent: (
+        event: CalendarEventType | Record<string, unknown>
     ) => void;
-    handleSelectEvent: (event: CalendarEventType | Record<string, unknown>) => void;
     handleSelectSlot: (slotInfo: { start: Date; end: Date }) => void;
     handleChangeReceiver: (e: { target: { value: string } }) => void;
     newDescription: string;
     newReceiver: string;
+    /** Optional: notified with the visible date range on navigation/view change
+     *  so the parent can fetch only that window (date-range-scoped events). */
+    onRangeChange?: (
+        range: Date[] | { start: Date; end: Date },
+        view?: string
+    ) => void;
+    /** Show a loading overlay over the grid while the visible range is fetching
+     *  (e.g. after switching month/week/day). */
+    isLoading?: boolean;
     [key: string]: unknown;
 }
 
@@ -74,7 +88,9 @@ const MyCalendar = ({
     handleSelectSlot,
     handleChangeReceiver,
     newDescription,
-    newReceiver
+    newReceiver,
+    onRangeChange,
+    isLoading
 }: MyCalendarProps) => {
     const { user } = useAuth();
     const theme = useTheme();
@@ -236,28 +252,56 @@ const MyCalendar = ({
 
     return (
         <Box sx={calendarStyles}>
-            <BigCalendar
-                components={{
-                    event: CalendarEventComponent
-                }}
-                defaultView="month"
-                endAccessor="end"
-                eventPropGetter={eventPropGetter}
-                events={events}
-                localizer={localizer}
-                onSelectEvent={handleSelectEvent}
-                onSelectSlot={
-                    user && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))
-                        ? handleSelectSlot
-                        : () => {}
-                }
-                popup
-                selectable={true}
-                startAccessor="start"
-                style={{ height: 600 }}
-                timeslots={2}
-                views={['month', 'week', 'day']}
-            />
+            <Box sx={{ position: 'relative' }}>
+                {isLoading ? (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.background.paper, 0.6),
+                            borderRadius: theme.shape.borderRadius
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                ) : null}
+                <BigCalendar
+                    components={{
+                        event: CalendarEventComponent
+                    }}
+                    defaultView="month"
+                    endAccessor="end"
+                    eventPropGetter={eventPropGetter}
+                    events={events}
+                    localizer={localizer}
+                    onRangeChange={
+                        onRangeChange as
+                            | ((
+                                  range: Date[] | { start: Date; end: Date },
+                                  view?: string
+                              ) => void)
+                            | undefined
+                    }
+                    onSelectEvent={handleSelectEvent}
+                    onSelectSlot={
+                        user &&
+                        (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))
+                            ? handleSelectSlot
+                            : () => {}
+                    }
+                    popup
+                    selectable={true}
+                    startAccessor="start"
+                    style={{ height: 600 }}
+                    timeslots={2}
+                    views={['month', 'week', 'day']}
+                />
+            </Box>
 
             <Popping
                 BookButtonDisable={BookButtonDisable}

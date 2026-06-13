@@ -86,7 +86,8 @@ interface EventConfirmationCardProps {
     ) => void;
     handleDeleteAppointmentModalOpen: (
         e: MouseEvent,
-        event: EventConfirmationCardEvent
+        event: EventConfirmationCardEvent,
+        mode?: 'reject' | 'cancel'
     ) => void;
 }
 
@@ -105,6 +106,21 @@ export default function EventConfirmationCard(
 
     const isConfirmed =
         props.event.isConfirmedReceiver && props.event.isConfirmedRequester;
+
+    // Staff looking at a student request that they haven't accepted yet → the
+    // action is a "Reject" (with reason); otherwise it's a "Cancel" (with
+    // reason). Both go through the same reason dialog.
+    const isStaff = user != null && is_TaiGer_role(user);
+    const deleteMode: 'reject' | 'cancel' =
+        isStaff &&
+        props.event.isConfirmedRequester &&
+        !props.event.isConfirmedReceiver
+            ? 'reject'
+            : 'cancel';
+    const deleteLabel =
+        deleteMode === 'reject'
+            ? t('Reject', { ns: 'common' })
+            : t('Delete', { ns: 'common' });
 
     return (
         <Accordion
@@ -627,7 +643,8 @@ export default function EventConfirmationCard(
                                                             }
                                                         }}
                                                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                            requester._id?.toString() ?? '',
+                                                            requester._id?.toString() ??
+                                                                '',
                                                             DEMO.PROFILE_HASH
                                                         )}`}
                                                         variant="body1"
@@ -902,14 +919,15 @@ export default function EventConfirmationCard(
                                             onClick={(e) =>
                                                 props.handleDeleteAppointmentModalOpen(
                                                     e,
-                                                    props.event
+                                                    props.event,
+                                                    deleteMode
                                                 )
                                             }
                                             size="small"
                                             startIcon={<DeleteIcon />}
                                             variant="outlined"
                                         >
-                                            {t('Delete', { ns: 'common' })}
+                                            {deleteLabel}
                                         </Button>
                                     </Stack>
                                 </Box>

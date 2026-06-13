@@ -35,9 +35,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import PersonIcon from '@mui/icons-material/Person';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import _ from 'lodash';
 import { is_TaiGer_Student } from '@taiger-common/core';
-import { differenceInDays } from 'date-fns';
 
 import {
     getNextDayDate,
@@ -45,35 +43,36 @@ import {
     getReorderWeekday,
     shiftDateByOffset,
     getTimezoneOffset,
-    isInTheFuture,
     getUTCWithDST
 } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
-import MyCalendar from '@components/Calendar/components/Calendar';
 
-import EventConfirmationCard, { type EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
+import { type EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
-import useCalendarEvents, { type OfficeHoursAgent } from '@hooks/useCalendarEvents';
+import useCalendarEvents, {
+    type OfficeHoursAgent
+} from '@hooks/useCalendarEvents';
+import { DeleteAppointmentDialog } from './components/DeleteAppointmentDialog';
+import { EventConfirmationList } from './components/EventConfirmationList';
+import { bucketEvents } from './utils/bucketEvents';
+import { hasActiveAppointment } from './utils/hasActiveAppointment';
 
-type OfficeHoursEvent = EventConfirmationCardEvent;
 type BookedEvent = EventConfirmationCardEvent;
 
 const tabNameToIndexMap = {
-    calendar: 0,
-    events: 1,
-    timeslots: 2
+    events: 0,
+    timeslots: 1
 } as const;
 const indexToTabNameMap: Record<number, keyof typeof tabNameToIndexMap> = {
-    0: 'calendar',
-    1: 'events',
-    2: 'timeslots'
+    0: 'events',
+    1: 'timeslots'
 };
 
 const OfficeHours = () => {
@@ -98,10 +97,9 @@ const OfficeHours = () => {
         isEditModalOpen,
         newReceiver,
         newDescription,
-        selectedEvent,
-        newEventEnd,
         isNewEventModalOpen,
         isDeleteModalOpen,
+        deleteMode,
         handleConfirmAppointmentModalOpen,
         handleEditAppointmentModalOpen,
         handleModalBook,
@@ -114,11 +112,7 @@ const OfficeHours = () => {
         handleEditAppointmentModalClose,
         handleDeleteAppointmentModalClose,
         handleDeleteAppointmentModalOpen,
-        handleModalClose,
-        handleChangeReceiver,
-        handleSelectEvent,
         handleChange,
-        handleSelectSlot,
         handleSelectAvailableTermin,
         handleNewEventModalClose,
         newEventStart,
@@ -131,6 +125,16 @@ const OfficeHours = () => {
         endTime: endTime || '',
         requester_id: user_id
     });
+
+    // One appointment at a time: a student with an upcoming appointment cannot
+    // book another (the backend also enforces this — see postEvent).
+    const studentHasActiveAppointment = hasActiveAppointment(
+        events,
+        user?._id?.toString()
+    );
+
+    // The student's appointments split into the three list sections.
+    const { pending, upcoming, past } = bucketEvents(events);
 
     const getTabIndexFromName = (name: string | null): number => {
         if (name && name in tabNameToIndexMap) {
@@ -170,9 +174,11 @@ const OfficeHours = () => {
         return [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
             users.flatMap((agent: OfficeHoursAgent) =>
                 agent && agent.timezone && moment.tz.zone(agent.timezone)
-                    ? (getReorderWeekday(
-                          getTodayAsWeekday(agent.timezone)
-                      ) as string[]).flatMap((weekday: string, i: number) => {
+                    ? (
+                          getReorderWeekday(
+                              getTodayAsWeekday(agent.timezone)
+                          ) as string[]
+                      ).flatMap((weekday: string, i: number) => {
                           const slots =
                               agent.officehours?.[weekday]?.time_slots;
                           const timeSlots =
@@ -334,163 +340,67 @@ const OfficeHours = () => {
                         variant="scrollable"
                     >
                         <Tab
-                            label={t('Calendar', { ns: 'common' })}
+                            label={t('My Appointments', { ns: 'common' })}
                             {...a11yProps(value, 0)}
                         />
                         <Tab
-                            label={t('My Events', { ns: 'common' })}
-                            {...a11yProps(value, 1)}
-                        />
-                        <Tab
                             label={t('Available Timeslots', { ns: 'common' })}
-                            {...a11yProps(value, 2)}
+                            {...a11yProps(value, 1)}
                         />
                     </Tabs>
                 </Box>
                 <CustomTabPanel index={0} value={value}>
-                    {events?.filter(
-                        (event: OfficeHoursEvent) =>
-                            differenceInDays(event.start, new Date()) >= -1
-                    ).length !== 0 ? (
-                        <Alert severity="info">
-                            在您目前預訂的時段過後，您將可以再次預約時段。
-                        </Alert>
-                    ) : null}
-                    {!has_officehours ? (
-                        <Alert severity="info">
-                            目前 Agent 無空出 Office hours 時段，請聯繫您的
-                            Agent。
-                        </Alert>
-                    ) : null}
-                    <MyCalendar
-                        BookButtonDisable={BookButtonDisable}
-                        events={[...available_termins]}
-                        handleChange={handleChange}
-                        handleChangeReceiver={handleChangeReceiver}
-                        handleModalBook={handleModalBook}
-                        handleModalClose={handleModalClose}
-                        handleNewEventModalClose={handleNewEventModalClose}
-                        handleSelectEvent={handleSelectEvent}
-                        handleSelectSlot={handleSelectSlot}
-                        handleUpdateTimeSlot={handleUpdateTimeSlot}
-                        isNewEventModalOpen={isNewEventModalOpen}
-                        newDescription={newDescription}
-                        newEventEnd={newEventEnd}
-                        newReceiver={newReceiver}
-                        selectedEvent={selectedEvent}
-                    />
-                </CustomTabPanel>
-                <CustomTabPanel index={1} value={value}>
                     <>
-                        {events?.filter(
-                            (event: OfficeHoursEvent) =>
-                                isInTheFuture(event.end) &&
-                                (!event.isConfirmedReceiver ||
-                                    !event.isConfirmedRequester)
-                        ).length !== 0
-                            ? _.reverse(
-                                  _.sortBy(
-                                      events?.filter(
-                                          (event: OfficeHoursEvent) =>
-                                              isInTheFuture(event.end) &&
-                                              (!event.isConfirmedReceiver ||
-                                                  !event.isConfirmedRequester)
-                                      ),
-                                      ['start']
-                                  )
-                              ).map((event, i) => (
-                                  <EventConfirmationCard
-                                      event={event}
-                                      handleConfirmAppointmentModalOpen={
-                                          handleConfirmAppointmentModalOpen
-                                      }
-                                      handleDeleteAppointmentModalOpen={
-                                          handleDeleteAppointmentModalOpen
-                                      }
-                                      handleEditAppointmentModalOpen={
-                                          handleEditAppointmentModalOpen
-                                      }
-                                      key={i}
-                                  />
-                              ))
-                            : null}
+                        <EventConfirmationList
+                            events={pending}
+                            handleConfirmAppointmentModalOpen={
+                                handleConfirmAppointmentModalOpen
+                            }
+                            handleDeleteAppointmentModalOpen={
+                                handleDeleteAppointmentModalOpen
+                            }
+                            handleEditAppointmentModalOpen={
+                                handleEditAppointmentModalOpen
+                            }
+                        />
                         <Card sx={{ p: 2 }}>
-                            <Box>
-                                <Typography variant="h6">
-                                    {t('Upcoming', { ns: 'common' })}
-                                </Typography>
-                                <Typography>
-                                    {events?.filter(
-                                        (event: OfficeHoursEvent) =>
-                                            isInTheFuture(event.end) &&
-                                            event.isConfirmedReceiver &&
-                                            event.isConfirmedRequester
-                                    ).length !== 0
-                                        ? _.reverse(
-                                              _.sortBy(
-                                                  events?.filter(
-                                                      (
-                                                          event: OfficeHoursEvent
-                                                      ) =>
-                                                          isInTheFuture(
-                                                              event.end
-                                                          ) &&
-                                                          event.isConfirmedReceiver &&
-                                                          event.isConfirmedRequester
-                                                  ),
-                                                  ['start']
-                                              )
-                                          ).map((event, i) => (
-                                              <EventConfirmationCard
-                                                  event={event}
-                                                  handleConfirmAppointmentModalOpen={
-                                                      handleConfirmAppointmentModalOpen
-                                                  }
-                                                  handleDeleteAppointmentModalOpen={
-                                                      handleDeleteAppointmentModalOpen
-                                                  }
-                                                  handleEditAppointmentModalOpen={
-                                                      handleEditAppointmentModalOpen
-                                                  }
-                                                  key={i}
-                                              />
-                                          ))
-                                        : t('No upcoming event', {
-                                              ns: 'common'
-                                          })}
-                                </Typography>
-                            </Box>
+                            <Typography variant="h6">
+                                {t('Upcoming', { ns: 'common' })}
+                            </Typography>
+                            {upcoming.length !== 0 ? (
+                                <EventConfirmationList
+                                    events={upcoming}
+                                    handleConfirmAppointmentModalOpen={
+                                        handleConfirmAppointmentModalOpen
+                                    }
+                                    handleDeleteAppointmentModalOpen={
+                                        handleDeleteAppointmentModalOpen
+                                    }
+                                    handleEditAppointmentModalOpen={
+                                        handleEditAppointmentModalOpen
+                                    }
+                                />
+                            ) : (
+                                t('No upcoming event', { ns: 'common' })
+                            )}
                         </Card>
                         <Card>
                             <Typography sx={{ p: 2 }} variant="h6">
                                 {t('Past', { ns: 'common' })}
                             </Typography>
-                            <Typography>
-                                {_.reverse(
-                                    _.sortBy(
-                                        events?.filter(
-                                            (event: OfficeHoursEvent) =>
-                                                !isInTheFuture(event.end)
-                                        ),
-                                        ['start']
-                                    )
-                                ).map((event, i) => (
-                                    <EventConfirmationCard
-                                        disabled={true}
-                                        event={event}
-                                        handleConfirmAppointmentModalOpen={
-                                            handleConfirmAppointmentModalOpen
-                                        }
-                                        handleDeleteAppointmentModalOpen={
-                                            handleDeleteAppointmentModalOpen
-                                        }
-                                        handleEditAppointmentModalOpen={
-                                            handleEditAppointmentModalOpen
-                                        }
-                                        key={i}
-                                    />
-                                ))}
-                            </Typography>
+                            <EventConfirmationList
+                                disabled
+                                events={past}
+                                handleConfirmAppointmentModalOpen={
+                                    handleConfirmAppointmentModalOpen
+                                }
+                                handleDeleteAppointmentModalOpen={
+                                    handleDeleteAppointmentModalOpen
+                                }
+                                handleEditAppointmentModalOpen={
+                                    handleEditAppointmentModalOpen
+                                }
+                            />
                         </Card>
                         <Dialog
                             onClose={handleConfirmAppointmentModalClose}
@@ -694,44 +604,33 @@ const OfficeHours = () => {
                                 </Button>
                             </DialogActions>
                         </Dialog>
-                        <Dialog
+                        <DeleteAppointmentDialog
+                            bookButtonDisable={BookButtonDisable}
+                            eventId={event_id}
+                            mode={deleteMode}
                             onClose={handleDeleteAppointmentModalClose}
+                            onDelete={handleDeleteAppointmentModal}
                             open={isDeleteModalOpen}
-                        >
-                            <DialogTitle>
-                                {t('Warning', { ns: 'common' })}
-                            </DialogTitle>
-                            <DialogContent>
-                                {t('Do you want to cancel this meeting?')}
-                            </DialogContent>
-                            <DialogActions>
-                                <Button
-                                    color="primary"
-                                    disabled={
-                                        event_id === '' || BookButtonDisable
-                                    }
-                                    onClick={(e) =>
-                                        handleDeleteAppointmentModal(
-                                            e,
-                                            event_id
-                                        )
-                                    }
-                                    variant="contained"
-                                >
-                                    {BookButtonDisable ? (
-                                        <CircularProgress size={16} />
-                                    ) : (
-                                        t('Delete', { ns: 'common' })
-                                    )}
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                        />
                     </>
                 </CustomTabPanel>
-                <CustomTabPanel index={2} value={value}>
+                <CustomTabPanel index={1} value={value}>
                     <Typography variant="h6">
                         {t('Available Timeslots')}
                     </Typography>
+                    {studentHasActiveAppointment ? (
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                            {t(
+                                'You already have an upcoming appointment. Please attend or cancel it before booking another.'
+                            )}
+                        </Alert>
+                    ) : null}
+                    {!has_officehours ? (
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                            目前 Agent 無空出 Office hours 時段，請聯繫您的
+                            Agent。
+                        </Alert>
+                    ) : null}
                     {available_termins
                         .sort((a, b) => (a.start < b.start ? -1 : 1))
                         .map((time_slot, j) => (
@@ -849,6 +748,7 @@ const OfficeHours = () => {
                                 </Box>
                                 <Button
                                     color="primary"
+                                    disabled={studentHasActiveAppointment}
                                     onClick={() =>
                                         handleSelectAvailableTermin(time_slot)
                                     }

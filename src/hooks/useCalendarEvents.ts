@@ -1,4 +1,9 @@
-import { ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, useState } from 'react';
+import {
+    ChangeEvent,
+    FormEvent,
+    MouseEvent as ReactMouseEvent,
+    useState
+} from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
@@ -107,8 +112,11 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const students = studentsQuery.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
     const booked_events: EventConfirmationCardEvent[] =
-        ((bookedEventsQuery.data as { data?: { data?: EventConfirmationCardEvent[] } } | undefined)
-            ?.data?.data ?? []);
+        (
+            bookedEventsQuery.data as
+                | { data?: { data?: EventConfirmationCardEvent[] } }
+                | undefined
+        )?.data?.data ?? [];
     const res_status =
         (eventsQuery.data as { status?: number } | undefined)?.status ?? 0;
     const success = eventsResponse.success || false;
@@ -118,6 +126,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const [calendarEventsState, setCalendarEventsState] = useState<{
         student_id: string;
         isDeleteModalOpen: boolean;
+        deleteMode: 'reject' | 'cancel';
         isEditModalOpen: boolean;
         isConfirmModalOpen: boolean;
         event_temp: PartialEvent;
@@ -138,6 +147,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     }>({
         student_id: '',
         isDeleteModalOpen: false,
+        deleteMode: 'cancel',
         isEditModalOpen: false,
         isConfirmModalOpen: false,
         event_temp: {},
@@ -386,7 +396,13 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const deleteEventMutation = useMutation({
-        mutationFn: (eventId: string) => deleteEvent(eventId),
+        mutationFn: ({
+            eventId,
+            reason
+        }: {
+            eventId: string;
+            reason?: string;
+        }) => deleteEvent(eventId, reason),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -430,10 +446,11 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleDeleteAppointmentModal = (
         e: FormEvent | ReactMouseEvent,
-        event_id: string
+        event_id: string,
+        reason?: string
     ): void => {
         e.preventDefault();
-        deleteEventMutation.mutate(event_id);
+        deleteEventMutation.mutate({ eventId: event_id, reason });
     };
 
     const handleConfirmAppointmentModalOpen = (
@@ -491,7 +508,9 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleUpdateTimeSlotAgent = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
+        e:
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | { target: { value: string } }
     ): void => {
         const new_timeslot_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -527,13 +546,15 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleDeleteAppointmentModalOpen = (
         e: ReactMouseEvent | MouseEvent,
-        event: EventConfirmationCardEvent
+        event: EventConfirmationCardEvent,
+        mode: 'reject' | 'cancel' = 'cancel'
     ): void => {
         e.preventDefault();
         e.stopPropagation();
         setCalendarEventsState((prevState) => ({
             ...prevState,
             isDeleteModalOpen: true,
+            deleteMode: mode,
             event_id: event._id?.toString() ?? ''
         }));
     };
@@ -548,7 +569,9 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleChangeReceiver = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
+        e:
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | { target: { value: string } }
     ): void => {
         const receiver_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -557,14 +580,18 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         }));
     };
 
-    const handleSelectEvent = (event: Record<string, unknown> | PartialEvent): void => {
+    const handleSelectEvent = (
+        event: Record<string, unknown> | PartialEvent
+    ): void => {
         setCalendarEventsState((prevState) => ({
             ...prevState,
             selectedEvent: event as PartialEvent
         }));
     };
     const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
+        e:
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | { target: { value: string } }
     ): void => {
         const description_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -655,7 +682,9 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleSelectStudent = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
+        e:
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | { target: { value: string } }
     ): void => {
         const student_id = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -738,6 +767,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         newEventEnd: calendarEventsState.newEventEnd,
         isNewEventModalOpen: calendarEventsState.isNewEventModalOpen,
         isDeleteModalOpen: calendarEventsState.isDeleteModalOpen,
+        deleteMode: calendarEventsState.deleteMode,
         students,
         student_id: calendarEventsState.student_id,
         available_termins_full,

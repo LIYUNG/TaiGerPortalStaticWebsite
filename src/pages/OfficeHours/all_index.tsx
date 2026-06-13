@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
     Box,
-    Badge,
     Button,
     Breadcrumbs,
     Card,
@@ -13,34 +12,35 @@ import {
     Select,
     Tabs,
     Tab,
-    Typography,
-    TextField,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions
+    Typography
 } from '@mui/material';
 import { Navigate, Link as LinkDom, useSearchParams } from 'react-router-dom';
-import CheckIcon from '@mui/icons-material/Check';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { IUserWithId } from '@taiger-common/model';
 import { getUsersQuery } from '@/api/query';
 
-import { isInTheFuture } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
-import EventConfirmationCard from '@components/Calendar/components/EventConfirmationCard';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import useCalendarEvents from '@hooks/useCalendarEvents';
+import { useCalendarRangeEvents } from '@hooks/useCalendarRangeEvents';
+import { useEventsPaginated } from '@hooks/useEventsPaginated';
+import { bucketEvents } from './utils/bucketEvents';
+import { EventConfirmationList } from './components/EventConfirmationList';
+
+const PAST_PAGE_SIZE = 10;
+
+import { ConfirmAppointmentDialog } from './components/ConfirmAppointmentDialog';
+import { DeleteAppointmentDialog } from './components/DeleteAppointmentDialog';
+import { EditAppointmentDialog } from './components/EditAppointmentDialog';
 
 const AllOfficeHours = () => {
     const { user } = useAuth();
@@ -54,6 +54,21 @@ const AllOfficeHours = () => {
         setValue(newValue);
     };
     const receiverIdFromUrl = searchParams.get('receiver_id') || '';
+
+    // Stable "now" pinned at mount: the boundary between the future (list
+    // Pending/Upcoming) and the paginated Past window. Pinning it keeps the
+    // react-query keys stable across renders (no refetch loop).
+    const [nowIso] = useState(() => new Date().toISOString());
+
+    // Calendar tab fetches only the visible date range (refetched on navigation),
+    // not all events.
+    const {
+        calendarEvents,
+        handleRangeChange,
+        isFetching: isCalendarFetching
+    } = useCalendarRangeEvents({
+        receiver_id: receiverIdFromUrl || undefined
+    });
 
     const { data: agentsList, isLoading: isLoadingAgents } = useQuery(
         getUsersQuery('role=Agent&archiv=false')
@@ -76,6 +91,7 @@ const AllOfficeHours = () => {
         newEventEnd,
         isNewEventModalOpen,
         isDeleteModalOpen,
+        deleteMode,
         student_id,
         students,
         handleConfirmAppointmentModalOpen,
@@ -104,9 +120,27 @@ const AllOfficeHours = () => {
     } = useCalendarEvents({
         user_id: '',
         isAll: true,
-        startTime: '',
+        // List "Pending"/"Upcoming" sections only need future events (end >= now);
+        // "Past" is served separately by the paginated endpoint below. This also
+        // removes the previously unbounded "all events" fetch.
+        startTime: nowIso,
         endTime: '',
         receiver_id: receiverIdFromUrl || undefined
+    });
+
+    // "Past" list — server-side paginated (role-scoped). "Load more" grows the
+    // page size; keepPreviousData keeps the list visible between fetches.
+    const [pastLimit, setPastLimit] = useState(PAST_PAGE_SIZE);
+    const {
+        rows: pastEvents,
+        rowCount: pastTotal,
+        isFetching: isFetchingPast
+    } = useEventsPaginated({
+        page: 0,
+        pageSize: pastLimit,
+        before: nowIso,
+        receiver_id: receiverIdFromUrl || undefined,
+        sortOrder: 'desc'
     });
 
     const handleAgentChange = (event: { target: { value: string } }) => {
@@ -134,16 +168,24 @@ const AllOfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const booked_events = events.map((event) => ({
+    // Calendar markers come from the range-scoped query (only the visible window).
+    const booked_events = calendarEvents.map((event) => ({
         ...event,
         id: event._id?.toString() ?? '',
         start: new Date(event.start),
         end: new Date(event.end),
-        provider: (event.requester_id?.[0] as { firstname?: string; lastname?: string } | undefined) || {
+        provider: (event.requester_id?.[0] as
+            | { firstname?: string; lastname?: string }
+            | undefined) || {
             firstname: 'TBD',
             lastname: 'TBD'
         }
     }));
+
+    // Future events split into the two future list sections (Past is paginated
+    // separately above). Replaces the previously duplicated inline
+    // filter/sort/map blocks.
+    const { pending, upcoming } = bucketEvents(events);
 
     return (
         <Box>
@@ -254,103 +296,43 @@ const AllOfficeHours = () => {
                     handleSelectSlot={handleSelectSlot}
                     handleSelectStudent={handleSelectStudent}
                     handleUpdateTimeSlot={handleUpdateTimeSlotAgent}
+                    isLoading={isCalendarFetching}
                     isNewEventModalOpen={isNewEventModalOpen}
                     newDescription={newDescription}
                     newEventEnd={newEventEnd}
                     newEventStart={newEventStart}
                     newReceiver={newReceiver}
-                    selectedEvent={selectedEvent as Partial<import('@components/Calendar/components/Calendar').CalendarEventType> | null}
+                    onRangeChange={handleRangeChange}
+                    selectedEvent={
+                        selectedEvent as Partial<
+                            import('@components/Calendar/components/Calendar').CalendarEventType
+                        > | null
+                    }
                     student_id={student_id}
                     students={students}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 <>
-                    {events?.filter(
-                        (event) =>
-                            isInTheFuture(event.end) &&
-                            (!event.isConfirmedReceiver ||
-                                !event.isConfirmedRequester)
-                    ).length !== 0
-                        ? _.reverse(
-                              _.sortBy(
-                                  events?.filter(
-                                      (event) =>
-                                          isInTheFuture(event.end) &&
-                                          (!event.isConfirmedReceiver ||
-                                              !event.isConfirmedRequester)
-                                  ),
-                                  ['start']
-                              )
-                          ).map((event, i) => (
-                              <EventConfirmationCard
-                                  event={event}
-                                  handleConfirmAppointmentModalOpen={
-                                      handleConfirmAppointmentModalOpen
-                                  }
-                                  handleDeleteAppointmentModalOpen={
-                                      handleDeleteAppointmentModalOpen
-                                  }
-                                  handleEditAppointmentModalOpen={
-                                      handleEditAppointmentModalOpen
-                                  }
-                                  key={i}
-                              />
-                          ))
-                        : null}
+                    <EventConfirmationList
+                        events={pending}
+                        handleConfirmAppointmentModalOpen={
+                            handleConfirmAppointmentModalOpen
+                        }
+                        handleDeleteAppointmentModalOpen={
+                            handleDeleteAppointmentModalOpen
+                        }
+                        handleEditAppointmentModalOpen={
+                            handleEditAppointmentModalOpen
+                        }
+                    />
                     <Card sx={{ p: 2 }}>
                         <Typography variant="h6">
                             {t('Upcoming', { ns: 'common' })}
                         </Typography>
-                        {events?.filter(
-                            (event) =>
-                                isInTheFuture(event.end) &&
-                                event.isConfirmedRequester &&
-                                event.isConfirmedReceiver
-                        ).length !== 0
-                            ? _.reverse(
-                                  _.sortBy(
-                                      events?.filter(
-                                          (event) =>
-                                              isInTheFuture(event.end) &&
-                                              event.isConfirmedRequester &&
-                                              event.isConfirmedReceiver
-                                      ),
-                                      ['start']
-                                  )
-                              ).map((event, i) => (
-                                  <EventConfirmationCard
-                                      event={event}
-                                      handleConfirmAppointmentModalOpen={
-                                          handleConfirmAppointmentModalOpen
-                                      }
-                                      handleDeleteAppointmentModalOpen={
-                                          handleDeleteAppointmentModalOpen
-                                      }
-                                      handleEditAppointmentModalOpen={
-                                          handleEditAppointmentModalOpen
-                                      }
-                                      key={i}
-                                  />
-                              ))
-                            : t('No upcoming event', { ns: 'common' })}
-                    </Card>
-                    <Card>
-                        <Typography sx={{ p: 2 }} variant="h6">
-                            {t('Past', { ns: 'common' })}
-                        </Typography>
-                        {_.reverse(
-                            _.sortBy(
-                                events?.filter(
-                                    (event) =>
-                                        !isInTheFuture(event.end)
-                                ),
-                                ['start']
-                            )
-                        ).map((event, i) => (
-                            <EventConfirmationCard
-                                disabled={true}
-                                event={event}
+                        {upcoming.length !== 0 ? (
+                            <EventConfirmationList
+                                events={upcoming}
                                 handleConfirmAppointmentModalOpen={
                                     handleConfirmAppointmentModalOpen
                                 }
@@ -360,148 +342,82 @@ const AllOfficeHours = () => {
                                 handleEditAppointmentModalOpen={
                                     handleEditAppointmentModalOpen
                                 }
-                                key={i}
                             />
-                        ))}
+                        ) : (
+                            t('No upcoming event', { ns: 'common' })
+                        )}
                     </Card>
-                    <Dialog
+                    <Card>
+                        <Typography sx={{ p: 2 }} variant="h6">
+                            {t('Past', { ns: 'common' })}
+                        </Typography>
+                        <EventConfirmationList
+                            disabled
+                            events={pastEvents}
+                            handleConfirmAppointmentModalOpen={
+                                handleConfirmAppointmentModalOpen
+                            }
+                            handleDeleteAppointmentModalOpen={
+                                handleDeleteAppointmentModalOpen
+                            }
+                            handleEditAppointmentModalOpen={
+                                handleEditAppointmentModalOpen
+                            }
+                        />
+                        {pastEvents.length < pastTotal ? (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    p: 2
+                                }}
+                            >
+                                <Button
+                                    disabled={isFetchingPast}
+                                    onClick={() =>
+                                        setPastLimit(
+                                            (limit) => limit + PAST_PAGE_SIZE
+                                        )
+                                    }
+                                    startIcon={
+                                        isFetchingPast ? (
+                                            <CircularProgress size={16} />
+                                        ) : undefined
+                                    }
+                                    variant="outlined"
+                                >
+                                    {t('Load more', { ns: 'common' })}
+                                </Button>
+                            </Box>
+                        ) : null}
+                    </Card>
+                    <ConfirmAppointmentDialog
+                        bookButtonDisable={BookButtonDisable}
+                        event={event_temp}
+                        eventId={event_id}
                         onClose={handleConfirmAppointmentModalClose}
+                        onConfirm={handleConfirmAppointmentModal}
                         open={isConfirmModalOpen}
-                    >
-                        <DialogContent>
-                            You are aware of this meeting time and confirm.
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                color="primary"
-                                disabled={
-                                    event_id === '' ||
-                                    (event_temp?.description?.length ?? 0) ===
-                                        0 ||
-                                    BookButtonDisable
-                                }
-                                onClick={(e) =>
-                                    handleConfirmAppointmentModal(
-                                        e,
-                                        event_id,
-                                        event_temp
-                                    )
-                                }
-                                startIcon={
-                                    BookButtonDisable ? (
-                                        <CircularProgress size={24} />
-                                    ) : (
-                                        <CheckIcon />
-                                    )
-                                }
-                                variant="contained"
-                            >
-                                {t('Yes', { ns: 'common' })}
-                            </Button>
-                            <Button
-                                color="primary"
-                                onClick={handleConfirmAppointmentModalClose}
-                                variant="outlined"
-                            >
-                                {t('Close', { ns: 'common' })}
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                    <Dialog
+                    />
+                    <DeleteAppointmentDialog
+                        bookButtonDisable={BookButtonDisable}
+                        eventId={event_id}
+                        mode={deleteMode}
                         onClose={handleDeleteAppointmentModalClose}
+                        onDelete={handleDeleteAppointmentModal}
                         open={isDeleteModalOpen}
-                    >
-                        <DialogTitle>
-                            {t('Warning', { ns: 'common' })}
-                        </DialogTitle>
-                        <DialogContent>
-                            {t('Do you want to cancel this meeting?')}
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                color="primary"
-                                disabled={event_id === '' || BookButtonDisable}
-                                onClick={(e) =>
-                                    handleDeleteAppointmentModal(e, event_id)
-                                }
-                                variant="contained"
-                            >
-                                {BookButtonDisable ? (
-                                    <CircularProgress size={16} />
-                                ) : (
-                                    t('Delete', { ns: 'common' })
-                                )}
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
+                    />
                 </>
             </CustomTabPanel>
-            <Dialog
+            <EditAppointmentDialog
+                bookButtonDisable={BookButtonDisable}
+                event={event_temp}
+                eventId={event_id}
                 onClose={handleEditAppointmentModalClose}
+                onUpdate={handleEditAppointmentModal}
+                onUpdateDescription={handleUpdateDescription}
                 open={isEditModalOpen}
-            >
-                <DialogTitle>{t('Edit', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    <Typography component="span">請寫下想討論的主題</Typography>
-                    <TextField
-                        error={(event_temp?.description?.length ?? 0) > 2000}
-                        fullWidth
-                        inputProps={{ maxLength: 2000 }}
-                        minRows={10}
-                        multiline
-                        onChange={(e) => handleUpdateDescription(e)}
-                        placeholder="Example：我想定案選校、選課，我想討論簽證，德語班。"
-                        value={event_temp?.description || ''}
-                    />
-                    <Badge
-                        color={
-                            (event_temp?.description?.length ?? 0) > 2000
-                                ? 'error'
-                                : 'primary'
-                        }
-                    >
-                        <Typography component="span">
-                            {event_temp?.description?.length || 0}/{2000}
-                        </Typography>
-                    </Badge>
-                    <Typography>
-                        {t('Student', { ns: 'common' })}:{' '}
-                        {event_temp?.requester_id?.map(
-                            (
-                                requester: {
-                                    firstname?: string;
-                                    lastname?: string;
-                                },
-                                idx: number
-                            ) => (
-                                <Typography fontWeight="bold" key={idx}>
-                                    {requester.firstname} {requester.lastname}
-                                </Typography>
-                            )
-                        )}
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        disabled={
-                            event_id === '' ||
-                            (event_temp?.description?.length ?? 0) === 0 ||
-                            BookButtonDisable
-                        }
-                        onClick={(e) =>
-                            handleEditAppointmentModal(e, event_id, event_temp)
-                        }
-                        variant="contained"
-                    >
-                        {BookButtonDisable ? (
-                            <CircularProgress size={16} />
-                        ) : (
-                            t('Update', { ns: 'common' })
-                        )}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            />
         </Box>
     );
 };

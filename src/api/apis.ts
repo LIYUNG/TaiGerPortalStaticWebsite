@@ -22,6 +22,7 @@ import type {
     GetActiveThreadsPaginatedResponse,
     GetActiveThreadsCountsResponse,
     GetStudentsV3PaginatedResponse,
+    GetEventsPaginatedResponse,
     GetInterviewsPaginatedResponse,
     GetMyInterviewsPaginatedResponse,
     CreateAIAssistConversationResponse,
@@ -1631,6 +1632,9 @@ export const getActiveEventsNumber = () =>
     request.get<GetActiveEventsNumberResponse>(`/api/events/ping`);
 export const getEvents = (queryString: QueryString) =>
     request.get<GetEventsResponse>(`/api/events?${queryString}`);
+// Server-side paginated, role-scoped events (office-hours "Past" list).
+export const getEventsPaginated = (queryString: QueryString) =>
+    getData<GetEventsPaginatedResponse>(`/api/events/paginated?${queryString}`);
 export const getBookedEvents = ({
     startTime,
     endTime
@@ -1650,8 +1654,10 @@ export const confirmEvent = (event_id: string, updated_event: ApiPayload) =>
     );
 export const updateEvent = (event_id: string, updated_event: ApiPayload) =>
     request.put<UpdateEventResponse>(`/api/events/${event_id}`, updated_event);
-export const deleteEvent = (event_id: string) =>
-    request.delete<DeleteEventResponse>(`/api/events/${event_id}`);
+export const deleteEvent = (event_id: string, reason?: string) =>
+    request.delete<DeleteEventResponse>(`/api/events/${event_id}`, {
+        data: { reason }
+    });
 export const updateOfficehours = (
     user_id: string,
     officehours: ApiPayload,
