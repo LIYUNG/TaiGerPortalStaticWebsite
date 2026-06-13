@@ -1822,6 +1822,35 @@ export const getProgramTicketsV2 = ({
         `/api/tickets?type=${type}&status=${status}`
     );
 
+export interface GetTicketsOverviewResponse {
+    success: boolean;
+    data: unknown[];
+    total: number;
+    page: number;
+    limit: number;
+}
+export const getTicketsOverviewV2 = (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    type?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+}) => {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set('page', String(params.page));
+    if (params.limit) searchParams.set('limit', String(params.limit));
+    if (params.search) searchParams.set('search', params.search);
+    if (params.type) searchParams.set('type', params.type);
+    if (params.status) searchParams.set('status', params.status);
+    if (params.sortBy) searchParams.set('sortBy', params.sortBy);
+    if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
+    return getData<GetTicketsOverviewResponse>(
+        `/api/tickets/overview?${searchParams.toString()}`
+    );
+};
+
 // Complaint
 export const createComplaintTicket = (ticket: ApiPayload) =>
     request.post<CreateComplaintResponse>(`/api/complaints/`, { ticket });

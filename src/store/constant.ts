@@ -54,6 +54,7 @@ export interface DemoRoutes {
     PROFILE_STUDENT_LINK: (user_id: string) => string;
     PROGRAMS: string;
     PROGRAMS_OVERVIEW: string;
+    PROGRAM_TICKETS: string;
     SCHOOL_CONFIG: string;
     NEW_PROGRAM: string;
     PROGRAM_EDIT: (program_id: string) => string;
@@ -161,6 +162,7 @@ const DEMO: DemoRoutes = {
     PROFILE_STUDENT_LINK: (user_id) => `/profile/${user_id}`,
     PROGRAMS: '/programs',
     PROGRAMS_OVERVIEW: '/programs/overview',
+    PROGRAM_TICKETS: '/programs/tickets',
     SCHOOL_CONFIG: '/programs/config',
     NEW_PROGRAM: '/programs/create',
     PROGRAM_EDIT: (program_id) => `/programs/${program_id}/edit`,
