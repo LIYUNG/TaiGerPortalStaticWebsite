@@ -11,11 +11,6 @@ import {
     IconButton,
     Link,
     ListItem,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +19,7 @@ import type { Application } from '@/api/types';
 import type { IUser } from '@taiger-common/model';
 import type { IStudentResponse } from '@taiger-common/model';
 
-import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
+import PendingEditorReplyCard from '../MainViewTab/RespondedThreads/PendingEditorReplyCard';
 import StudentTaskList from '../MainViewTab/StudentTasks/StudentTaskList';
 import {
     check_academic_background_filled,
@@ -128,7 +123,6 @@ const StudentDashboard = ({
     }
 
     const hasUpcomingAppointment = false;
-    const read_thread = <RespondedThreads student={student!} />;
 
     return (
         <>
@@ -414,48 +408,9 @@ const StudentDashboard = ({
                                     </Card>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Card>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12}>
-                                                <Typography
-                                                    sx={{
-                                                        marginLeft: 2,
-                                                        marginTop: 1
-                                                    }}
-                                                    variant="h6"
-                                                >
-                                                    Pending: 等待 Editor 回復
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12}>
-                                                <Table size="small">
-                                                    <TableHead>
-                                                        <TableRow>
-                                                            <TableCell>
-                                                                {t(
-                                                                    'Documents',
-                                                                    {
-                                                                        ns: 'common'
-                                                                    }
-                                                                )}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {t(
-                                                                    'Last update',
-                                                                    {
-                                                                        ns: 'common'
-                                                                    }
-                                                                )}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    </TableHead>
-                                                    <TableBody>
-                                                        {read_thread}
-                                                    </TableBody>
-                                                </Table>
-                                            </Grid>
-                                        </Grid>
-                                    </Card>
+                                    <PendingEditorReplyCard
+                                        student={student!}
+                                    />
                                 </Grid>
                             </Grid>
                         ) : null}

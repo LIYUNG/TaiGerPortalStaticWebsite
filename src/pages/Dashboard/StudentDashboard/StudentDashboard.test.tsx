@@ -58,12 +58,8 @@ vi.mock('../../Utils/util_functions', () => ({
     needGraduatedApplicantsPrograms: vi.fn(() => [])
 }));
 
-vi.mock('../MainViewTab/RespondedThreads/RespondedThreads', () => ({
-    default: () => (
-        <tr data-testid="responded-threads">
-            <td />
-        </tr>
-    )
+vi.mock('../MainViewTab/RespondedThreads/PendingEditorReplyCard', () => ({
+    default: () => <div data-testid="pending-editor-reply-card" />
 }));
 
 vi.mock('../MainViewTab/StudentTasks/StudentTaskList', () => ({
