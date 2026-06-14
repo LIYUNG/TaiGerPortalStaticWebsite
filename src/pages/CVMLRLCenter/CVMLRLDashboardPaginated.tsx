@@ -32,7 +32,10 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     document_name: 'document_name',
     deadline: 'deadline',
     lang: 'lang',
-    status: 'status'
+    status: 'status',
+    editors_joined: 'editorName',
+    agents_joined: 'agentName',
+    outsourced_user_name_joined: 'essayWriterName'
 };
 
 // Tab index -> backend category.
@@ -104,19 +107,39 @@ const CVMLRLDashboardPaginated = () => {
         [rows]
     );
 
-    // Only the supported columns stay sortable/filterable in server mode.
-    const columns = useMemo(
-        () =>
-            (c1_mrt as MRT_ColumnDef<Record<string, unknown>>[]).map((col) => {
+    // Only the supported columns stay sortable/filterable in server mode. The
+    // shared "Editors / Writer" column becomes an Editor filter; Agent and
+    // Essay Writer get their own filterable columns (data joined server-side).
+    const columns = useMemo(() => {
+        const base = (c1_mrt as MRT_ColumnDef<Record<string, unknown>>[]).map(
+            (col) => {
                 const id = String(col.accessorKey ?? '');
                 return {
                     ...col,
+                    ...(id === 'editors_joined' ? { header: 'Editor' } : {}),
                     enableSorting: Boolean(SORT_FIELD_MAP[id]),
                     enableColumnFilter: Boolean(FILTER_FIELD_MAP[id])
                 };
-            }),
-        []
-    );
+            }
+        );
+        const staffColumns: MRT_ColumnDef<Record<string, unknown>>[] = [
+            {
+                accessorKey: 'agents_joined',
+                header: 'Agent',
+                size: 120,
+                enableSorting: false,
+                enableColumnFilter: true
+            },
+            {
+                accessorKey: 'outsourced_user_name_joined',
+                header: 'Essay Writer',
+                size: 130,
+                enableSorting: false,
+                enableColumnFilter: true
+            }
+        ];
+        return [...base, ...staffColumns];
+    }, []);
 
     const resetPage = () =>
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
