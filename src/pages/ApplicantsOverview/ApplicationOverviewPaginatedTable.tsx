@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, Link, Popover, Typography } from '@mui/material';
-import { Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { isProgramDecided, isProgramSubmitted } from '@taiger-common/core';
 import type {
@@ -27,35 +27,14 @@ import {
 import { programs_refactor_v2 } from '../Utils/util_functions';
 import { useActiveStudentsApplicationsV3 } from '@hooks/useActiveStudentsApplicationsV3';
 import type { Application } from '@/api/types';
+import {
+    FILTER_FIELD_MAP,
+    SORT_FIELD_MAP,
+    searchParamsToApplicationTableState,
+    writeApplicationTableParams
+} from './applicationOverviewUrlState';
 
 type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
-
-// MRT column id (= row field) -> backend sortBy value. Columns not listed are
-// rendered with sortable: false (the backend cannot sort by them).
-const SORT_FIELD_MAP: Record<string, string> = {
-    application_year: 'application_year',
-    semester: 'semester',
-    firstname_lastname: 'firstname_lastname',
-    country: 'country',
-    program: 'program_name',
-    decided: 'decided',
-    closed: 'closed',
-    deadline: 'deadline'
-};
-
-// MRT column id (= row field) -> backend filter query key. Only these columns
-// expose a column filter; the backend understands these keys.
-const FILTER_FIELD_MAP: Record<string, string> = {
-    application_year: 'application_year',
-    semester: 'semester',
-    firstname_lastname: 'studentName',
-    agents: 'agentName',
-    editors: 'editorName',
-    program: 'program',
-    decided: 'decided',
-    closed: 'closed',
-    country: 'country'
-};
 
 // `decided` / `closed` are stored as short status codes, so a select filter is
 // clearer than free text. Values are sent verbatim to the backend.
@@ -83,8 +62,6 @@ const applyUpdater = <T,>(updater: MRT_Updater<T>, current: T): T =>
         ? (updater as (old: T) => T)(current)
         : updater;
 
-const DEFAULT_PAGE_SIZE = 20;
-
 export interface ApplicationOverviewPaginatedTableProps {
     /**
      * When provided, scope to the applications of the students this TaiGer user
@@ -98,17 +75,44 @@ export const ApplicationOverviewPaginatedTable = ({
 }: ApplicationOverviewPaginatedTableProps = {}) => {
     const { t } = useTranslation();
 
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: DEFAULT_PAGE_SIZE
-    });
-    const [sorting, setSorting] = useState<MRT_SortingState>([
-        { id: 'deadline', desc: false }
-    ]);
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    // Seed table state from the URL on mount so a shared link reproduces the
+    // exact search/sort/filter/page view. URL writes after this are one-way
+    // (state -> URL), so we only read the query string once.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTableState = useMemo(
+        () => searchParamsToApplicationTableState(searchParams),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
+
+    const [pagination, setPagination] = useState<MRT_PaginationState>(
+        initialTableState.pagination
+    );
+    const [sorting, setSorting] = useState<MRT_SortingState>(
+        initialTableState.sorting
+    );
+    const [globalFilter, setGlobalFilter] = useState(
+        initialTableState.globalFilter
+    );
+    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+        initialTableState.columnFilters
+    );
+
+    // Mirror the current search/sort/filter/page state into the URL (replace,
+    // so we don't spam browser history). Only the table's own keys are touched,
+    // so the active `tab` param set by the parent tabs is preserved.
+    useEffect(() => {
+        setSearchParams(
+            (prev) =>
+                writeApplicationTableParams(prev, {
+                    globalFilter,
+                    sorting,
+                    columnFilters,
+                    pagination
+                }),
+            { replace: true }
+        );
+    }, [globalFilter, sorting, columnFilters, pagination, setSearchParams]);
 
     const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
         null
