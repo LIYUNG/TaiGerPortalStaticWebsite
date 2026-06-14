@@ -491,6 +491,16 @@ export const updateStudentApplication = (
         payload
     );
 
+export const withdrawStudentApplication = (
+    studentId: StudentId,
+    application_id: string,
+    closed: '-' | 'X'
+) =>
+    request.put<UpdateApplicationResponse>(
+        `/api/applications/student/${studentId}/${application_id}/withdraw`,
+        { closed }
+    );
+
 // TODO: thread is empty!! application delete ok.
 export const deleteApplicationStudentV2 = (applicationId: ApplicationId) =>
     request.delete<DeleteApplicationResponse>(

@@ -56,7 +56,8 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 import {
     deleteApplicationStudentV2,
     updateStudentApplication,
-    updateStudentApplicationResult
+    updateStudentApplicationResult,
+    withdrawStudentApplication
 } from '@/api';
 import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -208,21 +209,61 @@ const StudentApplicationsTableTemplate = (
         }));
     };
 
-    const handleWithdraw = (
+    const handleWithdraw = async (
         e: SyntheticEvent,
         application_idx: number,
-        programWithdraw = '-'
+        programWithdraw: '-' | 'X' = '-'
     ) => {
         e.preventDefault();
-        const applicationId = String(
-            studentToShow.applications?.[application_idx]?._id ?? ''
-        );
-        if (applicationId) {
-            updatePendingApplicationPatch(
+        const application = studentToShow.applications?.[application_idx];
+        const applicationId = String(application?._id ?? '');
+        const studentId = String(studentToShow._id ?? '');
+        if (!applicationId || !studentId) {
+            return;
+        }
+
+        const previousClosed = application?.closed ?? '-';
+        updatePendingApplicationPatch(applicationId, {
+            closed: programWithdraw
+        });
+
+        try {
+            const resp = await withdrawStudentApplication(
+                studentId,
                 applicationId,
-                { closed: programWithdraw },
-                true
+                programWithdraw
             );
+            const { success, message } = resp.data;
+            if (success) {
+                queryClient.invalidateQueries({
+                    queryKey: ['applications/student', studentId]
+                });
+                setSeverity('success');
+                setMessage(
+                    t('Applications status updated successfully!', {
+                        ns: 'common'
+                    })
+                );
+                setOpenSnackbar(true);
+                return;
+            }
+
+            updatePendingApplicationPatch(applicationId, {
+                closed: previousClosed
+            });
+            setSeverity('error');
+            setMessage(message ?? 'Failed to update application.');
+            setOpenSnackbar(true);
+        } catch (error) {
+            updatePendingApplicationPatch(applicationId, {
+                closed: previousClosed
+            });
+            setSeverity('error');
+            setMessage(
+                (error as { message?: string }).message ||
+                    'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
         }
     };
 
