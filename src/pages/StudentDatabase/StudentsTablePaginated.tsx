@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type {
     MRT_ColumnFiltersState,
     MRT_PaginationState,
@@ -12,14 +13,17 @@ import { useStudentsV3Paginated } from '@hooks/useStudentsV3Paginated';
 import { student_transform } from '../Utils/util_functions';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { StudentsTable } from './StudentsTable';
+import {
+    defaultStudentsTableState,
+    searchParamsToStudentsTableState,
+    writeStudentsTableParams
+} from './studentsTableUrlState';
 
 /** Apply an MRT updater (value | (old) => new) to the current value. */
 const applyUpdater = <T,>(updater: MRT_Updater<T>, current: T): T =>
     typeof updater === 'function'
         ? (updater as (old: T) => T)(current)
         : updater;
-
-const DEFAULT_PAGE_SIZE = 20;
 
 export interface StudentsTablePaginatedProps {
     /** Scope to (non-)archived students. Omit for all students. */
@@ -28,6 +32,12 @@ export interface StudentsTablePaginatedProps {
     agents?: string;
     /** Scope to students supervised by this editor id. */
     editors?: string;
+    /**
+     * Mirror search/sort/filter/pagination into the URL query string so the
+     * view is shareable. Opt-in, since this table also renders on pages where
+     * URL sync would collide with other state. Default false.
+     */
+    syncUrl?: boolean;
 }
 
 /**
@@ -39,20 +49,59 @@ export interface StudentsTablePaginatedProps {
 export const StudentsTablePaginated = ({
     archiv,
     agents,
-    editors
+    editors,
+    syncUrl = false
 }: StudentsTablePaginatedProps = {}) => {
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: DEFAULT_PAGE_SIZE
-    });
-    // Default to newest students first (by creation date).
-    const [sorting, setSorting] = useState<MRT_SortingState>([
-        { id: 'createdAt', desc: true }
-    ]);
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    // Seed from the URL on mount when sharing is enabled; otherwise fall back to
+    // the table defaults (newest students first). URL writes after this are
+    // one-way (state -> URL), so we only read the query string once.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTableState = useMemo(
+        () =>
+            syncUrl
+                ? searchParamsToStudentsTableState(searchParams)
+                : defaultStudentsTableState(),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
+
+    const [pagination, setPagination] = useState<MRT_PaginationState>(
+        initialTableState.pagination
+    );
+    const [sorting, setSorting] = useState<MRT_SortingState>(
+        initialTableState.sorting
+    );
+    const [globalFilter, setGlobalFilter] = useState(
+        initialTableState.globalFilter
+    );
+    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+        initialTableState.columnFilters
+    );
+
+    // Mirror the current state into the URL (replace, so we don't spam history).
+    // Only the table's own keys are touched, preserving e.g. the active `tab`.
+    useEffect(() => {
+        if (!syncUrl) {
+            return;
+        }
+        setSearchParams(
+            (prev) =>
+                writeStudentsTableParams(prev, {
+                    globalFilter,
+                    sorting,
+                    columnFilters,
+                    pagination
+                }),
+            { replace: true }
+        );
+    }, [
+        syncUrl,
+        globalFilter,
+        sorting,
+        columnFilters,
+        pagination,
+        setSearchParams
+    ]);
 
     const sortColumn = sorting[0];
 

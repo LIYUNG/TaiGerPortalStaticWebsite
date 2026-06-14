@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link as LinkDom } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link as LinkDom, useSearchParams } from 'react-router-dom';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -33,6 +33,8 @@ import { MRT_ColumnDef } from 'material-react-table';
 import { usePrograms } from '@hooks/usePrograms';
 import {
     columnFiltersToProgramListFilters,
+    programTableStateToSearchParams,
+    searchParamsToProgramTableState,
     type ProgramListFilters
 } from './programListFilters';
 /** Program row in ProgramsTable (data array item) */
@@ -63,35 +65,70 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
     // Below md the 13-column table forces horizontal scroll; render a card list.
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: 20
-    });
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+
+    // Seed table state from the URL on mount so a shared link reproduces the
+    // exact search/filter/page view. URL writes after this are one-way
+    // (state -> URL), so we only read the query string once.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTableState = useMemo(
+        () => searchParamsToProgramTableState(searchParams),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    const [pagination, setPagination] = useState<MRT_PaginationState>(
+        initialTableState.pagination
+    );
+    const [globalFilter, setGlobalFilter] = useState(
+        initialTableState.globalFilter
+    );
+    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+        initialTableState.columnFilters
+    );
+    const [debouncedSearch, setDebouncedSearch] = useState(
+        initialTableState.globalFilter.trim()
+    );
     const [debouncedColumnFilters, setDebouncedColumnFilters] =
-        useState<ProgramListFilters>({});
+        useState<ProgramListFilters>(
+            columnFiltersToProgramListFilters(initialTableState.columnFilters)
+        );
     const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
     const [selectedProgramsById, setSelectedProgramsById] = useState<
         Record<string, ProgramsTableProgramRow>
     >({});
 
+    const isInitialFilterRun = useRef(true);
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
             setDebouncedSearch(globalFilter.trim());
             setDebouncedColumnFilters(
                 columnFiltersToProgramListFilters(columnFilters)
             );
-            setPagination((current) => ({ ...current, pageIndex: 0 }));
-            setRowSelection({});
-            setSelectedProgramsById({});
+            // Don't reset the page on the first run — a shared URL may point at
+            // a specific page. Only changing a filter afterwards sends the user
+            // back to page 1.
+            if (isInitialFilterRun.current) {
+                isInitialFilterRun.current = false;
+            } else {
+                setPagination((current) => ({ ...current, pageIndex: 0 }));
+                setRowSelection({});
+                setSelectedProgramsById({});
+            }
         }, 300);
 
         return () => window.clearTimeout(timeoutId);
     }, [globalFilter, columnFilters]);
+
+    // Mirror the current search/filter/page state into the URL (replace, so we
+    // don't spam browser history) so the address bar is always shareable.
+    useEffect(() => {
+        const nextParams = programTableStateToSearchParams({
+            globalFilter,
+            columnFilters,
+            pagination
+        });
+        setSearchParams(nextParams, { replace: true });
+    }, [globalFilter, columnFilters, pagination, setSearchParams]);
 
     const { data, isLoading, isFetching } = usePrograms({
         page: pagination.pageIndex + 1,
@@ -470,7 +507,7 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         setOpenAssignDialog(false);
     };
     /* material-react-table expects toolbar to be assigned to options */
-    // eslint-disable-next-line react-hooks/immutability
+     
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}

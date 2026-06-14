@@ -1,4 +1,5 @@
 import { SyntheticEvent, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, Tab, Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -9,6 +10,19 @@ import ApplicationOverviewPaginatedTable from './ApplicationOverviewPaginatedTab
 import { OpenApplicationsDistributionChart } from './OpenApplicationsDistributionChart';
 import { ProgramUpdateStatusTab } from './ProgramUpdateStatusTab';
 import { StudentsTablePaginated } from '../StudentDatabase/StudentsTablePaginated';
+
+// Tab index <-> URL slug. Order matches the rendered <Tab> order below.
+const TAB_SLUGS = [
+    'active-students',
+    'application-overview',
+    'programs-update',
+    'decided-programs-update'
+] as const;
+
+const tabIndexFromSlug = (slug: string | null): number => {
+    const index = TAB_SLUGS.indexOf(slug as (typeof TAB_SLUGS)[number]);
+    return index >= 0 ? index : 0;
+};
 
 export interface ApplicationOverviewTabsProps {
     /**
@@ -30,10 +44,22 @@ const ApplicationOverviewTabs = ({
 }: ApplicationOverviewTabsProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [value, setValue] = useState(0);
+
+    // Keep the active tab in the URL as a readable slug (?tab=application-overview)
+    // so the view is shareable and survives a refresh. Read once on mount.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [value, setValue] = useState(() =>
+        tabIndexFromSlug(searchParams.get('tab'))
+    );
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
+        // Switching tabs resets the query: each tab owns its own filter set, and
+        // the newly mounted tab seeds its state from a clean URL.
+        setSearchParams(
+            () => new URLSearchParams({ tab: TAB_SLUGS[newValue] }),
+            { replace: true }
+        );
     };
 
     return (
@@ -78,6 +104,7 @@ const ApplicationOverviewTabs = ({
                             agents={agents}
                             archiv={false}
                             editors={editors}
+                            syncUrl
                         />
                     ) : null}
                 </CustomTabPanel>
