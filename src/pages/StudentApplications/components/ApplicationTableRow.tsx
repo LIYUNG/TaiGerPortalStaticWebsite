@@ -66,7 +66,7 @@ export interface ApplicationTableRowProps {
     handleWithdraw: (
         e: SyntheticEvent,
         application_idx: number,
-        programWithdraw?: string
+        programWithdraw?: '-' | 'X'
     ) => void;
     handleDelete: (
         e: MouseEvent<HTMLElement>,
