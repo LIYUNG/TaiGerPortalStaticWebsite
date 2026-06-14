@@ -3,13 +3,19 @@ import {
     MaterialReactTable,
     useMaterialReactTable
 } from 'material-react-table';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useMediaQuery, useTheme } from '@mui/material';
+import { is_TaiGer_role } from '@taiger-common/core';
 import { getTableConfig, useTableStyles } from '@components/table';
 
 import { TopToolbar } from '@components/table/interviews-table/TopToolbar';
 import { AssignTrainerDialog } from './AssignTrainerDialog';
+import { InterviewsMobileView } from './mobile/InterviewsMobileView';
 import { getUsers, updateInterview, ESSAY_WRITERS_QUERY_STRING } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
+import type { IUser } from '@taiger-common/model';
 import type {
     MRT_ColumnDef,
     MRT_ColumnFiltersState,
@@ -45,6 +51,8 @@ export interface InterviewsTableProps {
     serverMode?: InterviewsTableServerMode;
 }
 
+type InterviewRow = Record<string, unknown>;
+
 export const InterviewsTable = ({
     isLoading,
     data,
@@ -52,12 +60,22 @@ export const InterviewsTable = ({
     serverMode
 }: InterviewsTableProps) => {
     const { user } = useAuth();
+    const theme = useTheme();
+    // Below md the wide interview table forces horizontal scroll; show cards.
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const customTableStyles = useTableStyles();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
     const [trainers, setTrainers] = useState([]);
     const [trainerId, setTrainerId] = useState(new Set());
+    // The interview currently being assigned a trainer — set from the MRT row
+    // selection (desktop) or a card action (mobile).
+    const [targetInterview, setTargetInterview] = useState<InterviewRow | null>(
+        null
+    );
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+
+    const canAssign = user != null && is_TaiGer_role(user as IUser);
 
     const table = useMaterialReactTable({
         ...tableConfig,
@@ -90,10 +108,31 @@ export const InterviewsTable = ({
             : {})
     });
 
+    const loadTrainers = async (interview: InterviewRow | null) => {
+        const res = await getUsers(ESSAY_WRITERS_QUERY_STRING);
+        const editors_a = res.data?.data ?? [];
+        setTrainers(editors_a);
+        setTrainerId(
+            new Set(
+                (interview?.trainer_id as { _id: string }[] | undefined)?.map(
+                    ({ _id }) => _id.toString()
+                )
+            )
+        );
+    };
+
+    const openAssignFor = (interview: InterviewRow | null) => {
+        if (!interview) return;
+        setTargetInterview(interview);
+        setOpenAssignDialog(true);
+        loadTrainers(interview);
+    };
+
     const updateTrainer = async () => {
+        if (!targetInterview?._id) return;
         const temp_trainer_id_array = Array.from(trainerId);
         const resp = await updateInterview(
-            table.getSelectedRowModel()?.rows[0].original._id.toString(),
+            (targetInterview._id as { toString: () => string }).toString(),
             {
                 trainer_id: temp_trainer_id_array
             }
@@ -102,6 +141,7 @@ export const InterviewsTable = ({
         if (success) {
             table.resetRowSelection();
             setOpenAssignDialog(false);
+            setTargetInterview(null);
             setTrainerId(new Set());
             setSeverity('success');
             setMessage('Assigned interview trainer successfully!');
@@ -109,47 +149,29 @@ export const InterviewsTable = ({
         }
     };
 
-    const getTrainer = async () => {
-        const res = await getUsers(ESSAY_WRITERS_QUERY_STRING);
-        const editors_a = res.data?.data ?? [];
-        setTrainers(editors_a);
-        setTrainerId(
-            new Set(
-                table
-                    .getSelectedRowModel()
-                    .rows[0]?.original?.trainer_id?.map(
-                        ({ _id }: { _id: string }) => _id.toString()
-                    )
-            )
-        );
-    };
-
     const modifyTrainer = (new_trainerId: string, isActive: boolean) => {
         if (isActive) {
-            const temp_0 = [...trainerId];
-            const temp = new Set(temp_0);
+            const temp = new Set([...trainerId]);
             temp.delete(new_trainerId);
             setTrainerId(new Set(temp));
         } else {
-            const temp_0 = [...trainerId];
-            const temp = new Set(temp_0);
+            const temp = new Set([...trainerId]);
             temp.add(new_trainerId);
             setTrainerId(new Set(temp));
         }
     };
 
+    // Desktop: assign the single selected row.
     const handleAssignClick = () => {
-        setOpenAssignDialog(true);
-        getTrainer();
+        const selected = table.getSelectedRowModel()?.rows[0]?.original as
+            | InterviewRow
+            | undefined;
+        openAssignFor(selected ?? null);
     };
 
     const handleDialogClose = () => {
         setOpenAssignDialog(false);
-    };
-
-    const handleOnSuccess = () => {
-        table.resetRowSelection();
-        setOpenAssignDialog(false);
+        setTargetInterview(null);
     };
 
     /* material-react-table expects toolbar to be assigned to options */
@@ -165,9 +187,26 @@ export const InterviewsTable = ({
 
     return (
         <>
-            <MaterialReactTable table={table} />
+            {isMobile && serverMode ? (
+                <InterviewsMobileView
+                    canAssign={canAssign}
+                    columnFilters={serverMode.columnFilters}
+                    globalFilter={serverMode.globalFilter}
+                    isLoading={isLoading}
+                    onAssign={openAssignFor}
+                    pagination={serverMode.pagination}
+                    rows={data ?? []}
+                    setColumnFilters={serverMode.onColumnFiltersChange}
+                    setGlobalFilter={serverMode.onGlobalFilterChange}
+                    setPagination={serverMode.onPaginationChange}
+                    total={serverMode.rowCount}
+                />
+            ) : (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <MaterialReactTable table={table} />
+                </LocalizationProvider>
+            )}
             <AssignTrainerDialog
-                handleOnSuccess={handleOnSuccess}
                 modifyTrainer={modifyTrainer}
                 onClose={handleDialogClose}
                 open={openAssignDialog}

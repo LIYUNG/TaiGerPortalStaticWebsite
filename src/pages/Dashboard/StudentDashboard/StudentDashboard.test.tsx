@@ -58,20 +58,12 @@ vi.mock('../../Utils/util_functions', () => ({
     needGraduatedApplicantsPrograms: vi.fn(() => [])
 }));
 
-vi.mock('../MainViewTab/RespondedThreads/RespondedThreads', () => ({
-    default: () => (
-        <tr data-testid="responded-threads">
-            <td />
-        </tr>
-    )
+vi.mock('../MainViewTab/RespondedThreads/PendingEditorReplyCard', () => ({
+    default: () => <div data-testid="pending-editor-reply-card" />
 }));
 
-vi.mock('../MainViewTab/StudentTasks/StudentTasksResponsive', () => ({
-    default: () => (
-        <tr data-testid="student-tasks-responsive">
-            <td />
-        </tr>
-    )
+vi.mock('../MainViewTab/StudentTasks/StudentTaskList', () => ({
+    default: () => <div data-testid="student-task-list" />
 }));
 
 vi.mock('../../Utils/ErrorPage', () => ({
@@ -157,7 +149,7 @@ describe('StudentDashboard', () => {
         expect(screen.getByTestId('english-cert-expired-banner')).toBeTruthy();
     });
 
-    it('renders student tasks table', () => {
+    it('renders the student task list', () => {
         render(
             <StudentDashboard
                 isCoursesFilled={true}
@@ -165,6 +157,6 @@ describe('StudentDashboard', () => {
             />,
             { wrapper }
         );
-        expect(screen.getByTestId('student-tasks-responsive')).toBeTruthy();
+        expect(screen.getByTestId('student-task-list')).toBeTruthy();
     });
 });

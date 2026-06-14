@@ -1,37 +1,52 @@
 import { ReactNode } from 'react';
-import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
-import DownloadIcon from '@mui/icons-material/Download';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import LocalPostOfficeOutlinedIcon from '@mui/icons-material/LocalPostOfficeOutlined';
-import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import HeadsetMicOutlinedIcon from '@mui/icons-material/HeadsetMicOutlined';
-import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import SupervisorAccountOutlinedIcon from '@mui/icons-material/SupervisorAccountOutlined';
+import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
+import HistoryEduOutlinedIcon from '@mui/icons-material/HistoryEduOutlined';
+import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
+import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
+import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import RecordVoiceOverOutlinedIcon from '@mui/icons-material/RecordVoiceOverOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 import AssignmentLateOutlinedIcon from '@mui/icons-material/AssignmentLateOutlined';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
+import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
+import DifferenceOutlinedIcon from '@mui/icons-material/DifferenceOutlined';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
-import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
-import StorageIcon from '@mui/icons-material/Storage';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import ArticleIcon from '@mui/icons-material/Article';
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
+import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import EuroIcon from '@mui/icons-material/Euro';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
-import DrawIcon from '@mui/icons-material/Draw';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import DifferenceIcon from '@mui/icons-material/Difference';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import ArchitectureIcon from '@mui/icons-material/Architecture';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ContactsIcon from '@mui/icons-material/Contacts';
-import HandshakeIcon from '@mui/icons-material/Handshake';
-import GroupsIcon from '@mui/icons-material/Groups';
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import LocalPostOfficeOutlinedIcon from '@mui/icons-material/LocalPostOfficeOutlined';
+import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
+import FlightTakeoffOutlinedIcon from '@mui/icons-material/FlightTakeoffOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
+import ContactsOutlinedIcon from '@mui/icons-material/ContactsOutlined';
+import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 import { appConfig } from './config';
 
 export interface MenuItem {
@@ -52,7 +67,7 @@ const application_overview: MenuItem[] = [
         id: 'applications_overview_stidemt',
         title: 'My Applications',
         type: 'item',
-        icon: <DrawIcon />,
+        icon: <ListAltOutlinedIcon />,
         url: '/student-applications',
         target: false
     },
@@ -62,7 +77,7 @@ const application_overview: MenuItem[] = [
         type: 'item',
         url: '/base-documents',
         classes: 'nav-item',
-        icon: <DrawIcon />,
+        icon: <DescriptionOutlinedIcon />,
         target: false,
         breadcrumbs: false
     },
@@ -72,7 +87,7 @@ const application_overview: MenuItem[] = [
         type: 'item',
         url: '/cv-ml-rl-center',
         classes: 'nav-item',
-        icon: <DrawIcon />,
+        icon: <HistoryEduOutlinedIcon />,
         target: false,
         breadcrumbs: false
     },
@@ -82,7 +97,7 @@ const application_overview: MenuItem[] = [
         type: 'item',
         url: '/portal-informations',
         classes: 'nav-item',
-        icon: <DrawIcon />,
+        icon: <KeyOutlinedIcon />,
         target: false,
         breadcrumbs: false
     }
@@ -94,7 +109,7 @@ if (appConfig.vpdEnable) {
         title: 'Uni-Assist Tasks',
         type: 'item',
         url: '/uni-assist',
-        icon: <DrawIcon />,
+        icon: <PublicOutlinedIcon />,
         target: false,
         breadcrumbs: false
     });
@@ -106,7 +121,7 @@ if (appConfig.interviewEnable) {
         title: 'Interview Center',
         type: 'item',
         url: '/interview-training',
-        icon: <HeadsetMicOutlinedIcon />,
+        icon: <RecordVoiceOverOutlinedIcon />,
         target: false,
         breadcrumbs: false
     });
@@ -125,21 +140,21 @@ let all_students_nestedList: MenuItem[] = [
         title: 'All Documents',
         type: 'item',
         url: '/all-base-documents',
-        icon: <InsertDriveFileIcon />
+        icon: <FolderCopyOutlinedIcon />
     },
     {
         id: 'tasks_dashboard',
         title: 'Tasks Dashboard',
         type: 'item',
         url: '/dashboard/cv-ml-rl',
-        icon: <BorderColorOutlinedIcon />
+        icon: <FactCheckOutlinedIcon />
     },
     {
         id: 'essays_dashboard',
         title: 'Essay Dashboard',
         type: 'item',
         url: '/dashboard/essay',
-        icon: <BorderColorOutlinedIcon />
+        icon: <EditNoteOutlinedIcon />
     },
     ...(appConfig.interviewEnable
         ? [
@@ -147,7 +162,7 @@ let all_students_nestedList: MenuItem[] = [
                   id: 'interview-training',
                   title: 'Interview Center',
                   type: 'item' as const,
-                  icon: <HeadsetMicOutlinedIcon />,
+                  icon: <RecordVoiceOverOutlinedIcon />,
                   url: '/interview-training'
               }
           ]
@@ -157,7 +172,7 @@ let all_students_nestedList: MenuItem[] = [
         title: 'Customer Center',
         type: 'item',
         url: '/customer-center',
-        icon: <SupportAgentIcon />
+        icon: <SupportAgentOutlinedIcon />
     },
     {
         id: 'all-students-overview',
@@ -177,7 +192,7 @@ let all_students_nestedList: MenuItem[] = [
         id: 'internal_program-task-delta',
         title: 'Program Task Diff',
         type: 'item',
-        icon: <DifferenceIcon />,
+        icon: <DifferenceOutlinedIcon />,
         url: '/internal/program-task-delta'
     },
     {
@@ -208,7 +223,7 @@ all_students_nestedList = [
         type: 'item',
         url: '/student-database',
         classes: 'nav-item',
-        icon: <StorageIcon />
+        icon: <PersonSearchOutlinedIcon />
     }
 ];
 
@@ -218,7 +233,7 @@ let documentations_nestedList: MenuItem[] = [
         title: 'How to Start',
         type: 'item',
         url: '/docs/howtostart',
-        icon: <ArticleIcon />,
+        icon: <RocketLaunchOutlinedIcon />,
         target: false,
         breadcrumbs: false
     },
@@ -227,7 +242,7 @@ let documentations_nestedList: MenuItem[] = [
         title: 'Documents',
         type: 'item',
         url: '/docs/base-documents',
-        icon: <InsertDriveFileIcon />,
+        icon: <DescriptionOutlinedIcon />,
         target: false,
         breadcrumbs: false
     },
@@ -236,7 +251,7 @@ let documentations_nestedList: MenuItem[] = [
         title: 'CV/ML/RL',
         type: 'item',
         url: '/docs/cv-ml-rl',
-        icon: <BorderColorIcon />,
+        icon: <HistoryEduOutlinedIcon />,
         target: false,
         breadcrumbs: false
     }
@@ -248,7 +263,7 @@ if (appConfig.vpdEnable) {
         title: 'Uni-Assist',
         type: 'item',
         url: '/docs/uniassist',
-        icon: <ArticleIcon />,
+        icon: <PublicOutlinedIcon />,
         target: false,
         breadcrumbs: false
     });
@@ -261,7 +276,7 @@ documentations_nestedList = [
         title: 'Visa',
         type: 'item',
         url: '/docs/visa',
-        icon: <ArticleIcon />,
+        icon: <FlightTakeoffOutlinedIcon />,
         target: false,
         breadcrumbs: false
     },
@@ -270,7 +285,7 @@ documentations_nestedList = [
         title: 'Internal Docs',
         type: 'item',
         url: '/docs/taiger/internal',
-        icon: <ArticleIcon />,
+        icon: <ArticleOutlinedIcon />,
         target: false,
         breadcrumbs: false
     }
@@ -281,7 +296,7 @@ let taiger_teams_items: MenuItem[] = [
         id: 'teams_member_permission',
         title: 'Permissions Management',
         type: 'item',
-        icon: <VpnKeyIcon />,
+        icon: <AdminPanelSettingsOutlinedIcon />,
         url: '/teams/permissions'
     },
     {
@@ -289,7 +304,7 @@ let taiger_teams_items: MenuItem[] = [
         title: 'tenant-members',
         tenant: appConfig.companyName,
         type: 'item',
-        icon: <SupervisorAccountIcon />,
+        icon: <BadgeOutlinedIcon />,
         url: '/teams/members'
     }
 ];
@@ -301,7 +316,7 @@ taiger_teams_items = [
         title: 'tenant-dashboard',
         tenant: `${appConfig.companyName}`,
         type: 'item',
-        icon: <BarChartIcon />,
+        icon: <DashboardOutlinedIcon />,
         url: '/dashboard/internal'
     },
     {
@@ -333,14 +348,14 @@ const MenuSidebar: MenuItem[] = [
         id: 'my-students',
         title: 'My Students',
         type: 'collapse',
-        icon: <PersonOutlineOutlinedIcon />,
+        icon: <SupervisorAccountOutlinedIcon />,
         children: [
             {
                 id: 'my-students-application-overview',
                 title: 'Application Overview',
                 type: 'item',
                 url: '/student-applications',
-                icon: <PersonOutlineOutlinedIcon />,
+                icon: <ListAltOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -350,7 +365,7 @@ const MenuSidebar: MenuItem[] = [
                 type: 'item',
                 url: '/base-documents',
                 classes: 'nav-item',
-                icon: <InsertDriveFileIcon />
+                icon: <DescriptionOutlinedIcon />
             },
             {
                 id: 'my-students-overview',
@@ -365,7 +380,7 @@ const MenuSidebar: MenuItem[] = [
                 title: 'Agent Support Documents',
                 type: 'item',
                 url: '/agent-support-documents',
-                icon: <BorderColorIcon />,
+                icon: <LibraryBooksOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -375,7 +390,7 @@ const MenuSidebar: MenuItem[] = [
                 type: 'item',
                 url: '/cv-ml-rl-center',
                 classes: 'nav-item',
-                icon: <BorderColorIcon />
+                icon: <HistoryEduOutlinedIcon />
             },
             {
                 id: 'archiv-student',
@@ -391,21 +406,21 @@ const MenuSidebar: MenuItem[] = [
         title: 'My Profile',
         type: 'item',
         url: '/survey',
-        icon: <ArticleIcon />
+        icon: <AssignmentIndOutlinedIcon />
     },
     {
         id: 'my-courses',
         title: 'My Courses',
         type: 'item',
         url: '/my-courses',
-        icon: <ArticleIcon />
+        icon: <MenuBookOutlinedIcon />
     },
     {
         id: 'application_overivew',
         title: 'My Applications',
         type: 'collapse',
         classes: 'nav-item',
-        icon: <ArticleIcon />,
+        icon: <FolderOpenOutlinedIcon />,
         children: application_overview
     },
     {
@@ -426,7 +441,7 @@ const MenuSidebar: MenuItem[] = [
         id: 'all-students',
         title: 'All Students',
         type: 'collapse',
-        icon: <GroupOutlinedIcon />,
+        icon: <GroupsOutlinedIcon />,
         children: all_students_nestedList
     },
     {
@@ -434,7 +449,7 @@ const MenuSidebar: MenuItem[] = [
         title: 'Tools',
         type: 'collapse',
         classes: 'nav-item',
-        icon: <ArchitectureIcon />,
+        icon: <BuildOutlinedIcon />,
         children: [
             {
                 id: 'course-analyser',
@@ -469,14 +484,14 @@ const MenuSidebar: MenuItem[] = [
         title: 'Docs Database',
         type: 'collapse',
         classes: 'nav-item',
-        icon: <StorageIcon />,
+        icon: <StorageOutlinedIcon />,
         children: [
             {
                 id: 'documents-creation',
                 title: 'Public Docs Database',
                 type: 'item',
                 url: '/internal/database/public-docs',
-                icon: <StorageIcon />,
+                icon: <FolderSharedOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -485,7 +500,7 @@ const MenuSidebar: MenuItem[] = [
                 title: 'Internal Docs Database',
                 type: 'item',
                 url: '/internal/database/internal-docs',
-                icon: <StorageIcon />,
+                icon: <FolderOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             }
@@ -505,14 +520,14 @@ const MenuSidebar: MenuItem[] = [
         type: 'item',
         url: '/download',
         classes: 'nav-item',
-        icon: <DownloadIcon />
+        icon: <DownloadOutlinedIcon />
     },
     {
         id: 'customer-center-student',
         title: 'Customer Center',
         type: 'item',
         url: '/customer-center',
-        icon: <SupportAgentIcon />
+        icon: <SupportAgentOutlinedIcon />
     }
 ];
 
@@ -522,14 +537,14 @@ if (appConfig.CRMEnable) {
         title: 'CRM',
         type: 'item',
         url: '/crm',
-        icon: <SupportAgentIcon />,
+        icon: <BusinessCenterOutlinedIcon />,
         children: [
             {
                 id: 'crm_overview',
                 title: 'CRM Overview',
                 type: 'item',
                 url: '/crm',
-                icon: <DashboardIcon />,
+                icon: <DashboardOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -538,7 +553,7 @@ if (appConfig.CRMEnable) {
                 title: 'Leads',
                 type: 'item',
                 url: '/crm/leads',
-                icon: <ContactsIcon />,
+                icon: <ContactsOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -547,7 +562,7 @@ if (appConfig.CRMEnable) {
                 title: 'Deals',
                 type: 'item',
                 url: '/crm/deals',
-                icon: <HandshakeIcon />,
+                icon: <HandshakeOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -556,7 +571,7 @@ if (appConfig.CRMEnable) {
                 title: 'Meetings',
                 type: 'item',
                 url: '/crm/meetings',
-                icon: <GroupsIcon />,
+                icon: <EventOutlinedIcon />,
                 target: false,
                 breadcrumbs: false
             }
