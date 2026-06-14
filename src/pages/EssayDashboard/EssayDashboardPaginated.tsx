@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
     Tabs,
     Tab,
@@ -18,12 +18,6 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
-import type {
-    MRT_ColumnFiltersState,
-    MRT_PaginationState,
-    MRT_SortingState,
-    MRT_Updater
-} from 'material-react-table';
 
 import { MuiDataGrid, MuiDataGridColumn } from '@components/MuiDataGrid';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
@@ -38,6 +32,8 @@ import { putThreadFavorite, queryClient } from '@/api';
 import { useActiveThreadsPaginated } from '@hooks/useActiveThreadsPaginated';
 import type { ThreadCategory } from '@hooks/useActiveThreadsPaginated';
 import { useActiveThreadsCounts } from '@hooks/useActiveThreadsCounts';
+import { useMrtTabUrlState } from '@utils/useMrtTabUrlState';
+import type { MrtUrlStateConfig } from '@utils/mrtUrlState';
 import type { OpenTaskRow } from '@/api/types';
 
 const ESSAY_FILE_TYPE = file_category_const.essay_required; // 'Essay'
@@ -69,30 +65,41 @@ const TAB_CATEGORIES: ThreadCategory[] = [
     'all'
 ];
 
-const applyUpdater = <T,>(updater: MRT_Updater<T>, current: T): T =>
-    typeof updater === 'function'
-        ? (updater as (old: T) => T)(current)
-        : updater;
+// Tab index -> readable URL slug (aligned with TAB_CATEGORIES order).
+const TAB_SLUGS = [
+    'no-writer',
+    'todo',
+    'my-favorites',
+    'follow-up',
+    'no-action',
+    'closed',
+    'all'
+] as const;
 
-const DEFAULT_PAGE_SIZE = 20;
+const URL_STATE_CONFIG: MrtUrlStateConfig = {
+    filterIds: Object.keys(FILTER_FIELD_MAP),
+    sortableIds: Object.keys(SORT_FIELD_MAP),
+    defaultSort: { id: 'deadline', desc: false },
+    defaultPageSize: 20
+};
 
 const EssayDashboardPaginated = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const viewerId = user?._id?.toString();
 
-    const [tab, setTab] = useState(0);
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: DEFAULT_PAGE_SIZE
-    });
-    const [sorting, setSorting] = useState<MRT_SortingState>([
-        { id: 'deadline', desc: false }
-    ]);
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-        []
-    );
+    const {
+        tab,
+        pagination,
+        sorting,
+        globalFilter,
+        columnFilters,
+        handleTabChange,
+        handleSortingChange,
+        handleGlobalFilterChange,
+        handleColumnFiltersChange,
+        handlePaginationChange
+    } = useMrtTabUrlState(URL_STATE_CONFIG, TAB_SLUGS);
 
     const category = TAB_CATEGORIES[tab];
     const sortColumn = sorting[0];
@@ -148,32 +155,6 @@ const EssayDashboardPaginated = () => {
             });
         }
     });
-
-    const resetPage = () =>
-        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-    const handleTabChange = (_e: React.SyntheticEvent, newValue: number) => {
-        setTab(newValue);
-        resetPage();
-    };
-    const handleSortingChange = (updater: MRT_Updater<MRT_SortingState>) => {
-        setSorting((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handleGlobalFilterChange = (updater: MRT_Updater<string>) => {
-        setGlobalFilter((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handleColumnFiltersChange = (
-        updater: MRT_Updater<MRT_ColumnFiltersState>
-    ) => {
-        setColumnFilters((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handlePaginationChange = (
-        updater: MRT_Updater<MRT_PaginationState>
-    ) => {
-        setPagination((prev) => applyUpdater(updater, prev));
-    };
 
     const columns = useMemo<MuiDataGridColumn<OpenTaskRow>[]>(
         () => [

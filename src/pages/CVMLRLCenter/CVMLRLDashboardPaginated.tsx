@@ -1,13 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Tabs, Tab, Box, Alert, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type {
-    MRT_ColumnDef,
-    MRT_ColumnFiltersState,
-    MRT_PaginationState,
-    MRT_SortingState,
-    MRT_Updater
-} from 'material-react-table';
+import type { MRT_ColumnDef } from 'material-react-table';
 
 import { c1_mrt, convertDate } from '@utils/contants';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
@@ -15,6 +9,8 @@ import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import { useActiveThreadsPaginated } from '@hooks/useActiveThreadsPaginated';
 import type { ThreadCategory } from '@hooks/useActiveThreadsPaginated';
 import { useActiveThreadsCounts } from '@hooks/useActiveThreadsCounts';
+import { useMrtTabUrlState } from '@utils/useMrtTabUrlState';
+import type { MrtUrlStateConfig } from '@utils/mrtUrlState';
 
 // MRT column id -> backend sortBy. Columns not listed are not server-sortable.
 const SORT_FIELD_MAP: Record<string, string> = {
@@ -46,27 +42,30 @@ const TAB_CATEGORIES: ThreadCategory[] = [
     'all'
 ];
 
-const applyUpdater = <T,>(updater: MRT_Updater<T>, current: T): T =>
-    typeof updater === 'function'
-        ? (updater as (old: T) => T)(current)
-        : updater;
+// Tab index -> readable URL slug (aligned with TAB_CATEGORIES order).
+const TAB_SLUGS = ['in-progress', 'no-input', 'closed', 'all'] as const;
 
-const DEFAULT_PAGE_SIZE = 20;
+const URL_STATE_CONFIG: MrtUrlStateConfig = {
+    filterIds: Object.keys(FILTER_FIELD_MAP),
+    sortableIds: Object.keys(SORT_FIELD_MAP),
+    defaultSort: { id: 'deadline', desc: false },
+    defaultPageSize: 20
+};
 
 const CVMLRLDashboardPaginated = () => {
     const { t } = useTranslation();
-    const [tab, setTab] = useState(0);
-    const [pagination, setPagination] = useState<MRT_PaginationState>({
-        pageIndex: 0,
-        pageSize: DEFAULT_PAGE_SIZE
-    });
-    const [sorting, setSorting] = useState<MRT_SortingState>([
-        { id: 'deadline', desc: false }
-    ]);
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-        []
-    );
+    const {
+        tab,
+        pagination,
+        sorting,
+        globalFilter,
+        columnFilters,
+        handleTabChange,
+        handleSortingChange,
+        handleGlobalFilterChange,
+        handleColumnFiltersChange,
+        handlePaginationChange
+    } = useMrtTabUrlState(URL_STATE_CONFIG, TAB_SLUGS);
 
     const category = TAB_CATEGORIES[tab];
     const sortColumn = sorting[0];
@@ -140,33 +139,6 @@ const CVMLRLDashboardPaginated = () => {
         ];
         return [...base, ...staffColumns];
     }, []);
-
-    const resetPage = () =>
-        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-
-    const handleTabChange = (_e: React.SyntheticEvent, newValue: number) => {
-        setTab(newValue);
-        resetPage();
-    };
-    const handleSortingChange = (updater: MRT_Updater<MRT_SortingState>) => {
-        setSorting((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handleGlobalFilterChange = (updater: MRT_Updater<string>) => {
-        setGlobalFilter((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handleColumnFiltersChange = (
-        updater: MRT_Updater<MRT_ColumnFiltersState>
-    ) => {
-        setColumnFilters((prev) => applyUpdater(updater, prev));
-        resetPage();
-    };
-    const handlePaginationChange = (
-        updater: MRT_Updater<MRT_PaginationState>
-    ) => {
-        setPagination((prev) => applyUpdater(updater, prev));
-    };
 
     const serverMode = {
         rowCount,

@@ -38,6 +38,17 @@ const SORT_PARAM = 'sort';
 const SORT_DIR_PARAM = 'sortDir';
 const FALLBACK_PAGE_SIZE = 20;
 
+/** The table state a config considers "default" (cleared filters/search). */
+export const defaultMrtState = (config: MrtUrlStateConfig): MrtTableState => ({
+    globalFilter: '',
+    sorting: [{ id: config.defaultSort.id, desc: config.defaultSort.desc }],
+    columnFilters: [],
+    pagination: {
+        pageIndex: 0,
+        pageSize: config.defaultPageSize ?? FALLBACK_PAGE_SIZE
+    }
+});
+
 /**
  * Every query-string key a table owns. Used to clear stale values before
  * writing the current ones, so unrelated params (e.g. the active `tab`) survive.
