@@ -53,7 +53,10 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     firstname_lastname: 'name',
     document_name: 'document_name',
     deadline: 'deadline',
-    status: 'status'
+    status: 'status',
+    editors_joined: 'editorName',
+    agents_joined: 'agentName',
+    outsourced_user_name_joined: 'essayWriterName'
 };
 // Tab index -> backend category.
 const TAB_CATEGORIES: ThreadCategory[] = [
@@ -217,7 +220,7 @@ const EssayDashboardPaginated = () => {
                 headerName: t('Essay Writer', { ns: 'common' }),
                 width: 130,
                 sortable: false,
-                enableColumnFilter: false,
+                enableColumnFilter: true,
                 renderCell: (params) =>
                     (
                         params.row.outsourced_user_id as
@@ -241,7 +244,7 @@ const EssayDashboardPaginated = () => {
                 headerName: t('Editors', { ns: 'common' }),
                 width: 120,
                 sortable: false,
-                enableColumnFilter: false,
+                enableColumnFilter: true,
                 renderCell: (params) =>
                     (
                         params.row.editors as
@@ -265,7 +268,7 @@ const EssayDashboardPaginated = () => {
                 headerName: t('Agent', { ns: 'common' }),
                 width: 120,
                 sortable: false,
-                enableColumnFilter: false,
+                enableColumnFilter: true,
                 renderCell: (params) =>
                     (
                         params.row.agents as
