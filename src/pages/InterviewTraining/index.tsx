@@ -60,6 +60,28 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     program_name: 'program'
 };
 
+// Date-range columns map to a pair of from/to backend query keys.
+const DATE_RANGE_FILTER_MAP: Record<string, { from: string; to: string }> = {
+    start: { from: 'trainingTimeFrom', to: 'trainingTimeTo' },
+    interview_date: { from: 'interviewTimeFrom', to: 'interviewTimeTo' }
+};
+
+// MRT's date-range filter yields dayjs objects (via AdapterDayjs); normalise any
+// of dayjs | Date | string into an ISO string for the query.
+const toIsoString = (value: unknown): string | undefined => {
+    if (value === null || value === undefined || value === '') {
+        return undefined;
+    }
+    const maybeDayjs = value as { toDate?: () => Date };
+    const date =
+        value instanceof Date
+            ? value
+            : typeof maybeDayjs.toDate === 'function'
+              ? maybeDayjs.toDate()
+              : new Date(value as string);
+    return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+
 // Status values are computed server-side (see addInterviewStatus); list them
 // explicitly because faceted values would only reflect the current page.
 const STATUS_FILTER_OPTIONS = [
@@ -108,6 +130,17 @@ const InterviewTraining = () => {
     const filters = useMemo(() => {
         const out: Record<string, string> = {};
         columnFilters.forEach(({ id, value }) => {
+            // Date-range columns produce a [from, to] tuple -> two query keys.
+            const dateRange = DATE_RANGE_FILTER_MAP[id];
+            if (dateRange) {
+                if (Array.isArray(value)) {
+                    const fromIso = toIsoString(value[0]);
+                    const toIso = toIsoString(value[1]);
+                    if (fromIso) out[dateRange.from] = fromIso;
+                    if (toIso) out[dateRange.to] = toIso;
+                }
+                return;
+            }
             const key = FILTER_FIELD_MAP[id];
             if (!key) return;
             if (Array.isArray(value)) {
@@ -255,8 +288,8 @@ const InterviewTraining = () => {
             header: `${t('Training Time', { ns: 'interviews' })} (${
                 Intl.DateTimeFormat().resolvedOptions().timeZone
             } ${showTimezoneOffset()})`,
-            // Formatted date string can't be filtered server-side; sortable only.
-            enableColumnFilter: false,
+            // Server-side date-range filter on the linked event's start.
+            filterVariant: 'date-range',
             size: 280,
             Cell: (params) => {
                 const { row } = params;
@@ -266,7 +299,7 @@ const InterviewTraining = () => {
         {
             accessorKey: 'interview_date',
             header: t('Official Interview Time', { ns: 'interviews' }),
-            enableColumnFilter: false,
+            filterVariant: 'date-range',
             size: 220,
             Cell: (params) => {
                 const { row } = params;
