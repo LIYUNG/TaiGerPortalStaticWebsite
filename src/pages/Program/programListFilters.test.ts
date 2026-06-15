@@ -33,6 +33,7 @@ describe('program table URL state round-trip', () => {
                 { id: 'school', value: 'ETH' },
                 { id: 'country', value: ['DE', 'CH'] }
             ],
+            sorting: [],
             pagination: { pageIndex: 2, pageSize: 50 }
         };
 
@@ -50,10 +51,42 @@ describe('program table URL state round-trip', () => {
         const params = programTableStateToSearchParams({
             globalFilter: '   ',
             columnFilters: [{ id: 'tags', value: [] }],
+            sorting: [],
             pagination: { pageIndex: 0, pageSize: 20 }
         });
 
         expect(params.toString()).toBe('');
+    });
+
+    it('serializes / parses sort for allow-listed columns only', () => {
+        const params = programTableStateToSearchParams({
+            globalFilter: '',
+            columnFilters: [],
+            sorting: [{ id: 'program_name', desc: true }],
+            pagination: { pageIndex: 0, pageSize: 20 }
+        });
+        expect(params.get('sort')).toBe('program_name');
+        expect(params.get('sortDir')).toBe('desc');
+
+        expect(
+            searchParamsToProgramTableState(
+                new URLSearchParams('sort=program_name&sortDir=desc')
+            ).sorting
+        ).toEqual([{ id: 'program_name', desc: true }]);
+
+        // a non-sortable column is dropped on both encode and decode
+        expect(
+            programTableStateToSearchParams({
+                globalFilter: '',
+                columnFilters: [],
+                sorting: [{ id: 'tags', desc: false }],
+                pagination: { pageIndex: 0, pageSize: 20 }
+            }).get('sort')
+        ).toBeNull();
+        expect(
+            searchParamsToProgramTableState(new URLSearchParams('sort=tags'))
+                .sorting
+        ).toEqual([]);
     });
 
     it('parses a shared query string back into table state', () => {
@@ -94,6 +127,7 @@ describe('program table URL state round-trip', () => {
                 { id: 'programSubjects', value: ['CS', 'EE'] },
                 { id: 'degree', value: 'MSc' }
             ],
+            sorting: [{ id: 'degree', desc: false }],
             pagination: { pageIndex: 1, pageSize: 20 }
         };
 
@@ -102,6 +136,7 @@ describe('program table URL state round-trip', () => {
         );
 
         expect(restored.globalFilter).toBe('data');
+        expect(restored.sorting).toEqual(original.sorting);
         expect(restored.pagination).toEqual({ pageIndex: 1, pageSize: 20 });
         expect(restored.columnFilters).toEqual(
             expect.arrayContaining(original.columnFilters)

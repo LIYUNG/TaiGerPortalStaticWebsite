@@ -6,6 +6,7 @@ import {
     type MRT_ColumnFiltersState,
     type MRT_PaginationState,
     type MRT_RowSelectionState,
+    type MRT_SortingState,
     type MRT_Updater
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '@components/table';
@@ -35,6 +36,7 @@ import {
     columnFiltersToProgramListFilters,
     programTableStateToSearchParams,
     searchParamsToProgramTableState,
+    PROGRAM_SORTABLE_IDS,
     type ProgramListFilters
 } from './programListFilters';
 /** Program row in ProgramsTable (data array item) */
@@ -85,6 +87,9 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
     const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
         initialTableState.columnFilters
     );
+    const [sorting, setSorting] = useState<MRT_SortingState>(
+        initialTableState.sorting
+    );
     const [debouncedSearch, setDebouncedSearch] = useState(
         initialTableState.globalFilter.trim()
     );
@@ -119,23 +124,44 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         return () => window.clearTimeout(timeoutId);
     }, [globalFilter, columnFilters]);
 
-    // Mirror the current search/filter/page state into the URL (replace, so we
-    // don't spam browser history) so the address bar is always shareable.
+    // Mirror the current search/filter/sort/page state into the URL (replace, so
+    // we don't spam browser history) so the address bar is always shareable.
     useEffect(() => {
         const nextParams = programTableStateToSearchParams({
             globalFilter,
             columnFilters,
+            sorting,
             pagination
         });
         setSearchParams(nextParams, { replace: true });
-    }, [globalFilter, columnFilters, pagination, setSearchParams]);
+    }, [globalFilter, columnFilters, sorting, pagination, setSearchParams]);
 
+    // Server-side sort: forward the active column + direction so the BACKEND
+    // sorts the whole result set (not just the current page). `sortBy` is the
+    // column id (matches the server's allowed fields); omitted when unsorted.
+    const sortColumn = sorting[0];
     const { data, isLoading, isFetching } = usePrograms({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
         search: debouncedSearch,
-        filters: debouncedColumnFilters
+        filters: debouncedColumnFilters,
+        sortBy: sortColumn?.id,
+        sortOrder: sortColumn ? (sortColumn.desc ? 'desc' : 'asc') : undefined
     });
+
+    // Changing the sort returns the user to the first page (and clears any
+    // selection), like the filter/search handlers do.
+    const handleSortingChange = useCallback(
+        (updater: MRT_Updater<MRT_SortingState>) => {
+            setSorting((previous) =>
+                typeof updater === 'function' ? updater(previous) : updater
+            );
+            setPagination((current) => ({ ...current, pageIndex: 0 }));
+            setRowSelection({});
+            setSelectedProgramsById({});
+        },
+        []
+    );
 
     const selectedPrograms = useMemo(
         () => Object.values(selectedProgramsById),
@@ -249,7 +275,7 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
             })),
         [subjectGroups]
     );
-    const columns: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
+    const columnDefs: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
         {
             accessorFn: (row) => {
                 const lockStatus = calculateProgramLockStatus(row as never);
@@ -446,6 +472,16 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         }
     ];
 
+    // Only the backend-sortable columns expose a sort control; clicking any
+    // other column would otherwise silently fall back to the server's default
+    // sort. (Server allow-list lives in PROGRAM_SORTABLE_IDS.)
+    const columns = columnDefs.map((column) => ({
+        ...column,
+        enableSorting: PROGRAM_SORTABLE_IDS.has(
+            String(column.accessorKey ?? column.id ?? '')
+        )
+    }));
+
     const table = useMaterialReactTable({
         ...(tableConfig as Record<string, unknown>),
         columns,
@@ -453,16 +489,19 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         getRowId: (row) => getProgramRowId(row),
         manualPagination: true,
         manualFiltering: true,
+        manualSorting: true,
         rowCount: data?.total ?? 0,
         onPaginationChange: setPagination,
         onGlobalFilterChange: setGlobalFilter,
         onColumnFiltersChange: setColumnFilters,
+        onSortingChange: handleSortingChange,
         onRowSelectionChange: handleRowSelectionChange,
         state: {
             isLoading: isLoading || isFetching,
             pagination,
             globalFilter,
             columnFilters,
+            sorting,
             rowSelection
         },
         renderToolbarAlertBannerContent: () =>
@@ -507,7 +546,7 @@ export const ProgramsTable = ({ student }: ProgramsTableProps) => {
         setOpenAssignDialog(false);
     };
     /* material-react-table expects toolbar to be assigned to options */
-     
+
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}
