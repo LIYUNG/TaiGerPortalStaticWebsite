@@ -41,8 +41,10 @@ const stripHtml = (value: string): string => {
                 .textContent ?? ''
         );
     }
-    // Non-DOM fallback (e.g. SSR): strip tags, then drop any stray brackets.
-    return value.replace(/<[^>]*>/g, '').replace(/[<>]/g, '');
+    // Non-DOM fallback (e.g. SSR): drop every angle bracket so no markup can
+    // survive. (A regex tag-strip like /<[^>]*>/g is an incomplete sanitizer —
+    // bypassable via nested tags — so we don't rely on it here.)
+    return value.replace(/[<>]/g, '');
 };
 const editorJsToPlainText = (raw?: string): string => {
     if (!raw) return '';
