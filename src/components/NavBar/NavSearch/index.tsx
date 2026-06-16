@@ -1,9 +1,35 @@
-import { useState, useRef, useEffect, type ChangeEvent } from 'react';
+import {
+    useState,
+    useRef,
+    useEffect,
+    useMemo,
+    type ChangeEvent,
+    type KeyboardEvent,
+    type ReactNode
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role, Role } from '@taiger-common/core';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import SchoolIcon from '@mui/icons-material/School';
+import ArticleIcon from '@mui/icons-material/Article';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import {
+    Box,
+    Paper,
+    Popper,
+    List,
+    ListSubheader,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    CircularProgress,
+    ClickAwayListener,
+    Typography
+} from '@mui/material';
 
 import { getQueryPublicResults, getQueryResults } from '@/api';
 import ModalMain from '@pages/Utils/ModalHandler/ModalMain';
@@ -34,6 +60,99 @@ interface NavSearchState {
     res_modal_message: string | unknown;
 }
 
+type SearchResultType =
+    | 'student'
+    | 'agent'
+    | 'editor'
+    | 'program'
+    | 'internalDoc'
+    | 'doc';
+
+// Render order of the grouped sections in the dropdown.
+const TYPE_ORDER: SearchResultType[] = [
+    'student',
+    'agent',
+    'editor',
+    'program',
+    'internalDoc',
+    'doc'
+];
+
+// Classify a raw search hit into one of the known result types. Mirrors the
+// original chained-ternary precedence (role first, then program, then docs).
+const classifyResult = (result: SearchResultItem): SearchResultType => {
+    if (result.role === Role.Student) return 'student';
+    if (result.role === Role.Agent) return 'agent';
+    if (result.role === Role.Editor) return 'editor';
+    if (result.school) return 'program';
+    if (result.internal) return 'internalDoc';
+    return 'doc';
+};
+
+// Primary / secondary lines shown for a result of a given type.
+const labelFor = (
+    type: SearchResultType,
+    r: SearchResultItem
+): { primary: string; secondary: string } => {
+    const fullName = `${r.firstname ?? ''} ${r.lastname ?? ''}`.trim();
+    switch (type) {
+        case 'student':
+            return {
+                primary: fullName,
+                secondary: `${r.firstname_chinese ?? ''}${
+                    r.lastname_chinese ?? ''
+                }`.trim()
+            };
+        case 'agent':
+        case 'editor':
+            return { primary: fullName, secondary: '' };
+        case 'program':
+            return {
+                primary: `${r.school ?? ''} ${r.program_name ?? ''}`.trim(),
+                secondary: `${r.degree ?? ''} ${r.semester ?? ''}`.trim()
+            };
+        default:
+            return { primary: r.title ?? '', secondary: '' };
+    }
+};
+
+// Destination route when a result is selected.
+const routeFor = (type: SearchResultType, r: SearchResultItem): string => {
+    const id = r._id.toString();
+    switch (type) {
+        case 'student':
+            return DEMO.STUDENT_DATABASE_STUDENTID_LINK(id, DEMO.PROFILE_HASH);
+        case 'agent':
+            return `/teams/agents/${id}`;
+        case 'editor':
+            return `/teams/editors/${id}`;
+        case 'program':
+            return `/programs/${id}`;
+        case 'internalDoc':
+            return `/docs/internal/search/${id}`;
+        default:
+            return `/docs/search/${id}`;
+    }
+};
+
+// Bold the part of `text` that matches the current query, so users can see why
+// a result was returned.
+const HighlightedText = ({ text, query }: { text: string; query: string }) => {
+    const trimmed = query.trim();
+    if (!trimmed) return <>{text}</>;
+    const index = text.toLowerCase().indexOf(trimmed.toLowerCase());
+    if (index === -1) return <>{text}</>;
+    return (
+        <>
+            {text.slice(0, index)}
+            <Box component="span" sx={{ fontWeight: 700 }}>
+                {text.slice(index, index + trimmed.length)}
+            </Box>
+            {text.slice(index + trimmed.length)}
+        </>
+    );
+};
+
 const NavSearch = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -48,26 +167,90 @@ const NavSearch = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isErrorTerm, setIsErrorTerm] = useState(false);
     const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
-    const [, setLoading] = useState(false);
-    const [isResultsVisible, setIsResultsVisible] = useState(false);
-    const searchContainerRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
+    const anchorRef = useRef<HTMLDivElement>(null);
+    // Guards against out-of-order responses: only the latest request may write
+    // results, so a slow early request can't clobber a faster later one.
+    const requestIdRef = useRef(0);
+
+    const TYPE_META: Record<
+        SearchResultType,
+        { label: string; icon: ReactNode }
+    > = {
+        student: {
+            label: t('Students', { ns: 'common' }),
+            icon: <PersonIcon fontSize="small" />
+        },
+        agent: {
+            label: t('Agents', { ns: 'common' }),
+            icon: <SupportAgentIcon fontSize="small" />
+        },
+        editor: {
+            label: t('Editors', { ns: 'common' }),
+            icon: <DriveFileRenameOutlineIcon fontSize="small" />
+        },
+        program: {
+            label: t('Programs', { ns: 'common' }),
+            icon: <SchoolIcon fontSize="small" />
+        },
+        internalDoc: {
+            label: t('Internal Docs', { ns: 'common' }),
+            icon: <LockOutlinedIcon fontSize="small" />
+        },
+        doc: {
+            label: t('Documentations', { ns: 'common' }),
+            icon: <ArticleIcon fontSize="small" />
+        }
+    };
+
+    // Group results by type (ordered) and build a flat list mirroring the render
+    // order so keyboard navigation maps 1:1 to what's on screen.
+    const { groups, flatItems } = useMemo(() => {
+        const byType = new Map<SearchResultType, SearchResultItem[]>();
+        searchResults.forEach((result) => {
+            const type = classifyResult(result);
+            const bucket = byType.get(type);
+            if (bucket) {
+                bucket.push(result);
+            } else {
+                byType.set(type, [result]);
+            }
+        });
+        const grouped = TYPE_ORDER.filter((type) => byType.has(type)).map(
+            (type) => ({ type, items: byType.get(type) ?? [] })
+        );
+        const flat = grouped.flatMap((group) =>
+            group.items.map((item) => ({ item, type: group.type }))
+        );
+        return { groups: grouped, flatItems: flat };
+    }, [searchResults]);
 
     useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setSearchResults([]);
+            setLoading(false);
+            return;
+        }
+
         const fetchSearchResults = async () => {
+            const requestId = ++requestIdRef.current;
             try {
                 setLoading(true);
                 const response =
                     user != null && is_TaiGer_role(user)
                         ? await getQueryResults(searchTerm)
                         : await getQueryPublicResults(searchTerm);
+                // Drop stale responses (a newer keystroke already fired).
+                if (requestId !== requestIdRef.current) return;
                 if (response.data.success) {
                     setSearchResults(
                         (response.data.data ?? []) as SearchResultItem[]
                     );
-                    setIsResultsVisible(true);
-                    setLoading(false);
+                    setOpen(true);
                 } else {
-                    setIsResultsVisible(false);
+                    setOpen(false);
                     setStatedata((state) => ({
                         ...state,
                         res_modal_status: 401,
@@ -76,10 +259,10 @@ const NavSearch = () => {
                     setSearchTerm('');
                     setSearchResults([]);
                     setIsErrorTerm(true);
-                    setLoading(false);
                 }
             } catch (error) {
-                setIsResultsVisible(false);
+                if (requestId !== requestIdRef.current) return;
+                setOpen(false);
                 setStatedata((state) => ({
                     ...state,
                     res_modal_status: 403,
@@ -88,95 +271,73 @@ const NavSearch = () => {
                 setSearchTerm('');
                 setSearchResults([]);
                 setIsErrorTerm(true);
-                setLoading(false);
+            } finally {
+                if (requestId === requestIdRef.current) {
+                    setLoading(false);
+                }
             }
         };
 
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                searchContainerRef.current &&
-                !searchContainerRef.current.contains(event.target as Node)
-            ) {
-                setIsResultsVisible(false);
-            }
-        };
-
-        const delayDebounceFn = setTimeout(() => {
-            if (searchTerm !== '') {
-                fetchSearchResults();
-            } else {
-                setSearchResults([]);
-            }
-        }, 300);
-
-        document.addEventListener('click', handleClickOutside);
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-            clearTimeout(delayDebounceFn);
-        };
+        const delayDebounceFn = setTimeout(fetchSearchResults, 300);
+        return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, user]);
 
+    // Keep the highlighted option scrolled into view during keyboard nav.
+    useEffect(() => {
+        if (activeIndex < 0) return;
+        document
+            .getElementById(`nav-search-option-${activeIndex}`)
+            ?.scrollIntoView({ block: 'nearest' });
+    }, [activeIndex]);
+
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value.trimStart());
-        if (e.target.value.length === 0) {
-            setIsResultsVisible(false);
+        const value = e.target.value.trimStart();
+        setSearchTerm(value);
+        setActiveIndex(-1);
+        setOpen(value !== '');
+    };
+
+    const handleFocus = () => {
+        if (searchTerm.trim() !== '') {
+            setOpen(true);
         }
     };
 
-    const handleInputBlur = () => {
-        setIsResultsVisible(false);
+    const handleSelect = (result: SearchResultItem, type: SearchResultType) => {
+        navigate(routeFor(type, result));
+        setSearchResults([]);
+        setOpen(false);
+        setSearchTerm('');
+        setActiveIndex(-1);
     };
 
-    const onClickStudentHandler = (result: SearchResultItem) => {
-        navigate(
-            `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                result._id.toString(),
-                DEMO.PROFILE_HASH
-            )}`
-        );
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
-    };
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Escape') {
+            setOpen(false);
+            return;
+        }
+        if (!open || flatItems.length === 0) return;
 
-    const onClickAgentHandler = (result: SearchResultItem) => {
-        navigate(`/teams/agents/${result._id.toString()}`);
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
-    };
-
-    const onClickEditorHandler = (result: SearchResultItem) => {
-        navigate(`/teams/editors/${result._id.toString()}`);
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
-    };
-
-    const onClickProgramHandler = (result: SearchResultItem) => {
-        navigate(`/programs/${result._id.toString()}`);
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
-    };
-
-    const onClickDocumentationHandler = (result: SearchResultItem) => {
-        navigate(`/docs/search/${result._id.toString()}`);
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
-    };
-
-    const onClickInternalDocumentationHandler = (result: SearchResultItem) => {
-        navigate(`/docs/internal/search/${result._id.toString()}`);
-        setSearchResults([]);
-        setIsResultsVisible(false);
-        setSearchTerm('');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIndex((index) => (index + 1) % flatItems.length);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex((index) =>
+                index <= 0 ? flatItems.length - 1 : index - 1
+            );
+        } else if (e.key === 'Enter' && activeIndex >= 0) {
+            e.preventDefault();
+            const { item, type } = flatItems[activeIndex];
+            handleSelect(item, type);
+        }
     };
 
     const ConfirmError = () => {
         window.location.reload();
     };
+
+    const isOpen = open && searchTerm.trim() !== '';
 
     return (
         <Box>
@@ -187,93 +348,165 @@ const NavSearch = () => {
                     res_modal_status={statedata.res_modal_status}
                 />
             ) : null}
-            <Box className="search-container" ref={searchContainerRef}>
-                <Search>
-                    <SearchIconWrapper>
-                        <SearchIcon />
-                    </SearchIconWrapper>
-                    <StyledInputBase
-                        autoComplete="off"
-                        autoFocus={false}
-                        inputProps={{ 'aria-label': 'search' }}
-                        onChange={handleInputChange}
-                        onMouseDown={handleInputBlur}
-                        placeholder={`${t('Search', { ns: 'common' })}...`}
-                        value={searchTerm}
-                    />
-                </Search>
-                {isResultsVisible ? (
-                    searchResults.length > 0 ? (
-                        <Box className="search-results result-list">
-                            {searchResults.map((result, i) =>
-                                result.role === Role.Student ? (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickStudentHandler(result)
-                                        }
+            <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <Box className="search-container">
+                    <Search ref={anchorRef}>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            autoComplete="off"
+                            autoFocus={false}
+                            inputProps={{ 'aria-label': 'search' }}
+                            onChange={handleInputChange}
+                            onFocus={handleFocus}
+                            onKeyDown={handleKeyDown}
+                            placeholder={`${t('Search', { ns: 'common' })}...`}
+                            value={searchTerm}
+                        />
+                    </Search>
+                    <Popper
+                        anchorEl={anchorRef.current}
+                        disablePortal
+                        open={isOpen}
+                        placement="bottom-start"
+                        sx={{
+                            zIndex: (theme) => theme.zIndex.modal,
+                            width: anchorRef.current?.clientWidth,
+                            minWidth: 320
+                        }}
+                    >
+                        <Paper
+                            elevation={6}
+                            sx={{
+                                mt: 0.5,
+                                maxHeight: 420,
+                                overflowY: 'auto',
+                                borderRadius: 2
+                            }}
+                        >
+                            {loading && flatItems.length === 0 ? (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        p: 2,
+                                        color: 'text.secondary'
+                                    }}
+                                >
+                                    <CircularProgress size={18} />
+                                    <Typography variant="body2">
+                                        {t('Searching', { ns: 'common' })}...
+                                    </Typography>
+                                </Box>
+                            ) : flatItems.length === 0 ? (
+                                <Box sx={{ p: 2 }}>
+                                    <Typography
+                                        color="text.secondary"
+                                        variant="body2"
                                     >
-                                        {`${result.firstname ?? ''} ${result.lastname ?? ''} ${
-                                            result.firstname_chinese ?? ' '
-                                        }${result.lastname_chinese ?? ' '}`}
-                                    </li>
-                                ) : result.role === Role.Agent ? (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickAgentHandler(result)
-                                        }
-                                    >
-                                        {`${result.firstname ?? ''} ${result.lastname ?? ''}`}
-                                    </li>
-                                ) : result.role === Role.Editor ? (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickEditorHandler(result)
-                                        }
-                                    >
-                                        {`${result.firstname ?? ''} ${result.lastname ?? ''}`}
-                                    </li>
-                                ) : result.school ? (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickProgramHandler(result)
-                                        }
-                                    >
-                                        {`${result.school} ${result.program_name ?? ''} ${result.degree ?? ''} ${result.semester ?? ''}`}
-                                    </li>
-                                ) : result.internal ? (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickInternalDocumentationHandler(
-                                                result
-                                            )
-                                        }
-                                    >
-                                        {`${result.title ?? ''}`}
-                                    </li>
-                                ) : (
-                                    <li
-                                        key={i}
-                                        onClick={() =>
-                                            onClickDocumentationHandler(result)
-                                        }
-                                    >
-                                        {`${result.title ?? ''}`}
-                                    </li>
-                                )
+                                        {t('No result', { ns: 'common' })}
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <List dense disablePadding>
+                                    {groups.map((group) => (
+                                        <li key={group.type}>
+                                            <ul style={{ padding: 0 }}>
+                                                <ListSubheader
+                                                    sx={{
+                                                        lineHeight: '32px',
+                                                        bgcolor:
+                                                            'background.paper'
+                                                    }}
+                                                >
+                                                    {
+                                                        TYPE_META[group.type]
+                                                            .label
+                                                    }
+                                                </ListSubheader>
+                                                {group.items.map((item) => {
+                                                    const flatIndex =
+                                                        flatItems.findIndex(
+                                                            (entry) =>
+                                                                entry.item ===
+                                                                item
+                                                        );
+                                                    const {
+                                                        primary,
+                                                        secondary
+                                                    } = labelFor(
+                                                        group.type,
+                                                        item
+                                                    );
+                                                    return (
+                                                        <ListItemButton
+                                                            id={`nav-search-option-${flatIndex}`}
+                                                            key={item._id}
+                                                            onClick={() =>
+                                                                handleSelect(
+                                                                    item,
+                                                                    group.type
+                                                                )
+                                                            }
+                                                            onMouseEnter={() =>
+                                                                setActiveIndex(
+                                                                    flatIndex
+                                                                )
+                                                            }
+                                                            selected={
+                                                                flatIndex ===
+                                                                activeIndex
+                                                            }
+                                                        >
+                                                            <ListItemIcon
+                                                                sx={{
+                                                                    minWidth: 36,
+                                                                    color: 'text.secondary'
+                                                                }}
+                                                            >
+                                                                {
+                                                                    TYPE_META[
+                                                                        group
+                                                                            .type
+                                                                    ].icon
+                                                                }
+                                                            </ListItemIcon>
+                                                            <ListItemText
+                                                                primary={
+                                                                    <HighlightedText
+                                                                        query={
+                                                                            searchTerm
+                                                                        }
+                                                                        text={
+                                                                            primary
+                                                                        }
+                                                                    />
+                                                                }
+                                                                primaryTypographyProps={{
+                                                                    noWrap: true
+                                                                }}
+                                                                secondary={
+                                                                    secondary ||
+                                                                    undefined
+                                                                }
+                                                                secondaryTypographyProps={{
+                                                                    noWrap: true
+                                                                }}
+                                                            />
+                                                        </ListItemButton>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </li>
+                                    ))}
+                                </List>
                             )}
-                        </Box>
-                    ) : (
-                        <Box className="search-results result-list">
-                            <li>No result</li>
-                        </Box>
-                    )
-                ) : null}
-            </Box>
+                        </Paper>
+                    </Popper>
+                </Box>
+            </ClickAwayListener>
         </Box>
     );
 };
