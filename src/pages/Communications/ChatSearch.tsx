@@ -28,7 +28,22 @@ interface ChatSearchProps {
 
 // Extract readable plain text from an EditorJS message JSON string so we can
 // build a search snippet (the stored `message` is EditorJS blocks, not text).
-const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '');
+//
+// We parse the block HTML with an INERT DOMParser document and read only its
+// textContent: scripts never execute, real tags are dropped, and literal angle
+// brackets in normal text (e.g. "IELTS < 6.0") are preserved. The snippet is
+// ultimately rendered as a React text child (auto-escaped), so this is
+// defense-in-depth, not the sole guard.
+const stripHtml = (value: string): string => {
+    if (typeof DOMParser !== 'undefined') {
+        return (
+            new DOMParser().parseFromString(value, 'text/html').body
+                .textContent ?? ''
+        );
+    }
+    // Non-DOM fallback (e.g. SSR): strip tags, then drop any stray brackets.
+    return value.replace(/<[^>]*>/g, '').replace(/[<>]/g, '');
+};
 const editorJsToPlainText = (raw?: string): string => {
     if (!raw) return '';
     let parsed: { blocks?: Array<{ data?: Record<string, unknown> }> };

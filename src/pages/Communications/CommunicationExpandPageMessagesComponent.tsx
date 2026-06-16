@@ -11,10 +11,7 @@ import {
     Card,
     Button,
     CircularProgress,
-    Grid,
-    Typography,
-    useMediaQuery,
-    useTheme
+    Typography
 } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -25,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 import type { RefObject } from 'react';
 
 import MessageList from './MessageList';
-import ChatSearch from './ChatSearch';
 import CommunicationThreadEditor from './CommunicationThreadEditor';
 import { useAuth } from '@components/AuthProvider';
 import useCommunications from '@hooks/useCommunications';
@@ -53,20 +49,18 @@ const flashMessage = (messageId: string) => {
 interface CommunicationExpandPageMessagesComponentProps {
     data: unknown[];
     student: IStudentResponse;
-    // The scrollable pane (owned by CommunicationExpandPage) — used to pin the
-    // live thread to the newest message and to load older messages on scroll-up.
-    scrollContainerRef: RefObject<HTMLDivElement | null>;
+    // The search lives in the page TopBar; it triggers the jump-to-message
+    // (context mode) by calling the handler this component registers here.
+    searchJumpRef?: RefObject<((messageId: string) => void) | null>;
 }
 
 const CommunicationExpandPageMessagesComponent = ({
     data,
     student,
-    scrollContainerRef
+    searchJumpRef
 }: CommunicationExpandPageMessagesComponentProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const theme = useTheme();
-    const ismobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const {
         buttonDisabled,
@@ -87,6 +81,11 @@ const CommunicationExpandPageMessagesComponent = ({
         handleClickSave
     } = useCommunications({ data, student });
 
+    // The chat is a flex column: a scrollable message pane (messagesRef) in the
+    // middle and a fixed compose footer below it. Because the footer sits
+    // OUTSIDE the scroll pane, only the messages scroll and the input card stays
+    // pinned to the bottom.
+    const messagesRef = useRef<HTMLDivElement>(null);
     // Anchor used by "Jump to latest" (exitContext) to return to the newest
     // message. Live-thread auto-scroll / scroll-up loading is handled by
     // useChatScroll below.
@@ -133,13 +132,25 @@ const CommunicationExpandPageMessagesComponent = ({
         [studentId]
     );
 
+    // Expose the jump handler to the page TopBar's search (rendered outside this
+    // component) so a search result can drive context mode here.
+    useEffect(() => {
+        if (!searchJumpRef) return;
+        searchJumpRef.current = handleJumpToMessage;
+        return () => {
+            searchJumpRef.current = null;
+        };
+    }, [handleJumpToMessage, searchJumpRef]);
+
     // Load an older chunk (scroll up) and prepend it, preserving scroll position.
     const loadOlderContext = useCallback(() => {
         setContextMessages((current) => {
             const first = current?.[0];
             if (!first) return current;
-            prependAnchorRef.current =
-                document.documentElement.scrollHeight - window.scrollY;
+            const el = messagesRef.current;
+            prependAnchorRef.current = el
+                ? el.scrollHeight - el.scrollTop
+                : null;
             setContextLoadingMore('before');
             getAdjacentCommunicationMessages(studentId, first._id, 'before')
                 .then((resp) => {
@@ -177,13 +188,14 @@ const CommunicationExpandPageMessagesComponent = ({
         });
     }, [studentId]);
 
-    // After a prepend, keep the previously-visible message in place.
+    // After a prepend, keep the previously-visible message in place (anchored to
+    // the inner scroll pane, not the window).
     useLayoutEffect(() => {
         if (prependAnchorRef.current == null) return;
-        window.scrollTo(
-            0,
-            document.documentElement.scrollHeight - prependAnchorRef.current
-        );
+        const el = messagesRef.current;
+        if (el) {
+            el.scrollTop = el.scrollHeight - prependAnchorRef.current;
+        }
         prependAnchorRef.current = null;
     }, [contextMessages]);
 
@@ -216,7 +228,7 @@ const CommunicationExpandPageMessagesComponent = ({
     // messages when the reader scrolls to the top. Disabled in context mode,
     // which has its own (search-slice) navigation.
     useChatScroll({
-        scrollRef: scrollContainerRef,
+        scrollRef: messagesRef,
         threadLength: thread.length,
         upperThreadLength: upperThread.length,
         loadOlder: handleLoadMessages,
@@ -224,29 +236,26 @@ const CommunicationExpandPageMessagesComponent = ({
     });
 
     return (
-        <Grid container>
-            <Grid item xs={12}>
-                <Box
-                    sx={{
-                        alignItems: 'center',
-                        bgcolor: 'background.default',
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 3,
-                        py: 0.5,
-                        mb: 0.5
-                    }}
-                >
-                    <ChatSearch
-                        onResultClick={handleJumpToMessage}
-                        studentId={studentId}
-                    />
-                </Box>
-            </Grid>
-            {contextLoading ? (
-                <Grid item xs={12}>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                minHeight: 0
+            }}
+        >
+            {/* Middle: the scrollable message list — the only scroll area */}
+            <Box
+                ref={messagesRef}
+                sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: 'auto',
+                    px: 1,
+                    py: 1
+                }}
+            >
+                {contextLoading ? (
                     <Box
                         sx={{
                             display: 'flex',
@@ -256,110 +265,109 @@ const CommunicationExpandPageMessagesComponent = ({
                     >
                         <CircularProgress size={20} />
                     </Box>
-                </Grid>
-            ) : null}
-            {inContext ? (
-                // ── Context view: the search-result slice ────────────────────
-                <Grid item xs={12}>
-                    <Alert
-                        action={
+                ) : null}
+                {inContext ? (
+                    // ── Context view: the search-result slice ────────────────
+                    <>
+                        <Alert
+                            action={
+                                <Button
+                                    color="inherit"
+                                    onClick={exitContext}
+                                    size="small"
+                                    startIcon={<KeyboardDoubleArrowDownIcon />}
+                                >
+                                    {t('Jump to latest', {
+                                        ns: 'common',
+                                        defaultValue: 'Jump to latest'
+                                    })}
+                                </Button>
+                            }
+                            severity="info"
+                            sx={{ mb: 1 }}
+                        >
+                            {t('Showing a search result', {
+                                ns: 'common',
+                                defaultValue: 'Showing a search result'
+                            })}
+                        </Alert>
+                        {contextHasOlder ? (
                             <Button
-                                color="inherit"
+                                disabled={contextLoadingMore === 'before'}
+                                fullWidth
+                                onClick={loadOlderContext}
+                                size="small"
+                                startIcon={
+                                    contextLoadingMore === 'before' ? (
+                                        <CircularProgress size={14} />
+                                    ) : (
+                                        <KeyboardArrowUpIcon />
+                                    )
+                                }
+                                sx={{ mb: 1 }}
+                                variant="text"
+                            >
+                                {t('Load older messages', {
+                                    ns: 'common',
+                                    defaultValue: 'Load older messages'
+                                })}
+                            </Button>
+                        ) : null}
+                        <MessageList
+                            accordionKeys={[]}
+                            isDeleting={isDeleting}
+                            isTaiGerView={true}
+                            isUpperMessagList={false}
+                            onDeleteSingleMessage={onDeleteSingleMessage}
+                            student_id={studentId}
+                            thread={contextMessages as ThreadMessage[]}
+                            user={user}
+                        />
+                        {contextHasNewer ? (
+                            <Button
+                                disabled={contextLoadingMore === 'after'}
+                                fullWidth
+                                onClick={loadNewerContext}
+                                size="small"
+                                startIcon={
+                                    contextLoadingMore === 'after' ? (
+                                        <CircularProgress size={14} />
+                                    ) : (
+                                        <KeyboardArrowDownIcon />
+                                    )
+                                }
+                                sx={{ mt: 1 }}
+                                variant="text"
+                            >
+                                {t('Load newer messages', {
+                                    ns: 'common',
+                                    defaultValue: 'Load newer messages'
+                                })}
+                            </Button>
+                        ) : null}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                mt: 1
+                            }}
+                        >
+                            <Button
                                 onClick={exitContext}
                                 size="small"
                                 startIcon={<KeyboardDoubleArrowDownIcon />}
+                                variant="outlined"
                             >
                                 {t('Jump to latest', {
                                     ns: 'common',
                                     defaultValue: 'Jump to latest'
                                 })}
                             </Button>
-                        }
-                        severity="info"
-                        sx={{ mb: 1 }}
-                    >
-                        {t('Showing a search result', {
-                            ns: 'common',
-                            defaultValue: 'Showing a search result'
-                        })}
-                    </Alert>
-                    {contextHasOlder ? (
-                        <Button
-                            disabled={contextLoadingMore === 'before'}
-                            fullWidth
-                            onClick={loadOlderContext}
-                            size="small"
-                            startIcon={
-                                contextLoadingMore === 'before' ? (
-                                    <CircularProgress size={14} />
-                                ) : (
-                                    <KeyboardArrowUpIcon />
-                                )
-                            }
-                            sx={{ mb: 1 }}
-                            variant="text"
-                        >
-                            {t('Load older messages', {
-                                ns: 'common',
-                                defaultValue: 'Load older messages'
-                            })}
-                        </Button>
-                    ) : null}
-                    <MessageList
-                        accordionKeys={[]}
-                        isDeleting={isDeleting}
-                        isTaiGerView={true}
-                        isUpperMessagList={false}
-                        onDeleteSingleMessage={onDeleteSingleMessage}
-                        student_id={studentId}
-                        thread={contextMessages as ThreadMessage[]}
-                        user={user}
-                    />
-                    {contextHasNewer ? (
-                        <Button
-                            disabled={contextLoadingMore === 'after'}
-                            fullWidth
-                            onClick={loadNewerContext}
-                            size="small"
-                            startIcon={
-                                contextLoadingMore === 'after' ? (
-                                    <CircularProgress size={14} />
-                                ) : (
-                                    <KeyboardArrowDownIcon />
-                                )
-                            }
-                            sx={{ mt: 1 }}
-                            variant="text"
-                        >
-                            {t('Load newer messages', {
-                                ns: 'common',
-                                defaultValue: 'Load newer messages'
-                            })}
-                        </Button>
-                    ) : null}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            mt: 1
-                        }}
-                    >
-                        <Button
-                            onClick={exitContext}
-                            size="small"
-                            startIcon={<KeyboardDoubleArrowDownIcon />}
-                            variant="outlined"
-                        >
-                            {t('Jump to latest', {
-                                ns: 'common',
-                                defaultValue: 'Jump to latest'
-                            })}
-                        </Button>
-                    </Box>
-                </Grid>
-            ) : (
-                <>
-                    <Grid item xs={12}>
+                        </Box>
+                    </>
+                ) : (
+                    // ── Live thread ──────────────────────────────────────────
+                    <>
                         <Button
                             color="secondary"
                             disabled={loadButtonDisabled}
@@ -391,8 +399,6 @@ const CommunicationExpandPageMessagesComponent = ({
                                         defaultValue: 'Load older messages'
                                     })}
                         </Button>
-                    </Grid>
-                    <Grid item xs={12}>
                         {isEmpty ? (
                             <Box
                                 sx={{
@@ -442,49 +448,56 @@ const CommunicationExpandPageMessagesComponent = ({
                         />
                         {/* Scroll anchor: keeps the newest message in view. */}
                         <div ref={bottomRef} />
-                        {student.archiv !== true ? (
-                            <Card
-                                sx={{
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    position: 'sticky',
-                                    bottom: 0,
-                                    zIndex: 1,
-                                    ...(!ismobile && {
-                                        width: '100%', // Make Drawer full width on small screens
-                                        maxWidth: '100vw'
-                                    }),
-                                    pt: 2,
-                                    '& .MuiAvatar-root': {
-                                        width: 32,
-                                        height: 32,
-                                        ml: -0.5,
-                                        mr: 1
-                                    }
-                                }}
-                            >
-                                <CommunicationThreadEditor
-                                    buttonDisabled={buttonDisabled}
-                                    checkResult={checkResult}
-                                    count={count}
-                                    editorState={editorState}
-                                    files={files}
-                                    handleClickSave={handleClickSave}
-                                    onFileChange={onFileChange}
-                                    thread={thread}
-                                />
-                            </Card>
-                        ) : (
-                            <Card>
-                                {t(
-                                    'The service is finished. Therefore, it is readonly.'
-                                )}
-                            </Card>
-                        )}
-                    </Grid>
-                </>
-            )}
-        </Grid>
+                    </>
+                )}
+            </Box>
+
+            {/* Footer: compose box, pinned to the bottom (live mode only) */}
+            {!inContext ? (
+                <Box
+                    sx={{
+                        flexShrink: 0,
+                        borderTop: 1,
+                        borderColor: 'divider'
+                    }}
+                >
+                    {student.archiv !== true ? (
+                        <Card
+                            sx={{
+                                borderRadius: 0,
+                                boxShadow: 'none',
+                                p: 1.5,
+                                '& .MuiAvatar-root': {
+                                    width: 32,
+                                    height: 32,
+                                    ml: -0.5,
+                                    mr: 1
+                                }
+                            }}
+                        >
+                            <CommunicationThreadEditor
+                                buttonDisabled={buttonDisabled}
+                                checkResult={checkResult}
+                                count={count}
+                                editorState={editorState}
+                                files={files}
+                                handleClickSave={handleClickSave}
+                                onFileChange={onFileChange}
+                                thread={thread}
+                            />
+                        </Card>
+                    ) : (
+                        <Card
+                            sx={{ borderRadius: 0, boxShadow: 'none', p: 1.5 }}
+                        >
+                            {t(
+                                'The service is finished. Therefore, it is readonly.'
+                            )}
+                        </Card>
+                    )}
+                </Box>
+            ) : null}
+        </Box>
     );
 };
 

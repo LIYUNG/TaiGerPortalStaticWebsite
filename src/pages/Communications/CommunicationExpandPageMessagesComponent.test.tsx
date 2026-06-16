@@ -76,7 +76,6 @@ describe('CommunicationExpandPageMessagesComponent', () => {
         render(
             <CommunicationExpandPageMessagesComponent
                 data={[]}
-                scrollContainerRef={{ current: null }}
                 student={mockStudent as never}
             />
         );
@@ -87,7 +86,6 @@ describe('CommunicationExpandPageMessagesComponent', () => {
         render(
             <CommunicationExpandPageMessagesComponent
                 data={[]}
-                scrollContainerRef={{ current: null }}
                 student={mockStudent as never}
             />
         );
@@ -102,7 +100,6 @@ describe('CommunicationExpandPageMessagesComponent', () => {
         render(
             <CommunicationExpandPageMessagesComponent
                 data={[]}
-                scrollContainerRef={{ current: null }}
                 student={archivedStudent as never}
             />
         );

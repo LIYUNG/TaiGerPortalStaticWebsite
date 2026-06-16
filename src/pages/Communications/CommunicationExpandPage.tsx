@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link as LinkDom, Navigate, useParams } from 'react-router-dom';
 import {
@@ -41,6 +41,7 @@ import {
     stringAvatar
 } from '@utils/contants';
 import ChatList from '@components/ChatList';
+import ChatSearch from './ChatSearch';
 import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
@@ -86,6 +87,7 @@ interface TopBarProps {
     ) => void;
     handleAgentsEditorsModalClose: (event: React.SyntheticEvent) => void;
     isAgentsEditorsModalOpen: boolean;
+    onSearchResultClick: (messageId: string) => void;
 }
 
 const StudentDetailModal = ({
@@ -193,7 +195,8 @@ const TopBar = ({
     dropdownId,
     handleStudentDetailModalOpen,
     handleAgentsEditorsModalClose,
-    isAgentsEditorsModalOpen
+    isAgentsEditorsModalOpen,
+    onSearchResultClick
 }: TopBarProps) => {
     const { t } = useTranslation();
     return (
@@ -252,6 +255,10 @@ const TopBar = ({
                         justifyContent="flex-end"
                         spacing={1}
                     >
+                        <ChatSearch
+                            onResultClick={onSearchResultClick}
+                            studentId={student_id}
+                        />
                         <Tooltip title={t('Agents Editors', { ns: 'common' })}>
                             <IconButton
                                 aria-controls={agentsEditorsDropdownId}
@@ -328,10 +335,13 @@ const CommunicationExpandPage = () => {
     const isAgentsEditorsModalOpen = Boolean(anchorAgentsEditorsEl);
     const [isExportingMessageDisabled, setIsExportingMessageDisabled] =
         useState(false);
-    // The scrollable message pane. Scroll behaviour (pin-to-newest +
-    // load-older-on-scroll-up) is owned by useChatScroll inside
-    // CommunicationExpandPageMessagesComponent, which receives this ref.
-    const scrollableRef = useRef<HTMLDivElement>(null);
+    // The search lives in the TopBar; the messages component registers its
+    // jump-to-message handler here so a search result drives context mode.
+    const searchJumpRef = useRef<((messageId: string) => void) | null>(null);
+    const handleSearchResultClick = useCallback(
+        (messageId: string) => searchJumpRef.current?.(messageId),
+        []
+    );
 
     const handleDrawerOpen = (e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
@@ -428,13 +438,16 @@ const CommunicationExpandPage = () => {
                     sx={{
                         maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
                         overflowY: 'auto',
-                        display: { xs: 'none', md: 'flex' }
+                        display: { xs: 'none', md: 'flex' },
+                        borderRight: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'background.paper'
                     }}
                     xs={12} // Full width on extra small screens
                 >
                     <Box
                         sx={{
-                            maxWidth: '300px' // Responsive width
+                            width: 300
                         }}
                     >
                         <ChatList embedded student_id={studentId} />
@@ -477,6 +490,7 @@ const CommunicationExpandPage = () => {
                                 }
                                 isLoading={isLoading}
                                 ismobile={ismobile}
+                                onSearchResultClick={handleSearchResultClick}
                                 student={student}
                                 student_id={studentId}
                                 student_name_english={student_name_english}
@@ -486,15 +500,16 @@ const CommunicationExpandPage = () => {
                                     <Loading />
                                 ) : (
                                     <Box
-                                        ref={scrollableRef}
                                         sx={{
                                             height: `calc(100vh - ${APP_BAR_HEIGHT - 8}px)`, // Subtract header
-                                            overflowY: 'auto'
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            overflow: 'hidden'
                                         }}
                                     >
                                         <CommunicationExpandPageMessagesComponent
                                             data={thread}
-                                            scrollContainerRef={scrollableRef}
+                                            searchJumpRef={searchJumpRef}
                                             student={student}
                                         />
                                     </Box>
@@ -530,21 +545,24 @@ const CommunicationExpandPage = () => {
                                     }
                                     isLoading={isLoading}
                                     ismobile={ismobile}
+                                    onSearchResultClick={
+                                        handleSearchResultClick
+                                    }
                                     student={student}
                                     student_id={studentId}
                                     student_name_english={student_name_english}
                                 />
                                 <Box
-                                    ref={scrollableRef}
-                                    style={{
+                                    sx={{
                                         height: `calc(100vh - ${APP_BAR_HEIGHT + 60}px)`, // Subtract header
-                                        overflowY:
-                                            'auto' /* Enable vertical scrolling */
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        overflow: 'hidden'
                                     }}
                                 >
                                     <CommunicationExpandPageMessagesComponent
                                         data={thread}
-                                        scrollContainerRef={scrollableRef}
+                                        searchJumpRef={searchJumpRef}
                                         student={student}
                                     />
                                 </Box>

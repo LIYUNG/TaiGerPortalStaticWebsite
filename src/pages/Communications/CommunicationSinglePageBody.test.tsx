@@ -103,7 +103,7 @@ describe('CommunicationSinglePageBody', () => {
                 />
             </BrowserRouter>
         );
-        expect(screen.getByText('Load')).toBeInTheDocument();
+        expect(screen.getByText('Load older messages')).toBeInTheDocument();
         expect(screen.getByTestId('message-list')).toBeInTheDocument();
     });
 

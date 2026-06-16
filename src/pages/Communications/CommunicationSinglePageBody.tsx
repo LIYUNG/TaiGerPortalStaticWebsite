@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
     Box,
     Card,
     Button,
     CircularProgress,
     Link,
-    Grid,
     Typography,
     List,
     ListItem,
@@ -146,8 +152,6 @@ const CommunicationSinglePageBody = ({
         handleClickSave
     } = useCommunications({ data, student });
 
-    const [windowInnerWidth, setWindowInnerWidth] = useState(window.innerWidth);
-
     // The messages live in their own scrollable pane (`messagesRef`) so the chat
     // opens pinned to the newest message and loads older messages as the reader
     // scrolls up — see useChatScroll. The compose box sits OUTSIDE this pane, so
@@ -163,93 +167,165 @@ const CommunicationSinglePageBody = ({
         canLoadOlder: !loadButtonDisabled
     });
 
-    useEffect(() => {
-        const handleResize = () => {
-            setWindowInnerWidth(window.innerWidth);
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, [windowInnerWidth]);
-
     const student_name = `${student.firstname} ${student.lastname}`;
+    const isEmpty = upperThread.length === 0 && thread.length === 0;
     // const template_input = JSON.parse(
     //   `{"time":1689452160435,"blocks":[{"id":"WHsFbpmWmH","type":"paragraph","data":{"text":"<b>我的問題：</b>"}},{"id":"F8K_f07R8l","type":"paragraph","data":{"text":"&lt;Example&gt; 我想選課，不知道下學期要選什麼"}},{"id":"yYUL0bYWSB","type":"paragraph","data":{"text":"<b>我想和顧問討論</b>："}},{"id":"wJu56jmAKC","type":"paragraph","data":{"text":"&lt;Example&gt; 課程符合度最佳化"}}],"version":"2.27.2"}`
     // );
     TabTitle(`Chat: ${student_name}`);
 
     return (
-        <Box>
-            {student?.archiv ? <TopBar /> : null}
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <Breadcrumbs aria-label="breadcrumb">
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: 'calc(100vh - 112px)',
+                minHeight: 0
+            }}
+        >
+            {/* Header — breadcrumbs, advisors, instructions, load (fixed) */}
+            <Box sx={{ flexShrink: 0 }}>
+                {student?.archiv ? <TopBar /> : null}
+                <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1 }}>
+                    <Link
+                        color="inherit"
+                        component={LinkDom}
+                        to={`${DEMO.DASHBOARD_LINK}`}
+                        underline="hover"
+                    >
+                        {appConfig.companyName}
+                    </Link>
+                    {is_TaiGer_role(user) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}
-                            to={`${DEMO.DASHBOARD_LINK}`}
+                            to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                student._id.toString(),
+                                DEMO.PROFILE_HASH
+                            )}`}
                             underline="hover"
                         >
-                            {appConfig.companyName}
+                            {student_name}
                         </Link>
-                        {is_TaiGer_role(user) ? (
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                    student._id.toString(),
-                                    DEMO.PROFILE_HASH
-                                )}`}
-                                underline="hover"
-                            >
-                                {student_name}
-                            </Link>
-                        ) : null}
-                        <Typography color="text.primary">
-                            {t('Message', { ns: 'common' })}
-                        </Typography>
-                    </Breadcrumbs>
-                </Grid>
-                <Grid item sm={9} xs={12}>
-                    <Typography variant="h6">{t('Instructions')}:</Typography>
-                    <InformationBlockChat student={student} user={user} />
-                </Grid>
-                <Grid item sm={3} xs={12}>
-                    <Typography fontWeight="bold">
-                        {t('Agents', { ns: 'common' })}:
+                    ) : null}
+                    <Typography color="text.primary">
+                        {t('Message', { ns: 'common' })}
                     </Typography>
-                    {student?.agents?.map((agent, i) => (
-                        <Typography key={i}>
+                </Breadcrumbs>
+
+                {/* Advisors — a compact line so the chat stays front and center. */}
+                {student?.agents?.length ? (
+                    <Typography
+                        color="text.secondary"
+                        sx={{ mb: 1 }}
+                        variant="body2"
+                    >
+                        {t('Agents', { ns: 'common' })}:{' '}
+                        {student.agents.map((agent, i) => (
                             <Link
                                 component={LinkDom}
+                                key={i}
+                                sx={{ mr: 1 }}
                                 to={`${DEMO.TEAM_AGENT_PROFILE_LINK(agent._id.toString())}`}
-                            >{`${agent.firstname} ${agent.lastname}`}</Link>
-                        </Typography>
-                    ))}
-                </Grid>
-            </Grid>
-            <Button
-                color="secondary"
-                disabled={loadButtonDisabled}
-                fullWidth
-                onClick={handleLoadMessages}
-                startIcon={
-                    isLoadingOlder ? <CircularProgress size={16} /> : undefined
-                }
-                sx={{ mb: 2 }}
-                variant="outlined"
-            >
-                {isLoadingOlder
-                    ? t('Loading…', { ns: 'common', defaultValue: 'Loading…' })
-                    : t('Load')}
-            </Button>
+                            >
+                                {`${agent.firstname} ${agent.lastname}`}
+                            </Link>
+                        ))}
+                    </Typography>
+                ) : null}
+
+                {/* The instruction block is long; collapse it by default so the
+                    conversation is the focus. */}
+                <Accordion
+                    disableGutters
+                    sx={{
+                        mb: 1,
+                        borderRadius: 2,
+                        '&:before': { display: 'none' }
+                    }}
+                    variant="outlined"
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <InfoOutlinedIcon
+                            fontSize="small"
+                            sx={{ color: 'text.secondary', mr: 1 }}
+                        />
+                        <Typography>{t('Instructions')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <InformationBlockChat student={student} user={user} />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Button
+                    color="secondary"
+                    disabled={loadButtonDisabled}
+                    fullWidth
+                    onClick={handleLoadMessages}
+                    size="small"
+                    startIcon={
+                        isLoadingOlder ? (
+                            <CircularProgress size={14} />
+                        ) : (
+                            <KeyboardArrowUpIcon />
+                        )
+                    }
+                    sx={{ mb: 1 }}
+                    variant="text"
+                >
+                    {isLoadingOlder
+                        ? t('Loading…', {
+                              ns: 'common',
+                              defaultValue: 'Loading…'
+                          })
+                        : loadButtonDisabled
+                          ? t('No more messages', {
+                                ns: 'common',
+                                defaultValue: 'No more messages'
+                            })
+                          : t('Load older messages', {
+                                ns: 'common',
+                                defaultValue: 'Load older messages'
+                            })}
+                </Button>
+            </Box>
+
+            {/* Messages — the only scroll area */}
             <Box
                 ref={messagesRef}
-                sx={{ maxHeight: '60vh', overflowY: 'auto' }}
+                sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: 'auto',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    p: 1,
+                    bgcolor: 'background.paper'
+                }}
             >
+                {isEmpty ? (
+                    <Box
+                        sx={{
+                            alignItems: 'center',
+                            color: 'text.secondary',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1,
+                            justifyContent: 'center',
+                            py: 6
+                        }}
+                    >
+                        <ChatBubbleOutlineIcon fontSize="large" />
+                        <Typography variant="body2">
+                            {t('No messages yet. Start the conversation.', {
+                                ns: 'common',
+                                defaultValue:
+                                    'No messages yet. Start the conversation.'
+                            })}
+                        </Typography>
+                    </Box>
+                ) : null}
                 {upperThread.length > 0 ? (
                     <MessageList
                         accordionKeys={uppderaccordionKeys}
@@ -271,39 +347,35 @@ const CommunicationSinglePageBody = ({
                     user={user}
                 />
             </Box>
+
+            {/* Compose — pinned to the bottom (fixed) */}
             {student.archiv !== true ? (
-                <Box>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Card
-                                sx={{
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    maxWidth: window.innerWidth - 64,
-                                    pt: 2,
-                                    '& .MuiAvatar-root': {
-                                        width: 32,
-                                        height: 32,
-                                        ml: -0.5,
-                                        mr: 1
-                                    }
-                                }}
-                            >
-                                <CommunicationThreadEditor
-                                    buttonDisabled={buttonDisabled}
-                                    checkResult={checkResult}
-                                    editorState={editorState}
-                                    files={files}
-                                    handleClickSave={handleClickSave}
-                                    onFileChange={onFileChange}
-                                    thread={thread}
-                                />
-                            </Card>
-                        </Grid>
-                    </Grid>
-                </Box>
+                <Card
+                    sx={{
+                        flexShrink: 0,
+                        borderRadius: 2,
+                        p: 2,
+                        mt: 1,
+                        '& .MuiAvatar-root': {
+                            width: 32,
+                            height: 32,
+                            ml: -0.5,
+                            mr: 1
+                        }
+                    }}
+                >
+                    <CommunicationThreadEditor
+                        buttonDisabled={buttonDisabled}
+                        checkResult={checkResult}
+                        editorState={editorState}
+                        files={files}
+                        handleClickSave={handleClickSave}
+                        onFileChange={onFileChange}
+                        thread={thread}
+                    />
+                </Card>
             ) : (
-                <Card>
+                <Card sx={{ flexShrink: 0, mt: 1, p: 2 }}>
                     {t('The service is finished. Therefore, it is readonly.')}
                 </Card>
             )}

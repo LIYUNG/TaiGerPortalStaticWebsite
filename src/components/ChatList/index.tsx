@@ -198,29 +198,82 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
     );
 
     if (embedded) {
+        // Sidebar-tuned search: the shared <Search> is styled for the dark
+        // AppBar (translucent-white background, large left margin), so override
+        // it to read well on the light sidebar and span the full width.
+        const embeddedSearchBar = (
+            <Search
+                sx={(theme) => ({
+                    ml: 0,
+                    mr: 0,
+                    width: '100%',
+                    bgcolor: 'action.hover',
+                    border: 1,
+                    borderColor: 'divider',
+                    '&:hover': { bgcolor: 'action.selected' },
+                    [theme.breakpoints.up('sm')]: { ml: 0, width: '100%' }
+                })}
+            >
+                <SearchIconWrapper>
+                    <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                    id="search-friends"
+                    inputProps={{ 'aria-label': 'search' }}
+                    onChange={handleInputChange}
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder="Search…"
+                    sx={{ width: '100%' }}
+                    value={searchTerm}
+                />
+            </Search>
+        );
+
         return (
-            <Box>
-                {searchBar}
-                {isLoading
-                    ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                          <MenuItem key={i}>
-                              <Skeleton
-                                  height={40}
-                                  variant="circular"
-                                  width={40}
-                              />
-                              <Skeleton
-                                  height={54}
-                                  sx={{ ml: 1.25 }}
-                                  variant="rectangular"
-                                  width={EmbeddedChatListWidth - 50}
-                              />
-                          </MenuItem>
-                      ))
-                    : null}
-                {!isLoading && user != null ? (
-                    <Friends embedded students={students} user={user} />
-                ) : null}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 2,
+                        bgcolor: 'background.paper',
+                        px: 1.5,
+                        pt: 1.5,
+                        pb: 1,
+                        borderBottom: 1,
+                        borderColor: 'divider'
+                    }}
+                >
+                    {embeddedSearchBar}
+                </Box>
+                <Box sx={{ flex: 1, py: 0.5 }}>
+                    {isLoading
+                        ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                              <MenuItem key={i}>
+                                  <Skeleton
+                                      height={40}
+                                      variant="circular"
+                                      width={40}
+                                  />
+                                  <Skeleton
+                                      height={54}
+                                      sx={{ ml: 1.25 }}
+                                      variant="rectangular"
+                                      width={EmbeddedChatListWidth - 50}
+                                  />
+                              </MenuItem>
+                          ))
+                        : null}
+                    {!isLoading && user != null ? (
+                        <Friends embedded students={students} user={user} />
+                    ) : null}
+                </Box>
             </Box>
         );
     }
