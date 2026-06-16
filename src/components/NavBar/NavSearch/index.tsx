@@ -108,8 +108,13 @@ const labelFor = (
             return { primary: fullName, secondary: '' };
         case 'program':
             return {
-                primary: `${r.school ?? ''} ${r.program_name ?? ''}`.trim(),
-                secondary: `${r.degree ?? ''} ${r.semester ?? ''}`.trim()
+                // Lead with the program name (the identifier) + degree so a long
+                // school name can't truncate it away; school + semester become
+                // the secondary context line.
+                primary:
+                    [r.program_name, r.degree].filter(Boolean).join(' ') ||
+                    (r.school ?? ''),
+                secondary: [r.school, r.semester].filter(Boolean).join(' · ')
             };
         default:
             return { primary: r.title ?? '', secondary: '' };
@@ -135,20 +140,35 @@ const routeFor = (type: SearchResultType, r: SearchResultItem): string => {
     }
 };
 
-// Bold the part of `text` that matches the current query, so users can see why
-// a result was returned.
+const escapeRegExp = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Bold every part of `text` that matches any whitespace-separated term in the
+// query, so users can see why a result was returned. The backend matches each
+// term independently (a multi-word query can span fields), so we highlight each
+// term — e.g. "tum elektrotechnik" bolds "TUM" in the school and
+// "Elektrotechnik" in the program name.
 const HighlightedText = ({ text, query }: { text: string; query: string }) => {
-    const trimmed = query.trim();
-    if (!trimmed) return <>{text}</>;
-    const index = text.toLowerCase().indexOf(trimmed.toLowerCase());
-    if (index === -1) return <>{text}</>;
+    const terms = query.trim().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return <>{text}</>;
+
+    const lowerTerms = new Set(terms.map((term) => term.toLowerCase()));
+    const matcher = new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
+    const parts = text.split(matcher);
+
     return (
         <>
-            {text.slice(0, index)}
-            <Box component="span" sx={{ fontWeight: 700 }}>
-                {text.slice(index, index + trimmed.length)}
-            </Box>
-            {text.slice(index + trimmed.length)}
+            {parts.map((part, index) =>
+                lowerTerms.has(part.toLowerCase()) ? (
+                    <Box component="span" key={index} sx={{ fontWeight: 700 }}>
+                        {part}
+                    </Box>
+                ) : (
+                    <Box component="span" key={index}>
+                        {part}
+                    </Box>
+                )
+            )}
         </>
     );
 };
@@ -373,7 +393,8 @@ const NavSearch = () => {
                         sx={{
                             zIndex: (theme) => theme.zIndex.modal,
                             width: anchorRef.current?.clientWidth,
-                            minWidth: 320
+                            minWidth: 360,
+                            maxWidth: 480
                         }}
                     >
                         <Paper
@@ -488,8 +509,16 @@ const NavSearch = () => {
                                                                     noWrap: true
                                                                 }}
                                                                 secondary={
-                                                                    secondary ||
-                                                                    undefined
+                                                                    secondary ? (
+                                                                        <HighlightedText
+                                                                            query={
+                                                                                searchTerm
+                                                                            }
+                                                                            text={
+                                                                                secondary
+                                                                            }
+                                                                        />
+                                                                    ) : undefined
                                                                 }
                                                                 secondaryTypographyProps={{
                                                                     noWrap: true
