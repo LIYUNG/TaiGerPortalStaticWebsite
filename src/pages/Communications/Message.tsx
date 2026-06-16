@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
     Button,
     Avatar,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     Box,
     useTheme,
     useMediaQuery,
@@ -22,11 +19,16 @@ import {
     CircularProgress,
     AvatarGroup,
     Stack,
-    Tooltip
+    Tooltip,
+    Menu,
+    MenuItem,
+    ListItemIcon,
+    ListItemText
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CloseIcon from '@mui/icons-material/Close';
+import { alpha } from '@mui/material/styles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useTranslation } from 'react-i18next';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { is_TaiGer_AdminAgent, is_TaiGer_Student } from '@taiger-common/core';
@@ -86,18 +88,14 @@ interface MessageState {
 }
 
 const Message = ({
-    idx,
-    accordionKeys,
     message,
     onEditMode,
     isDeleting,
     path,
-    isTaiGerView,
     isLoaded,
     onDeleteSingleMessage,
     handleClickSave
 }: MessageProps) => {
-    // const onlyWidth = useWindowWidth();
     const { user } = useAuth();
     const { t } = useTranslation();
     const [messageState, setMessageState] = useState<MessageState>({
@@ -120,6 +118,7 @@ const Message = ({
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+    const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
     const { mutate } = useMutation({
         mutationFn: IgnoreMessageV2,
@@ -212,7 +211,10 @@ const Message = ({
         mutate({
             student_id: message.student_id?._id?.toString() ?? '',
             communication_messageId: message._id,
-            message: (message.message ?? '') as unknown as Record<string, unknown>,
+            message: (message.message ?? '') as unknown as Record<
+                string,
+                unknown
+            >,
             ignoreMessageState: ignoreMessageState
         });
     };
@@ -224,81 +226,120 @@ const Message = ({
     const lastname = message.user_id
         ? message.user_id.lastname
         : appConfig.companyName;
-    const editable = message.user_id
+    // A message is "own" (right-aligned) when authored by the logged-in user.
+    const isOwn = message.user_id
         ? message.user_id._id.toString() === user?._id?.toString()
-            ? true
-            : false
         : false;
+    const editable = isOwn;
     const full_name = `${firstname} ${lastname}`;
+
+    const showReadReceipts =
+        user && is_TaiGer_AdminAgent(user as unknown as IUser);
+    const readers =
+        message?.readBy?.filter(
+            (usr) =>
+                (message.student_id?._id?.toString() !==
+                    message.user_id?._id?.toString() &&
+                    usr._id?.toString() !== user?._id?.toString()) ||
+                (message.student_id?._id?.toString() ===
+                    message.user_id?._id?.toString() &&
+                    usr._id?.toString() !== message.student_id?._id.toString())
+        ) ?? [];
+    const showIgnoreToggle =
+        user &&
+        !is_TaiGer_Student(user as unknown as IUser) &&
+        message.user_id &&
+        is_TaiGer_Student(message.user_id as unknown as IUser);
 
     return (
         <>
-            <Accordion
-                defaultExpanded={accordionKeys[idx] === idx}
-                disableGutters
+            <Box
+                id={`communication-message-${message._id.toString()}`}
                 sx={{
-                    borderRadius: 2,
-                    overflowWrap: 'break-word', // Add this line
-                    ...(isTaiGerView &&
-                        !ismobile && {
-                            width: '100%', // Make Drawer full width on small screens
-                            maxWidth: '100vw'
-                        }),
-                    marginTop: '1px',
-                    '& .MuiAvatar-root': {
-                        width: 32,
-                        height: 32,
-                        ml: -0.5,
-                        mr: 1
-                    }
+                    display: 'flex',
+                    justifyContent: isOwn ? 'flex-end' : 'flex-start',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                    mb: 1.25,
+                    px: { xs: 0.5, md: 1 },
+                    scrollMarginTop: '80px',
+                    // Reveal the hover actions when the row is hovered (desktop).
+                    '&:hover .message-actions': { opacity: 1 }
                 }}
             >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                {!isOwn ? (
                     <Avatar
                         {...stringAvatar(full_name)}
                         src={message.user_id?.pictureUrl}
+                        sx={{
+                            ...stringAvatar(full_name).sx,
+                            width: 32,
+                            height: 32,
+                            mt: 0.5
+                        }}
                     />
-                    <Box style={{ marginLeft: '10px', flex: 1 }}>
-                        <b style={{ cursor: 'pointer' }}>{full_name}</b>
-                        <span style={{ display: 'flex', float: 'right' }}>
-                            {convertDate(message.createdAt ?? new Date())}
-                            {editable ? (
-                                <>
-                                    <IconButton onClick={() => onEditMode()}>
-                                        <EditIcon
-                                            fontSize="small"
-                                            style={{ cursor: 'pointer' }}
-                                            title="Edit this message"
-                                        />
-                                    </IconButton>
-                                    <IconButton
-                                        aria-label="delete"
-                                        onClick={(e) =>
-                                            onOpendeleteMessageModalShow(
-                                                e,
-                                                message._id.toString(),
-                                                String(message.createdAt ?? '')
-                                            )
-                                        }
-                                    >
-                                        <CloseIcon
-                                            fontSize="small"
-                                            style={{ cursor: 'pointer' }}
-                                            title="Delete this message and file"
-                                        />
-                                    </IconButton>
-                                </>
-                            ) : null}
-                        </span>
-                    </Box>
-                </AccordionSummary>
-                <AccordionDetails>
+                ) : null}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: isOwn ? 'flex-end' : 'flex-start',
+                        maxWidth: ismobile ? '85%' : '78%',
+                        minWidth: 0
+                    }}
+                >
+                    {/* Sender + timestamp + (own) edit/delete actions */}
                     <Box
                         sx={{
-                            overflowWrap: 'break-word', // Ensures long words wrap
-                            wordBreak: 'break-word', // Breaks the word to avoid overflow
-                            maxWidth: '100%', // Ensures content does not exceed parent width
-                            flex: 1 // Makes Box flexible within its container
+                            display: 'flex',
+                            flexDirection: isOwn ? 'row-reverse' : 'row',
+                            alignItems: 'center',
+                            gap: 0.75,
+                            mb: 0.25,
+                            color: 'text.secondary'
+                        }}
+                    >
+                        <Typography sx={{ fontWeight: 600 }} variant="caption">
+                            {full_name}
+                        </Typography>
+                        <Typography color="text.secondary" variant="caption">
+                            {convertDate(message.createdAt ?? new Date())}
+                        </Typography>
+                        {editable ? (
+                            <IconButton
+                                aria-label="message actions"
+                                className="message-actions"
+                                onClick={(e) => setMenuAnchor(e.currentTarget)}
+                                size="small"
+                                sx={{
+                                    // Hidden until row hover on desktop; always
+                                    // visible on touch devices (no hover).
+                                    opacity: { xs: 1, md: 0 },
+                                    transition: 'opacity 0.15s'
+                                }}
+                            >
+                                <MoreVertIcon fontSize="inherit" />
+                            </IconButton>
+                        ) : null}
+                    </Box>
+
+                    {/* Bubble */}
+                    <Box
+                        sx={{
+                            bgcolor: isOwn
+                                ? alpha(theme.palette.primary.main, 0.12)
+                                : theme.palette.action.hover,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 2,
+                            borderTopRightRadius: isOwn ? 4 : 16,
+                            borderTopLeftRadius: isOwn ? 16 : 4,
+                            px: 1.5,
+                            py: 0.5,
+                            width: 'fit-content',
+                            maxWidth: '100%',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word'
                         }}
                     >
                         <EditorSimple
@@ -310,106 +351,95 @@ const Message = ({
                             readOnly={true}
                         />
                         {message?.files?.map((file, i) => (
-                            <Card key={i} sx={{ p: 1 }}>
-                                <span>
-                                    <Typography
-                                        onClick={() =>
-                                            handleClick(
-                                                `/api/communications/${message?.student_id?._id.toString()}/chat/${
-                                                    file.name
-                                                }`,
+                            <Card
+                                key={i}
+                                sx={{ p: 1, mt: 0.5 }}
+                                variant="outlined"
+                            >
+                                <Typography
+                                    onClick={() =>
+                                        handleClick(
+                                            `/api/communications/${message?.student_id?._id.toString()}/chat/${
                                                 file.name
-                                            )
-                                        }
-                                        sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                                            }`,
+                                            file.name
+                                        )
+                                    }
+                                    sx={{
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        gap: 0.5,
+                                        textDecoration: 'underline'
+                                    }}
+                                >
+                                    <Box
+                                        component="svg"
+                                        sx={{ width: 20, height: 20 }}
+                                        viewBox="0 0 24 24"
                                     >
-                                        <svg
-                                            className="mx-2"
-                                            fill="none"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            width="24"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <FileIcon
-                                                extension={file.name
+                                        <FileIcon
+                                            extension={file.name
+                                                .split('.')
+                                                .pop()}
+                                            {...(defaultStyles[
+                                                file.name
                                                     .split('.')
-                                                    .pop()}
-                                                {...(defaultStyles[
-                                                    file.name.split('.').pop() as string
-                                                ] ?? {})}
-                                            />
-                                        </svg>
-                                        {file.name}
-                                        <svg
-                                            fill="none"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            width="24"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="m7 10 4.86 4.86c.08.08.2.08.28 0L17 10"
-                                                stroke="#000"
-                                                strokeLinecap="round"
-                                                strokeWidth="2"
-                                            />
-                                        </svg>
-                                    </Typography>
-                                </span>
+                                                    .pop() as string
+                                            ] ?? {})}
+                                        />
+                                    </Box>
+                                    {file.name}
+                                    <FileDownloadIcon fontSize="small" />
+                                </Typography>
                             </Card>
                         ))}
                     </Box>
-                    <Box
-                        alignItems="center"
-                        display="flex"
-                        justifyContent="space-between"
-                    >
-                        {user && is_TaiGer_AdminAgent(user as unknown as IUser) ? (
-                            <AvatarGroup>
-                                {message?.readBy
-                                    ?.filter(
-                                        (usr) =>
-                                            (message.student_id?._id?.toString() !==
-                                                message.user_id?._id?.toString() &&
-                                                usr._id?.toString() !==
-                                                    user?._id?.toString()) ||
-                                            (message.student_id?._id?.toString() ===
-                                                message.user_id?._id?.toString() &&
-                                                usr._id?.toString() !==
-                                                    message.student_id?._id.toString())
-                                    )
-                                    .map((usr) => (
+
+                    {/* Footer: read receipts + ignore toggle */}
+                    {(showReadReceipts && readers.length > 0) ||
+                    showIgnoreToggle ? (
+                        <Box
+                            alignItems="center"
+                            display="flex"
+                            gap={1}
+                            sx={{ mt: 0.25 }}
+                        >
+                            {showReadReceipts && readers.length > 0 ? (
+                                <AvatarGroup>
+                                    {readers.map((usr) => (
                                         <Tooltip
                                             key={usr._id?.toString()}
-                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(message.timeStampReadBy?.[usr._id?.toString()] ?? new Date())}`}
+                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(
+                                                message.timeStampReadBy?.[
+                                                    usr._id?.toString()
+                                                ] ?? new Date()
+                                            )}`}
                                         >
                                             <Avatar
                                                 {...stringAvatar(
                                                     `${usr?.firstname} ${usr?.lastname}`
                                                 )}
-
                                                 src={usr?.pictureUrl}
                                                 sx={{
                                                     ...stringAvatar(
                                                         `${usr?.firstname} ${usr?.lastname}`
                                                     ).sx,
-                                                    width: 8,
-                                                    height: 8 // Override the size
+                                                    width: 14,
+                                                    height: 14,
+                                                    fontSize: 8
                                                 }}
                                             />
                                         </Tooltip>
                                     ))}
-                            </AvatarGroup>
-                        ) : null}
-                        <Stack
-                            alignItems="center"
-                            direction="row"
-                            justifyContent="flex-end"
-                        >
-                            {user && !is_TaiGer_Student(user as unknown as IUser) &&
-                            message.user_id && is_TaiGer_Student(message.user_id as unknown as IUser) ? (
-                                <>
+                                </AvatarGroup>
+                            ) : null}
+                            {showIgnoreToggle ? (
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={0.5}
+                                >
                                     {messageState.ignore_message ? (
                                         <Avatar
                                             key={user?._id?.toString()}
@@ -424,8 +454,9 @@ const Message = ({
                                                 ...stringAvatar(
                                                     `${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname}`
                                                 ).sx,
-                                                width: 8,
-                                                height: 8 // Override the size
+                                                width: 14,
+                                                height: 14,
+                                                fontSize: 8
                                             }}
                                             title={`Ignored by ${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname} at ${convertDate((messageState.ignoredMessageUpdatedAt as string | Date | number) ?? new Date())}`}
                                         />
@@ -440,18 +471,61 @@ const Message = ({
                                                     onChange={
                                                         handleCheckboxChange
                                                     }
+                                                    size="small"
                                                 />
                                             }
-                                            label="no need to reply"
+                                            label={
+                                                <Typography variant="caption">
+                                                    {t('no need to reply', {
+                                                        ns: 'common',
+                                                        defaultValue:
+                                                            'no need to reply'
+                                                    })}
+                                                </Typography>
+                                            }
                                             labelPlacement="start"
+                                            sx={{ mr: 0 }}
                                         />
                                     </FormGroup>
-                                </>
+                                </Stack>
                             ) : null}
-                        </Stack>
-                    </Box>
-                </AccordionDetails>
-            </Accordion>
+                        </Box>
+                    ) : null}
+                </Box>
+            </Box>
+            {/* Hover "more" menu for the message author's own messages. */}
+            <Menu
+                anchorEl={menuAnchor}
+                onClose={() => setMenuAnchor(null)}
+                open={Boolean(menuAnchor)}
+            >
+                <MenuItem
+                    onClick={() => {
+                        setMenuAnchor(null);
+                        onEditMode();
+                    }}
+                >
+                    <ListItemIcon>
+                        <EditIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{t('Edit', { ns: 'common' })}</ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={(e) => {
+                        setMenuAnchor(null);
+                        onOpendeleteMessageModalShow(
+                            e,
+                            message._id.toString(),
+                            String(message.createdAt ?? '')
+                        );
+                    }}
+                >
+                    <ListItemIcon>
+                        <DeleteOutlineIcon color="error" fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{t('Delete', { ns: 'common' })}</ListItemText>
+                </MenuItem>
+            </Menu>
             {/* TODOL consider to move it to the parent! It render many time! as message increase */}
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"

@@ -20,10 +20,7 @@ vi.mock('@components/AuthProvider', () => ({
 vi.mock('@components/EditorJs/ComposeEditor', async () => {
     const React = await import('react');
     return {
-        default: React.forwardRef(function MockComposeEditor(
-            _props: unknown,
-            _ref: unknown
-        ) {
+        default: React.forwardRef(function MockComposeEditor() {
             return <div data-testid="compose-editor" />;
         })
     };
@@ -77,7 +74,7 @@ describe('CommunicationThreadEditor', () => {
         expect(screen.getByText('Send')).toBeInTheDocument();
     });
 
-    test('shows user name in editor header', () => {
+    test('renders the attach-file action in the composer', () => {
         render(
             <CommunicationThreadEditor
                 editorState={{ blocks: [] }}
@@ -86,6 +83,6 @@ describe('CommunicationThreadEditor', () => {
                 thread={[]}
             />
         );
-        expect(screen.getByText('Agent One')).toBeInTheDocument();
+        expect(screen.getByLabelText('attach file')).toBeInTheDocument();
     });
 });
