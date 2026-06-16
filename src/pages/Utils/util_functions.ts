@@ -1381,6 +1381,135 @@ export const isEnglishOK = (
     return true;
 };
 
+// Sections of an English test (TOEFL/IELTS) mapped to the student-score field
+// and the program per-section minimum field for each certificate. The overall
+// program requirement (toefl/ielts) is a string; the per-section minimums
+// (toefl_reading, ielts_reading, …) are numbers. Student scores are all strings.
+const ENGLISH_REQUIREMENT_SECTIONS = [
+    {
+        section: 'Overall',
+        scoreField: 'english_score',
+        programField: { TOEFL: 'toefl', IELTS: 'ielts' }
+    },
+    {
+        section: 'Reading',
+        scoreField: 'english_score_reading',
+        programField: { TOEFL: 'toefl_reading', IELTS: 'ielts_reading' }
+    },
+    {
+        section: 'Listening',
+        scoreField: 'english_score_listening',
+        programField: { TOEFL: 'toefl_listening', IELTS: 'ielts_listening' }
+    },
+    {
+        section: 'Writing',
+        scoreField: 'english_score_writing',
+        programField: { TOEFL: 'toefl_writing', IELTS: 'ielts_writing' }
+    },
+    {
+        section: 'Speaking',
+        scoreField: 'english_score_speaking',
+        programField: { TOEFL: 'toefl_speaking', IELTS: 'ielts_speaking' }
+    }
+] as const;
+
+export type EnglishCertificate = 'TOEFL' | 'IELTS';
+
+export interface EnglishRequirementFailure {
+    section: string;
+    required: number;
+    actual: number;
+}
+
+export interface EnglishRequirementIssue {
+    program: IProgramWithId | undefined;
+    certificate: EnglishCertificate;
+    failures: EnglishRequirementFailure[];
+}
+
+/**
+ * For each program the student has DECIDED to apply to, return any English
+ * (TOEFL/IELTS) requirements — overall or per-section — that the student's
+ * recorded scores do NOT meet. This catches the silent-rejection case where an
+ * application is submitted while a single section score is below the program's
+ * minimum.
+ *
+ * Only runs when the student has entered a complete, numeric set of scores for a
+ * TOEFL/IELTS certificate — a missing/partial survey must not raise a false
+ * "below requirement" alarm. A program with no requirement for a section is
+ * skipped (its min is absent / 0).
+ */
+export const englishScoreRequirementIssues = (
+    student: IStudentResponse
+): EnglishRequirementIssue[] => {
+    const lang = (student?.academic_background?.language ?? {}) as Record<
+        string,
+        string | undefined
+    >;
+    const certificate = lang.english_certificate;
+    if (certificate !== 'TOEFL' && certificate !== 'IELTS') {
+        return [];
+    }
+
+    const scoreFor = (scoreField: string) => parseFloat(lang[scoreField] ?? '');
+    // Require every section score to be present & numeric before comparing.
+    const allScoresEntered = ENGLISH_REQUIREMENT_SECTIONS.every(
+        ({ scoreField }) => !Number.isNaN(scoreFor(scoreField))
+    );
+    if (!allScoresEntered) {
+        return [];
+    }
+
+    const decidedApplications =
+        student.applications?.filter((app) => isProgramDecided(app)) ?? [];
+
+    const issues: EnglishRequirementIssue[] = [];
+    for (const app of decidedApplications) {
+        const program = app.programId as IProgramWithId | undefined;
+        if (!program) {
+            continue;
+        }
+        const programRecord = program as unknown as Record<
+            string,
+            number | string | undefined
+        >;
+
+        const failures: EnglishRequirementFailure[] = [];
+        for (const {
+            section,
+            scoreField,
+            programField
+        } of ENGLISH_REQUIREMENT_SECTIONS) {
+            const rawRequired = programRecord[programField[certificate]];
+            const required =
+                typeof rawRequired === 'string'
+                    ? parseFloat(rawRequired)
+                    : rawRequired;
+            // No (or zero) requirement for this section -> nothing to fail.
+            if (
+                required === undefined ||
+                Number.isNaN(required) ||
+                required <= 0
+            ) {
+                continue;
+            }
+            const actual = scoreFor(scoreField);
+            if (required > actual) {
+                failures.push({ section, required, actual });
+            }
+        }
+        if (failures.length > 0) {
+            issues.push({ program, certificate, failures });
+        }
+    }
+    return issues;
+};
+
+/** Whether any decided program's English requirement is unmet by the student. */
+export const hasEnglishScoreRequirementIssue = (
+    student: IStudentResponse
+): boolean => englishScoreRequirementIssues(student).length > 0;
+
 export const getApplicationYear = (student: IUserWithId): number | string => {
     return student.application_preference?.expected_application_date
         ? parseInt(student.application_preference.expected_application_date)

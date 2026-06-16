@@ -35,6 +35,7 @@ import DEMO from '@store/constant';
 import ApplicationProgressCard from '@components/ApplicationProgressCard/ApplicationProgressCard';
 import { appConfig } from '../../../config';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
+import EnglishScoreBelowRequirementBanner from '@components/Banner/EnglishScoreBelowRequirementBanner';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { useApplicationStudent } from '@hooks/useApplicationStudent';
 import { useAuth } from '@components/AuthProvider';
@@ -331,6 +332,9 @@ const StudentDashboard = ({
                 </Grid>
                 <Grid item md={12} xs={12}>
                     <ProgramLanguageNotMatchedBanner student={student!} />
+                </Grid>
+                <Grid item md={12} xs={12}>
+                    <EnglishScoreBelowRequirementBanner student={student!} />
                 </Grid>
                 <EnglishCertificateExpiredBeforeDeadlineBanner
                     student={student as unknown as Record<string, unknown>}
