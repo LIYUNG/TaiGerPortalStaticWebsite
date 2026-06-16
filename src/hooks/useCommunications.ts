@@ -40,6 +40,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             .fill(0)
             .map((_x: number, i: number) => (i >= data.length - 2 ? i : -1)),
         loadButtonDisabled: false,
+        isLoadingOlder: false,
         res_modal_status: 0,
         res_modal_message: ''
     });
@@ -160,7 +161,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     const handleLoadMessages = (): void => {
         setCommunicationsState((prevState) => ({
             ...prevState,
-            loadButtonDisabled: true
+            loadButtonDisabled: true,
+            isLoadingOlder: true
         }));
         loadCommunicationThread(
             student._id?.toString() ?? '',
@@ -207,18 +209,21 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                                         : -1
                                 )
                         ],
-                        loadButtonDisabled: respData.length === 0
+                        loadButtonDisabled: respData.length === 0,
+                        isLoadingOlder: false
                     }));
                 } else {
                     setCommunicationsState((prevState) => ({
-                        ...prevState
+                        ...prevState,
+                        isLoadingOlder: false
                     }));
                 }
             },
             (error: unknown) => {
                 setCommunicationsState((prevState) => ({
                     ...prevState,
-                    error
+                    error,
+                    isLoadingOlder: false
                 }));
             }
         );
@@ -311,6 +316,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     return {
         buttonDisabled: isPending,
         loadButtonDisabled: communicationsState.loadButtonDisabled,
+        isLoadingOlder: communicationsState.isLoadingOlder,
         isDeleting,
         files: communicationsState.files,
         count: communicationsState.count,

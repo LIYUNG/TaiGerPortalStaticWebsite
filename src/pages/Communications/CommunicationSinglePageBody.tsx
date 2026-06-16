@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import {
     Box,
     Card,
     Button,
+    CircularProgress,
     Link,
     Grid,
     Typography,
@@ -23,6 +24,7 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import { TopBar } from '@components/TopBar/TopBar';
 import useCommunications from '@hooks/useCommunications';
+import useChatScroll from '@hooks/useChatScroll';
 import i18next from 'i18next';
 import type {
     IUserWithId,
@@ -129,6 +131,7 @@ const CommunicationSinglePageBody = ({
     const {
         buttonDisabled,
         loadButtonDisabled,
+        isLoadingOlder,
         isDeleting,
         files,
         editorState,
@@ -144,6 +147,21 @@ const CommunicationSinglePageBody = ({
     } = useCommunications({ data, student });
 
     const [windowInnerWidth, setWindowInnerWidth] = useState(window.innerWidth);
+
+    // The messages live in their own scrollable pane (`messagesRef`) so the chat
+    // opens pinned to the newest message and loads older messages as the reader
+    // scrolls up — see useChatScroll. The compose box sits OUTSIDE this pane, so
+    // the pane's height depends only on the messages, keeping scroll behaviour
+    // exact (unaffected by EditorJS initialising asynchronously below it).
+    const messagesRef = useRef<HTMLDivElement>(null);
+
+    useChatScroll({
+        scrollRef: messagesRef,
+        threadLength: thread.length,
+        upperThreadLength: upperThread.length,
+        loadOlder: handleLoadMessages,
+        canLoadOlder: !loadButtonDisabled
+    });
 
     useEffect(() => {
         const handleResize = () => {
@@ -218,12 +236,20 @@ const CommunicationSinglePageBody = ({
                 disabled={loadButtonDisabled}
                 fullWidth
                 onClick={handleLoadMessages}
+                startIcon={
+                    isLoadingOlder ? <CircularProgress size={16} /> : undefined
+                }
                 sx={{ mb: 2 }}
                 variant="outlined"
             >
-                {t('Load')}
+                {isLoadingOlder
+                    ? t('Loading…', { ns: 'common', defaultValue: 'Loading…' })
+                    : t('Load')}
             </Button>
-            <Box>
+            <Box
+                ref={messagesRef}
+                sx={{ maxHeight: '60vh', overflowY: 'auto' }}
+            >
                 {upperThread.length > 0 ? (
                     <MessageList
                         accordionKeys={uppderaccordionKeys}

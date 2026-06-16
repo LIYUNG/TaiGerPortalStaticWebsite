@@ -328,13 +328,10 @@ const CommunicationExpandPage = () => {
     const isAgentsEditorsModalOpen = Boolean(anchorAgentsEditorsEl);
     const [isExportingMessageDisabled, setIsExportingMessageDisabled] =
         useState(false);
+    // The scrollable message pane. Scroll behaviour (pin-to-newest +
+    // load-older-on-scroll-up) is owned by useChatScroll inside
+    // CommunicationExpandPageMessagesComponent, which receives this ref.
     const scrollableRef = useRef<HTMLDivElement>(null);
-    const scrollToBottom = () => {
-        if (scrollableRef.current) {
-            scrollableRef.current.scrollTop =
-                scrollableRef.current.scrollHeight;
-        }
-    };
 
     const handleDrawerOpen = (e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
@@ -401,8 +398,6 @@ const CommunicationExpandPage = () => {
     const agentsEditorsDropdownId = 'primary-agents-editors-modal';
 
     const dropdownId = 'primary-student-modal';
-
-    scrollToBottom();
 
     const student_name =
         !isLoading &&
@@ -499,6 +494,7 @@ const CommunicationExpandPage = () => {
                                     >
                                         <CommunicationExpandPageMessagesComponent
                                             data={thread}
+                                            scrollContainerRef={scrollableRef}
                                             student={student}
                                         />
                                     </Box>
@@ -548,6 +544,7 @@ const CommunicationExpandPage = () => {
                                 >
                                     <CommunicationExpandPageMessagesComponent
                                         data={thread}
+                                        scrollContainerRef={scrollableRef}
                                         student={student}
                                     />
                                 </Box>
