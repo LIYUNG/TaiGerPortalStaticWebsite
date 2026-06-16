@@ -1415,6 +1415,47 @@ export const loadCommunicationThread = (
     request.get<LoadCommunicationThreadResponse>(
         `/api/communications/${studentId}/pages/${pageNumber}`
     );
+export interface ThreadSearchMessage {
+    _id: string;
+    message?: string;
+    createdAt?: string;
+    user_id?: {
+        _id?: string;
+        firstname?: string;
+        lastname?: string;
+        pictureUrl?: string;
+    };
+}
+export const searchCommunicationThread = (studentId: StudentId, q: string) =>
+    request.get<{
+        success: boolean;
+        data: ThreadSearchMessage[];
+        total: number;
+    }>(`/api/communications/${studentId}/search?q=${encodeURIComponent(q)}`);
+export const getCommunicationThreadContext = (
+    studentId: StudentId,
+    messageId: string
+) =>
+    request.get<{
+        success: boolean;
+        data: unknown[];
+        hasOlder: boolean;
+        hasNewer: boolean;
+        targetId: string;
+    }>(`/api/communications/${studentId}/context/${messageId}`);
+export const getAdjacentCommunicationMessages = (
+    studentId: StudentId,
+    messageId: string,
+    direction: 'before' | 'after'
+) =>
+    request.get<{
+        success: boolean;
+        data: unknown[];
+        hasMore: boolean;
+        direction: 'before' | 'after';
+    }>(
+        `/api/communications/${studentId}/adjacent/${messageId}?direction=${direction}`
+    );
 export const postCommunicationThreadV2 = ({
     studentId,
     formData

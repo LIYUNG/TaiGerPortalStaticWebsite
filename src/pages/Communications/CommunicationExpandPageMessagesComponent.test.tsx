@@ -72,14 +72,14 @@ const mockStudent = {
 };
 
 describe('CommunicationExpandPageMessagesComponent', () => {
-    test('renders Load button', () => {
+    test('renders the load-older-messages button', () => {
         render(
             <CommunicationExpandPageMessagesComponent
                 data={[]}
                 student={mockStudent as never}
             />
         );
-        expect(screen.getByText('Load')).toBeInTheDocument();
+        expect(screen.getByText('Load older messages')).toBeInTheDocument();
     });
 
     test('renders message list and thread editor when student is active', () => {

@@ -1,6 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
 import {
-    Avatar,
     Box,
     Button,
     CircularProgress,
@@ -26,7 +25,7 @@ import ComposeEditor from '@components/EditorJs/ComposeEditor';
 import type { ComposeEditorRef } from '@components/EditorJs/ComposeEditor';
 import type { OutputData } from '@editorjs/editorjs';
 import { useAuth } from '@components/AuthProvider';
-import { CVMLRL_DOC_PRECHECK_STATUS_E, stringAvatar } from '@utils/contants';
+import { CVMLRL_DOC_PRECHECK_STATUS_E } from '@utils/contants';
 import { TaiGerChatAssistant } from '@/api';
 import { appConfig } from '../../config';
 
@@ -99,30 +98,20 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         }
         setStreamingData((prev) => ({ ...prev, data, isGenerating: false }));
     };
+    const sendDisabled = !hasContent || props.buttonDisabled || isSending;
+
     return (
         <>
             <Box
                 sx={{
-                    my: 1,
-                    display: 'flex',
-                    alignItems: 'center'
-                }}
-            >
-                <Avatar
-                    {...stringAvatar(`${user?.firstname} ${user?.lastname}`)}
-                    src={user?.pictureUrl}
-                />
-                <Typography variant="body1">
-                    {user?.firstname} {user?.lastname}
-                </Typography>
-            </Box>
-            <Box
-                sx={{
-                    py: 4,
-                    px: 4,
-                    my: 1,
-                    borderRadius: '5px',
-                    border: '1px solid #ccc'
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'background.paper',
+                    px: 1.5,
+                    py: 1,
+                    transition: 'border-color 0.15s',
+                    '&:focus-within': { borderColor: 'primary.main' }
                 }}
             >
                 <ComposeEditor
@@ -149,146 +138,187 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         )
                     }
                 />
-            </Box>
-            <Box>
-                {is_TaiGer_role(user as IUser)
-                    ? props.files?.map((fl, i) => (
-                          <Box
-                              key={`${fl.name}${i}`}
-                              sx={{
-                                  wordBreak: 'break-word', // Breaks the word to avoid overflow
-                                  overflowWrap: 'break-word' // Add this line
-                              }}
-                          >
-                              <Typography variant="body1">
-                                  {fl.name} :
-                              </Typography>
-                              {props.checkResult?.length
-                                  ? Object.keys(props.checkResult![i]).map(
-                                        (ky) => (
-                                            <Typography
-                                                key={
-                                                    props.checkResult![i][ky]
-                                                        .text
-                                                }
-                                                sx={{ ml: 2 }}
-                                            >
-                                                {props.checkResult![i][ky]
-                                                    .value === undefined
-                                                    ? CVMLRL_DOC_PRECHECK_STATUS_E.WARNING_SYMBOK
-                                                    : props.checkResult![i][ky]
-                                                            .value
-                                                      ? CVMLRL_DOC_PRECHECK_STATUS_E.OK_SYMBOL
-                                                      : CVMLRL_DOC_PRECHECK_STATUS_E.NOT_OK_SYMBOL}
-                                                {props.checkResult![i][ky].text}
-                                                {props.checkResult![i][ky]
-                                                    .hasMetadata
-                                                    ? props.checkResult![i][ky]
-                                                          .metaData
-                                                    : null}
-                                            </Typography>
-                                        )
-                                    )
-                                  : null}
-                          </Box>
-                      ))
-                    : null}
-                {is_TaiGer_Student(user as IUser)
-                    ? props.files?.map((fl, i) => (
-                          <Box key={`${fl.name}${i}`}>
-                              <Typography
-                                  sx={{
-                                      overflowWrap: 'break-word' // Add this line
-                                  }}
-                                  variant="body1"
-                              >
-                                  {fl.name}
-                              </Typography>
-                          </Box>
-                      ))
-                    : null}
-            </Box>
-            <Box sx={{ mb: 2 }}>
-                <Tooltip
-                    placement="top"
-                    title={
-                        !hasContent || props.buttonDisabled
-                            ? t(
-                                  'Please write some text to improve the communication and understanding.'
-                              )
-                            : ''
-                    }
+
+                {/* Selected files + (agent) document pre-check results */}
+                {props.files && props.files.length > 0 ? (
+                    <Box sx={{ mt: 1 }}>
+                        {is_TaiGer_role(user as IUser)
+                            ? props.files?.map((fl, i) => (
+                                  <Box
+                                      key={`${fl.name}${i}`}
+                                      sx={{
+                                          wordBreak: 'break-word',
+                                          overflowWrap: 'break-word'
+                                      }}
+                                  >
+                                      <Typography variant="body2">
+                                          {fl.name} :
+                                      </Typography>
+                                      {props.checkResult?.length
+                                          ? Object.keys(
+                                                props.checkResult![i]
+                                            ).map((ky) => (
+                                                <Typography
+                                                    key={
+                                                        props.checkResult![i][
+                                                            ky
+                                                        ].text
+                                                    }
+                                                    sx={{ ml: 2 }}
+                                                    variant="body2"
+                                                >
+                                                    {props.checkResult![i][ky]
+                                                        .value === undefined
+                                                        ? CVMLRL_DOC_PRECHECK_STATUS_E.WARNING_SYMBOK
+                                                        : props.checkResult![i][
+                                                                ky
+                                                            ].value
+                                                          ? CVMLRL_DOC_PRECHECK_STATUS_E.OK_SYMBOL
+                                                          : CVMLRL_DOC_PRECHECK_STATUS_E.NOT_OK_SYMBOL}
+                                                    {
+                                                        props.checkResult![i][
+                                                            ky
+                                                        ].text
+                                                    }
+                                                    {props.checkResult![i][ky]
+                                                        .hasMetadata
+                                                        ? props.checkResult![i][
+                                                              ky
+                                                          ].metaData
+                                                        : null}
+                                                </Typography>
+                                            ))
+                                          : null}
+                                  </Box>
+                              ))
+                            : null}
+                        {is_TaiGer_Student(user as IUser)
+                            ? props.files?.map((fl, i) => (
+                                  <Typography
+                                      key={`${fl.name}${i}`}
+                                      sx={{ overflowWrap: 'break-word' }}
+                                      variant="body2"
+                                  >
+                                      {fl.name}
+                                  </Typography>
+                              ))
+                            : null}
+                    </Box>
+                ) : null}
+
+                {/* Compact action row: attach + AI assist on the left, send on the right */}
+                <Box
+                    sx={{
+                        alignItems: 'center',
+                        display: 'flex',
+                        gap: 0.5,
+                        mt: 0.5
+                    }}
                 >
-                    <span>
-                        <Button
-                            color="primary"
-                            disabled={
-                                !hasContent || props.buttonDisabled || isSending
-                            }
-                            onClick={
-                                hasContent && !props.buttonDisabled
-                                    ? handleSend
-                                    : undefined
-                            }
-                            startIcon={
-                                isSending ? (
-                                    <CircularProgress
-                                        color="inherit"
-                                        size={20}
-                                    />
-                                ) : (
-                                    <SendIcon />
-                                )
-                            }
-                            variant={
-                                hasContent && !props.buttonDisabled
-                                    ? 'contained'
-                                    : 'outlined'
-                            }
+                    <Tooltip placement="top" title={t('Attach files')}>
+                        <span>
+                            <input
+                                id="file-input"
+                                multiple
+                                onChange={(e) => props.onFileChange?.(e)}
+                                style={{ display: 'none' }}
+                                type="file"
+                            />
+                            <IconButton
+                                aria-label="attach file"
+                                color="primary"
+                                component="span"
+                                onClick={handleClick}
+                                size="small"
+                            >
+                                <AttachFileIcon fontSize="small" />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                    {appConfig.AIEnable && is_TaiGer_role(user as IUser) ? (
+                        <Tooltip
+                            placement="top"
+                            title={t('AI assist', {
+                                ns: 'common',
+                                defaultValue: 'AI assist'
+                            })}
                         >
-                            {t('Send', { ns: 'common' })}
-                        </Button>
-                    </span>
-                </Tooltip>
-                <Tooltip placement="top" title={t('Attach files')}>
-                    <span>
-                        <input
-                            id="file-input"
-                            multiple
-                            onChange={(e) => props.onFileChange?.(e)}
-                            style={{ display: 'none' }}
-                            type="file"
-                        />
-                        <IconButton
-                            aria-label="attach file"
-                            color="primary"
-                            component="span"
-                            onClick={handleClick}
-                        >
-                            <AttachFileIcon />
-                        </IconButton>
-                    </span>
-                </Tooltip>
-                {appConfig.AIEnable && is_TaiGer_role(user as IUser) ? (
-                    <IconButton
-                        disabled={streamingData.isGenerating}
-                        onClick={onSubmit}
+                            <span>
+                                <IconButton
+                                    color="primary"
+                                    disabled={streamingData.isGenerating}
+                                    onClick={onSubmit}
+                                    size="small"
+                                >
+                                    {streamingData.isGenerating ? (
+                                        <CircularProgress size={18} />
+                                    ) : (
+                                        <AutoFixHighIcon fontSize="small" />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ) : null}
+                    <Box sx={{ flex: 1 }} />
+                    <Tooltip
+                        placement="top"
+                        title={
+                            sendDisabled && !isSending
+                                ? t(
+                                      'Please write some text to improve the communication and understanding.'
+                                  )
+                                : ''
+                        }
                     >
-                        {streamingData.isGenerating ? (
-                            <CircularProgress size={24} />
-                        ) : (
-                            <AutoFixHighIcon />
-                        )}
-                    </IconButton>
-                ) : null}
-                {is_TaiGer_Agent(user as IUser) ? (
-                    <Typography variant="body1">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {streamingData.data}
-                        </ReactMarkdown>
-                    </Typography>
-                ) : null}
+                        <span>
+                            <Button
+                                color="primary"
+                                disabled={sendDisabled}
+                                onClick={!sendDisabled ? handleSend : undefined}
+                                startIcon={
+                                    isSending ? (
+                                        <CircularProgress
+                                            color="inherit"
+                                            size={18}
+                                        />
+                                    ) : (
+                                        <SendIcon />
+                                    )
+                                }
+                                variant="contained"
+                            >
+                                {t('Send', { ns: 'common' })}
+                            </Button>
+                        </span>
+                    </Tooltip>
+                </Box>
             </Box>
+
+            {/* AI assistant streamed suggestion (agents only) */}
+            {is_TaiGer_Agent(user as IUser) && streamingData.data ? (
+                <Box
+                    sx={{
+                        mt: 1,
+                        p: 1.5,
+                        borderRadius: 2,
+                        bgcolor: 'action.hover'
+                    }}
+                >
+                    <Typography
+                        color="text.secondary"
+                        sx={{ display: 'block', mb: 0.5 }}
+                        variant="caption"
+                    >
+                        {t('AI assist', {
+                            ns: 'common',
+                            defaultValue: 'AI assist'
+                        })}
+                    </Typography>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {streamingData.data}
+                    </ReactMarkdown>
+                </Box>
+            ) : null}
         </>
     );
 };
