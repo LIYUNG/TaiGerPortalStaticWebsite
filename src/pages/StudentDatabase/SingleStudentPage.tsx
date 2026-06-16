@@ -81,6 +81,7 @@ import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
 import StudentBriefOverview from '@pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
+import EnglishScoreBelowRequirementBanner from '@components/Banner/EnglishScoreBelowRequirementBanner';
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { getStudentAndDocLinksQuery } from '@/api/query';
@@ -482,6 +483,11 @@ export const SingleStudentPageMainContent = ({
                     <Grid container spacing={0} sx={{ mt: 0 }}>
                         <Grid item md={12} xs={12}>
                             <ProgramLanguageNotMatchedBanner
+                                student={singleStudentPage.student}
+                            />
+                        </Grid>
+                        <Grid item md={12} xs={12}>
+                            <EnglishScoreBelowRequirementBanner
                                 student={singleStudentPage.student}
                             />
                         </Grid>

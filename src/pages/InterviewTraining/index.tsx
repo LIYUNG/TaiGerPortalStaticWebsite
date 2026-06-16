@@ -56,6 +56,7 @@ const FILTER_FIELD_MAP: Record<string, string> = {
     isDuplicate: 'isDuplicate',
     surveySubmitted: 'surveySubmitted',
     firstname_lastname: 'studentName',
+    agent_name: 'agentName',
     trainer_name: 'trainerName',
     program_name: 'program'
 };
@@ -277,6 +278,14 @@ const InterviewTraining = () => {
             }
         },
         {
+            accessorKey: 'agent_name',
+            header: t('Agent', { ns: 'common' }),
+            // Agent = the student's consultant (顧問). Backend supports an
+            // agent-name filter but cannot sort by it.
+            enableSorting: false,
+            size: 160
+        },
+        {
             accessorKey: 'trainer_name',
             header: t('Trainer', { ns: 'common' }),
             // Backend cannot sort by trainer, but supports a trainer-name filter.
@@ -361,6 +370,10 @@ const InterviewTraining = () => {
                 trainer_name:
                     (interview.trainer_id as unknown as IUserWithId[])
                         ?.map((trainer) => trainer.firstname)
+                        ?.join(', ') || '',
+                agent_name:
+                    (interview as unknown as { agents?: IUserWithId[] }).agents
+                        ?.map((agent) => agent.firstname)
                         ?.join(', ') || '',
                 program_name: `${programId.school} ${programId.program_name} ${programId.degree} ${programId.semester}`,
                 firstname_lastname: `${student_obj.firstname} ${student_obj.lastname}`

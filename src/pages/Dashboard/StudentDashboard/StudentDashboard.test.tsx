@@ -78,6 +78,10 @@ vi.mock('@components/Banner/ProgramLanguageNotMatchedBanner', () => ({
     default: () => <div data-testid="program-language-not-matched-banner" />
 }));
 
+vi.mock('@components/Banner/EnglishScoreBelowRequirementBanner', () => ({
+    default: () => <div data-testid="english-score-below-requirement-banner" />
+}));
+
 vi.mock(
     '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner',
     () => ({

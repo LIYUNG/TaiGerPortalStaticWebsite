@@ -187,6 +187,13 @@ export const InterviewsFilterDrawer = ({
                     />
                     <TextField
                         fullWidth
+                        label={t('Agent', { ns: 'common' })}
+                        onChange={(e) => update('agent_name', e.target.value)}
+                        size="small"
+                        value={textValue('agent_name')}
+                    />
+                    <TextField
+                        fullWidth
                         label={t('Trainer', { ns: 'common' })}
                         onChange={(e) => update('trainer_name', e.target.value)}
                         size="small"

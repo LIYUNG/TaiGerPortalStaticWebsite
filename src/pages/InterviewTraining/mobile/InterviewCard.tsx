@@ -108,6 +108,10 @@ export const InterviewCard = ({
                     }}
                 >
                     <MetaItem
+                        label={t('Agent', { ns: 'common' })}
+                        value={str(interview.agent_name) || '—'}
+                    />
+                    <MetaItem
                         label={t('Trainer', { ns: 'common' })}
                         value={str(interview.trainer_name) || '—'}
                     />
