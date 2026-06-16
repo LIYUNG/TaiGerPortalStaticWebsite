@@ -249,7 +249,13 @@ const NavSearch = () => {
 
     useEffect(() => {
         if (searchTerm.trim() === '') {
-            setSearchResults([]);
+            // Idempotent clear: return the SAME array reference when already
+            // empty so React can bail out of the re-render. Setting a fresh `[]`
+            // unconditionally would re-render on every pass and, combined with an
+            // unstable `user` reference in the deps, spin into an infinite loop.
+            setSearchResults((previous) =>
+                previous.length === 0 ? previous : []
+            );
             setLoading(false);
             return;
         }
