@@ -99,12 +99,21 @@ function useChatScroll({
     useLayoutEffect(() => {
         const el = scrollRef?.current;
         if (el && loadingRef.current) {
-            restoreScrollOffset(
-                el,
-                prevScrollTopRef.current,
-                prevScrollHeightRef.current
-            );
+            const prevTop = prevScrollTopRef.current;
+            const prevHeight = prevScrollHeightRef.current;
+            restoreScrollOffset(el, prevTop, prevHeight);
             loadingRef.current = false;
+            // The prepended messages render their content asynchronously
+            // (EditorJS initialises after paint), which grows the pane further.
+            // Re-apply the restore across that settle window so the reader's
+            // position doesn't drift downward as the content fills in.
+            const timers = SETTLE_DELAYS_MS.map((delay) =>
+                window.setTimeout(() => {
+                    const node = scrollRef?.current;
+                    if (node) restoreScrollOffset(node, prevTop, prevHeight);
+                }, delay)
+            );
+            return () => timers.forEach((id) => window.clearTimeout(id));
         }
     }, [scrollRef, upperThreadLength]);
 
