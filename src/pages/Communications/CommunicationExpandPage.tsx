@@ -462,7 +462,11 @@ const CommunicationExpandPage = () => {
                                 flexShrink: 0,
                                 '& .MuiDrawer-paper': {
                                     width: '100%', // Make Drawer full width on small screens
-                                    maxWidth: '100vw'
+                                    maxWidth: '100vw',
+                                    // Match the desktop chat pane, which inherits
+                                    // the page background rather than the Drawer
+                                    // paper's default white.
+                                    bgcolor: 'background.default'
                                 }
                             }}
                             variant="temporary"
