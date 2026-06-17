@@ -10,7 +10,6 @@ import {
     useMediaQuery,
     Stack,
     Chip,
-    Button,
     Drawer,
     IconButton,
     Tooltip
@@ -18,7 +17,6 @@ import {
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 
 import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
@@ -70,6 +68,10 @@ interface InformationBlockProps {
      * viewport-relative heights (standalone page).
      */
     fillHeight?: boolean;
+    /** Controlled open state for the mobile thread-details Drawer. */
+    detailsOpen?: boolean;
+    /** Close handler for the mobile thread-details Drawer. */
+    onCloseDetails?: () => void;
 }
 
 const InformationBlock = ({
@@ -88,7 +90,9 @@ const InformationBlock = ({
     user,
     children,
     composer,
-    fillHeight = false
+    fillHeight = false,
+    detailsOpen = false,
+    onCloseDetails
 }: InformationBlockProps) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
@@ -96,7 +100,18 @@ const InformationBlock = ({
     const { t } = useTranslation();
     const [requirementsDialogOpen, setRequirementsDialogOpen] = useState(false);
     const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
-    const [detailsOpen, setDetailsOpen] = useState(false);
+
+    // Document title shown at the top of the details Drawer.
+    const detailsProgram = thread?.program_id as IProgramWithId | undefined;
+    const detailsFileType = String(
+        (thread as { file_type?: string })?.file_type ?? ''
+    );
+    const detailsTitleLine1 = detailsProgram
+        ? String(detailsProgram.school ?? '')
+        : detailsFileType;
+    const detailsTitleLine2 = detailsProgram
+        ? `${detailsFileType} - ${detailsProgram.degree ?? ''} - ${detailsProgram.program_name ?? ''}`
+        : '';
 
     const isDeadlineUrgent = () => {
         if (!deadline || deadline === 'No' || deadline === '-') return false;
@@ -436,9 +451,9 @@ const InformationBlock = ({
         </Stack>
     );
 
-    // Mobile: chat is the primary view; thread info moves into a right-anchored
-    // Drawer opened via the Info button, so the user no longer scrolls past the
-    // info panel to reach the messages and reply input.
+    // Mobile: chat is the primary view; thread info lives in a right-anchored
+    // Drawer opened from the Info icon in the tab bar (controlled by the parent),
+    // so the user no longer scrolls past the info panel to reach the messages.
     if (isMobile) {
         return (
             <Box
@@ -453,36 +468,6 @@ const InformationBlock = ({
                         : undefined
                 }
             >
-                {/* Title row: opens the thread-details Drawer. */}
-                <Stack
-                    alignItems="center"
-                    direction="row"
-                    justifyContent="flex-end"
-                    sx={
-                        fillHeight
-                            ? { flexShrink: 0, py: 1 }
-                            : {
-                                  position: 'sticky',
-                                  top: 0,
-                                  zIndex: 2,
-                                  bgcolor: 'background.default',
-                                  py: 1
-                              }
-                    }
-                >
-                    <Button
-                        color="primary"
-                        onClick={() => setDetailsOpen(true)}
-                        size="small"
-                        startIcon={<InfoOutlinedIcon />}
-                        variant="outlined"
-                    >
-                        {t('Thread details', {
-                            ns: 'common',
-                            defaultValue: 'Thread details'
-                        })}
-                    </Button>
-                </Stack>
                 {/* Messages: the only scroll area when filling height. */}
                 {fillHeight ? (
                     <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -518,7 +503,7 @@ const InformationBlock = ({
                 ) : null}
                 <Drawer
                     anchor="right"
-                    onClose={() => setDetailsOpen(false)}
+                    onClose={onCloseDetails}
                     open={detailsOpen}
                     sx={{
                         '& .MuiDrawer-paper': {
@@ -536,20 +521,44 @@ const InformationBlock = ({
                             borderColor: 'divider',
                             display: 'flex',
                             justifyContent: 'space-between',
+                            gap: 1,
                             px: 2,
                             py: 1.5
                         }}
                     >
-                        <Typography fontWeight="600" variant="h6">
-                            {t('Thread details', {
-                                ns: 'common',
-                                defaultValue: 'Thread details'
-                            })}
-                        </Typography>
+                        <Box sx={{ minWidth: 0 }}>
+                            <Typography fontWeight="600" variant="h6">
+                                {t('Thread details', {
+                                    ns: 'common',
+                                    defaultValue: 'Thread details'
+                                })}
+                            </Typography>
+                            {detailsTitleLine1 ? (
+                                <Typography
+                                    fontWeight="bold"
+                                    sx={{ overflowWrap: 'break-word' }}
+                                    variant="body2"
+                                >
+                                    {detailsTitleLine1}
+                                </Typography>
+                            ) : null}
+                            {detailsTitleLine2 ? (
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{
+                                        display: 'block',
+                                        overflowWrap: 'break-word'
+                                    }}
+                                    variant="caption"
+                                >
+                                    {detailsTitleLine2}
+                                </Typography>
+                            ) : null}
+                        </Box>
                         <Tooltip title={t('Close', { ns: 'common' })}>
                             <IconButton
                                 aria-label="close thread details"
-                                onClick={() => setDetailsOpen(false)}
+                                onClick={onCloseDetails}
                             >
                                 <CloseIcon />
                             </IconButton>
