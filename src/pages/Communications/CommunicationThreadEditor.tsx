@@ -114,30 +114,45 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     '&:focus-within': { borderColor: 'primary.main' }
                 }}
             >
-                <ComposeEditor
-                    ref={composeRef}
-                    defaultHeight={0}
-                    holder="communication-thread-editor"
-                    imageEnable={false}
-                    initialValue={
-                        props.editorState &&
-                        typeof props.editorState === 'object' &&
-                        'blocks' in (props.editorState as object)
-                            ? (props.editorState as OutputData)
-                            : undefined
-                    }
-                    readOnly={false}
-                    thread={
-                        props.thread as
-                            | { _id: string; student_id: { _id: string } }
-                            | undefined
-                    }
-                    onContentChange={(value) =>
-                        setHasContent(
-                            Boolean(value?.blocks && value.blocks.length > 0)
-                        )
-                    }
-                />
+                <Box
+                    sx={{
+                        maxHeight: 210,
+                        overflowY: 'auto',
+                        // EditorJS reserves wide right padding for its inline
+                        // toolbar; trim it so the scrollbar sits flush.
+                        '& .codex-editor__redactor': { pb: '0 !important' },
+                        '& .ce-block__content, & .ce-toolbar__content': {
+                            maxWidth: 'unset'
+                        }
+                    }}
+                >
+                    <ComposeEditor
+                        ref={composeRef}
+                        defaultHeight={0}
+                        holder="communication-thread-editor"
+                        imageEnable={false}
+                        initialValue={
+                            props.editorState &&
+                            typeof props.editorState === 'object' &&
+                            'blocks' in (props.editorState as object)
+                                ? (props.editorState as OutputData)
+                                : undefined
+                        }
+                        readOnly={false}
+                        thread={
+                            props.thread as
+                                | { _id: string; student_id: { _id: string } }
+                                | undefined
+                        }
+                        onContentChange={(value) =>
+                            setHasContent(
+                                Boolean(
+                                    value?.blocks && value.blocks.length > 0
+                                )
+                            )
+                        }
+                    />
+                </Box>
 
                 {/* Selected files + (agent) document pre-check results */}
                 {props.files && props.files.length > 0 ? (
