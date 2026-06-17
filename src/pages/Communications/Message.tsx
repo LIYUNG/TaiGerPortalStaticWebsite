@@ -39,7 +39,6 @@ import type { OutputData } from '@editorjs/editorjs';
 import EditorSimple from '@components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
-import Loading from '@components/Loading/Loading';
 import { IgnoreMessageV2, BASE_URL, queryClient } from '@/api';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { appConfig } from '../../config';
@@ -49,6 +48,22 @@ import type {
     MessageUser,
     ThreadMessage
 } from '@components/Message/MessageCard';
+
+/**
+ * Parse a message payload string into EditorJS OutputData synchronously, so a
+ * message renders fully on its first paint — no per-message loading flash when
+ * older messages mount during scroll-up auto-load.
+ */
+const parseMessageToEditorState = (messageStr?: string): OutputData => {
+    if (messageStr && messageStr !== '{}') {
+        try {
+            return JSON.parse(messageStr) as OutputData;
+        } catch {
+            return { time: Date.now(), blocks: [] };
+        }
+    }
+    return { time: Date.now(), blocks: [] };
+};
 
 export interface MessageProps {
     idx: number;
@@ -98,10 +113,10 @@ const Message = ({
 }: MessageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [messageState, setMessageState] = useState<MessageState>({
-        editorState: null,
+    const [messageState, setMessageState] = useState<MessageState>(() => ({
+        editorState: parseMessageToEditorState(message?.message),
         message_id: '',
-        isLoaded: false,
+        isLoaded,
         filePath: '',
         fileName: '',
         createdAt: '',
@@ -114,7 +129,7 @@ const Message = ({
             message?.ignore_message === undefined
                 ? false
                 : message?.ignore_message
-    });
+    }));
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
@@ -219,9 +234,6 @@ const Message = ({
         });
     };
 
-    if (!messageState.isLoaded && !messageState.editorState) {
-        return <Loading />;
-    }
     const firstname = message.user_id ? message.user_id.firstname : 'Staff';
     const lastname = message.user_id
         ? message.user_id.lastname

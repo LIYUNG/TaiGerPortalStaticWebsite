@@ -76,7 +76,7 @@ const baseMessage = {
 };
 
 describe('Message', () => {
-    test('shows loading state initially before editorState resolves', () => {
+    test('renders the message synchronously without a loading flash', () => {
         render(
             <Message
                 accordionKeys={[0]}
@@ -91,8 +91,10 @@ describe('Message', () => {
                 path=""
             />
         );
-        // Initially shows loading since editorState is null
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
+        // editorState is parsed synchronously, so the message content renders on
+        // first paint — no per-message loading overlay (avoids the scroll-up flash).
+        expect(screen.getByText('Bob Smith')).toBeInTheDocument();
+        expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
     });
 
     test('renders without crashing when message has no user_id', () => {
@@ -111,6 +113,7 @@ describe('Message', () => {
                 path=""
             />
         );
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
+        // Falls back to the "Staff" author label and renders without throwing.
+        expect(screen.getByText(/Staff/)).toBeInTheDocument();
     });
 });
