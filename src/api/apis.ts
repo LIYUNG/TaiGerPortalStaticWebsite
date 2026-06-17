@@ -746,6 +746,35 @@ export const searchAIAssistStudents = (query: string) =>
         `/api/ai-assist/students/search?q=${encodeURIComponent(query)}`
     );
 
+export interface AIAssistOverviewItem {
+    student?: { id?: string; name?: string; email?: string };
+    program?: { school?: string; name?: string } | null;
+    deadline?: string;
+    daysUntil?: number;
+    fileType?: string;
+    updatedAt?: string;
+    missingDocuments?: string[];
+}
+
+export interface AIAssistOverviewResponse {
+    success: boolean;
+    data: {
+        role?: string;
+        studentCount: number;
+        deadlineWindowDays: number;
+        emphasis: string[];
+        buckets: Record<
+            string,
+            { count: number; items: AIAssistOverviewItem[] }
+        >;
+    };
+}
+
+export const getAIAssistOverview = (days?: number) =>
+    getData<AIAssistOverviewResponse>(
+        `/api/ai-assist/overview${days ? `?days=${days}` : ''}`
+    );
+
 export const getArchivStudents = (TaiGerStaffId?: string) =>
     request.get<GetArchivStudentsResponse>(
         `/api/teams/archiv/${TaiGerStaffId ?? ''}`

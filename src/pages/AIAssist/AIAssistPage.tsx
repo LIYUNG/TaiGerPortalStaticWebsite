@@ -55,6 +55,7 @@ import type {
     AIAssistSkillTrace,
     AIAssistToolCall
 } from '@/api/types';
+import OverviewHome from './OverviewHome';
 
 type DraftMode = 'blank' | 'studentPicker' | 'studentReady';
 
@@ -1447,12 +1448,10 @@ const AIAssistPage = (): JSX.Element => {
                 const response = await getAIAssistConversations();
                 setConversations(response.data);
 
-                if (
-                    response.data.length > 0 &&
-                    !skipInitialAutoloadRef.current
-                ) {
-                    await loadConversation(response.data[0].id);
-                } else if (!skipInitialAutoloadRef.current) {
+                // Land on the overview home by default (not the most recent
+                // conversation) so the cross-portfolio overview is the first
+                // thing staff see. Past conversations remain in the sidebar.
+                if (!skipInitialAutoloadRef.current) {
                     clearActiveWorkspace();
                 }
             } catch (err) {
@@ -1603,6 +1602,11 @@ const AIAssistPage = (): JSX.Element => {
             mode: 'blank',
             student: null
         });
+    };
+
+    const handleSeedPrompt = (prompt: string): void => {
+        handleBlankChat();
+        setInput(prompt);
     };
 
     const handleChooseStudent = (): void => {
@@ -2434,18 +2438,11 @@ const AIAssistPage = (): JSX.Element => {
 
         return (
             <Stack spacing={2}>
-                <Typography variant="subtitle1">
-                    {translate(
-                        'aiAssist.startWithQuestion',
-                        'Start with a question'
-                    )}
-                </Typography>
-                <Typography color="text.secondary" variant="body2">
-                    {translate(
-                        'aiAssist.startWithQuestionHelp',
-                        'Start a blank draft or choose a student before sending the first message.'
-                    )}
-                </Typography>
+                <OverviewHome
+                    onSeedPrompt={handleSeedPrompt}
+                    translate={translate}
+                />
+                <Divider />
                 <Stack direction="row" flexWrap="wrap" gap={1}>
                     <Button onClick={handleChooseStudent} variant="contained">
                         {translate('aiAssist.chooseStudent', 'Choose student')}
