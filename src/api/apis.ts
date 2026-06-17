@@ -662,7 +662,17 @@ const streamAIAssistRequest = async <TFinal>(
                 }
 
                 if (event === 'error') {
-                    streamErrorMessage = genericErrorMessage;
+                    const serverMessage =
+                        typeof parsed?.message === 'string' && parsed.message
+                            ? parsed.message
+                            : genericErrorMessage;
+                    const detail =
+                        typeof parsed?.detail === 'string' && parsed.detail
+                            ? parsed.detail
+                            : '';
+                    streamErrorMessage = detail
+                        ? `${serverMessage} (${detail})`
+                        : serverMessage;
                     callbacks.onError?.(streamErrorMessage);
                 }
             } catch {

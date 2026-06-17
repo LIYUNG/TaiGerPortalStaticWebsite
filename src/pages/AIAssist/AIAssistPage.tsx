@@ -2505,6 +2505,14 @@ const AIAssistPage = (): JSX.Element => {
                             'Initial release for testing. Output quality and behavior may change.'
                         )}
                     </Typography>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Button
+                        onClick={clearActiveWorkspace}
+                        size="small"
+                        variant="outlined"
+                    >
+                        {translate('aiAssist.overviewButton', 'Overview')}
+                    </Button>
                 </Paper>
 
                 {error ? <Alert severity="error">{error}</Alert> : null}
