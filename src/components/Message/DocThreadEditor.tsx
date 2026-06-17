@@ -7,22 +7,18 @@ import {
 } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { is_TaiGer_role } from '@taiger-common/core';
 import {
     Button,
-    TextField,
+    IconButton,
     Tooltip,
     Typography,
     Box,
     Stack,
-    Alert,
-    Chip,
-    CircularProgress,
-    useTheme
+    CircularProgress
 } from '@mui/material';
 import i18next from 'i18next';
 
@@ -74,19 +70,34 @@ const DocThreadEditor = ({
     const [hasContent, setHasContent] = useState(false);
     const [isSending, setIsSending] = useState(false);
 
-    const theme = useTheme();
     const canSend = Boolean(hasContent && !buttonDisabled && !readOnly);
 
+    const handleAttachClick = () => {
+        if (readOnly) return;
+        document.getElementById('doc-thread-file-input')?.click();
+    };
+
     const handleSend = useCallback(
-        (e: MouseEvent<HTMLElement>) => {
+        async (e: MouseEvent<HTMLElement>) => {
             if (isSending) return;
             const content = composeRef.current?.getValue();
             if (!content?.blocks?.length) return;
             setIsSending(true);
-            handleClickSave(e, content as EditorStateData);
+            // Clear optimistically so the message isn't duplicated with the
+            // pending entry shown in the list.
             composeRef.current?.reset();
             setHasContent(false);
-            setIsSending(false);
+            try {
+                await Promise.resolve(
+                    handleClickSave(e, content as EditorStateData)
+                );
+            } catch {
+                // Send failed — restore the text so the user doesn't lose it.
+                composeRef.current?.restore(content);
+                setHasContent(true);
+            } finally {
+                setIsSending(false);
+            }
         },
         [isSending, handleClickSave]
     );
@@ -106,242 +117,166 @@ const DocThreadEditor = ({
     const fileLength = Array.isArray(fileList) ? fileList.length : 0;
 
     return (
-        <Stack spacing={2}>
+        <Box
+            sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+                px: 1.5,
+                py: 1,
+                transition: 'border-color 0.15s',
+                '&:focus-within': { borderColor: 'primary.main' }
+            }}
+        >
+            {/* Editor: capped height with internal scroll so it stays compact. */}
             <Box
                 sx={{
-                    borderWidth: 1,
-                    borderStyle: 'solid',
-                    borderColor: 'divider',
-                    borderRadius: 1.5,
-                    minHeight: 200,
-                    bgcolor: 'background.paper',
-                    transition: 'all 0.2s',
-                    '&:focus-within': {
-                        borderColor: 'primary.main',
-                        boxShadow: `0 0 0 1px ${theme.palette.primary.main}`
+                    maxHeight: 210,
+                    overflowY: 'auto',
+                    // EditorJS reserves wide right padding for its inline
+                    // toolbar; trim it so the scrollbar sits flush.
+                    '& .codex-editor__redactor': { pb: '0 !important' },
+                    '& .ce-block__content, & .ce-toolbar__content': {
+                        maxWidth: 'unset'
                     }
                 }}
             >
-                <Box sx={{ p: 2 }}>
-                    <ComposeEditor
-                        ref={composeRef}
-                        defaultHeight={0}
-                        holder="doc-thread-editor"
-                        imageEnable={true}
-                        initialValue={editorState ?? undefined}
-                        readOnly={readOnly}
-                        thread={
-                            thread as
-                                | { _id: string; student_id: { _id: string } }
-                                | undefined
-                        }
-                        onContentChange={(value) =>
-                            setHasContent(
-                                Boolean(
-                                    value?.blocks && value.blocks.length > 0
-                                )
-                            )
-                        }
-                    />
-                </Box>
+                <ComposeEditor
+                    ref={composeRef}
+                    defaultHeight={0}
+                    holder="doc-thread-editor"
+                    imageEnable={true}
+                    initialValue={editorState ?? undefined}
+                    readOnly={readOnly}
+                    thread={
+                        thread as
+                            | { _id: string; student_id: { _id: string } }
+                            | undefined
+                    }
+                    onContentChange={(value) =>
+                        setHasContent(
+                            Boolean(value?.blocks && value.blocks.length > 0)
+                        )
+                    }
+                />
             </Box>
 
+            {/* Naming checker: attached files + validation results (TaiGer only). */}
             {user != null &&
-                is_TaiGer_role(user) &&
-                fileLength > 0 &&
-                !readOnly && (
-                    <Box>
-                        <Typography
-                            color="text.secondary"
-                            gutterBottom
-                            variant="overline"
-                        >
-                            File Validation Results
-                        </Typography>
-                        <Stack spacing={1.5}>
-                            {fileList.map((fl, i) => (
-                                <Box key={`${fl.name}${i}`}>
-                                    <Chip
-                                        icon={<AttachFileIcon />}
-                                        label={fl.name}
-                                        size="small"
-                                        sx={{ mb: 1 }}
-                                        variant="outlined"
-                                    />
-                                    {checkResult != null &&
-                                        checkResult.length > 0 &&
-                                        checkResult[i] != null && (
-                                            <Stack spacing={0.5} sx={{ ml: 1 }}>
-                                                {Object.keys(
-                                                    checkResult[i]
-                                                ).map((ky) => (
-                                                    <Stack
-                                                        alignItems="center"
-                                                        direction="row"
-                                                        key={
-                                                            (
-                                                                checkResult[
-                                                                    i
-                                                                ] as Record<
-                                                                    string,
-                                                                    CheckResultItem
-                                                                >
-                                                            )[ky]?.text
-                                                        }
-                                                        spacing={1}
-                                                    >
-                                                        {getValidationIcon(
-                                                            (
-                                                                checkResult[
-                                                                    i
-                                                                ] as Record<
-                                                                    string,
-                                                                    CheckResultItem
-                                                                >
-                                                            )[ky]?.value
-                                                        )}
-                                                        <Typography variant="body2">
-                                                            {
-                                                                (
-                                                                    checkResult[
-                                                                        i
-                                                                    ] as Record<
-                                                                        string,
-                                                                        CheckResultItem
-                                                                    >
-                                                                )[ky]?.text
-                                                            }
-                                                            {(
-                                                                checkResult[
-                                                                    i
-                                                                ] as Record<
-                                                                    string,
-                                                                    CheckResultItem
-                                                                >
-                                                            )[ky]
-                                                                ?.hasMetadata && (
-                                                                <Typography
-                                                                    color="primary"
-                                                                    component="span"
-                                                                    sx={{
-                                                                        ml: 0.5
-                                                                    }}
-                                                                >
-                                                                    <strong>
-                                                                        {
-                                                                            (
-                                                                                checkResult[
-                                                                                    i
-                                                                                ] as Record<
-                                                                                    string,
-                                                                                    CheckResultItem
-                                                                                >
-                                                                            )[
-                                                                                ky
-                                                                            ]
-                                                                                ?.metaData
-                                                                        }
-                                                                    </strong>
-                                                                </Typography>
-                                                            )}
-                                                        </Typography>
-                                                    </Stack>
-                                                ))}
-                                            </Stack>
-                                        )}
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Box>
-                )}
-
-            <Box>
-                <Box
-                    sx={{
-                        position: 'relative',
-                        borderWidth: 2,
-                        borderStyle: 'dashed',
-                        borderColor: 'divider',
-                        borderRadius: 1.5,
-                        p: 2,
-                        textAlign: 'center',
-                        bgcolor: 'action.hover',
-                        transition: 'all 0.2s',
-                        ...(readOnly
-                            ? {
-                                  opacity: 0.6,
-                                  pointerEvents: 'none'
-                              }
-                            : {
-                                  '&:hover': {
-                                      borderColor: 'primary.main',
-                                      bgcolor: 'action.selected',
-                                      borderStyle: 'solid'
-                                  }
-                              })
-                    }}
-                >
-                    <TextField
-                        disabled={readOnly}
-                        fullWidth
-                        inputProps={{
-                            multiple: true,
-                            accept: '.pdf,.docx,.jpg,.jpeg,.png,.xlsx'
-                        }}
-                        onChange={onFileChange}
-                        sx={{
-                            '& .MuiInputBase-root': {
-                                cursor: 'pointer'
-                            }
-                        }}
-                        type="file"
-                        variant="standard"
-                    />
-                    {fileLength === 0 && !readOnly && (
-                        <Stack
-                            alignItems="center"
-                            spacing={1}
-                            sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                pointerEvents: 'none',
-                                width: '100%'
-                            }}
-                        >
-                            <AttachFileIcon color="action" fontSize="large" />
-                            <Typography color="text.secondary" variant="body2">
-                                Click to attach files
-                            </Typography>
-                        </Stack>
-                    )}
+            is_TaiGer_role(user) &&
+            fileLength > 0 &&
+            !readOnly ? (
+                <Box sx={{ mt: 1 }}>
+                    {fileList.map((fl, i) => {
+                        const fileChecks = (
+                            checkResult as
+                                | Record<string, CheckResultItem>[]
+                                | undefined
+                        )?.[i];
+                        return (
+                            <Box
+                                key={`${fl.name}${i}`}
+                                sx={{
+                                    overflowWrap: 'break-word',
+                                    wordBreak: 'break-word'
+                                }}
+                            >
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={0.5}
+                                >
+                                    <AttachFileIcon fontSize="inherit" />
+                                    <Typography variant="body2">
+                                        {fl.name}
+                                    </Typography>
+                                </Stack>
+                                {fileChecks != null ? (
+                                    <Stack spacing={0.25} sx={{ ml: 2 }}>
+                                        {Object.keys(fileChecks).map((ky) => {
+                                            const item = fileChecks[ky];
+                                            return (
+                                                <Stack
+                                                    alignItems="center"
+                                                    direction="row"
+                                                    key={item?.text}
+                                                    spacing={0.5}
+                                                >
+                                                    {getValidationIcon(
+                                                        item?.value
+                                                    )}
+                                                    <Typography variant="body2">
+                                                        {item?.text}
+                                                        {item?.hasMetadata ? (
+                                                            <Typography
+                                                                color="primary"
+                                                                component="span"
+                                                                sx={{ ml: 0.5 }}
+                                                            >
+                                                                <strong>
+                                                                    {
+                                                                        item?.metaData
+                                                                    }
+                                                                </strong>
+                                                            </Typography>
+                                                        ) : null}
+                                                    </Typography>
+                                                </Stack>
+                                            );
+                                        })}
+                                    </Stack>
+                                ) : null}
+                            </Box>
+                        );
+                    })}
                 </Box>
+            ) : null}
 
-                {!readOnly ? (
-                    <Alert
-                        icon={<InfoOutlinedIcon fontSize="small" />}
-                        severity="info"
-                        sx={{ mt: 1 }}
-                        variant="outlined"
-                    >
-                        <Typography variant="caption">
-                            Max 3 files • Supported: PDF, DOCX, JPG • Max 2MB
-                            total/ 1MB each file
-                        </Typography>
-                    </Alert>
-                ) : null}
-            </Box>
-
-            <Stack
-                alignItems="center"
-                direction="row"
-                justifyContent="space-between"
+            {/* Compact action row: attach on the left, send on the right. */}
+            <Box
+                sx={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    gap: 0.5,
+                    mt: 0.5
+                }}
             >
-                <Typography color="text.secondary" variant="caption">
-                    {fileLength > 0 &&
-                        `${fileLength} file${fileLength > 1 ? 's' : ''} attached`}
-                </Typography>
+                <Tooltip
+                    placement="top"
+                    title={i18next.t('Attach files', {
+                        ns: 'common',
+                        defaultValue: 'Attach files'
+                    })}
+                >
+                    <span>
+                        <input
+                            accept=".pdf,.docx,.jpg,.jpeg,.png,.xlsx"
+                            disabled={readOnly}
+                            id="doc-thread-file-input"
+                            multiple
+                            onChange={onFileChange}
+                            style={{ display: 'none' }}
+                            type="file"
+                        />
+                        <IconButton
+                            aria-label="attach file"
+                            color="primary"
+                            component="span"
+                            disabled={readOnly}
+                            onClick={handleAttachClick}
+                            size="small"
+                        >
+                            <AttachFileIcon fontSize="small" />
+                        </IconButton>
+                    </span>
+                </Tooltip>
+                {fileLength > 0 ? (
+                    <Typography color="text.secondary" variant="caption">
+                        {`${fileLength} file${fileLength > 1 ? 's' : ''}`}
+                    </Typography>
+                ) : null}
+                <Box sx={{ flex: 1 }} />
                 <Tooltip
                     placement="top"
                     title={
@@ -363,28 +298,24 @@ const DocThreadEditor = ({
                             color="primary"
                             disabled={!canSend || isSending}
                             onClick={canSend ? handleSend : undefined}
-                            size="large"
                             startIcon={
                                 isSending ? (
                                     <CircularProgress
                                         color="inherit"
-                                        size={20}
+                                        size={18}
                                     />
                                 ) : (
                                     <SendIcon />
                                 )
                             }
-                            sx={{ minWidth: 120 }}
-                            variant={
-                                canSend && !isSending ? 'contained' : 'outlined'
-                            }
+                            variant="contained"
                         >
                             {i18next.t('Send', { ns: 'common' })}
                         </Button>
                     </span>
                 </Tooltip>
-            </Stack>
-        </Stack>
+            </Box>
+        </Box>
     );
 };
 

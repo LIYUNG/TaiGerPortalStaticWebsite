@@ -7,6 +7,7 @@ import {
     Box,
     Checkbox,
     Divider,
+    FormControlLabel,
     InputBase,
     List,
     ListItem,
@@ -313,17 +314,41 @@ const StudentsList = ({
     setStudentSearchTerm,
     studentSearchTerm
 }: StudentsListProps) => {
+    const { t } = useTranslation();
     return studentMetricsIsLoading ? (
         <Loading variant="child" />
     ) : (
         <>
-            <Stack alignItems="center" direction="row" spacing={1}>
-                <SearchIcon />
-                <InputBase
-                    onChange={(e) => setStudentSearchTerm(e.target.value)}
-                    value={studentSearchTerm}
-                />
-            </Stack>
+            <Box sx={{ p: 1.5 }}>
+                <Typography fontWeight={600} sx={{ mb: 1 }} variant="subtitle2">
+                    {t('Students', { ns: 'common', defaultValue: 'Students' })}
+                </Typography>
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                        bgcolor: 'background.paper',
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        px: 1.5,
+                        py: 0.5,
+                        '&:focus-within': { borderColor: 'primary.main' }
+                    }}
+                >
+                    <SearchIcon color="action" fontSize="small" />
+                    <InputBase
+                        fullWidth
+                        onChange={(e) => setStudentSearchTerm(e.target.value)}
+                        placeholder={t('Search students', {
+                            ns: 'common',
+                            defaultValue: 'Search students'
+                        })}
+                        value={studentSearchTerm}
+                    />
+                </Stack>
+            </Box>
             <List>
                 {students
                     ?.filter((student: StudentMetricItem) => {
@@ -379,17 +404,40 @@ const ThreadsList = ({
     currentCategory,
     handleOnClickThread
 }: ThreadsListProps) => {
+    const { t } = useTranslation();
     return (
         <Box>
             {studentThreadIsLoading ? <Loading variant="child" /> : null}
-            <Checkbox
-                checked={showAllThreads}
-                disabled={sortedThreads.every(
-                    (thread: IDocumentthreadPopulated) => thread?.isFinalVersion
-                )}
-                onChange={() => onChange(!showAllThreads)}
-            />{' '}
-            Show completed threads
+            <Box sx={{ px: 1.5, pt: 1.5 }}>
+                <Typography
+                    fontWeight={600}
+                    sx={{ mb: 0.5 }}
+                    variant="subtitle2"
+                >
+                    {t('Threads', { ns: 'common', defaultValue: 'Threads' })}
+                </Typography>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showAllThreads}
+                            disabled={sortedThreads.every(
+                                (thread: IDocumentthreadPopulated) =>
+                                    thread?.isFinalVersion
+                            )}
+                            onChange={() => onChange(!showAllThreads)}
+                            size="small"
+                        />
+                    }
+                    label={
+                        <Typography variant="body2">
+                            {t('Show completed threads', {
+                                ns: 'common',
+                                defaultValue: 'Show completed threads'
+                            })}
+                        </Typography>
+                    }
+                />
+            </Box>
             <List>
                 {sortedThreads
                     ?.filter(
@@ -548,13 +596,16 @@ const DocumentCommunicationExpandPage = () => {
                             maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
                             overflowY: 'auto',
                             display: { xs: 'none', md: 'flex' },
-                            flexShrink: 0 // Prevents shrinking too much
+                            flexShrink: 0, // Prevents shrinking too much
+                            borderRight: 1,
+                            borderColor: 'divider',
+                            bgcolor: 'background.paper'
                         }}
                         xs={12}
                     >
                         <Box
                             sx={{
-                                maxWidth: '300px' // Responsive width
+                                width: '300px' // Responsive width
                             }}
                         >
                             <StudentsList
@@ -577,13 +628,16 @@ const DocumentCommunicationExpandPage = () => {
                             overflowY: 'auto',
                             display: { xs: 'none', md: 'flex' },
                             flexShrink: 0, // Prevents shrinking too much
-                            minWidth: '220px' // Ensures sidebar stays readable
+                            minWidth: '220px', // Ensures sidebar stays readable
+                            borderRight: 1,
+                            borderColor: 'divider',
+                            bgcolor: 'background.paper'
                         }}
                         xs={12}
                     >
                         <Box
                             sx={{
-                                maxWidth: '240px'
+                                width: '240px'
                             }}
                         >
                             <ThreadsList
@@ -602,7 +656,10 @@ const DocumentCommunicationExpandPage = () => {
                             md
                             sx={{
                                 flexGrow: 1, // Takes up remaining space
-                                minWidth: 0 // Prevents it from forcing wrap
+                                minWidth: 0, // Prevents it from forcing wrap
+                                // Bound the height so the embedded thread can run
+                                // its own internal scroll (no outer page scroll).
+                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`
                             }}
                         >
                             <EmbeddedThreadComponent />
@@ -628,34 +685,38 @@ const DocumentCommunicationExpandPage = () => {
                             flexShrink: 0,
                             '& .MuiDrawer-paper': {
                                 width: '100%', // Make Drawer full width on small screens
-                                maxWidth: '100vw'
+                                maxWidth: '100vw',
+                                bgcolor: 'background.default'
                             }
                         }}
                         variant="temporary"
                     >
                         <Box
-                            className="sticky-top"
                             sx={{
-                                my: 1,
-                                display: 'flex'
+                                alignItems: 'center',
+                                borderBottom: 1,
+                                borderColor: 'divider',
+                                display: 'flex',
+                                gap: 1,
+                                minHeight: `${APP_BAR_HEIGHT}px`,
+                                px: 1
                             }}
                         >
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                spacing={1}
+                            <IconButton
+                                aria-label="back to students"
+                                color="inherit"
+                                edge="start"
+                                onClick={() => setStudentId(null)}
                             >
-                                <IconButton
-                                    aria-label="open drawer"
-                                    color="inherit"
-                                    edge="start"
-                                    onClick={() => setStudentId(null)}
-                                    style={{ marginLeft: '4px' }}
-                                >
-                                    <ArrowBackIcon />
-                                </IconButton>
-                                <Typography>{studentName}</Typography>
-                            </Stack>
+                                <ArrowBackIcon />
+                            </IconButton>
+                            <Typography
+                                fontWeight={600}
+                                noWrap
+                                variant="subtitle1"
+                            >
+                                {studentName}
+                            </Typography>
                         </Box>
                         <Box
                             sx={{
@@ -681,7 +742,8 @@ const DocumentCommunicationExpandPage = () => {
                             flexShrink: 0,
                             '& .MuiDrawer-paper': {
                                 width: '100%', // Make Drawer full width on small screens
-                                maxWidth: '100vw'
+                                maxWidth: '100vw',
+                                bgcolor: 'background.default'
                             }
                         }}
                         variant="temporary"

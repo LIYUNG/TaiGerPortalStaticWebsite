@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import DiscussionEditorCard from './DiscussionEditorCard';
 import type { DiscussionEditorCardProps } from './DiscussionEditorCard';
 
@@ -83,12 +83,6 @@ describe('DiscussionEditorCard', () => {
         expect(screen.getByTestId('doc-thread-editor')).toBeInTheDocument();
     });
 
-    it('renders Mark as finished button for TaiGer users when not locked', () => {
-        expect(
-            screen.getByRole('button', { name: 'Mark as finished' })
-        ).toBeInTheDocument();
-    });
-
     describe('with different props', () => {
         it('renders "read-only mode" message when user is archived', () => {
             render(
@@ -128,34 +122,6 @@ describe('DiscussionEditorCard', () => {
             );
             // i18next.t('thread-close') returns 'thread-close' from our mock
             expect(screen.getByText('thread-close')).toBeInTheDocument();
-        });
-
-        it('renders Mark as open button when isFinalVersion is true and not locked', () => {
-            render(
-                <DiscussionEditorCard
-                    {...baseProps}
-                    isWithdraw={false}
-                    thread={{ ...baseThread, isFinalVersion: true }}
-                />
-            );
-            expect(
-                screen.getByRole('button', { name: 'Mark as open' })
-            ).toBeInTheDocument();
-        });
-
-        it('calls handleAsFinalFile when Mark as finished button is clicked', () => {
-            const handleAsFinalFile = vi.fn();
-            render(
-                <DiscussionEditorCard
-                    {...baseProps}
-                    isWithdraw={false}
-                    handleAsFinalFile={handleAsFinalFile}
-                />
-            );
-            fireEvent.click(
-                screen.getAllByRole('button', { name: 'Mark as finished' })[1]
-            );
-            expect(handleAsFinalFile).toHaveBeenCalledTimes(1);
         });
     });
 });
