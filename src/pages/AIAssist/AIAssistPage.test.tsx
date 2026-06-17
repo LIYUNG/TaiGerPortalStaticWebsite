@@ -234,6 +234,14 @@ describe('AIAssistPage', () => {
         });
     });
 
+    // Page now lands on the overview home; persisted conversations must be
+    // opened from the side rail before their transcript renders.
+    const openLatestConversation = async () => {
+        fireEvent.click(
+            await screen.findByRole('button', { name: 'Latest risk review' })
+        );
+    };
+
     it('renders the guided empty state when there are no conversations', async () => {
         apiMocks.getAIAssistConversations.mockResolvedValue({
             success: true,
@@ -243,7 +251,7 @@ describe('AIAssistPage', () => {
         render(<AIAssistPage />);
 
         await waitFor(() => {
-            expect(screen.getByText('Start with a question')).toBeTruthy();
+            expect(screen.getByText('Your overview')).toBeTruthy();
         });
         expect(
             screen.getByRole('button', { name: 'Choose student' })
@@ -533,6 +541,8 @@ describe('AIAssistPage', () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
 
+        await openLatestConversation();
+
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
         });
@@ -568,6 +578,8 @@ describe('AIAssistPage', () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
 
+        await openLatestConversation();
+
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
         });
@@ -601,6 +613,8 @@ describe('AIAssistPage', () => {
     it('clears selected skill after each successful send', async () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
+
+        await openLatestConversation();
 
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
@@ -912,6 +926,8 @@ describe('AIAssistPage', () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
 
+        await openLatestConversation();
+
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
         });
@@ -925,6 +941,8 @@ describe('AIAssistPage', () => {
 
     it('shows skill used and student used under the assistant message', async () => {
         render(<AIAssistPage />);
+
+        await openLatestConversation();
 
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
@@ -970,6 +988,8 @@ describe('AIAssistPage', () => {
         });
 
         render(<AIAssistPage />);
+
+        await openLatestConversation();
 
         await waitFor(() => {
             expect(
@@ -1020,6 +1040,8 @@ describe('AIAssistPage', () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
 
+        await openLatestConversation();
+
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
         });
@@ -1042,6 +1064,8 @@ describe('AIAssistPage', () => {
     it('shows go-to-bottom button when transcript is scrolled up', async () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
+
+        await openLatestConversation();
 
         await waitFor(() => {
             expect(screen.getByText('latest persisted answer')).toBeTruthy();
