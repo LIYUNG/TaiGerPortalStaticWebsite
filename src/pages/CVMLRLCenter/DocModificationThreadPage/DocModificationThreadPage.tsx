@@ -128,6 +128,12 @@ export interface DocModificationThreadPageProps {
     similarThreads?: unknown;
     scrollableRef?: RefObject<HTMLElement | null>;
     threadauditLog?: unknown;
+    /** Opt into the app-shell layout when the host provides a bounded height. */
+    fillHeight?: boolean;
+    /** Controlled open state for the mobile thread-details Drawer (host header). */
+    detailsOpen?: boolean;
+    /** Close handler for the mobile thread-details Drawer. */
+    onCloseDetails?: () => void;
 }
 
 const DocModificationThreadPage = ({
@@ -138,7 +144,10 @@ const DocModificationThreadPage = ({
     threadProps,
     similarThreads,
     scrollableRef,
-    threadauditLog
+    threadauditLog,
+    fillHeight,
+    detailsOpen,
+    onCloseDetails
 }: DocModificationThreadPageProps) => {
     const { user } = useAuth();
     const { documentsthreadId } = useParams();
@@ -146,11 +155,11 @@ const DocModificationThreadPage = ({
     const { t } = useTranslation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    // Embedded view (/doc-communications) gives this page a bounded height, so
-    // it lays out as an app-shell: fixed tabs + an independently scrolling panel.
-    // The standalone /document-modification page is unbounded and keeps its
-    // original flow layout.
-    const isEmbedded = Boolean(scrollableRef);
+    // App-shell layout: fixed tabs + an independently scrolling message panel.
+    // Enabled when the host gives this page a bounded height — the embedded
+    // /doc-communications view (via scrollableRef) and the standalone
+    // /document-modification page (via the fillHeight prop) both opt in.
+    const isAppShell = Boolean(scrollableRef) || Boolean(fillHeight);
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
         useState<{
             error: string;
@@ -942,7 +951,7 @@ const DocModificationThreadPage = ({
     return (
         <Box
             sx={
-                isEmbedded
+                isAppShell
                     ? {
                           display: 'flex',
                           flexDirection: 'column',
@@ -1082,7 +1091,7 @@ const DocModificationThreadPage = ({
             </Box>
             <Box
                 sx={
-                    isEmbedded
+                    isAppShell
                         ? {
                               flex: 1,
                               minHeight: 0,
@@ -1094,7 +1103,7 @@ const DocModificationThreadPage = ({
                 }
             >
                 <CustomTabPanel
-                    fillHeight={isEmbedded}
+                    fillHeight={isAppShell}
                     index={discussionTabIndex}
                     value={value}
                 >
@@ -1127,7 +1136,9 @@ const DocModificationThreadPage = ({
                             docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated
                         }
                         user={user as IUserWithId}
-                        fillHeight={isEmbedded}
+                        fillHeight={isAppShell}
+                        detailsOpen={detailsOpen}
+                        onCloseDetails={onCloseDetails}
                         composer={
                             <DiscussionEditorCard
                                 buttonDisabled={
@@ -1169,7 +1180,7 @@ const DocModificationThreadPage = ({
                 </CustomTabPanel>
                 {isGeneralRL ? (
                     <CustomTabPanel
-                        fillHeight={isEmbedded}
+                        fillHeight={isAppShell}
                         index={rlReqTabIndex}
                         value={value}
                     >
@@ -1183,7 +1194,7 @@ const DocModificationThreadPage = ({
                     </CustomTabPanel>
                 ) : null}
                 <CustomTabPanel
-                    fillHeight={isEmbedded}
+                    fillHeight={isAppShell}
                     index={filesTabIndex}
                     value={value}
                 >
@@ -1210,7 +1221,7 @@ const DocModificationThreadPage = ({
                 </CustomTabPanel>
                 {isTaiGerUser ? (
                     <CustomTabPanel
-                        fillHeight={isEmbedded}
+                        fillHeight={isAppShell}
                         index={databaseTabIndex}
                         value={value}
                     >
@@ -1225,7 +1236,7 @@ const DocModificationThreadPage = ({
                     </CustomTabPanel>
                 ) : null}
                 <CustomTabPanel
-                    fillHeight={isEmbedded}
+                    fillHeight={isAppShell}
                     index={auditTabIndex}
                     value={value}
                 >

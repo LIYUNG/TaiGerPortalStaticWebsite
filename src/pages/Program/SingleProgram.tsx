@@ -17,12 +17,25 @@ import DEMO from '@store/constant';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useProgram } from '@hooks/useProgram';
 
-const SingleProgram = () => {
+interface SingleProgramProps {
+    /** Render for this program id instead of the route param (e.g. in a Drawer). */
+    programId?: string;
+}
+
+const SingleProgram = ({
+    programId: programIdProp
+}: SingleProgramProps = {}) => {
     const { user } = useAuth();
-    const { programId = '' } = useParams();
+    const { programId: routeProgramId = '' } = useParams();
+    const programId = programIdProp ?? routeProgramId;
     const navigate = useNavigate();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const { data: loadedData, error, isError, isLoading } = useProgram(programId);
+    const {
+        data: loadedData,
+        error,
+        isError,
+        isLoading
+    } = useProgram(programId);
 
     const { mutate, isPending } = useMutation({
         mutationFn: deleteProgramV2,

@@ -15,16 +15,18 @@ import {
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import MessageIcon from '@mui/icons-material/Message';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 
 import { getMessagThreadQuery } from '@/api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
+import ProgramDrawer from '@pages/Program/ProgramDrawer';
 import { stringAvatar } from '@utils/contants';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import Loading from '@components/Loading/Loading';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useAuth } from '@components/AuthProvider';
 
 export const EmbeddedThreadComponent = ({
@@ -37,6 +39,8 @@ export const EmbeddedThreadComponent = ({
     const { user } = useAuth();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const scrollableRef = useRef(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [programDrawerOpen, setProgramDrawerOpen] = useState(false);
     const { t } = useTranslation();
 
     const { data, isLoading, error } = useQuery(
@@ -60,6 +64,9 @@ export const EmbeddedThreadComponent = ({
     const schoolName = thread.program_id?.school;
     const programName = thread.program_id?.program_name;
     const file_type = thread.file_type;
+    const programDbId = thread.program_id?._id
+        ? String(thread.program_id._id)
+        : '';
     return (
         <Box
             sx={{
@@ -112,15 +119,24 @@ export const EmbeddedThreadComponent = ({
                         </Link>
                     </Tooltip>
                     {thread.program_id ? (
-                        <Box>
-                            <Link
-                                component={LinkDom}
-                                title={schoolName}
-                                to={DEMO.SINGLE_PROGRAM_LINK(
-                                    thread.program_id._id
-                                )}
-                            >
+                        <Box
+                            onClick={
+                                ismobile && programDbId
+                                    ? () => setProgramDrawerOpen(true)
+                                    : undefined
+                            }
+                            sx={{
+                                minWidth: 0,
+                                ...(ismobile &&
+                                    programDbId && {
+                                        cursor: 'pointer',
+                                        '&:active': { opacity: 0.7 }
+                                    })
+                            }}
+                        >
+                            {ismobile ? (
                                 <Typography
+                                    color="primary"
                                     fontWeight="bold"
                                     sx={{
                                         ml: 1,
@@ -133,7 +149,29 @@ export const EmbeddedThreadComponent = ({
                                 >
                                     {schoolName}
                                 </Typography>
-                            </Link>
+                            ) : (
+                                <Link
+                                    component={LinkDom}
+                                    title={schoolName}
+                                    to={DEMO.SINGLE_PROGRAM_LINK(
+                                        thread.program_id._id
+                                    )}
+                                >
+                                    <Typography
+                                        fontWeight="bold"
+                                        sx={{
+                                            ml: 1,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            display: 'block',
+                                            textOverflow: 'ellipsis'
+                                        }}
+                                        variant="body1"
+                                    >
+                                        {schoolName}
+                                    </Typography>
+                                </Link>
+                            )}
                             <Typography
                                 fontWeight="bold"
                                 sx={{
@@ -158,12 +196,29 @@ export const EmbeddedThreadComponent = ({
                         </Typography>
                     )}
                 </Stack>
-                <Stack alignItems="center" direction="row" spacing={2}>
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    {/* Thread details — opens the info Drawer on mobile. */}
+                    {ismobile ? (
+                        <Tooltip
+                            title={t('Thread details', {
+                                ns: 'common',
+                                defaultValue: 'Thread details'
+                            })}
+                        >
+                            <IconButton
+                                aria-label="thread details"
+                                color="primary"
+                                onClick={() => setDetailsOpen(true)}
+                                size="small"
+                            >
+                                <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
                     {is_TaiGer_AdminAgent(user) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}
-                            sx={{ mr: 1 }}
                             to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
                                 thread.student_id._id
                             )}`}
@@ -202,13 +257,22 @@ export const EmbeddedThreadComponent = ({
                     agents={agents}
                     conflictList={conflict_list}
                     deadline={deadline}
+                    detailsOpen={detailsOpen}
                     editors={editors}
+                    onCloseDetails={() => setDetailsOpen(false)}
                     scrollableRef={scrollableRef}
                     similarThreads={similarThreads}
                     threadProps={thread}
                     threadauditLog={threadAuditLog}
                 />
             </Box>
+            {programDbId ? (
+                <ProgramDrawer
+                    onClose={() => setProgramDrawerOpen(false)}
+                    open={programDrawerOpen}
+                    programId={programDbId}
+                />
+            ) : null}
         </Box>
     );
 };
