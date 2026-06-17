@@ -13,7 +13,14 @@ import FolderIcon from '@mui/icons-material/Folder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { Typography, Box, Tabs, Tab } from '@mui/material';
+import {
+    Typography,
+    Box,
+    Tabs,
+    Tab,
+    useMediaQuery,
+    useTheme
+} from '@mui/material';
 import { pdfjs } from 'react-pdf';
 import { is_TaiGer_role, isProgramWithdraw } from '@taiger-common/core';
 
@@ -68,6 +75,7 @@ import DiscussionEditorCard, {
     type DiscussionEditorCardThread,
     type DiscussionEditorCardUser
 } from './components/DiscussionEditorCard';
+import ThreadFinalToggleButton from './components/ThreadFinalToggleButton';
 import type { OutputData } from '@editorjs/editorjs';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -136,6 +144,13 @@ const DocModificationThreadPage = ({
     const { documentsthreadId } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    // Embedded view (/doc-communications) gives this page a bounded height, so
+    // it lays out as an app-shell: fixed tabs + an independently scrolling panel.
+    // The standalone /document-modification page is unbounded and keeps its
+    // original flow layout.
+    const isEmbedded = Boolean(scrollableRef);
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
         useState<{
             error: string;
@@ -144,6 +159,8 @@ const DocModificationThreadPage = ({
             showEditorPage: boolean;
             isSubmissionLoaded: boolean;
             isLoaded: boolean;
+            deletingMessageId?: string;
+            pendingMessageId?: string;
             thread: DocModificationThreadPageThread;
             buttonDisabled: boolean;
             editorState: Record<string, unknown>;
@@ -363,6 +380,8 @@ const DocModificationThreadPage = ({
             const nextMessages = data?.messages ?? [];
 
             if (success) {
+                // Server returns the full, persisted message list — it replaces
+                // the optimistic pending message with the real one.
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
                     success,
@@ -374,6 +393,7 @@ const DocModificationThreadPage = ({
                     },
                     isLoaded: true,
                     buttonDisabled: false,
+                    pendingMessageId: undefined,
                     accordionKeys:
                         nextMessages.length > 0
                             ? [
@@ -389,9 +409,22 @@ const DocModificationThreadPage = ({
                 setSeverity('error');
                 setMessage(errorText);
                 setOpenSnackbar(true);
+                // Roll back the optimistic pending message.
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
-                    isLoaded: true
+                    isLoaded: true,
+                    thread: {
+                        ...prevState.thread,
+                        messages: (
+                            (prevState.thread.messages as
+                                | Array<{ _id: { toString(): string } }>
+                                | undefined) ?? []
+                        ).filter(
+                            (m) =>
+                                m._id.toString() !== prevState.pendingMessageId
+                        )
+                    },
+                    pendingMessageId: undefined
                 }));
             }
         },
@@ -405,10 +438,22 @@ const DocModificationThreadPage = ({
                 snackbarText.trim() !== '' ? snackbarText : 'Submission failed.'
             );
             setOpenSnackbar(true);
+            // Roll back the optimistic pending message.
             setDocModificationThreadPageState((prevState) => ({
                 ...prevState,
                 isLoaded: true,
-                error: String(error ?? '')
+                error: String(error ?? ''),
+                thread: {
+                    ...prevState.thread,
+                    messages: (
+                        (prevState.thread.messages as
+                            | Array<{ _id: { toString(): string } }>
+                            | undefined) ?? []
+                    ).filter(
+                        (m) => m._id.toString() !== prevState.pendingMessageId
+                    )
+                },
+                pendingMessageId: undefined
             }));
         },
         onSettled: () => {
@@ -419,7 +464,7 @@ const DocModificationThreadPage = ({
         }
     });
 
-    const handleClickSave = (
+    const handleClickSave = async (
         e: MouseEvent<HTMLElement>,
         editorState: unknown
     ) => {
@@ -428,25 +473,62 @@ const DocModificationThreadPage = ({
             setSeverity('warning');
             setMessage(readOnlyTooltip);
             setOpenSnackbar(true);
-            return;
+            // Reject so the editor keeps the text (nothing was sent).
+            throw new Error('read-only');
         }
         const message = JSON.stringify(editorState);
         const formData = new FormData();
 
-        if (docModificationThreadPageState.file) {
-            docModificationThreadPageState.file.forEach((file) => {
+        const attachedFiles = docModificationThreadPageState.file ?? [];
+        if (attachedFiles.length > 0) {
+            attachedFiles.forEach((file) => {
                 formData.append('files', file);
             });
         }
 
         formData.append('message', message);
 
-        submitMessageMutation.mutate({
+        // Optimistically push the message into the list in a pending (dim +
+        // spinner) state so the user sees it immediately; it is replaced by the
+        // persisted message on success, or rolled back on failure.
+        const pendingId = `pending-${Date.now()}`;
+        const optimisticMessage = {
+            _id: pendingId,
+            message,
+            user_id: {
+                _id: user?._id?.toString() ?? '',
+                firstname: user?.firstname ?? '',
+                lastname: user?.lastname ?? '',
+                pictureUrl: (user as { pictureUrl?: string })?.pictureUrl
+            },
+            file: attachedFiles.map((f) => ({ name: f.name, path: '' })),
+            createdAt: new Date().toISOString()
+        };
+        setDocModificationThreadPageState((prevState) => ({
+            ...prevState,
+            pendingMessageId: pendingId,
+            thread: {
+                ...prevState.thread,
+                messages: [
+                    ...((prevState.thread.messages as unknown[]) ?? []),
+                    optimisticMessage
+                ]
+            }
+        }));
+
+        // Await the mutation so the editor can keep the text if the send fails
+        // (e.g. 401/403/network). The mutation's own handlers roll back the
+        // optimistic pending message; throwing here signals the editor to
+        // restore the typed content.
+        const resp = await submitMessageMutation.mutateAsync({
             threadId: documentsthreadId ?? '',
             studentId: docModificationThreadPageState.thread.student_id
                 ?._id as Parameters<typeof SubmitMessageWithAttachment>[1],
             formData
         });
+        if (!resp?.success) {
+            throw new Error(resp?.message ?? 'Submission failed.');
+        }
     };
 
     // function generatePDF() {
@@ -560,9 +642,11 @@ const DocModificationThreadPage = ({
     };
 
     const onDeleteSingleMessage = (message_id: string) => {
+        // Mark only this message as deleting so its card dims with a spinner,
+        // instead of showing a loader over the whole list.
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
-            isLoaded: false
+            deletingMessageId: message_id
         }));
         deleteAMessageInThread(documentsthreadId ?? '', message_id).then(
             (resp) => {
@@ -586,7 +670,7 @@ const DocModificationThreadPage = ({
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         success,
-                        isLoaded: true,
+                        deletingMessageId: undefined,
                         thread: {
                             ...docModificationThreadPageState.thread,
                             messages: new_messages
@@ -602,7 +686,7 @@ const DocModificationThreadPage = ({
                     const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
-                        isLoaded: true,
+                        deletingMessageId: undefined,
                         buttonDisabled: false,
                         res_modal_message: String(message ?? ''),
                         res_modal_status: status
@@ -612,7 +696,7 @@ const DocModificationThreadPage = ({
             (error) => {
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
-                    isLoaded: true,
+                    deletingMessageId: undefined,
                     error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
@@ -856,167 +940,300 @@ const DocModificationThreadPage = ({
         thread.flag_by_user_id?.includes(user?._id?.toString() ?? '') ?? false;
     TabTitle(`${student_name} ${docName}`);
     return (
-        <Box>
+        <Box
+            sx={
+                isEmbedded
+                    ? {
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: '100%',
+                          minHeight: 0
+                      }
+                    : undefined
+            }
+        >
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
 
-            <Tabs
-                aria-label="basic tabs example"
-                indicatorColor="primary"
-                onChange={handleChange}
-                scrollButtons="auto"
-                value={value}
-                variant="scrollable"
+            <Box
+                sx={{
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    pr: isTaiGerUser ? 1 : 0
+                }}
             >
-                <Tab
-                    icon={<ChatIcon />}
-                    label={t('discussion-thread', { ns: 'common' })}
-                    {...a11yProps(value, discussionTabIndex)}
+                <Tabs
+                    aria-label="basic tabs example"
+                    indicatorColor="primary"
+                    onChange={handleChange}
+                    scrollButtons="auto"
+                    value={value}
+                    variant={isMobile ? 'fullWidth' : 'scrollable'}
                     sx={{
-                        fontWeight:
-                            value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
+                        flex: 1,
+                        minWidth: 0,
+                        minHeight: isMobile ? 48 : undefined,
+                        '& .MuiTab-root': isMobile
+                            ? { minHeight: 48, minWidth: 0, p: 1 }
+                            : undefined
                     }}
-                />
-                {isGeneralRL ? (
-                    <Tab
-                        icon={<InfoOutlinedIcon />}
-                        label={t('Requirements', {
-                            ns: 'translation'
-                        })}
-                        {...a11yProps(value, rlReqTabIndex)}
-                        sx={{
-                            fontWeight:
-                                value === rlReqTabIndex ? 'bold' : 'normal'
-                        }}
-                    />
-                ) : null}
-                <Tab
-                    icon={<FolderIcon />}
-                    label={t('files', { ns: 'common' })}
-                    {...a11yProps(value, filesTabIndex)}
-                    sx={{
-                        fontWeight: value === filesTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                    }}
-                />
-                {isTaiGerUser ? (
-                    <Tab
-                        icon={<LibraryBooksIcon />}
-                        label={`${t('Database', { ns: 'common' })} (${Array.isArray(similarThreads) ? similarThreads.length : 0})`}
-                        {...a11yProps(value, databaseTabIndex)}
-                        sx={{
-                            fontWeight:
-                                value === databaseTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                        }}
-                    />
-                ) : null}
-                <Tab
-                    icon={<HistoryIcon />}
-                    label={t('Audit', { ns: 'common' })}
-                    {...a11yProps(value, auditTabIndex)}
-                    sx={{
-                        fontWeight: value === auditTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                    }}
-                />
-            </Tabs>
-            <CustomTabPanel index={discussionTabIndex} value={value}>
-                <InformationBlock
-                    agents={
-                        docModificationThreadPageState.agents as IUserWithId[]
-                    }
-                    conflict_list={
-                        conflict_list as Array<{
-                            _id: { toString: () => string };
-                            firstname?: string;
-                            lastname?: string;
-                        }>
-                    }
-                    deadline={
-                        (docModificationThreadPageState.deadline as string) ??
-                        ''
-                    }
-                    documentsthreadId={documentsthreadId ?? ''}
-                    editors={
-                        docModificationThreadPageState.editors as IUserWithId[]
-                    }
-                    handleFavoriteToggle={handleFavoriteToggle}
-                    isFavorite={isFavorite}
-                    isGeneralRL={isGeneralRL ?? false}
-                    isWithdraw={isWithdrawThread}
-                    startEditingEditor={startEditingEditor}
-                    template_obj={template_obj as ITemplateWithId | null}
-                    thread={
-                        docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated
-                    }
-                    user={user as IUserWithId}
                 >
-                    <MessageList
-                        apiPrefix="/api/document-threads"
-                        documentsthreadId={documentsthreadId ?? ''}
-                        isLoaded={docModificationThreadPageState.isLoaded}
-                        onDeleteSingleMessage={onDeleteSingleMessage}
-                        thread={thread as unknown as MessageThread}
+                    <Tab
+                        aria-label={t('discussion-thread', { ns: 'common' })}
+                        icon={<ChatIcon />}
+                        label={
+                            isMobile
+                                ? undefined
+                                : t('discussion-thread', { ns: 'common' })
+                        }
+                        {...a11yProps(value, discussionTabIndex)}
+                        sx={{
+                            fontWeight:
+                                value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
+                        }}
                     />
-                    <DiscussionEditorCard
-                        buttonDisabled={
-                            docModificationThreadPageState.buttonDisabled
+                    {isGeneralRL ? (
+                        <Tab
+                            aria-label={t('Requirements', {
+                                ns: 'translation'
+                            })}
+                            icon={<InfoOutlinedIcon />}
+                            label={
+                                isMobile
+                                    ? undefined
+                                    : t('Requirements', {
+                                          ns: 'translation'
+                                      })
+                            }
+                            {...a11yProps(value, rlReqTabIndex)}
+                            sx={{
+                                fontWeight:
+                                    value === rlReqTabIndex ? 'bold' : 'normal'
+                            }}
+                        />
+                    ) : null}
+                    <Tab
+                        aria-label={t('files', { ns: 'common' })}
+                        icon={<FolderIcon />}
+                        label={
+                            isMobile ? undefined : t('files', { ns: 'common' })
                         }
-                        checkResult={checkResult}
-                        editorState={
-                            docModificationThreadPageState.editorState as unknown as OutputData
+                        {...a11yProps(value, filesTabIndex)}
+                        sx={{
+                            fontWeight:
+                                value === filesTabIndex ? 'bold' : 'normal' // Bold for selected tab
+                        }}
+                    />
+                    {isTaiGerUser ? (
+                        <Tab
+                            aria-label={`${t('Database', { ns: 'common' })} (${Array.isArray(similarThreads) ? similarThreads.length : 0})`}
+                            icon={<LibraryBooksIcon />}
+                            label={
+                                isMobile
+                                    ? undefined
+                                    : `${t('Database', { ns: 'common' })} (${Array.isArray(similarThreads) ? similarThreads.length : 0})`
+                            }
+                            {...a11yProps(value, databaseTabIndex)}
+                            sx={{
+                                fontWeight:
+                                    value === databaseTabIndex
+                                        ? 'bold'
+                                        : 'normal' // Bold for selected tab
+                            }}
+                        />
+                    ) : null}
+                    <Tab
+                        aria-label={t('Audit', { ns: 'common' })}
+                        icon={<HistoryIcon />}
+                        label={
+                            isMobile ? undefined : t('Audit', { ns: 'common' })
                         }
-                        file={docModificationThreadPageState.file}
-                        handleAsFinalFile={handleAsFinalFile}
-                        handleClickSave={handleClickSave}
+                        {...a11yProps(value, auditTabIndex)}
+                        sx={{
+                            fontWeight:
+                                value === auditTabIndex ? 'bold' : 'normal' // Bold for selected tab
+                        }}
+                    />
+                </Tabs>
+                {isTaiGerUser ? (
+                    <ThreadFinalToggleButton
+                        compact={isMobile}
+                        isFinalVersion={Boolean(thread.isFinalVersion)}
                         isLocked={isLocked}
-                        isReadOnlyThread={isReadOnlyThread}
-                        isWithdraw={isWithdrawThread}
                         isSubmissionLoaded={isSubmissionLoaded}
+                        isToggleBlocked={isToggleBlocked}
+                        isWithdraw={isWithdrawThread}
                         lockTooltip={lockTooltip}
-                        onFileChange={onFileChange}
-                        t={t}
-                        thread={thread as DiscussionEditorCardThread}
-                        user={user as unknown as DiscussionEditorCardUser}
+                        onToggle={() =>
+                            handleAsFinalFile(
+                                thread._id,
+                                thread.student_id?._id,
+                                thread.program_id,
+                                thread.isFinalVersion,
+                                thread.application_id
+                            )
+                        }
                     />
-                </InformationBlock>
-            </CustomTabPanel>
-            {isGeneralRL ? (
-                <CustomTabPanel index={rlReqTabIndex} value={value}>
-                    <GeneralRLRequirementsTab
-                        studentId={thread?.student_id?._id?.toString() ?? ''}
-                    />
-                </CustomTabPanel>
-            ) : null}
-            <CustomTabPanel index={filesTabIndex} value={value}>
-                <Box sx={{ px: 2, py: 1 }}>
-                    <Typography sx={{ mb: 1 }} variant="h6">
-                        {t('Files Overview', { ns: 'common' })}
-                    </Typography>
-                    <Typography
-                        color="text.secondary"
-                        sx={{ mb: 2 }}
-                        variant="body2"
+                ) : null}
+            </Box>
+            <Box
+                sx={
+                    isEmbedded
+                        ? {
+                              flex: 1,
+                              minHeight: 0,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              overflow: 'hidden'
+                          }
+                        : undefined
+                }
+            >
+                <CustomTabPanel
+                    fillHeight={isEmbedded}
+                    index={discussionTabIndex}
+                    value={value}
+                >
+                    <InformationBlock
+                        agents={
+                            docModificationThreadPageState.agents as IUserWithId[]
+                        }
+                        conflict_list={
+                            conflict_list as Array<{
+                                _id: { toString: () => string };
+                                firstname?: string;
+                                lastname?: string;
+                            }>
+                        }
+                        deadline={
+                            (docModificationThreadPageState.deadline as string) ??
+                            ''
+                        }
+                        documentsthreadId={documentsthreadId ?? ''}
+                        editors={
+                            docModificationThreadPageState.editors as IUserWithId[]
+                        }
+                        handleFavoriteToggle={handleFavoriteToggle}
+                        isFavorite={isFavorite}
+                        isGeneralRL={isGeneralRL ?? false}
+                        isWithdraw={isWithdrawThread}
+                        startEditingEditor={startEditingEditor}
+                        template_obj={template_obj as ITemplateWithId | null}
+                        thread={
+                            docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated
+                        }
+                        user={user as IUserWithId}
+                        fillHeight={isEmbedded}
+                        composer={
+                            <DiscussionEditorCard
+                                buttonDisabled={
+                                    docModificationThreadPageState.buttonDisabled
+                                }
+                                checkResult={checkResult}
+                                editorState={
+                                    docModificationThreadPageState.editorState as unknown as OutputData
+                                }
+                                file={docModificationThreadPageState.file}
+                                handleClickSave={handleClickSave}
+                                isLocked={isLocked}
+                                isReadOnlyThread={isReadOnlyThread}
+                                isWithdraw={isWithdrawThread}
+                                lockTooltip={lockTooltip}
+                                onFileChange={onFileChange}
+                                thread={thread as DiscussionEditorCardThread}
+                                user={
+                                    user as unknown as DiscussionEditorCardUser
+                                }
+                            />
+                        }
                     >
-                        {t(
-                            'All files shared in this thread are listed below.',
-                            { ns: 'common' }
-                        )}
-                    </Typography>
-                </Box>
-                <FilesList
-                    thread={thread as unknown as DocumentThreadResponse}
-                />
-            </CustomTabPanel>
-            {isTaiGerUser ? (
-                <CustomTabPanel index={databaseTabIndex} value={value}>
-                    <SimilarThreadsTab
-                        similarThreads={similarThreads as SimilarThread[]}
-                        t={t}
-                    />
+                        <MessageList
+                            apiPrefix="/api/document-threads"
+                            autoLoadOnScrollUp
+                            deletingMessageId={
+                                docModificationThreadPageState.deletingMessageId
+                            }
+                            documentsthreadId={documentsthreadId ?? ''}
+                            isLoaded={docModificationThreadPageState.isLoaded}
+                            onDeleteSingleMessage={onDeleteSingleMessage}
+                            pendingMessageId={
+                                docModificationThreadPageState.pendingMessageId
+                            }
+                            thread={thread as unknown as MessageThread}
+                        />
+                    </InformationBlock>
                 </CustomTabPanel>
-            ) : null}
-            <CustomTabPanel index={auditTabIndex} value={value}>
-                <Audit audit={threadAuditLog as IAuditWithId[]} />
-            </CustomTabPanel>
+                {isGeneralRL ? (
+                    <CustomTabPanel
+                        fillHeight={isEmbedded}
+                        index={rlReqTabIndex}
+                        value={value}
+                    >
+                        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                            <GeneralRLRequirementsTab
+                                studentId={
+                                    thread?.student_id?._id?.toString() ?? ''
+                                }
+                            />
+                        </Box>
+                    </CustomTabPanel>
+                ) : null}
+                <CustomTabPanel
+                    fillHeight={isEmbedded}
+                    index={filesTabIndex}
+                    value={value}
+                >
+                    <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                        <Box sx={{ px: 2, py: 1 }}>
+                            <Typography sx={{ mb: 1 }} variant="h6">
+                                {t('Files Overview', { ns: 'common' })}
+                            </Typography>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ mb: 2 }}
+                                variant="body2"
+                            >
+                                {t(
+                                    'All files shared in this thread are listed below.',
+                                    { ns: 'common' }
+                                )}
+                            </Typography>
+                        </Box>
+                        <FilesList
+                            thread={thread as unknown as DocumentThreadResponse}
+                        />
+                    </Box>
+                </CustomTabPanel>
+                {isTaiGerUser ? (
+                    <CustomTabPanel
+                        fillHeight={isEmbedded}
+                        index={databaseTabIndex}
+                        value={value}
+                    >
+                        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                            <SimilarThreadsTab
+                                similarThreads={
+                                    similarThreads as SimilarThread[]
+                                }
+                                t={t}
+                            />
+                        </Box>
+                    </CustomTabPanel>
+                ) : null}
+                <CustomTabPanel
+                    fillHeight={isEmbedded}
+                    index={auditTabIndex}
+                    value={value}
+                >
+                    <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                        <Audit audit={threadAuditLog as IAuditWithId[]} />
+                    </Box>
+                </CustomTabPanel>
+            </Box>
 
             <DocumentCheckingResultModal
                 docName={docName}

@@ -20,7 +20,7 @@ import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 import { getMessagThreadQuery } from '@/api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
-import { APP_BAR_HEIGHT, stringAvatar } from '@utils/contants';
+import { stringAvatar } from '@utils/contants';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import Loading from '@components/Loading/Loading';
@@ -30,7 +30,7 @@ import { useAuth } from '@components/AuthProvider';
 export const EmbeddedThreadComponent = ({
     setThreadId
 }: {
-    setThreadId: (threadId: string | null) => void;
+    setThreadId?: (threadId: string | null) => void;
 }) => {
     const { documentsthreadId } = useParams();
     const theme = useTheme();
@@ -61,10 +61,18 @@ export const EmbeddedThreadComponent = ({
     const programName = thread.program_id?.program_name;
     const file_type = thread.file_type;
     return (
-        <>
+        <Box
+            sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+            }}
+        >
             <Box
                 className="sticky-top"
                 sx={{
+                    flexShrink: 0,
                     my: 1,
                     justifyContent: 'space-between',
                     display: 'flex',
@@ -82,7 +90,7 @@ export const EmbeddedThreadComponent = ({
                             aria-label="open drawer"
                             color="inherit"
                             edge="start"
-                            onClick={() => setThreadId(null)}
+                            onClick={() => setThreadId?.(null)}
                             style={{ marginLeft: '4px' }}
                         >
                             <ArrowBackIcon />
@@ -184,8 +192,10 @@ export const EmbeddedThreadComponent = ({
             </Box>
             <Box
                 sx={{
-                    height: `calc(100vh - ${APP_BAR_HEIGHT + APP_BAR_HEIGHT}px)`, // Subtract header
-                    overflowY: 'auto'
+                    flex: 1,
+                    minHeight: 0,
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
             >
                 <DocModificationThreadPage
@@ -199,6 +209,6 @@ export const EmbeddedThreadComponent = ({
                     threadauditLog={threadAuditLog}
                 />
             </Box>
-        </>
+        </Box>
     );
 };

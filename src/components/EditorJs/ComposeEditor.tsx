@@ -22,6 +22,8 @@ export interface ComposeEditorRef {
     getValue: () => OutputData;
     /** Clear editor and remount so it shows empty. Call after submit. */
     reset: () => void;
+    /** Re-populate the editor with the given content (e.g. restore after a failed send). */
+    restore: (data: OutputData) => void;
     /** Whether the editor has no content */
     isEmpty: () => boolean;
 }
@@ -39,12 +41,15 @@ const ComposeEditor = forwardRef<ComposeEditorRef, ComposeEditorProps>(
         },
         ref
     ) {
-        const { value, onChange, reset, editorKey } = useEditorState({
+        const { value, onChange, reset, restore, editorKey } = useEditorState({
             initialValue,
             syncFromInitial: true
         });
 
         const valueRef = useRef(value);
+        // Keep a live ref to the latest value so the imperative getValue() reads
+        // the current content from event handlers.
+        // eslint-disable-next-line react-hooks/refs
         valueRef.current = value;
 
         const handleChange = useCallback(
@@ -60,9 +65,10 @@ const ComposeEditor = forwardRef<ComposeEditorRef, ComposeEditorProps>(
             () => ({
                 getValue: () => valueRef.current,
                 reset,
+                restore,
                 isEmpty: () => !valueRef.current?.blocks?.length
             }),
-            [reset]
+            [reset, restore]
         );
 
         const stableHolder = `${holder}-${editorKey}`;

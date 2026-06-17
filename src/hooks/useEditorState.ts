@@ -16,6 +16,8 @@ export interface UseEditorStateReturn {
     onChange: (data: OutputData) => void;
     /** Set value to empty and bump key so editor can remount */
     reset: () => void;
+    /** Set value to the given content and bump key so editor remounts with it */
+    restore: (data: OutputData) => void;
     /** True when value has no blocks or empty blocks */
     isEmpty: boolean;
     /** Key to use for EditorSimple container so it remounts on reset */
@@ -41,6 +43,9 @@ export function useEditorState(
             (initialValue && !initialValue.blocks?.length)
                 ? EMPTY_EDITOR_STATE
                 : (initialValue as OutputData);
+        // Intentional: sync internal value when the parent-provided initialValue
+        // reference changes (controlled-from-parent pattern).
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setValue(next);
     }, [initialValue, syncFromInitial]);
 
@@ -53,7 +58,12 @@ export function useEditorState(
         setEditorKey((k) => k + 1);
     }, []);
 
+    const restore = useCallback((data: OutputData) => {
+        setValue(data && 'blocks' in data ? data : EMPTY_EDITOR_STATE);
+        setEditorKey((k) => k + 1);
+    }, []);
+
     const isEmpty = !value?.blocks || value.blocks.length === 0;
 
-    return { value, onChange, reset, isEmpty, editorKey };
+    return { value, onChange, reset, restore, isEmpty, editorKey };
 }

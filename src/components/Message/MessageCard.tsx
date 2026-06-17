@@ -8,6 +8,7 @@ import {
     Box,
     Chip,
     Card,
+    CircularProgress,
     FormControlLabel,
     Checkbox,
     IconButton,
@@ -15,6 +16,7 @@ import {
     Typography,
     useTheme
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { ConfirmDialog } from '@components/ConfirmDialog';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -27,7 +29,6 @@ import { BASE_URL, IgnoreMessageThread } from '@/api';
 import EditorSimple from '../EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '../AuthProvider';
-import Loading from '../Loading/Loading';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { OutputData } from '@editorjs/editorjs';
 
@@ -87,6 +88,10 @@ export interface MessageCardProps {
         e: MouseEvent,
         editorState: { time?: number; blocks?: unknown[] }
     ) => void;
+    /** When true, dim this card and show a spinner over it (delete in flight). */
+    isDeleting?: boolean;
+    /** When true, dim this card and show a spinner over it (send in flight). */
+    isPending?: boolean;
 }
 
 const DEFAULT_IGNORE = false;
@@ -97,8 +102,11 @@ const MessageCard = (props: MessageCardProps) => {
         isLoaded,
         documentsthreadId,
         apiPrefix,
-        onDeleteSingleMessage
+        onDeleteSingleMessage,
+        isDeleting = false,
+        isPending = false
     } = props;
+    const showBusyOverlay = isDeleting || isPending;
     const { user } = useAuth();
     const theme = useTheme();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
@@ -231,14 +239,11 @@ const MessageCard = (props: MessageCardProps) => {
         ));
     }, [message.file, apiPrefix]);
 
-    if (!isLoaded) {
-        return <Loading />;
-    }
-
     return (
         <>
             <Card
                 sx={{
+                    position: 'relative',
                     borderRadius: 2,
                     borderWidth: 1,
                     borderStyle: 'solid',
@@ -252,6 +257,37 @@ const MessageCard = (props: MessageCardProps) => {
                     }
                 }}
             >
+                {showBusyOverlay ? (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 1,
+                            borderRadius: 2,
+                            bgcolor: (t) => alpha(t.palette.common.black, 0.5)
+                        }}
+                    >
+                        <CircularProgress
+                            size={28}
+                            sx={{ color: 'common.white' }}
+                        />
+                        {isPending ? (
+                            <Typography
+                                sx={{ color: 'common.white' }}
+                                variant="body2"
+                            >
+                                {i18next.t('Sending…', {
+                                    ns: 'common',
+                                    defaultValue: 'Sending…'
+                                })}
+                            </Typography>
+                        ) : null}
+                    </Box>
+                ) : null}
                 <Accordion
                     defaultExpanded={true}
                     disableGutters
