@@ -768,6 +768,11 @@ export interface AIAssistOverviewItem {
         name?: string;
         chineseName?: string;
         email?: string;
+        joinedAt?: string | null;
+        applyingProgramCount?: number;
+        hasEditors?: boolean;
+        offerCount?: number;
+        rejectCount?: number;
     };
     program?: { school?: string; name?: string } | null;
     deadline?: string;

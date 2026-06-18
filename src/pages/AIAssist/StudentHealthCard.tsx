@@ -19,12 +19,24 @@ export type PortfolioStudent = {
     chineseName?: string;
     signals: PortfolioSignal[];
     overallHealth: string;
+    joinedAt?: string | null;
+    applyingProgramCount?: number;
+    offerCount?: number;
+    rejectCount?: number;
+    hasEditors?: boolean;
 };
 
 interface StudentHealthCardProps {
     student: PortfolioStudent;
     onAnalyze: (student: PortfolioStudent) => void;
 }
+
+const formatJoinMonth = (dateStr: string | null | undefined): string | null => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('en', { year: 'numeric', month: 'short' });
+};
 
 export const StudentHealthCard = ({
     student,
@@ -35,6 +47,8 @@ export const StudentHealthCard = ({
     const displayName =
         isZh && student.chineseName ? student.chineseName : student.name;
     const topSignal = student.signals[0];
+    const joinLabel = formatJoinMonth(student.joinedAt);
+    const noEditor = student.hasEditors === false;
 
     return (
         <Paper
@@ -73,7 +87,57 @@ export const StudentHealthCard = ({
                     </Typography>
                     <HealthBadge health={student.overallHealth} preliminary />
                 </Stack>
+
+                {/* Stats row */}
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    flexWrap="wrap"
+                    gap={0.75}
+                    sx={{ width: '100%' }}
+                >
+                    {(student.applyingProgramCount ?? 0) > 0 && (
+                        <Typography color="text.secondary" variant="caption">
+                            {t('aiAssist.cardPrograms', '{{count}} programs', {
+                                count: student.applyingProgramCount
+                            })}
+                        </Typography>
+                    )}
+                    {(student.offerCount ?? 0) > 0 && (
+                        <Typography color="success.main" variant="caption">
+                            {t('aiAssist.cardOffers', '{{count}} offer', {
+                                count: student.offerCount
+                            })}
+                        </Typography>
+                    )}
+                    {(student.rejectCount ?? 0) > 0 && (
+                        <Typography color="error.main" variant="caption">
+                            {t('aiAssist.cardRejected', '{{count}} rejected', {
+                                count: student.rejectCount
+                            })}
+                        </Typography>
+                    )}
+                    {joinLabel && (
+                        <Typography
+                            color="text.disabled"
+                            sx={{ ml: 'auto' }}
+                            variant="caption"
+                        >
+                            {joinLabel}
+                        </Typography>
+                    )}
+                </Stack>
             </Stack>
+
+            {noEditor && (
+                <Chip
+                    color="warning"
+                    label={t('aiAssist.cardNoEditor', 'No editor assigned')}
+                    size="small"
+                    sx={{ borderRadius: 0.75, alignSelf: 'flex-start' }}
+                    variant="outlined"
+                />
+            )}
 
             {topSignal && (
                 <Box>

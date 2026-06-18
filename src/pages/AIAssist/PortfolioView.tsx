@@ -57,7 +57,12 @@ const buildPortfolioStudents = (
                 name: item.student?.name ?? id,
                 chineseName: item.student?.chineseName,
                 signals: [],
-                overallHealth: 'Medium Risk'
+                overallHealth: 'Medium Risk',
+                joinedAt: item.student?.joinedAt ?? null,
+                applyingProgramCount: item.student?.applyingProgramCount ?? 0,
+                offerCount: item.student?.offerCount ?? 0,
+                rejectCount: item.student?.rejectCount ?? 0,
+                hasEditors: item.student?.hasEditors ?? true
             });
         }
         byId.get(id)!.signals.push(signal);
