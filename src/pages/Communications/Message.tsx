@@ -268,6 +268,7 @@ const Message = ({
             <Box
                 id={`communication-message-${message._id.toString()}`}
                 sx={{
+                    position: 'relative',
                     display: 'flex',
                     justifyContent: isOwn ? 'flex-end' : 'flex-start',
                     alignItems: 'flex-start',
@@ -275,10 +276,31 @@ const Message = ({
                     mb: 1.25,
                     px: { xs: 0.5, md: 1 },
                     scrollMarginTop: '80px',
+                    // Dim while the message is sending (optimistic) or deleting.
+                    opacity: message.pending || isDeleting ? 0.6 : 1,
+                    transition: 'opacity 0.15s',
                     // Reveal the hover actions when the row is hovered (desktop).
                     '&:hover .message-actions': { opacity: 1 }
                 }}
             >
+                {message.pending || isDeleting ? (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: isOwn ? 'flex-end' : 'flex-start',
+                            px: 2,
+                            bgcolor: 'rgba(0,0,0,0.04)',
+                            borderRadius: 1,
+                            pointerEvents: 'none'
+                        }}
+                    >
+                        <CircularProgress size={18} />
+                    </Box>
+                ) : null}
                 {!isOwn ? (
                     <Avatar
                         {...stringAvatar(full_name)}

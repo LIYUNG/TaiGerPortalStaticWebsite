@@ -43,6 +43,8 @@ export interface UseCommunicationDraftResult {
     removeFile: (path: string) => Promise<void>;
     /** Refetch the draft (e.g. after send, which consumes it server-side). */
     invalidateDraft: () => void;
+    /** Optimistically clear the cached draft (text + files) without a request. */
+    resetDraftCache: () => void;
 }
 
 /**
@@ -140,6 +142,22 @@ const useCommunicationDraft = (
         setStatus('idle');
     }, [queryClient, draftQueryKey]);
 
+    // Optimistic clear: set the cached draft to empty so the composer's
+    // attachment list disappears immediately on send (the background refetch
+    // confirms). On a failed send the caller refetches to bring it back.
+    const resetDraftCache = useCallback(() => {
+        if (timerRef.current) {
+            window.clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+        pendingRef.current = null;
+        queryClient.setQueryData(draftQueryKey, {
+            success: true,
+            data: null
+        });
+        setStatus('idle');
+    }, [queryClient, draftQueryKey]);
+
     const attachFiles = useCallback(
         async (files: FileList | File[]): Promise<CommunicationDraftFile[]> => {
             if (!studentId) return [];
@@ -210,7 +228,8 @@ const useCommunicationDraft = (
         clearDraft,
         attachFiles,
         removeFile,
-        invalidateDraft
+        invalidateDraft,
+        resetDraftCache
     };
 };
 

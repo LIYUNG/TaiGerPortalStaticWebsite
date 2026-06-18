@@ -45,7 +45,11 @@ export interface CheckResultItem {
 export interface CommunicationThreadEditorProps {
     buttonDisabled?: boolean;
     editorState: unknown;
-    handleClickSave?: (e: React.MouseEvent, editorState: OutputData) => void;
+    handleClickSave?: (
+        e: React.MouseEvent,
+        editorState: OutputData,
+        files?: Array<{ name: string; path: string }>
+    ) => Promise<unknown> | void;
     thread: unknown;
     files?: Array<{ name: string; path?: string }>;
     count?: number;
@@ -123,8 +127,36 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         saveDraft,
         attachFiles,
         removeFile,
-        invalidateDraft
+        invalidateDraft,
+        resetDraftCache
     } = useCommunicationDraft(studentId);
+    // Path of the staged attachment currently being unattached (for its spinner).
+    const [deletingPath, setDeletingPath] = useState<string | null>(null);
+
+    const handleRemoveFile = async (path: string) => {
+        if (deletingPath) return;
+        setDeletingPath(path);
+        try {
+            await removeFile(path);
+        } catch (error: unknown) {
+            const err = error as {
+                response?: { data?: { message?: string } };
+                message?: string;
+            };
+            setSeverity('error');
+            setMessage(
+                err?.response?.data?.message ??
+                    err?.message ??
+                    t('Failed to remove file.', {
+                        ns: 'common',
+                        defaultValue: 'Failed to remove file.'
+                    })
+            );
+            setOpenSnackbar(true);
+        } finally {
+            setDeletingPath(null);
+        }
+    };
     // Normalized (blocks-only, ignores EditorJS `time`) snapshot of what's been
     // persisted, so re-emitting the same content (e.g. the restore echo or the
     // initial empty editor) doesn't trigger a redundant save/delete.
@@ -146,7 +178,6 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
             lastSavedBlocksRef.current = JSON.stringify(draft.blocks ?? []);
             composeRef.current.restore(draft);
             // Reflect that the editor now has restored content (enables Send).
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHasContent(true);
         }
     }, [isDraftLoaded, draft]);
@@ -164,22 +195,52 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     );
 
     const handleSend = useCallback(
-        (e: React.MouseEvent) => {
+        async (e: React.MouseEvent) => {
             if (isSending) return;
             const content = composeRef.current?.getValue();
             if (!content?.blocks?.length) return;
             setIsSending(true);
-            handleClickSave?.(e, content);
+
+            // Capture the staged attachments before the optimistic clear so the
+            // pending message row can render them.
+            const filesToSend = draftFiles.map((f) => ({
+                name: f.name,
+                path: f.path
+            }));
+
+            // Optimistic: clear the composer + its staged attachments at once so
+            // it feels instant (the server moves the draft files onto the
+            // message and deletes the draft as a unit).
             composeRef.current?.reset();
             setHasContent(false);
-            // The message is sent — the server consumes the draft (moves its
-            // files onto the message + deletes the draft). Refetch (do NOT
-            // delete: that would remove the just-sent files from S3).
             lastSavedBlocksRef.current = '[]';
-            invalidateDraft();
-            setIsSending(false);
+            resetDraftCache();
+
+            try {
+                await handleClickSave?.(e, content, filesToSend);
+                // Confirm the (now-deleted) draft from the server.
+                invalidateDraft();
+            } catch {
+                // Send failed → roll back: restore the text and the staged
+                // attachments (the draft was NOT consumed server-side). The
+                // mutation's own onError surfaces the error message.
+                composeRef.current?.restore(content);
+                lastSavedBlocksRef.current = JSON.stringify(
+                    content.blocks ?? []
+                );
+                setHasContent(Boolean(content.blocks?.length));
+                invalidateDraft();
+            } finally {
+                setIsSending(false);
+            }
         },
-        [isSending, handleClickSave, invalidateDraft]
+        [
+            isSending,
+            handleClickSave,
+            invalidateDraft,
+            resetDraftCache,
+            draftFiles
+        ]
     );
 
     const handleClick = () => {
@@ -319,13 +380,19 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     px: 1.5,
                     py: 1,
                     transition: 'border-color 0.15s',
-                    '&:focus-within': { borderColor: 'primary.main' }
+                    '&:focus-within': { borderColor: 'primary.main' },
+                    // Dynamic height: the composer grows with the text while
+                    // focused (up to the larger cap), and shrinks back to a
+                    // compact height when focus leaves.
+                    '&:focus-within .compose-scroll': { maxHeight: 240 }
                 }}
             >
                 <Box
+                    className="compose-scroll"
                     sx={{
-                        maxHeight: 210,
+                        maxHeight: 96,
                         overflowY: 'auto',
+                        transition: 'max-height 0.2s ease',
                         // EditorJS reserves wide right padding for its inline
                         // toolbar; trim it so the scrollbar sits flush.
                         '& .codex-editor__redactor': { pb: '0 !important' },
@@ -369,7 +436,9 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                     flexWrap: 'wrap',
                                     gap: 0.5,
                                     wordBreak: 'break-word',
-                                    overflowWrap: 'break-word'
+                                    overflowWrap: 'break-word',
+                                    opacity: deletingPath === fl.path ? 0.5 : 1,
+                                    transition: 'opacity 0.15s'
                                 }}
                             >
                                 <AttachFileIcon
@@ -404,10 +473,17 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                 >
                                     <IconButton
                                         aria-label="remove file"
-                                        onClick={() => void removeFile(fl.path)}
+                                        disabled={deletingPath === fl.path}
+                                        onClick={() =>
+                                            void handleRemoveFile(fl.path)
+                                        }
                                         size="small"
                                     >
-                                        <CloseIcon fontSize="inherit" />
+                                        {deletingPath === fl.path ? (
+                                            <CircularProgress size={14} />
+                                        ) : (
+                                            <CloseIcon fontSize="inherit" />
+                                        )}
                                     </IconButton>
                                 </Tooltip>
                                 {/* Agent naming pre-check results for this file */}

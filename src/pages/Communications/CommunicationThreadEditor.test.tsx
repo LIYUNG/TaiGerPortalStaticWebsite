@@ -8,9 +8,10 @@ const { restoreSpy, draftState, draftHook } = vi.hoisted(() => ({
     draftHook: {
         saveDraft: vi.fn(),
         clearDraft: vi.fn(),
-        attachFiles: vi.fn(),
-        removeFile: vi.fn(),
-        invalidateDraft: vi.fn()
+        attachFiles: vi.fn().mockResolvedValue([]),
+        removeFile: vi.fn().mockResolvedValue(undefined),
+        invalidateDraft: vi.fn(),
+        resetDraftCache: vi.fn()
     }
 }));
 
@@ -30,7 +31,8 @@ vi.mock('@hooks/useCommunicationDraft', () => ({
         clearDraft: draftHook.clearDraft,
         attachFiles: draftHook.attachFiles,
         removeFile: draftHook.removeFile,
-        invalidateDraft: draftHook.invalidateDraft
+        invalidateDraft: draftHook.invalidateDraft,
+        resetDraftCache: draftHook.resetDraftCache
     })
 }));
 

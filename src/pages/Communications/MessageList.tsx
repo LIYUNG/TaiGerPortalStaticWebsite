@@ -11,6 +11,8 @@ interface MessageListProps {
     accordionKeys: number[];
     isUpperMessagList: boolean;
     isDeleting: boolean;
+    /** Id of the message currently being deleted (per-row loading overlay). */
+    deletingMessageId?: string | null;
     isTaiGerView: boolean;
     onDeleteSingleMessage?: (messageId: string) => void;
     student_id: string;
@@ -69,7 +71,11 @@ const MessageList = (props: MessageListProps) => {
                             ? props.thread.length - i - 1
                             : i
                     }
-                    isDeleting={props.isDeleting}
+                    isDeleting={
+                        props.deletingMessageId != null
+                            ? message._id.toString() === props.deletingMessageId
+                            : props.isDeleting
+                    }
                     isTaiGerView={props.isTaiGerView}
                     message={message}
                     onDeleteSingleMessage={props.onDeleteSingleMessage}

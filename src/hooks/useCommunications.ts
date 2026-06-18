@@ -46,48 +46,22 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     });
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const { mutate, isPending } = useMutation({
+    // The optimistic-message lifecycle (insert pending row -> confirm/rollback)
+    // is handled in handleClickSave so it can await the send; the mutation just
+    // surfaces the error toast.
+    const { mutateAsync, isPending } = useMutation({
         mutationFn: postCommunicationThreadV2,
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
-        },
-        onSuccess: (responseData: unknown) => {
-            const data = (responseData as { data?: unknown[] })?.data ?? [];
-            queryClient.invalidateQueries({
-                queryKey: [
-                    'communications',
-                    communicationsState.student._id?.toString()
-                ]
-            });
-            queryClient.invalidateQueries({
-                queryKey: ['communications', 'my']
-            });
-            // The server moved the draft's staged files onto the message and
-            // deleted the draft — refetch it so the composer's attachment list
-            // clears.
-            queryClient.invalidateQueries({
-                queryKey: [
-                    'communications',
-                    communicationsState.student._id?.toString(),
-                    'draft'
-                ]
-            });
-            setCommunicationsState((prevState) => ({
-                ...prevState,
-                editorState: {},
-                count: prevState.count + 1,
-                thread: [...communicationsState.thread, ...data],
-                files: [],
-                accordionKeys: [
-                    ...communicationsState.accordionKeys,
-                    communicationsState.accordionKeys.length
-                ]
-            }));
         }
     });
 
+    // Which message is being deleted (for its per-row loading/dark overlay).
+    const [deletingMessageId, setDeletingMessageId] = useState<string | null>(
+        null
+    );
     const { mutate: mutateDelete, isPending: isDeleting } = useMutation({
         mutationFn: (vars: {
             student_id: string;
@@ -98,6 +72,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
         },
+        onSettled: () => setDeletingMessageId(null),
         onSuccess: (
             _data: unknown,
             variables: { student_id: string; communication_messageId: string }
@@ -240,6 +215,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     };
 
     const onDeleteSingleMessage = (message_id: string): void => {
+        setDeletingMessageId(message_id);
         mutateDelete({
             student_id: student._id?.toString() ?? '',
             communication_messageId: message_id
@@ -301,26 +277,89 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
         }
     };
 
-    const handleClickSave = (
+    // Returns the send promise so the composer can await it and commit/rollback
+    // its draft (text + attachments) atomically. The sent message appears in the
+    // list immediately as a "pending" row (loading overlay) and is replaced by
+    // the real message on success, or removed on failure.
+    const handleClickSave = async (
         e: React.MouseEvent,
-        editorState: OutputData
-    ): void => {
+        editorState: OutputData,
+        // The draft's staged attachments, so the pending row shows them too
+        // (they're already in S3, so they download/preview like a real message).
+        files?: Array<{ name: string; path: string }>
+    ): Promise<unknown> => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
+        const studentId = communicationsState.student._id?.toString() ?? '';
+        const tempId = `pending-${Date.now()}`;
+
+        // Optimistically insert the message as a pending row.
+        const optimistic = {
+            _id: tempId,
+            message,
+            user_id: user
+                ? {
+                      _id: user._id?.toString(),
+                      firstname: user.firstname,
+                      lastname: user.lastname,
+                      pictureUrl: (user as { pictureUrl?: string }).pictureUrl
+                  }
+                : undefined,
+            file: files ?? [],
+            // So the pending row's attachment links resolve (Message builds the
+            // download URL from student_id._id).
+            student_id: { _id: studentId },
+            createdAt: new Date(),
+            pending: true
+        };
+        setCommunicationsState((prev) => ({
+            ...prev,
+            thread: [...prev.thread, optimistic],
+            accordionKeys: [...prev.accordionKeys, prev.accordionKeys.length]
+        }));
 
         const formData = new FormData();
-
         if (communicationsState.files) {
             communicationsState.files.forEach((file) => {
                 formData.append('files', file);
             });
         }
-
         formData.append('message', message);
-        mutate({
-            studentId: communicationsState.student._id?.toString() ?? '',
-            formData
-        });
+
+        try {
+            const responseData = await mutateAsync({ studentId, formData });
+            const data = (responseData as { data?: unknown[] })?.data ?? [];
+            queryClient.invalidateQueries({
+                queryKey: ['communications', studentId]
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['communications', 'my']
+            });
+            // The server moved the draft's staged files onto the message and
+            // deleted the draft — refetch so the composer's attachment list clears.
+            queryClient.invalidateQueries({
+                queryKey: ['communications', studentId, 'draft']
+            });
+            // Replace the pending row with the confirmed message(s).
+            setCommunicationsState((prev) => ({
+                ...prev,
+                editorState: {},
+                count: prev.count + 1,
+                thread: [
+                    ...prev.thread.filter((m) => m._id !== tempId),
+                    ...data
+                ],
+                files: []
+            }));
+            return responseData;
+        } catch (error) {
+            // Remove the pending row; the composer rolls back text + attachments.
+            setCommunicationsState((prev) => ({
+                ...prev,
+                thread: prev.thread.filter((m) => m._id !== tempId)
+            }));
+            throw error;
+        }
     };
 
     return {
@@ -328,6 +367,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
         loadButtonDisabled: communicationsState.loadButtonDisabled,
         isLoadingOlder: communicationsState.isLoadingOlder,
         isDeleting,
+        deletingMessageId,
         files: communicationsState.files,
         count: communicationsState.count,
         editorState: communicationsState.editorState,

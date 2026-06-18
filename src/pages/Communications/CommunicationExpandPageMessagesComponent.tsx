@@ -67,6 +67,7 @@ const CommunicationExpandPageMessagesComponent = ({
         loadButtonDisabled,
         isLoadingOlder,
         isDeleting,
+        deletingMessageId,
         files,
         editorState,
         checkResult,
@@ -316,6 +317,7 @@ const CommunicationExpandPageMessagesComponent = ({
                         <MessageList
                             accordionKeys={[]}
                             isDeleting={isDeleting}
+                            deletingMessageId={deletingMessageId}
                             isTaiGerView={true}
                             isUpperMessagList={false}
                             onDeleteSingleMessage={onDeleteSingleMessage}
@@ -428,6 +430,7 @@ const CommunicationExpandPageMessagesComponent = ({
                             <MessageList
                                 accordionKeys={uppderaccordionKeys}
                                 isDeleting={isDeleting}
+                                deletingMessageId={deletingMessageId}
                                 isTaiGerView={true}
                                 isUpperMessagList={true}
                                 onDeleteSingleMessage={onDeleteSingleMessage}
@@ -439,6 +442,7 @@ const CommunicationExpandPageMessagesComponent = ({
                         <MessageList
                             accordionKeys={accordionKeys}
                             isDeleting={isDeleting}
+                            deletingMessageId={deletingMessageId}
                             isTaiGerView={true}
                             isUpperMessagList={false}
                             onDeleteSingleMessage={onDeleteSingleMessage}

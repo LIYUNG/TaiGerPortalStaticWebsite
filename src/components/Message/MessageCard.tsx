@@ -69,6 +69,8 @@ export interface ThreadMessage {
     file?: MessageFile[];
     createdAt?: string | Date;
     ignore_message?: boolean;
+    /** Optimistic row: the message is sent but not yet confirmed by the server. */
+    pending?: boolean;
 }
 
 export interface MessageCardState {

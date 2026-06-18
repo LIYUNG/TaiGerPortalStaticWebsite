@@ -139,6 +139,7 @@ const CommunicationSinglePageBody = ({
         loadButtonDisabled,
         isLoadingOlder,
         isDeleting,
+        deletingMessageId,
         files,
         editorState,
         checkResult,
@@ -330,6 +331,7 @@ const CommunicationSinglePageBody = ({
                     <MessageList
                         accordionKeys={uppderaccordionKeys}
                         isDeleting={isDeleting}
+                        deletingMessageId={deletingMessageId}
                         isUpperMessagList={true}
                         onDeleteSingleMessage={onDeleteSingleMessage}
                         student_id={student._id.toString()}
@@ -340,6 +342,7 @@ const CommunicationSinglePageBody = ({
                 <MessageList
                     accordionKeys={accordionKeys}
                     isDeleting={isDeleting}
+                    deletingMessageId={deletingMessageId}
                     isUpperMessagList={false}
                     onDeleteSingleMessage={onDeleteSingleMessage}
                     student_id={student._id.toString()}
