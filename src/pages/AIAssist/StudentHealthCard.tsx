@@ -30,7 +30,7 @@ export const StudentHealthCard = ({
     student,
     onAnalyze
 }: StudentHealthCardProps): JSX.Element => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const isZh = i18n.language.startsWith('zh');
     const displayName =
         isZh && student.chineseName ? student.chineseName : student.name;
@@ -83,7 +83,7 @@ export const StudentHealthCard = ({
                         fontWeight={600}
                         sx={{ mb: 0.5, display: 'block' }}
                     >
-                        Top priority
+                        {t('aiAssist.topPriority', 'Top priority')}
                     </Typography>
                     <Chip
                         color={
@@ -110,8 +110,9 @@ export const StudentHealthCard = ({
 
             {student.signals.length > 1 && (
                 <Typography color="text.disabled" variant="caption">
-                    +{student.signals.length - 1} more signal
-                    {student.signals.length - 1 === 1 ? '' : 's'}
+                    {t('aiAssist.moreSignals', '+{{count}} more signal(s)', {
+                        count: student.signals.length - 1
+                    })}
                 </Typography>
             )}
 
@@ -125,7 +126,7 @@ export const StudentHealthCard = ({
                 variant="contained"
                 sx={{ mt: 'auto' }}
             >
-                Analyze
+                {t('aiAssist.analyze', 'Analyze')}
             </Button>
         </Paper>
     );

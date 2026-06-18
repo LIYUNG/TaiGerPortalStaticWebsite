@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ReactMarkdown from 'react-markdown';
@@ -21,6 +22,7 @@ export const SourcesSummary = ({
 }: {
     toolCalls: AIAssistToolCall[];
 }): JSX.Element | null => {
+    const { t } = useTranslation();
     const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
     const visible = toolCalls.filter(
@@ -49,7 +51,9 @@ export const SourcesSummary = ({
             sx={{ mt: 1.25, borderTop: 1, borderColor: 'divider', pt: 1 }}
         >
             <Typography color="text.secondary" variant="caption">
-                Tools used ({visible.length})
+                {t('aiAssist.toolsUsedCount', 'Tools used ({{count}})', {
+                    count: visible.length
+                })}
             </Typography>
             {visible.map((tc) => {
                 const name = getToolDisplayName(tc.toolName);
@@ -63,7 +67,11 @@ export const SourcesSummary = ({
                         >
                             <Typography variant="caption">{name}</Typography>
                             <IconButton
-                                aria-label={`Show details for ${name}`}
+                                aria-label={t(
+                                    'aiAssist.showDetailsFor',
+                                    'Show details for {{name}}',
+                                    { name }
+                                )}
                                 onClick={() => toggle(tc.id)}
                                 size="small"
                             >

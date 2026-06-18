@@ -5,6 +5,7 @@ import {
     Stack,
     Typography
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 import type { AIAssistPickerStudent } from '@/api/types';
 
@@ -53,6 +54,8 @@ export const StudentPicker = ({
     isLoading,
     onPickStudent
 }: StudentPickerProps): JSX.Element => {
+    const { t } = useTranslation();
+
     if (isLoading) {
         return (
             <Stack
@@ -70,7 +73,7 @@ export const StudentPicker = ({
             {recentStudents.length > 0 && (
                 <StudentSection
                     testId="ai-assist-student-section-recent"
-                    title="Recent students"
+                    title={t('aiAssist.recentStudents', 'Recent students')}
                     students={recentStudents}
                     onPickStudent={onPickStudent}
                 />
@@ -78,7 +81,7 @@ export const StudentPicker = ({
             {myStudents.length > 0 && (
                 <StudentSection
                     testId="ai-assist-student-section-mine"
-                    title="My students"
+                    title={t('aiAssist.myStudents', 'My students')}
                     students={myStudents}
                     onPickStudent={onPickStudent}
                 />

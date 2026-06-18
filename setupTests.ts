@@ -25,9 +25,31 @@ if (typeof process !== 'undefined') {
 // Central mocks so test files do not need to include them.
 // Code uses "import i18next from 'i18next'" so the mock must provide default export.
 const { i18nextMock } = vi.hoisted(() => {
-    const i18nextMock = {
-        t: (key: string) => key
+    // Return the fallback string with interpolation applied (mirrors real i18next).
+    const tFn = (
+        key: string,
+        fallbackOrOpts?: string | Record<string, unknown>,
+        extraOpts?: Record<string, unknown>
+    ): string => {
+        let template: string;
+        let vars: Record<string, unknown> = {};
+        if (typeof fallbackOrOpts === 'string') {
+            template = fallbackOrOpts;
+            vars = extraOpts ?? {};
+        } else if (fallbackOrOpts && typeof fallbackOrOpts === 'object') {
+            vars = fallbackOrOpts;
+            template =
+                typeof vars.defaultValue === 'string'
+                    ? (vars.defaultValue as string)
+                    : key;
+        } else {
+            template = key;
+        }
+        return template.replace(/\{\{(\w+)\}\}/g, (_, v) =>
+            vars[v] !== undefined ? String(vars[v]) : `{{${v}}}`
+        );
     };
+    const i18nextMock = { t: tFn };
     return { i18nextMock };
 });
 vi.mock('i18next', () => ({
@@ -37,9 +59,10 @@ vi.mock('i18next', () => ({
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (str: string) => str,
+        t: i18nextMock.t,
         i18n: {
-            changeLanguage: () => new Promise(() => undefined)
+            changeLanguage: () => new Promise(() => undefined),
+            language: 'en'
         }
     }),
     initReactI18next: { type: '3rdParty', init: () => undefined }

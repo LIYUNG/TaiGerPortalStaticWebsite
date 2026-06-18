@@ -51,14 +51,23 @@ interface StudentAnalysisViewProps {
     onCacheAnalysis?: (text: string, conversationId: string) => void;
 }
 
-// Relative-time label for when an analysis was last produced.
-const formatAgo = (ts: number): string => {
+type TFn = (
+    key: string,
+    fallback: string,
+    opts?: Record<string, unknown>
+) => string;
+
+const formatAgo = (ts: number, t: TFn): string => {
     const mins = Math.max(Math.floor((Date.now() - ts) / 60000), 0);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t('aiAssist.timeJustNow', 'just now');
+    if (mins < 60)
+        return t('aiAssist.timeMinutesAgo', '{{count}}m ago', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (hours < 24)
+        return t('aiAssist.timeHoursAgo', '{{count}}h ago', { count: hours });
+    return t('aiAssist.timeDaysAgo', '{{count}}d ago', {
+        count: Math.floor(hours / 24)
+    });
 };
 
 const buildAnalysisPrompt = (student: PortfolioStudent): string => {
@@ -71,11 +80,18 @@ const buildAnalysisPrompt = (student: PortfolioStudent): string => {
     );
 };
 
-const resolveStatus = (event: AIAssistStreamProgressEvent): string | null => {
-    if (event.type === 'thinking') return 'Thinking...';
+const resolveStatus = (
+    event: AIAssistStreamProgressEvent,
+    t: TFn
+): string | null => {
+    if (event.type === 'thinking')
+        return t('aiAssist.statusThinking', 'Thinking...');
     if (event.type === 'tool_start')
-        return `Fetching: ${event.toolName ?? 'data'}...`;
-    if (event.type === 'tool_done') return 'Thinking...';
+        return t('aiAssist.statusFetching', 'Fetching: {{toolName}}...', {
+            toolName: event.toolName ?? 'data'
+        });
+    if (event.type === 'tool_done')
+        return t('aiAssist.statusThinking', 'Thinking...');
     if (event.type === 'status' && event.phase === 'completed') return null;
     return null;
 };
@@ -88,8 +104,11 @@ export const StudentAnalysisView = ({
     onConversationCreated,
     onCacheAnalysis
 }: StudentAnalysisViewProps): JSX.Element => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const preferredLanguage = i18n.language || 'zh-TW';
+    const isZh = i18n.language?.startsWith('zh');
+    const displayName =
+        isZh && student.chineseName ? student.chineseName : student.name;
     const [analysisText, setAnalysisText] = useState(cached?.text ?? '');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -130,14 +149,19 @@ export const StudentAnalysisView = ({
                 },
                 {
                     onProgress: (event) => {
-                        const status = resolveStatus(event);
+                        const status = resolveStatus(event, t as TFn);
                         if (status !== undefined) setStreamStatus(status);
                     },
                     onToken: (text) => {
                         setAnalysisText((prev) => prev + text);
                     },
                     onError: () => {
-                        setError('Analysis failed. Please try again.');
+                        setError(
+                            t(
+                                'aiAssist.analysisError',
+                                'Analysis failed. Please try again.'
+                            )
+                        );
                         setIsAnalyzing(false);
                     }
                 }
@@ -155,7 +179,12 @@ export const StudentAnalysisView = ({
             onConversationCreated?.(conversation.id, conversation);
             onCacheAnalysis?.(finalText, conversation.id);
         } catch {
-            setError('Analysis failed. Please try again.');
+            setError(
+                t(
+                    'aiAssist.analysisError',
+                    'Analysis failed. Please try again.'
+                )
+            );
         } finally {
             setIsAnalyzing(false);
             setStreamStatus(null);
@@ -164,6 +193,7 @@ export const StudentAnalysisView = ({
         student,
         analysisText,
         preferredLanguage,
+        t,
         onConversationCreated,
         onCacheAnalysis
     ]);
@@ -223,7 +253,9 @@ export const StudentAnalysisView = ({
                         setStreamingFollowUp((prev) => prev + chunk);
                     },
                     onError: () => {
-                        setError('Follow-up failed.');
+                        setError(
+                            t('aiAssist.followUpError', 'Follow-up failed.')
+                        );
                     }
                 }
             );
@@ -233,12 +265,18 @@ export const StudentAnalysisView = ({
                 setMessages((prev) => [...prev, assistantMessage]);
             }
         } catch {
-            setError('Follow-up failed.');
+            setError(t('aiAssist.followUpError', 'Follow-up failed.'));
         } finally {
             setIsSendingFollowUp(false);
             setStreamingFollowUp('');
         }
-    }, [followUpInput, isSendingFollowUp, conversationId, preferredLanguage]);
+    }, [
+        followUpInput,
+        isSendingFollowUp,
+        conversationId,
+        preferredLanguage,
+        t
+    ]);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
         if (e.key === 'Enter' && !e.altKey && !e.shiftKey) {
@@ -273,7 +311,7 @@ export const StudentAnalysisView = ({
                     <ArrowBackIcon fontSize="small" />
                 </IconButton>
                 <Typography fontWeight={700} variant="subtitle1">
-                    {student.name}
+                    {displayName}
                 </Typography>
                 {student.signals.slice(0, 2).map((s, i) => (
                     <Chip
@@ -299,7 +337,7 @@ export const StudentAnalysisView = ({
                         sx={{ mr: 0.5 }}
                         variant="outlined"
                     >
-                        Chat / History
+                        {t('aiAssist.chatHistory', 'Chat / History')}
                     </Button>
                 )}
                 <Button
@@ -309,7 +347,7 @@ export const StudentAnalysisView = ({
                     target="_blank"
                     variant="outlined"
                 >
-                    Profile
+                    {t('aiAssist.profileTab', 'Profile')}
                 </Button>
             </Stack>
 
@@ -335,14 +373,17 @@ export const StudentAnalysisView = ({
                                         fontWeight={700}
                                         variant="subtitle2"
                                     >
-                                        AI Analysis
+                                        {t(
+                                            'aiAssist.analysisHeading',
+                                            'AI Analysis'
+                                        )}
                                     </Typography>
                                     {!isAnalyzing && analyzedAt && (
                                         <Typography
                                             color="text.disabled"
                                             variant="caption"
                                         >
-                                            analyzed {formatAgo(analyzedAt)}
+                                            {formatAgo(analyzedAt, t as TFn)}
                                         </Typography>
                                     )}
                                     {!isAnalyzing && analysisText && (
@@ -354,7 +395,10 @@ export const StudentAnalysisView = ({
                                             }
                                             sx={{ minWidth: 0 }}
                                         >
-                                            Re-analyze
+                                            {t(
+                                                'aiAssist.reanalyze',
+                                                'Re-analyze'
+                                            )}
                                         </Button>
                                     )}
                                 </Stack>
@@ -389,7 +433,7 @@ export const StudentAnalysisView = ({
                                     color="text.secondary"
                                     variant="caption"
                                 >
-                                    Follow-up
+                                    {t('aiAssist.followUp', 'Follow-up')}
                                 </Typography>
                             </Divider>
                             {messages.map((msg) => (
@@ -411,8 +455,11 @@ export const StudentAnalysisView = ({
                                         variant="caption"
                                     >
                                         {msg.role === 'user'
-                                            ? 'You'
-                                            : 'Assistant'}
+                                            ? t('aiAssist.roleYou', 'You')
+                                            : t(
+                                                  'aiAssist.roleAssistant',
+                                                  'Assistant'
+                                              )}
                                     </Typography>
                                     <AnalysisDisplay
                                         isStreaming={false}
@@ -428,7 +475,10 @@ export const StudentAnalysisView = ({
                                         gutterBottom
                                         variant="caption"
                                     >
-                                        Assistant
+                                        {t(
+                                            'aiAssist.roleAssistant',
+                                            'Assistant'
+                                        )}
                                     </Typography>
                                     {streamingFollowUp ? (
                                         <AnalysisDisplay
@@ -446,7 +496,10 @@ export const StudentAnalysisView = ({
                                                 color="text.secondary"
                                                 variant="caption"
                                             >
-                                                Thinking...
+                                                {t(
+                                                    'aiAssist.statusThinking',
+                                                    'Thinking...'
+                                                )}
                                             </Typography>
                                         </Stack>
                                     )}
@@ -497,7 +550,10 @@ export const StudentAnalysisView = ({
                         multiline
                         onChange={(e) => setFollowUpInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ask a follow-up question about this student..."
+                        placeholder={t(
+                            'aiAssist.followUpPlaceholder',
+                            'Ask a follow-up question about this student...'
+                        )}
                         size="small"
                         value={followUpInput}
                     />

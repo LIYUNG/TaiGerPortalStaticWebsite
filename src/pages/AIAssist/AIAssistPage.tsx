@@ -77,8 +77,6 @@ type WorkbenchMode = 'portfolio' | 'student' | 'chat';
 interface ComposerState {
     mentionedStudent: AIAssistMentionedStudent | null;
 }
-const aiAssistGenericErrorMessage =
-    'AI Assist is temporarily unavailable. Please try again.';
 
 const defaultInput = '';
 const defaultComposerState: ComposerState = {
@@ -547,7 +545,10 @@ const AIAssistPage = (): JSX.Element => {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Failed to load AI Assist conversation'
+                        : translate(
+                              'aiAssist.errorLoadConversation',
+                              'Failed to load AI Assist conversation'
+                          )
                 );
             } finally {
                 setIsLoadingConversation(false);
@@ -575,7 +576,10 @@ const AIAssistPage = (): JSX.Element => {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Failed to load AI Assist conversations'
+                        : translate(
+                              'aiAssist.errorLoadConversations',
+                              'Failed to load AI Assist conversations'
+                          )
                 );
             } finally {
                 setIsLoadingConversations(false);
@@ -673,7 +677,10 @@ const AIAssistPage = (): JSX.Element => {
             setError(
                 err instanceof Error
                     ? err.message
-                    : 'Failed to rename AI Assist conversation'
+                    : translate(
+                          'aiAssist.errorRenameConversation',
+                          'Failed to rename AI Assist conversation'
+                      )
             );
         } finally {
             setIsRenaming(false);
@@ -798,7 +805,12 @@ const AIAssistPage = (): JSX.Element => {
             const onError = (message: string): void => {
                 void message;
                 hasStreamError = true;
-                setError(aiAssistGenericErrorMessage);
+                setError(
+                    translate(
+                        'aiAssist.errorGeneric',
+                        'AI Assist is temporarily unavailable. Please try again.'
+                    )
+                );
                 setStreamedAssistantContent('');
                 setStreamedAssistantReferences({});
                 setStreamStatusWithMinDuration(null, true);
@@ -901,7 +913,12 @@ const AIAssistPage = (): JSX.Element => {
         } catch (err) {
             void err;
             hasStreamError = true;
-            setError(aiAssistGenericErrorMessage);
+            setError(
+                translate(
+                    'aiAssist.errorGeneric',
+                    'AI Assist is temporarily unavailable. Please try again.'
+                )
+            );
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
             setStreamStatusWithMinDuration(null, true);
@@ -1039,7 +1056,10 @@ const AIAssistPage = (): JSX.Element => {
             setError(
                 err instanceof Error
                     ? err.message
-                    : 'Failed to archive AI Assist conversation'
+                    : translate(
+                          'aiAssist.errorArchiveConversation',
+                          'Failed to archive AI Assist conversation'
+                      )
             );
         } finally {
             setDeletingConversationId(null);
@@ -1499,8 +1519,14 @@ const AIAssistPage = (): JSX.Element => {
                                                     >
                                                         {message.role ===
                                                         'assistant'
-                                                            ? 'Assistant'
-                                                            : 'You'}
+                                                            ? translate(
+                                                                  'aiAssist.roleAssistant',
+                                                                  'Assistant'
+                                                              )
+                                                            : translate(
+                                                                  'aiAssist.roleYou',
+                                                                  'You'
+                                                              )}
                                                     </Typography>
                                                     <MessageContent
                                                         message={message}
@@ -1604,7 +1630,10 @@ const AIAssistPage = (): JSX.Element => {
                                             gutterBottom
                                             variant="caption"
                                         >
-                                            Assistant
+                                            {translate(
+                                                'aiAssist.roleAssistant',
+                                                'Assistant'
+                                            )}
                                         </Typography>
                                         <MessageContent
                                             message={{
@@ -1897,7 +1926,10 @@ const AIAssistPage = (): JSX.Element => {
                                                                 isRenaming
                                                             }
                                                             fullWidth
-                                                            label="Conversation title"
+                                                            label={translate(
+                                                                'aiAssist.conversationTitle',
+                                                                'Conversation title'
+                                                            )}
                                                             onBlur={() => {
                                                                 void saveRename();
                                                             }}
@@ -1916,7 +1948,10 @@ const AIAssistPage = (): JSX.Element => {
                                                             value={draftTitle}
                                                         />
                                                         <IconButton
-                                                            aria-label="Cancel rename"
+                                                            aria-label={translate(
+                                                                'aiAssist.cancelRename',
+                                                                'Cancel rename'
+                                                            )}
                                                             disabled={
                                                                 isRenaming
                                                             }
@@ -1969,7 +2004,13 @@ const AIAssistPage = (): JSX.Element => {
                                                             {conversation.title}
                                                         </Button>
                                                         <IconButton
-                                                            aria-label={`Rename ${conversation.title}`}
+                                                            aria-label={translate(
+                                                                'aiAssist.renameConversation',
+                                                                'Rename {{title}}',
+                                                                {
+                                                                    title: conversation.title
+                                                                }
+                                                            )}
                                                             disabled={
                                                                 isLoadingConversation ||
                                                                 isRenaming ||
@@ -1985,7 +2026,13 @@ const AIAssistPage = (): JSX.Element => {
                                                             <EditOutlinedIcon fontSize="small" />
                                                         </IconButton>
                                                         <IconButton
-                                                            aria-label={`Delete ${conversation.title}`}
+                                                            aria-label={translate(
+                                                                'aiAssist.deleteConversation',
+                                                                'Delete {{title}}',
+                                                                {
+                                                                    title: conversation.title
+                                                                }
+                                                            )}
                                                             disabled={
                                                                 isLoadingConversation ||
                                                                 isDeleting

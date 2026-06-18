@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
+import { useTranslation } from 'react-i18next';
 import { getAIAssistOverview, type AIAssistOverviewItem } from '@/api';
 import {
     StudentHealthCard,
@@ -32,8 +33,15 @@ const HEALTH_FROM_URGENCY: Record<string, string> = {
     medium: 'Medium Risk'
 };
 
+type TFn = (
+    key: string,
+    fallback: string,
+    opts?: Record<string, unknown>
+) => string;
+
 const buildPortfolioStudents = (
-    buckets: Record<string, { count: number; items: AIAssistOverviewItem[] }>
+    buckets: Record<string, { count: number; items: AIAssistOverviewItem[] }>,
+    t: TFn
 ): PortfolioStudent[] => {
     const byId = new Map<string, PortfolioStudent>();
 
@@ -61,37 +69,47 @@ const buildPortfolioStudents = (
         const programLabel = item.program
             ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
             : '';
+        const base = t(
+            'aiAssist.signalDeadline',
+            'Deadline in {{count}} days',
+            { count: days }
+        );
         addSignal(item, {
             type: 'deadline',
             urgency,
-            label: `Deadline in ${days} day${days === 1 ? '' : 's'}${programLabel ? ` · ${programLabel}` : ''}`
+            label: programLabel ? `${base} · ${programLabel}` : base
         });
     });
 
     (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
         const stalled = item.stalledDays ?? null;
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
+        const base =
+            stalled !== null
+                ? t(
+                      'aiAssist.signalThreadStalled',
+                      'Thread stalled {{count}}d',
+                      { count: stalled }
+                  )
+                : t('aiAssist.signalThreadWaiting', 'Thread waiting on team');
         addSignal(item, {
             type: 'thread_waiting',
-            // A thread the team has sat on for over a week is a real bottleneck.
             urgency: stalled !== null && stalled >= 7 ? 'high' : 'medium',
-            label:
-                stalled !== null
-                    ? `Thread stalled ${stalled}d${fileLabel}`
-                    : `Thread waiting on team${fileLabel}`
+            label: `${base}${fileLabel}`
         });
     });
 
     (buckets.communicationGaps?.items ?? []).forEach((item) => {
         const days = item.lastContactDays ?? null;
         addSignal(item, {
-            // No contact for 6+ weeks is a strong drop-off signal → escalate.
             urgency: days === null || days >= 42 ? 'critical' : 'high',
             type: 'comm_gap',
             label:
                 days === null
-                    ? 'No messages logged yet'
-                    : `No reply in ${days}d`
+                    ? t('aiAssist.signalNoMessages', 'No messages logged yet')
+                    : t('aiAssist.signalNoReply', 'No reply in {{count}}d', {
+                          count: days
+                      })
         });
     });
 
@@ -99,19 +117,24 @@ const buildPortfolioStudents = (
         const programLabel = item.program
             ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
             : '';
+        const base = t(
+            'aiAssist.signalAdmitted',
+            'Admitted — enrolment not confirmed'
+        );
         addSignal(item, {
             type: 'admitted_unconfirmed',
             urgency: 'medium',
-            label: `Admitted — enrolment not confirmed${programLabel ? ` · ${programLabel}` : ''}`
+            label: programLabel ? `${base} · ${programLabel}` : base
         });
     });
 
     (buckets.missingBaseDocuments?.items ?? []).forEach((item) => {
         const docs = (item.missingDocuments ?? []).slice(0, 2).join(', ');
+        const base = t('aiAssist.signalMissingDocs', 'Missing docs');
         addSignal(item, {
             type: 'missing_docs',
             urgency: 'medium',
-            label: `Missing docs${docs ? `: ${docs}` : ''}`
+            label: docs ? `${base}: ${docs}` : base
         });
     });
 
@@ -139,6 +162,7 @@ export const PortfolioView = ({
     onChatPrompt,
     onOpenChat
 }: PortfolioViewProps): JSX.Element => {
+    const { t } = useTranslation();
     const [students, setStudents] = useState<PortfolioStudent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
@@ -149,7 +173,9 @@ export const PortfolioView = ({
         getAIAssistOverview()
             .then((res) => {
                 if (!active) return;
-                setStudents(buildPortfolioStudents(res?.data?.buckets ?? {}));
+                setStudents(
+                    buildPortfolioStudents(res?.data?.buckets ?? {}, t as TFn)
+                );
                 setHasError(false);
             })
             .catch(() => {
@@ -178,7 +204,10 @@ export const PortfolioView = ({
                     justifyContent="space-between"
                 >
                     <Typography fontWeight={700} variant="h6">
-                        Portfolio — needs attention
+                        {t(
+                            'aiAssist.portfolioHeading',
+                            'Portfolio — needs attention'
+                        )}
                     </Typography>
                     <Button
                         onClick={onOpenChat}
@@ -186,12 +215,14 @@ export const PortfolioView = ({
                         startIcon={<ChatIcon fontSize="small" />}
                         variant="outlined"
                     >
-                        Chat / History
+                        {t('aiAssist.chatHistory', 'Chat / History')}
                     </Button>
                 </Stack>
                 <Typography color="text.secondary" variant="body2">
-                    Students with active risks, upcoming deadlines, or stalled
-                    threads. Click any card to run a deep-dive analysis.
+                    {t(
+                        'aiAssist.portfolioSubtitle',
+                        'Students with active risks, upcoming deadlines, or stalled threads. Click any card to run a deep-dive analysis.'
+                    )}
                 </Typography>
                 <TextField
                     fullWidth
@@ -218,7 +249,10 @@ export const PortfolioView = ({
                             handleChatSubmit();
                         }
                     }}
-                    placeholder="Ask about your portfolio... (e.g. What needs my attention today?)"
+                    placeholder={t(
+                        'aiAssist.portfolioChatPlaceholder',
+                        'Ask about your portfolio... (e.g. What needs my attention today?)'
+                    )}
                     size="small"
                     value={chatInput}
                     sx={{ mt: 1 }}
@@ -234,12 +268,15 @@ export const PortfolioView = ({
                 >
                     <CircularProgress size={24} />
                     <Typography color="text.secondary" variant="body2">
-                        Loading portfolio...
+                        {t('aiAssist.portfolioLoading', 'Loading portfolio...')}
                     </Typography>
                 </Stack>
             ) : hasError ? (
                 <Alert severity="info" variant="outlined">
-                    Could not load portfolio data.
+                    {t(
+                        'aiAssist.portfolioError',
+                        'Could not load portfolio data.'
+                    )}
                 </Alert>
             ) : students.length === 0 ? (
                 <Stack
@@ -253,11 +290,16 @@ export const PortfolioView = ({
                         fontWeight={600}
                         variant="body1"
                     >
-                        ✓ All students on track
+                        {t(
+                            'aiAssist.portfolioAllOnTrack',
+                            '✓ All students on track'
+                        )}
                     </Typography>
                     <Typography color="text.secondary" variant="body2">
-                        No urgent items detected. Use the search above to ask
-                        about specific students.
+                        {t(
+                            'aiAssist.portfolioNoUrgent',
+                            'No urgent items detected. Use the search above to ask about specific students.'
+                        )}
                     </Typography>
                 </Stack>
             ) : (
