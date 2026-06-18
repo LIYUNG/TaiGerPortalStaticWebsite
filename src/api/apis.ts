@@ -1262,6 +1262,55 @@ export const putThreadFavorite = (documentsthreadId: string) =>
         `/api/document-threads/${documentsthreadId}/favorite`
     );
 
+export interface ForwardStudentDocumentsPayload {
+    recipientIds: string[];
+    ccIds?: string[];
+    bccIds?: string[];
+    threadIds?: string[];
+    baseDocumentNames?: string[];
+    subject?: string;
+    message?: string;
+    // Application/program context shown in the email body.
+    program?: {
+        school?: string;
+        program_name?: string;
+        degree?: string;
+        semester?: string;
+    };
+    // Acknowledge that documents with no uploaded file should be omitted.
+    confirmMissing?: boolean;
+}
+
+export interface ForwardStudentDocumentsResult {
+    // 'missing_documents' => not sent; `missing` lists documents with no file.
+    // 'sent' => email sent; `skipped` lists omitted (acknowledged) documents.
+    status: 'sent' | 'missing_documents';
+    missing?: string[];
+    skipped?: string[];
+    sentTo?: number;
+    ccCount?: number;
+    bccCount?: number;
+    attachmentCount?: number;
+}
+
+export interface ForwardStudentDocumentsResponse {
+    success: boolean;
+    data: ForwardStudentDocumentsResult;
+}
+
+// Forward a student's base + CV/ML/RL documents by email. Recipients are sent
+// as user IDs (never raw emails); the backend resolves + authorizes them.
+// Uses `postData` so a 4xx (e.g. invalid recipients, oversize) rejects rather
+// than resolving as a false success.
+export const forwardStudentDocuments = (
+    studentId: string,
+    payload: ForwardStudentDocumentsPayload
+) =>
+    postData<ForwardStudentDocumentsResponse>(
+        `/api/document-threads/${studentId}/forward-documents`,
+        payload
+    );
+
 // Portal Informations APIs
 export const getPortalCredentials = (student_id: string) =>
     getData<GetPortalCredentialsResponse>(
@@ -1539,6 +1588,61 @@ export const updateAMessageInCommunicationThreadV2 = ({
     putData<UpdateCommunicationMessageResponse>(
         `/api/communications/${communication_id}/${communication_messageId}`,
         { message }
+    );
+
+// ── Per-user message drafts (saved-but-unsent message per student thread) ──
+export interface CommunicationDraftFile {
+    name: string;
+    path: string;
+}
+export interface CommunicationDraft {
+    _id: string;
+    user_id: string;
+    student_id: string;
+    message: string;
+    files?: CommunicationDraftFile[];
+    updatedAt?: string;
+}
+export interface CommunicationDraftResponse {
+    success: boolean;
+    data: CommunicationDraft | null;
+}
+export const getCommunicationDraft = (studentId: StudentId) =>
+    getData<CommunicationDraftResponse>(
+        `/api/communications/${studentId}/draft`
+    );
+export const saveCommunicationDraft = (studentId: StudentId, message: string) =>
+    putData<CommunicationDraftResponse>(
+        `/api/communications/${studentId}/draft`,
+        { message }
+    );
+export const deleteCommunicationDraft = (studentId: StudentId) =>
+    deleteData<{ success: boolean }>(`/api/communications/${studentId}/draft`);
+
+// Attach: upload files (FormData, field 'files') to the draft area. The backend
+// stores them in S3 and records refs on the draft.
+export interface UploadCommunicationDraftFilesResponse {
+    success: boolean;
+    data: { files: CommunicationDraftFile[]; draft: CommunicationDraft };
+}
+export const uploadCommunicationDraftFiles = (
+    studentId: StudentId,
+    formData: FormData
+) =>
+    request.post<UploadCommunicationDraftFilesResponse>(
+        `/api/communications/${studentId}/draft/files`,
+        formData
+    );
+
+// Unattach: delete a staged draft file (by its S3 key) — removes it from S3 and
+// the draft.
+export const deleteCommunicationDraftFile = (
+    studentId: StudentId,
+    path: string
+) =>
+    request.delete<{ success: boolean; data: CommunicationDraft | null }>(
+        `/api/communications/${studentId}/draft/files`,
+        { data: { path } }
     );
 
 export const deleteAMessageInCommunicationThreadV2 = ({

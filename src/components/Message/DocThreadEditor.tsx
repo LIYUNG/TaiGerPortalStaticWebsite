@@ -126,14 +126,19 @@ const DocThreadEditor = ({
                 px: 1.5,
                 py: 1,
                 transition: 'border-color 0.15s',
-                '&:focus-within': { borderColor: 'primary.main' }
+                '&:focus-within': { borderColor: 'primary.main' },
+                // Dynamic height: grows with text while focused (up to the
+                // larger cap), shrinks back to a compact height when focus leaves.
+                '&:focus-within .compose-scroll': { maxHeight: 380 }
             }}
         >
             {/* Editor: capped height with internal scroll so it stays compact. */}
             <Box
+                className="compose-scroll"
                 sx={{
-                    maxHeight: 210,
+                    maxHeight: 96,
                     overflowY: 'auto',
+                    transition: 'max-height 0.2s ease',
                     // EditorJS reserves wide right padding for its inline
                     // toolbar; trim it so the scrollbar sits flush.
                     '& .codex-editor__redactor': { pb: '0 !important' },
