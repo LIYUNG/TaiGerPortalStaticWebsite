@@ -1202,6 +1202,55 @@ export const putThreadFavorite = (documentsthreadId: string) =>
         `/api/document-threads/${documentsthreadId}/favorite`
     );
 
+export interface ForwardStudentDocumentsPayload {
+    recipientIds: string[];
+    ccIds?: string[];
+    bccIds?: string[];
+    threadIds?: string[];
+    baseDocumentNames?: string[];
+    subject?: string;
+    message?: string;
+    // Application/program context shown in the email body.
+    program?: {
+        school?: string;
+        program_name?: string;
+        degree?: string;
+        semester?: string;
+    };
+    // Acknowledge that documents with no uploaded file should be omitted.
+    confirmMissing?: boolean;
+}
+
+export interface ForwardStudentDocumentsResult {
+    // 'missing_documents' => not sent; `missing` lists documents with no file.
+    // 'sent' => email sent; `skipped` lists omitted (acknowledged) documents.
+    status: 'sent' | 'missing_documents';
+    missing?: string[];
+    skipped?: string[];
+    sentTo?: number;
+    ccCount?: number;
+    bccCount?: number;
+    attachmentCount?: number;
+}
+
+export interface ForwardStudentDocumentsResponse {
+    success: boolean;
+    data: ForwardStudentDocumentsResult;
+}
+
+// Forward a student's base + CV/ML/RL documents by email. Recipients are sent
+// as user IDs (never raw emails); the backend resolves + authorizes them.
+// Uses `postData` so a 4xx (e.g. invalid recipients, oversize) rejects rather
+// than resolving as a false success.
+export const forwardStudentDocuments = (
+    studentId: string,
+    payload: ForwardStudentDocumentsPayload
+) =>
+    postData<ForwardStudentDocumentsResponse>(
+        `/api/document-threads/${studentId}/forward-documents`,
+        payload
+    );
+
 // Portal Informations APIs
 export const getPortalCredentials = (student_id: string) =>
     getData<GetPortalCredentialsResponse>(

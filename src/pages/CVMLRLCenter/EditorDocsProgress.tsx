@@ -18,6 +18,11 @@ import {
 import Loading from '@components/Loading/Loading';
 import i18next from 'i18next';
 import ApplicationAccordionList from './components/ApplicationAccordionList';
+import ForwardDocumentsDialog from '../StudentDatabase/ForwardDocumentsDialog';
+import type {
+    ForwardApplication,
+    ForwardDocumentsStudent
+} from '../StudentDatabase/ForwardDocumentsDialog';
 import DeleteFileThreadDialog from './components/DeleteFileThreadDialog';
 import SetAsFinalFileDialog from './components/SetAsFinalFileDialog';
 import RequirementsModal from './components/RequirementsModal';
@@ -94,6 +99,9 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
             res_modal_message: '',
             res_modal_status: 0
         });
+
+    const [forwardApplication, setForwardApplication] =
+        useState<Application | null>(null);
 
     useEffect(() => {
         const student = props.student;
@@ -681,7 +689,9 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
         initGeneralFileThread,
         initProgramSpecificFileThread,
         onDeleteFileThread,
-        openRequirements_ModalWindow
+        openRequirements_ModalWindow,
+        onForwardApplication: (application: Application) =>
+            setForwardApplication(application)
     };
 
     return (
@@ -716,6 +726,19 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                 onStudentUpdate={props.onStudentUpdate}
                 {...sharedAccordionProps}
             />
+
+            {forwardApplication && (
+                <ForwardDocumentsDialog
+                    application={
+                        forwardApplication as unknown as ForwardApplication
+                    }
+                    onClose={() => setForwardApplication(null)}
+                    open
+                    student={
+                        editorDocsProgressState.student as unknown as ForwardDocumentsStudent
+                    }
+                />
+            )}
 
             <DeleteFileThreadDialog
                 deleteField={editorDocsProgressState.delete_field}

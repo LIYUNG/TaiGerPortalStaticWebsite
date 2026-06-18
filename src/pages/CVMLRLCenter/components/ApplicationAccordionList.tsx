@@ -3,9 +3,12 @@ import {
     Accordion,
     AccordionDetails,
     Alert,
+    Box,
+    Button,
     Divider,
     Typography
 } from '@mui/material';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import type { Application } from '@/api/types';
 import { calculateApplicationLockStatus } from '../../Utils/util_functions';
 import ManualFiles from '../ManualFiles';
@@ -47,6 +50,7 @@ export interface ApplicationAccordionListProps {
         docName: string
     ) => void;
     openRequirements_ModalWindow: (requirements: string) => void;
+    onForwardApplication?: (application: Application) => void;
 }
 
 const ApplicationAccordionList = ({
@@ -58,7 +62,8 @@ const ApplicationAccordionList = ({
     initGeneralFileThread,
     initProgramSpecificFileThread,
     onDeleteFileThread,
-    openRequirements_ModalWindow
+    openRequirements_ModalWindow,
+    onForwardApplication
 }: ApplicationAccordionListProps) => (
     <>
         {applications.map((application, i) => {
@@ -73,6 +78,29 @@ const ApplicationAccordionList = ({
                             student={student}
                         />
                         <AccordionDetails>
+                            {onForwardApplication && (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        mb: 1
+                                    }}
+                                >
+                                    <Button
+                                        color="primary"
+                                        onClick={() =>
+                                            onForwardApplication(application)
+                                        }
+                                        size="small"
+                                        startIcon={<ForwardToInboxIcon />}
+                                        variant="outlined"
+                                    >
+                                        {i18next.t('Forward documents', {
+                                            ns: 'common'
+                                        })}
+                                    </Button>
+                                </Box>
+                            )}
                             {isLocked && (
                                 <Alert severity="warning" sx={{ mb: 2 }}>
                                     <Typography variant="body2">
