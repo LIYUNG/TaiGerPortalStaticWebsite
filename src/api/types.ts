@@ -408,6 +408,7 @@ export interface AIAssistAssistContext {
     mentionedStudent?: AIAssistMentionedStudent;
     requestedSkill?: AIAssistQuickSkill;
     unknownSkillText?: string;
+    analysisMode?: boolean;
 }
 
 export interface AIAssistSkillTrace {

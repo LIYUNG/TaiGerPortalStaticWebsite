@@ -51,6 +51,11 @@ import type {
     AIAssistSkillTrace,
     AIAssistToolCall
 } from '@/api/types';
+import { PortfolioView } from './PortfolioView';
+import { StudentAnalysisView } from './StudentAnalysisView';
+import type { PortfolioStudent } from './StudentHealthCard';
+
+type WorkbenchMode = 'portfolio' | 'student' | 'chat';
 interface ComposerState {
     mentionedStudent: AIAssistMentionedStudent | null;
 }
@@ -705,6 +710,10 @@ const AIAssistPage = (): JSX.Element => {
         },
         [t]
     );
+    const [workbenchMode, setWorkbenchMode] = useState<WorkbenchMode>('portfolio');
+    const [analysisStudent, setAnalysisStudent] =
+        useState<PortfolioStudent | null>(null);
+
     const skipInitialAutoloadRef = useRef(false);
     const composerInputRef = useRef<
         HTMLTextAreaElement | HTMLInputElement | null
@@ -1251,6 +1260,7 @@ const AIAssistPage = (): JSX.Element => {
         setError(null);
         clearActiveWorkspace();
         setInput(prompt);
+        setWorkbenchMode('chat');
     };
 
     const handleMentionSuggestionClick = (
@@ -1731,6 +1741,54 @@ const AIAssistPage = (): JSX.Element => {
         buildSubmissionMessage(input.trim(), composerAssistContext)
     );
 
+    if (workbenchMode === 'portfolio') {
+        return (
+            <Box
+                sx={{
+                    boxSizing: 'border-box',
+                    height: { xs: 'calc(100vh - 112px)', md: 'calc(100vh - 112px)' },
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    width: '100%'
+                }}
+            >
+                <PortfolioView
+                    onAnalyzeStudent={(student) => {
+                        setAnalysisStudent(student);
+                        setWorkbenchMode('student');
+                    }}
+                    onChatPrompt={(prompt) => {
+                        handleSeedPrompt(prompt);
+                    }}
+                    onOpenChat={() => setWorkbenchMode('chat')}
+                />
+            </Box>
+        );
+    }
+
+    if (workbenchMode === 'student' && analysisStudent) {
+        return (
+            <Box
+                sx={{
+                    boxSizing: 'border-box',
+                    height: { xs: 'calc(100vh - 112px)', md: 'calc(100vh - 112px)' },
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    width: '100%'
+                }}
+            >
+                <StudentAnalysisView
+                    student={analysisStudent}
+                    onBack={() => setWorkbenchMode('portfolio')}
+                    onOpenChat={() => setWorkbenchMode('chat')}
+                    onConversationCreated={(convId, conversation) => {
+                        addConversationToTop(conversation);
+                    }}
+                />
+            </Box>
+        );
+    }
+
     return (
         <Box
             data-testid="ai-assist-page"
@@ -1778,11 +1836,11 @@ const AIAssistPage = (): JSX.Element => {
                     </Typography>
                     <Box sx={{ flexGrow: 1 }} />
                     <Button
-                        onClick={clearActiveWorkspace}
+                        onClick={() => setWorkbenchMode('portfolio')}
                         size="small"
                         variant="outlined"
                     >
-                        {translate('aiAssist.overviewButton', 'Overview')}
+                        {translate('aiAssist.overviewButton', 'Portfolio')}
                     </Button>
                 </Paper>
 
