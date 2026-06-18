@@ -1,6 +1,6 @@
 import {
     fireEvent,
-    render,
+    render as rtlRender,
     screen,
     waitFor,
     within
@@ -13,7 +13,9 @@ const apiMocks = vi.hoisted(() => ({
     deleteAIAssistConversation: vi.fn(),
     getAIAssistConversation: vi.fn(),
     getAIAssistConversations: vi.fn(),
+    getAIAssistLatestAnalysis: vi.fn(),
     getAIAssistMyStudents: vi.fn(),
+    getAIAssistOverview: vi.fn(),
     getAIAssistRecentStudents: vi.fn(),
     postAIAssistFirstMessage: vi.fn(),
     postAIAssistMessage: vi.fn(),
@@ -26,6 +28,20 @@ const apiMocks = vi.hoisted(() => ({
 vi.mock('@/api', () => apiMocks);
 
 import AIAssistPage from './AIAssistPage';
+
+const render = (
+    ui: Parameters<typeof rtlRender>[0],
+    options?: Parameters<typeof rtlRender>[1]
+): ReturnType<typeof rtlRender> => {
+    const result = rtlRender(ui, options);
+    const chatHistoryButton = screen.queryByRole('button', {
+        name: 'Chat / History'
+    });
+    if (chatHistoryButton) {
+        fireEvent.click(chatHistoryButton);
+    }
+    return result;
+};
 
 const conversations = [
     {
@@ -113,6 +129,14 @@ describe('AIAssistPage', () => {
                     data: conversationDetails[conversationId]
                 })
         );
+        apiMocks.getAIAssistLatestAnalysis.mockResolvedValue({
+            success: true,
+            data: null
+        });
+        apiMocks.getAIAssistOverview.mockResolvedValue({
+            success: true,
+            data: { buckets: {} }
+        });
         apiMocks.getAIAssistRecentStudents.mockResolvedValue({
             success: true,
             data: pickerStudents

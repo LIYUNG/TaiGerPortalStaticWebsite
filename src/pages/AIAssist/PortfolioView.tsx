@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
-import { getAIAssistOverview, AIAssistOverviewItem } from '../../api/apis';
+import { getAIAssistOverview, type AIAssistOverviewItem } from '@/api';
 import {
     StudentHealthCard,
     PortfolioStudent,
