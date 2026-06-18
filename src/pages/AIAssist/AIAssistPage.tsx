@@ -12,7 +12,6 @@ import {
     Button,
     Chip,
     CircularProgress,
-    Divider,
     IconButton,
     InputAdornment,
     List,
@@ -28,21 +27,18 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useTranslation } from 'react-i18next';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 
 import {
     deleteAIAssistConversation,
     getAIAssistConversation,
     getAIAssistConversations,
-    getAIAssistMyStudents,
     getAIAssistRecentStudents,
+    getAIAssistMyStudents,
     streamAIAssistFirstMessage,
     streamAIAssistMessage,
     searchAIAssistStudents,
     updateAIAssistConversation
 } from '@/api';
-import DEMO from '@/store/constant';
 import type {
     AIAssistAssistContext,
     AIAssistConversation,
@@ -52,889 +48,50 @@ import type {
     AIAssistPickerStudent,
     AIAssistQuickSkill,
     AIAssistStreamProgressEvent,
-    AIAssistSkillTrace,
     AIAssistToolCall
 } from '@/api/types';
+import { PortfolioView } from './PortfolioView';
+import { StudentAnalysisView } from './StudentAnalysisView';
+import type { PortfolioStudent } from './StudentHealthCard';
+import { MessageContent, SourcesSummary } from './components/MessageContent';
+import { StudentPicker } from './components/StudentPicker';
+import { SkillBar } from './components/SkillBar';
+import {
+    getNextConversation,
+    KNOWN_SKILLS,
+    mergeTrace,
+    resolveCurrentProgressStatus,
+    withResponseSkillTrace
+} from './utils/conversationUtils';
+import {
+    createMentionedStudent,
+    escapeRegExp,
+    getStudentChineseName,
+    getTokenQueryAtCursor,
+    matchesStudentMentionQuery,
+    renderMentionHighlightedText,
+    replaceTokenAtCursor
+} from './utils/mentionUtils';
 
-type DraftMode = 'blank' | 'studentPicker' | 'studentReady';
-
-interface DraftConversationState {
-    mode: DraftMode;
-    student: AIAssistPickerStudent | null;
-}
-
+type WorkbenchMode = 'portfolio' | 'student' | 'chat';
 interface ComposerState {
     mentionedStudent: AIAssistMentionedStudent | null;
-    requestedSkill: AIAssistQuickSkill | null;
-    unknownSkillText: string | null;
 }
-
-interface QuickSkillOption {
-    id: AIAssistQuickSkill;
-    labelKey: string;
-}
-
-const quickSkills: QuickSkillOption[] = [
-    {
-        id: 'summarize_student',
-        labelKey: 'aiAssist.quickSkill.summarizeStudent'
-    },
-    {
-        id: 'identify_risk',
-        labelKey: 'aiAssist.quickSkill.identifyRisk'
-    },
-    {
-        id: 'review_messages',
-        labelKey: 'aiAssist.quickSkill.reviewMessages'
-    },
-    {
-        id: 'review_messages_recent',
-        labelKey: 'aiAssist.quickSkill.reviewMessagesRecent'
-    },
-    {
-        id: 'review_messages_all',
-        labelKey: 'aiAssist.quickSkill.reviewMessagesAll'
-    },
-    {
-        id: 'review_document_threads',
-        labelKey: 'aiAssist.quickSkill.reviewDocumentThreads'
-    },
-    {
-        id: 'summarize_lead_meetings',
-        labelKey: 'aiAssist.quickSkill.summarizeLeadMeetings'
-    },
-    {
-        id: 'review_open_tasks',
-        labelKey: 'aiAssist.quickSkill.reviewOpenTasks'
-    }
-];
-const aiAssistGenericErrorMessage =
-    'AI Assist is temporarily unavailable. Please try again.';
 
 const defaultInput = '';
 const defaultComposerState: ComposerState = {
-    mentionedStudent: null,
-    requestedSkill: null,
-    unknownSkillText: null
+    mentionedStudent: null
 };
-const skillTagPattern = /(^|\s)#([a-z_]+)/g;
 const minimumStudentSearchLength = 2;
 const minimumStreamStatusDisplayMs = 450;
 
-const getStudentStringField = (
-    student: AIAssistPickerStudent,
-    key: string
-): string => {
-    const rawValue = (student as Record<string, unknown>)[key];
-    return typeof rawValue === 'string' ? rawValue : '';
-};
-
-const getStudentChineseName = (student: AIAssistPickerStudent): string => {
-    const explicitChineseName = String(student.chineseName || '').trim();
-    if (explicitChineseName) {
-        return explicitChineseName;
-    }
-
-    const lastNameChinese = getStudentStringField(student, 'lastname_chinese');
-    const firstNameChinese = getStudentStringField(
-        student,
-        'firstname_chinese'
-    );
-    return `${lastNameChinese}${firstNameChinese}`.trim();
-};
-
-const getStudentEnglishNames = (student: AIAssistPickerStudent): string[] => {
-    const primaryName = String(student.name || '').trim();
-    const firstName = getStudentStringField(student, 'firstname').trim();
-    const lastName = getStudentStringField(student, 'lastname').trim();
-
-    return [
-        primaryName,
-        [firstName, lastName].filter(Boolean).join(' '),
-        [lastName, firstName].filter(Boolean).join(' ')
-    ].filter(Boolean);
-};
-
-const skillAliases: Record<AIAssistQuickSkill, string[]> = {
-    summarize_student: ['summarize', 'summary', 'student summary'],
-    identify_risk: ['risk', 'risks', 'identify', 'identify risk', 'blocker'],
-    review_messages: ['messages', 'message', 'review messages', 'reply'],
-    review_messages_recent: [
-        'recent messages',
-        'recent message',
-        'last 30 days',
-        'recent comms'
-    ],
-    review_messages_all: ['all messages', 'all comms', 'history messages'],
-    review_document_threads: [
-        'document thread',
-        'document threads',
-        'thread status'
-    ],
-    summarize_lead_meetings: [
-        'lead meetings',
-        'meeting transcript',
-        'meeting summary'
-    ],
-    review_open_tasks: ['tasks', 'task', 'open tasks', 'todo', 'followup']
-};
-
-const formatJson = (value: unknown): string => {
-    if (value == null) {
-        return '';
-    }
-
-    try {
-        return JSON.stringify(value, null, 2);
-    } catch {
-        return String(value);
-    }
-};
-
-const mergeTrace = (
-    previousTrace: AIAssistToolCall[],
-    nextTrace: AIAssistToolCall[]
-): AIAssistToolCall[] => {
-    const mergedTrace = [...previousTrace];
-    const knownIds = new Set(previousTrace.map((toolCall) => toolCall.id));
-
-    nextTrace.forEach((toolCall) => {
-        if (!knownIds.has(toolCall.id)) {
-            mergedTrace.push(toolCall);
-            knownIds.add(toolCall.id);
-        }
-    });
-
-    return mergedTrace;
-};
-
-const getNextConversation = (
-    activeConversationId: string,
-    conversations: AIAssistConversation[]
-): AIAssistConversation | null => {
-    const activeIndex = conversations.findIndex(
-        (conversation) => conversation.id === activeConversationId
-    );
-    const remainingConversations = conversations.filter(
-        (conversation) => conversation.id !== activeConversationId
-    );
-
-    if (remainingConversations.length === 0) {
-        return null;
-    }
-
-    if (activeIndex === -1) {
-        return remainingConversations[0];
-    }
-
-    return (
-        remainingConversations[activeIndex] ??
-        remainingConversations[activeIndex - 1] ??
-        remainingConversations[0]
-    );
-};
-
-const formatStudentMeta = (
-    student: AIAssistPickerStudent,
-    translate: (
-        key: string,
-        defaultValue: string,
-        options?: Record<string, unknown>
-    ) => string
-): string =>
-    [
-        getStudentChineseName(student),
-        student.email,
-        student.applyingProgramCount != null
-            ? translate(
-                  'aiAssist.applicationsCount',
-                  '{{count}} applications',
-                  {
-                      count: student.applyingProgramCount
-                  }
-              )
-            : null
-    ]
-        .filter(Boolean)
-        .join(' | ');
-
-const createMentionedStudent = (
-    studentId?: string,
-    displayName?: string
-): AIAssistMentionedStudent | null =>
-    studentId && displayName
-        ? {
-              id: studentId,
-              displayName
-          }
-        : null;
-
-const escapeRegExp = (value: string): string =>
-    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const normalizeLookup = (value: string): string =>
-    value.toLowerCase().replace(/[^a-z]/g, '');
-
-const normalizeMentionSearch = (value: string): string =>
-    String(value || '')
-        .toLowerCase()
-        .replace(/\s+/g, '')
-        .trim();
-
-const normalizeChineseSearch = (value: string): string =>
-    String(value || '')
-        .replace(/\s+/g, '')
-        .trim();
-
-const buildStudentSearchStrings = (
-    student: AIAssistPickerStudent
-): string[] => {
-    const englishNames = getStudentEnglishNames(student);
-    const chineseName = getStudentChineseName(student);
-
-    return [
-        ...englishNames.map(normalizeMentionSearch),
-        normalizeMentionSearch(student.email || ''),
-        normalizeMentionSearch(student.name || ''),
-        normalizeChineseSearch(chineseName)
-    ].filter(Boolean);
-};
-
-const matchesStudentMentionQuery = (
-    student: AIAssistPickerStudent,
-    query: string
-): boolean => {
-    const normalizedQuery = normalizeMentionSearch(query);
-    const normalizedChineseQuery = normalizeChineseSearch(query);
-
-    if (!normalizedQuery && !normalizedChineseQuery) {
-        return false;
-    }
-
-    const searchStrings = buildStudentSearchStrings(student);
-
-    return searchStrings.some(
-        (searchValue) =>
-            searchValue.includes(normalizedQuery) ||
-            searchValue.includes(normalizedChineseQuery)
-    );
-};
-
-const uniqueStudents = (
-    students: AIAssistPickerStudent[]
-): AIAssistPickerStudent[] => {
-    const byId = new Map<string, AIAssistPickerStudent>();
-    students.forEach((student) => {
-        if (!byId.has(student.id)) {
-            byId.set(student.id, student);
-        }
-    });
-    return Array.from(byId.values());
-};
-
-const getTokenQueryAtCursor = (
-    value: string,
-    cursorIndex: number,
-    trigger: '@' | '#'
-): string | null => {
-    const beforeCursor = value.slice(0, cursorIndex);
-    const tokenPattern =
-        trigger === '@' ? /(^|\s)@([^@\s#]*)$/ : /(^|\s)#([^#\s@]*)$/;
-
-    return beforeCursor.match(tokenPattern)?.[2] ?? null;
-};
-
-const replaceTokenAtCursor = ({
-    value,
-    cursorIndex,
-    trigger,
-    replacement
-}: {
-    value: string;
-    cursorIndex: number;
-    trigger: '@' | '#';
-    replacement: string;
-}): { nextValue: string; nextCursorIndex: number } => {
-    const beforeCursor = value.slice(0, cursorIndex);
-    const tokenPattern =
-        trigger === '@' ? /(^|\s)@([^@\s#]*)$/ : /(^|\s)#([^#\s@]*)$/;
-    const match = beforeCursor.match(tokenPattern);
-
-    if (!match || match.index == null) {
-        return { nextValue: value, nextCursorIndex: cursorIndex };
-    }
-
-    const leadingWhitespace = match[1] || '';
-    const tokenStart = match.index + leadingWhitespace.length;
-    const nextValue =
-        value.slice(0, tokenStart) + replacement + value.slice(cursorIndex);
-
-    return {
-        nextValue,
-        nextCursorIndex: tokenStart + replacement.length
-    };
-};
-
-const findMatchingSkills = (query: string): QuickSkillOption[] => {
-    const normalizedQuery = normalizeLookup(query);
-
-    if (!normalizedQuery) {
-        return [];
-    }
-
-    return quickSkills.filter((quickSkill) => {
-        const searchableValues = [
-            quickSkill.id,
-            quickSkill.id.replace(/_/g, ' '),
-            ...(skillAliases[quickSkill.id] || [])
-        ].map(normalizeLookup);
-
-        return searchableValues.some(
-            (value) =>
-                value === normalizedQuery ||
-                value.startsWith(normalizedQuery) ||
-                value.includes(normalizedQuery)
-        );
-    });
-};
-
-const parseSkillTrace = (value: string): AIAssistSkillTrace => {
-    let matchedSkillTag: string | null = null;
-
-    for (const match of value.matchAll(skillTagPattern)) {
-        matchedSkillTag = match[2] ?? null;
-    }
-
-    if (!matchedSkillTag) {
-        return { source: 'auto' };
-    }
-
-    const matchedSkill = quickSkills.find(
-        (quickSkill) => quickSkill.id === matchedSkillTag
-    );
-
-    if (matchedSkill) {
-        return {
-            source: 'composer_tag',
-            requestedSkill: matchedSkill.id
-        };
-    }
-
-    return {
-        source: 'composer_tag',
-        unknownSkillText: matchedSkillTag
-    };
-};
-
-const renderMentionHighlightedText = (
-    value: string,
-    student: AIAssistMentionedStudent | null
-): JSX.Element => {
-    if (!value) {
-        return <>{'\u200b'}</>;
-    }
-
-    if (!student) {
-        return <>{value}</>;
-    }
-
-    const mentionToken = `@${student.displayName}`;
-    const mentionPattern = new RegExp(`(${escapeRegExp(mentionToken)})`, 'gi');
-    const parts = value.split(mentionPattern);
-
-    return (
-        <>
-            {parts.map((part, index) =>
-                part.toLowerCase() === mentionToken.toLowerCase() ? (
-                    <Box
-                        component="span"
-                        key={`mention-${index}`}
-                        sx={{
-                            backgroundColor: 'rgba(25, 118, 210, 0.2)',
-                            borderRadius: 0.75,
-                            color: 'primary.main',
-                            px: 0.25
-                        }}
-                    >
-                        {part}
-                    </Box>
-                ) : (
-                    <Box component="span" key={`text-${index}`}>
-                        {part}
-                    </Box>
-                )
-            )}
-        </>
-    );
-};
-
 const buildComposerState = ({
-    mentionedStudent,
-    selectedQuickSkill,
-    skillTrace
+    mentionedStudent
 }: {
     mentionedStudent: AIAssistMentionedStudent | null;
-    selectedQuickSkill: AIAssistQuickSkill | null;
-    skillTrace: AIAssistSkillTrace;
 }): ComposerState => ({
-    mentionedStudent,
-    requestedSkill:
-        skillTrace.requestedSkill ??
-        (skillTrace.unknownSkillText ? null : selectedQuickSkill),
-    unknownSkillText: skillTrace.unknownSkillText ?? null
+    mentionedStudent
 });
-
-const withResponseSkillTrace = (
-    message: AIAssistMessage,
-    skillTrace?: AIAssistSkillTrace
-): AIAssistMessage => ({
-    ...message,
-    skillTrace: message.skillTrace ?? skillTrace ?? null
-});
-
-const toolDisplayNames: Record<string, string> = {
-    search_accessible_students: 'Search students',
-    get_student_summary: 'Student summary',
-    get_student_applications: 'Applications',
-    get_latest_communications: 'Messages',
-    get_recent_communication_context: 'Recent messages',
-    get_all_communication_context: 'All messages',
-    get_profile_documents: 'Profile documents',
-    get_document_thread_context: 'Document threads',
-    get_crm_lead_meeting_context: 'Lead meetings',
-    get_support_tickets: 'Support tickets'
-};
-
-const getToolDisplayName = (toolName: string): string =>
-    toolDisplayNames[toolName] ||
-    toolName
-        .split('_')
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ');
-
-const summarizeToolValue = (value: unknown): string | null => {
-    if (!value || typeof value !== 'object') {
-        return null;
-    }
-
-    const record = value as Record<string, unknown>;
-
-    if (Array.isArray(record.data)) {
-        return `${record.data.length} result${record.data.length === 1 ? '' : 's'}`;
-    }
-
-    if (typeof record.query === 'string') {
-        return `Query: ${record.query}`;
-    }
-
-    if (typeof record.studentId === 'string') {
-        return `Student: ${record.studentId}`;
-    }
-
-    return null;
-};
-
-const resolveCurrentProgressStatus = (
-    event: AIAssistStreamProgressEvent
-): string | null => {
-    if (event.type === 'status') {
-        if (event.phase === 'mode') {
-            if (event.mode === 'intent_first') {
-                return 'Intent routing...';
-            }
-
-            if (event.mode === 'skill') {
-                return 'Planning skill workflow...';
-            }
-
-            if (
-                event.mode === 'legacy_tool_loop' ||
-                event.mode === 'chat_fallback'
-            ) {
-                return 'Thinking...';
-            }
-        }
-
-        if (event.phase === 'intent_routing') {
-            return 'Intent routing...';
-        }
-
-        if (event.phase === 'entity_resolution') {
-            return 'Resolving student...';
-        }
-
-        if (
-            event.phase === 'annotation' ||
-            event.status === 'annotating_references'
-        ) {
-            return 'Finalizing response...';
-        }
-
-        if (event.phase === 'completed') {
-            return null;
-        }
-    }
-
-    if (event.type === 'thinking') {
-        if (event.phase === 'intent_routing') {
-            return 'Intent routing...';
-        }
-
-        if (event.phase === 'entity_resolution') {
-            return 'Resolving student...';
-        }
-
-        if (event.phase === 'answer_composer') {
-            return 'Composing answer...';
-        }
-
-        return 'Thinking...';
-    }
-
-    if (event.type === 'tool_start') {
-        return `Tool calling: ${getToolDisplayName(event.toolName || 'tool')}...`;
-    }
-
-    if (event.type === 'tool_done') {
-        return 'Thinking...';
-    }
-
-    return null;
-};
-
-const MessageMarkdown = ({ content }: { content: string }): JSX.Element => (
-    <Box
-        sx={{
-            '& p': { m: 0 },
-            '& p + p': { mt: 1 },
-            '& ul, & ol': { my: 0.75, pl: 3 },
-            '& li + li': { mt: 0.25 },
-            '& blockquote': {
-                borderColor: 'divider',
-                borderLeft: 3,
-                m: 0,
-                pl: 1.5
-            },
-            '& table': {
-                borderCollapse: 'collapse',
-                mt: 1,
-                width: '100%'
-            },
-            '& th, & td': {
-                border: '1px solid',
-                borderColor: 'divider',
-                p: 0.75
-            },
-            '& code': {
-                bgcolor: 'action.hover',
-                borderRadius: 0.5,
-                px: 0.5,
-                py: 0.25
-            },
-            '& pre': {
-                bgcolor: 'action.hover',
-                borderRadius: 1,
-                m: 0,
-                mt: 1,
-                overflowX: 'auto',
-                p: 1
-            },
-            '& a': {
-                borderBottom: '1px solid rgba(25, 118, 210, 0.38)',
-                color: '#1565c0',
-                display: 'inline',
-                fontWeight: 600,
-                lineHeight: 1.35,
-                textDecoration: 'none',
-                textUnderlineOffset: '2px',
-                transition:
-                    'color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease'
-            },
-            '& a:visited': {
-                borderBottomColor: 'rgba(25, 118, 210, 0.38)',
-                color: '#1565c0'
-            },
-            '& a:hover': {
-                backgroundColor: 'rgba(21, 101, 192, 0.08)',
-                borderColor: '#1565c0',
-                color: '#0d47a1'
-            },
-            '& a:focus-visible': {
-                boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.24)',
-                outline: 'none'
-            },
-            wordBreak: 'break-word'
-        }}
-    >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {content || ''}
-        </ReactMarkdown>
-    </Box>
-);
-
-const renderHighlightedMessageText = (
-    content: string,
-    tokens: string[]
-): JSX.Element => {
-    if (!content) {
-        return <>{''}</>;
-    }
-
-    const cleanedTokens = tokens.filter(Boolean);
-    if (cleanedTokens.length === 0) {
-        return <>{content}</>;
-    }
-
-    const tokenPattern = new RegExp(
-        `(${cleanedTokens.map(escapeRegExp).join('|')})`,
-        'gi'
-    );
-    const parts = content.split(tokenPattern);
-
-    return (
-        <>
-            {parts.map((part, index) => {
-                const isHighlighted = cleanedTokens.some(
-                    (token) => token.toLowerCase() === part.toLowerCase()
-                );
-
-                return isHighlighted ? (
-                    <Box
-                        component="span"
-                        data-testid="ai-assist-highlighted-token"
-                        key={`hl-${index}`}
-                        sx={{
-                            backgroundColor: 'rgba(25, 118, 210, 0.2)',
-                            borderRadius: 0.75,
-                            color: 'primary.main',
-                            px: 0.25
-                        }}
-                    >
-                        {part}
-                    </Box>
-                ) : (
-                    <Box component="span" key={`tx-${index}`}>
-                        {part}
-                    </Box>
-                );
-            })}
-        </>
-    );
-};
-
-const linkHrefFromHint = (hint: AIAssistMessageLinkHint): string | null => {
-    if (!hint?.entityId || !hint?.entityType) {
-        return null;
-    }
-
-    if (hint.entityType === 'student') {
-        return DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-            hint.entityId,
-            DEMO.PROFILE_HASH
-        );
-    }
-
-    if (hint.entityType === 'program') {
-        return DEMO.SINGLE_PROGRAM_LINK(hint.entityId);
-    }
-
-    return null;
-};
-
-const referenceMarkerPattern = /\[reflink:([a-zA-Z0-9_-]+)\|([^\]]+)\]/g;
-
-const buildReferenceMap = (
-    linkHints: Record<string, AIAssistMessageLinkHint> | null | undefined
-): Map<string, AIAssistMessageLinkHint> => {
-    const byRefId = new Map<string, AIAssistMessageLinkHint>();
-    if (!linkHints || typeof linkHints !== 'object') {
-        return byRefId;
-    }
-
-    Object.entries(linkHints).forEach(([rawRefId, hint]) => {
-        const refId = String(rawRefId || '').trim();
-        if (!refId || byRefId.has(refId)) {
-            return;
-        }
-        byRefId.set(refId, hint);
-    });
-
-    return byRefId;
-};
-
-const applyReferenceMarkersToMarkdown = (
-    content: string,
-    linkHints: Record<string, AIAssistMessageLinkHint> | null | undefined
-): string => {
-    if (!content) {
-        return content;
-    }
-
-    const referencesById = buildReferenceMap(linkHints);
-    return content.replace(
-        referenceMarkerPattern,
-        (_marker, rawRefId, rawLabel) => {
-            const refId = String(rawRefId || '').trim();
-            const label = String(rawLabel || '').trim() || refId;
-            const reference = referencesById.get(refId);
-            if (!reference) {
-                return label;
-            }
-
-            const href = linkHrefFromHint(reference);
-            if (!href) {
-                return label;
-            }
-
-            const displayLabel =
-                reference.entityType === 'student' && !label.startsWith('@')
-                    ? `@${label}`
-                    : label;
-
-            const safeLabel = displayLabel
-                .replace(/\\/g, '\\\\')
-                .replace(/\[/g, '\\[')
-                .replace(/\]/g, '\\]');
-            return `[${safeLabel}](${href})`;
-        }
-    );
-};
-
-const MessageContent = ({
-    message
-}: {
-    message: AIAssistMessage;
-}): JSX.Element => {
-    const student = message.skillTrace?.student || null;
-    const studentDisplayName = student?.displayName || null;
-    const requestedSkill = message.skillTrace?.requestedSkill || null;
-    const highlightTokens = [
-        studentDisplayName ? `@${studentDisplayName}` : '',
-        requestedSkill ? `#${requestedSkill}` : ''
-    ].filter(Boolean);
-    const content = applyReferenceMarkersToMarkdown(
-        message.content || '',
-        message.linkHints
-    );
-    const hasMarkdownSyntax = /(^|\s)([#>*`-]|\d+\.)\s|[*_`[\]()]/m.test(
-        content
-    );
-
-    return (
-        <Stack spacing={0.75}>
-            {highlightTokens.length === 0 || hasMarkdownSyntax ? (
-                <MessageMarkdown content={content} />
-            ) : (
-                <Box
-                    sx={{
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
-                    }}
-                >
-                    {renderHighlightedMessageText(content, highlightTokens)}
-                </Box>
-            )}
-        </Stack>
-    );
-};
-
-const ToolTraceCard = ({
-    toolCall
-}: {
-    toolCall: AIAssistToolCall;
-}): JSX.Element => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const displayName = getToolDisplayName(toolCall.toolName);
-    const argumentSummary = summarizeToolValue(toolCall.arguments);
-    const resultSummary = summarizeToolValue(toolCall.result);
-
-    return (
-        <Box
-            sx={{
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: 1,
-                p: 1.25
-            }}
-        >
-            <Stack alignItems="flex-start" spacing={0.75}>
-                <Stack
-                    alignItems="center"
-                    direction="row"
-                    justifyContent="space-between"
-                    spacing={1}
-                    sx={{ width: '100%' }}
-                >
-                    <Box>
-                        <Typography fontWeight={700} variant="body2">
-                            {displayName}
-                        </Typography>
-                        <Typography color="text.secondary" variant="caption">
-                            {toolCall.status}
-                            {toolCall.durationMs != null
-                                ? ` | ${toolCall.durationMs}ms`
-                                : ''}
-                        </Typography>
-                    </Box>
-                    <Button
-                        aria-label={`${isExpanded ? 'Hide' : 'Show'} details for ${displayName}`}
-                        onClick={() => {
-                            setIsExpanded((previous) => !previous);
-                        }}
-                        size="small"
-                        variant="text"
-                    >
-                        Details
-                    </Button>
-                </Stack>
-                {argumentSummary || resultSummary || toolCall.errorMessage ? (
-                    <Stack spacing={0.25}>
-                        {argumentSummary ? (
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                {argumentSummary}
-                            </Typography>
-                        ) : null}
-                        {resultSummary ? (
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                {resultSummary}
-                            </Typography>
-                        ) : null}
-                        {toolCall.errorMessage ? (
-                            <Typography color="error" variant="caption">
-                                {toolCall.errorMessage}
-                            </Typography>
-                        ) : null}
-                    </Stack>
-                ) : null}
-                {isExpanded ? (
-                    <Typography
-                        component="pre"
-                        sx={{
-                            mt: 0.5,
-                            mb: 0,
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word',
-                            fontSize: '0.75rem'
-                        }}
-                    >
-                        {formatJson({
-                            arguments: toolCall.arguments,
-                            result: toolCall.result,
-                            error: toolCall.errorMessage
-                        })}
-                    </Typography>
-                ) : null}
-            </Stack>
-        </Box>
-    );
-};
 
 const AIAssistPage = (): JSX.Element => {
     const { t, i18n } = useTranslation();
@@ -953,6 +110,18 @@ const AIAssistPage = (): JSX.Element => {
         },
         [t]
     );
+    const [workbenchMode, setWorkbenchMode] =
+        useState<WorkbenchMode>('portfolio');
+    const [analysisStudent, setAnalysisStudent] =
+        useState<PortfolioStudent | null>(null);
+    // Session cache of student deep-dive analyses (studentId -> result). Lets the
+    // user navigate back and forth between the portfolio and a student without
+    // re-running an expensive multi-tool analysis on every visit. Persists for
+    // the lifetime of this page; a "Re-analyze" control forces a fresh run.
+    const analysisCacheRef = useRef<
+        Map<string, { text: string; conversationId: string; ranAt: number }>
+    >(new Map());
+
     const skipInitialAutoloadRef = useRef(false);
     const composerInputRef = useRef<
         HTMLTextAreaElement | HTMLInputElement | null
@@ -964,11 +133,7 @@ const AIAssistPage = (): JSX.Element => {
         []
     );
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [draftConversation, setDraftConversation] =
-        useState<DraftConversationState | null>(null);
     const [input, setInput] = useState(defaultInput);
-    const [selectedQuickSkill, setSelectedQuickSkill] =
-        useState<AIAssistQuickSkill | null>(null);
     const [selectedMentionedStudent, setSelectedMentionedStudent] =
         useState<AIAssistMentionedStudent | null>(null);
     const [cursorPosition, setCursorPosition] = useState(0);
@@ -980,16 +145,10 @@ const AIAssistPage = (): JSX.Element => {
     const [isLoadingMentionSuggestions, setIsLoadingMentionSuggestions] =
         useState(false);
     const [highlightedMentionIndex, setHighlightedMentionIndex] = useState(0);
-    const [highlightedSkillIndex, setHighlightedSkillIndex] = useState(0);
     const [messages, setMessages] = useState<AIAssistMessage[]>([]);
     const [trace, setTrace] = useState<AIAssistToolCall[]>([]);
-    const [recentStudents, setRecentStudents] = useState<
-        AIAssistPickerStudent[]
-    >([]);
-    const [myStudents, setMyStudents] = useState<AIAssistPickerStudent[]>([]);
     const [isLoadingConversations, setIsLoadingConversations] = useState(false);
     const [isLoadingConversation, setIsLoadingConversation] = useState(false);
-    const [isLoadingStudentPicker, setIsLoadingStudentPicker] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [streamedAssistantContent, setStreamedAssistantContent] =
         useState('');
@@ -1015,6 +174,15 @@ const AIAssistPage = (): JSX.Element => {
     >(null);
     const [draftTitle, setDraftTitle] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [selectedRequestedSkill, setSelectedRequestedSkill] =
+        useState<AIAssistQuickSkill | null>(null);
+    const [pickerMode, setPickerMode] = useState(false);
+    const [recentStudents, setRecentStudents] = useState<
+        AIAssistPickerStudent[]
+    >([]);
+    const [myStudents, setMyStudents] = useState<AIAssistPickerStudent[]>([]);
+    const [isLoadingPickerStudents, setIsLoadingPickerStudents] =
+        useState(false);
     const preferredLanguage = i18n.language || 'en';
 
     const syncCursorPosition = useCallback(
@@ -1102,30 +270,44 @@ const AIAssistPage = (): JSX.Element => {
         [conversationId, conversations]
     );
 
-    const baseMentionedStudent =
-        useMemo<AIAssistMentionedStudent | null>(() => {
-            if (draftConversation?.student) {
-                return createMentionedStudent(
-                    draftConversation.student.id,
-                    draftConversation.student.name
-                );
-            }
-
-            return createMentionedStudent(
+    const baseMentionedStudent = useMemo<AIAssistMentionedStudent | null>(
+        () =>
+            createMentionedStudent(
                 activeConversation?.studentId,
                 activeConversation?.studentDisplayName
-            );
-        }, [activeConversation, draftConversation]);
+            ),
+        [activeConversation]
+    );
 
     const activeMentionQuery = useMemo(
         () => getTokenQueryAtCursor(input, cursorPosition, '@'),
         [cursorPosition, input]
     );
+    const hasExplicitUnresolvedMention = Boolean(activeMentionQuery);
+
     const activeSkillQuery = useMemo(
         () => getTokenQueryAtCursor(input, cursorPosition, '#'),
         [cursorPosition, input]
     );
-    const hasExplicitUnresolvedMention = Boolean(activeMentionQuery);
+
+    const skillSuggestions = useMemo(() => {
+        if (!activeSkillQuery || selectedRequestedSkill) {
+            return [];
+        }
+        const q = activeSkillQuery.toLowerCase();
+        return KNOWN_SKILLS.filter((s) => s.id.includes(q));
+    }, [activeSkillQuery, selectedRequestedSkill]);
+
+    const isUnknownSkillHint = useMemo(() => {
+        if (activeSkillQuery !== null || selectedRequestedSkill) {
+            return false;
+        }
+        const match = input.match(/#([a-z_]+)/);
+        if (!match) {
+            return false;
+        }
+        return !KNOWN_SKILLS.some((s) => s.id === match[1]);
+    }, [activeSkillQuery, input, selectedRequestedSkill]);
     const mentionedStudent = useMemo<AIAssistMentionedStudent | null>(
         () =>
             hasExplicitUnresolvedMention
@@ -1137,22 +319,6 @@ const AIAssistPage = (): JSX.Element => {
             selectedMentionedStudent
         ]
     );
-    const skillTrace = useMemo(() => parseSkillTrace(input), [input]);
-    const skillSuggestions = useMemo(() => {
-        if (!activeSkillQuery) {
-            return [];
-        }
-
-        const exactSkill = quickSkills.find(
-            (quickSkill) => quickSkill.id === activeSkillQuery
-        );
-
-        if (exactSkill) {
-            return [];
-        }
-
-        return findMatchingSkills(activeSkillQuery);
-    }, [activeSkillQuery]);
 
     useEffect(() => {
         setHighlightedMentionIndex(0);
@@ -1185,10 +351,6 @@ const AIAssistPage = (): JSX.Element => {
     ]);
 
     useEffect(() => {
-        setHighlightedSkillIndex(0);
-    }, [skillSuggestions]);
-
-    useEffect(() => {
         syncComposerHighlightScroll();
     }, [input, selectedMentionedStudent, syncComposerHighlightScroll]);
 
@@ -1208,14 +370,8 @@ const AIAssistPage = (): JSX.Element => {
     }, [input, selectedMentionedStudent]);
 
     useEffect(() => {
-        setComposerState(
-            buildComposerState({
-                mentionedStudent,
-                selectedQuickSkill,
-                skillTrace
-            })
-        );
-    }, [mentionedStudent, selectedQuickSkill, skillTrace]);
+        setComposerState(buildComposerState({ mentionedStudent }));
+    }, [mentionedStudent]);
 
     useEffect(() => {
         currentStreamStatusRef.current = currentStreamStatus;
@@ -1310,35 +466,19 @@ const AIAssistPage = (): JSX.Element => {
         void searchAIAssistStudents(activeMentionQuery)
             .then((response) => {
                 if (!ignore) {
-                    const mergedCandidates = uniqueStudents([
-                        ...(response.data || []),
-                        ...recentStudents,
-                        ...myStudents
-                    ]);
-                    const filteredSuggestions = mergedCandidates.filter(
+                    const suggestions = (response.data || []).filter(
                         (student) =>
                             matchesStudentMentionQuery(
                                 student,
                                 activeMentionQuery
                             )
                     );
-                    setMentionSuggestions(filteredSuggestions);
+                    setMentionSuggestions(suggestions);
                 }
             })
             .catch(() => {
                 if (!ignore) {
-                    const mergedCandidates = uniqueStudents([
-                        ...recentStudents,
-                        ...myStudents
-                    ]);
-                    const filteredSuggestions = mergedCandidates.filter(
-                        (student) =>
-                            matchesStudentMentionQuery(
-                                student,
-                                activeMentionQuery
-                            )
-                    );
-                    setMentionSuggestions(filteredSuggestions);
+                    setMentionSuggestions([]);
                 }
             })
             .finally(() => {
@@ -1350,15 +490,13 @@ const AIAssistPage = (): JSX.Element => {
         return () => {
             ignore = true;
         };
-    }, [activeMentionQuery, myStudents, recentStudents]);
+    }, [activeMentionQuery]);
 
     const clearActiveWorkspace = useCallback((): void => {
         setConversationId(null);
-        setDraftConversation(null);
         setMessages([]);
         setTrace([]);
         setInput(defaultInput);
-        setSelectedQuickSkill(null);
         setSelectedMentionedStudent(null);
         setMentionSuggestions([]);
         setIsLoadingMentionSuggestions(false);
@@ -1366,16 +504,17 @@ const AIAssistPage = (): JSX.Element => {
         setEditingConversationId(null);
         setDraftTitle('');
         setCursorPosition(0);
+        setPickerMode(false);
+        setSelectedRequestedSkill(null);
     }, []);
 
     const loadConversation = useCallback(
         async (nextConversationId: string): Promise<void> => {
             setConversationId(nextConversationId);
-            setDraftConversation(null);
             setEditingConversationId(null);
             setDraftTitle('');
             setInput(defaultInput);
-            setSelectedQuickSkill(null);
+
             setSelectedMentionedStudent(null);
             setMentionSuggestions([]);
             setIsLoadingMentionSuggestions(false);
@@ -1406,7 +545,10 @@ const AIAssistPage = (): JSX.Element => {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Failed to load AI Assist conversation'
+                        : translate(
+                              'aiAssist.errorLoadConversation',
+                              'Failed to load AI Assist conversation'
+                          )
                 );
             } finally {
                 setIsLoadingConversation(false);
@@ -1414,29 +556,6 @@ const AIAssistPage = (): JSX.Element => {
         },
         []
     );
-
-    const loadStudentPickerData = useCallback(async (): Promise<void> => {
-        setIsLoadingStudentPicker(true);
-        setError(null);
-
-        try {
-            const [recentResponse, myResponse] = await Promise.all([
-                getAIAssistRecentStudents(),
-                getAIAssistMyStudents()
-            ]);
-
-            setRecentStudents(recentResponse.data);
-            setMyStudents(myResponse.data);
-        } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Failed to load AI Assist students'
-            );
-        } finally {
-            setIsLoadingStudentPicker(false);
-        }
-    }, []);
 
     useEffect(() => {
         const loadConversations = async (): Promise<void> => {
@@ -1447,19 +566,20 @@ const AIAssistPage = (): JSX.Element => {
                 const response = await getAIAssistConversations();
                 setConversations(response.data);
 
-                if (
-                    response.data.length > 0 &&
-                    !skipInitialAutoloadRef.current
-                ) {
-                    await loadConversation(response.data[0].id);
-                } else if (!skipInitialAutoloadRef.current) {
+                // Land on the overview home by default (not the most recent
+                // conversation) so the cross-portfolio overview is the first
+                // thing staff see. Past conversations remain in the sidebar.
+                if (!skipInitialAutoloadRef.current) {
                     clearActiveWorkspace();
                 }
             } catch (err) {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Failed to load AI Assist conversations'
+                        : translate(
+                              'aiAssist.errorLoadConversations',
+                              'Failed to load AI Assist conversations'
+                          )
                 );
             } finally {
                 setIsLoadingConversations(false);
@@ -1557,7 +677,10 @@ const AIAssistPage = (): JSX.Element => {
             setError(
                 err instanceof Error
                     ? err.message
-                    : 'Failed to rename AI Assist conversation'
+                    : translate(
+                          'aiAssist.errorRenameConversation',
+                          'Failed to rename AI Assist conversation'
+                      )
             );
         } finally {
             setIsRenaming(false);
@@ -1584,78 +707,12 @@ const AIAssistPage = (): JSX.Element => {
         clearActiveWorkspace();
     };
 
-    const handleBlankChat = (): void => {
+    const handleSeedPrompt = (prompt: string): void => {
         skipInitialAutoloadRef.current = true;
         setError(null);
-        setConversationId(null);
-        setMessages([]);
-        setTrace([]);
-        setInput(defaultInput);
-        setSelectedQuickSkill(null);
-        setSelectedMentionedStudent(null);
-        setMentionSuggestions([]);
-        setIsLoadingMentionSuggestions(false);
-        setComposerState(defaultComposerState);
-        setEditingConversationId(null);
-        setDraftTitle('');
-        setCursorPosition(0);
-        setDraftConversation({
-            mode: 'blank',
-            student: null
-        });
-    };
-
-    const handleChooseStudent = (): void => {
-        skipInitialAutoloadRef.current = true;
-        setError(null);
-        setConversationId(null);
-        setMessages([]);
-        setTrace([]);
-        setInput(defaultInput);
-        setSelectedQuickSkill(null);
-        setSelectedMentionedStudent(null);
-        setMentionSuggestions([]);
-        setIsLoadingMentionSuggestions(false);
-        setComposerState(defaultComposerState);
-        setEditingConversationId(null);
-        setDraftTitle('');
-        setCursorPosition(0);
-        setDraftConversation((previous) => ({
-            mode: 'studentPicker',
-            student: previous?.student ?? null
-        }));
-        void loadStudentPickerData();
-    };
-
-    const handleSelectStudent = (student: AIAssistPickerStudent): void => {
-        const mentionToken = `@${student.name}`;
-        const mentionPattern = new RegExp(
-            `(^|\\s)${escapeRegExp(mentionToken)}(?=\\s|$)`,
-            'i'
-        );
-        const nextInput = mentionPattern.test(input)
-            ? input
-            : input.trim()
-              ? `${mentionToken} ${input}`
-              : `${mentionToken} `;
-
-        setSelectedMentionedStudent({
-            id: student.id,
-            displayName: student.name
-        });
-        setMentionSuggestions([]);
-        setInput(nextInput);
-        setCursorPosition(nextInput.length);
-        setDraftConversation({
-            mode: 'studentReady',
-            student
-        });
-    };
-
-    const handleQuickSkillClick = (quickSkill: QuickSkillOption): void => {
-        setSelectedQuickSkill((previous) =>
-            previous === quickSkill.id ? null : quickSkill.id
-        );
+        clearActiveWorkspace();
+        setInput(prompt);
+        setWorkbenchMode('chat');
     };
 
     const handleMentionSuggestionClick = (
@@ -1678,33 +735,17 @@ const AIAssistPage = (): JSX.Element => {
         setCursorPosition(replaced.nextCursorIndex);
     };
 
-    const handleSkillSuggestionClick = (quickSkill: QuickSkillOption): void => {
-        const replaced = replaceTokenAtCursor({
-            value: input,
-            cursorIndex:
-                composerInputRef.current?.selectionStart ?? cursorPosition,
-            trigger: '#',
-            replacement: `#${quickSkill.id}`
-        });
-
-        setSelectedQuickSkill(quickSkill.id);
-        setInput(replaced.nextValue);
-        setCursorPosition(replaced.nextCursorIndex);
-    };
-
-    const buildAssistContext = (): AIAssistAssistContext | undefined => {
+    const buildAssistContext = (
+        requestedSkill: AIAssistQuickSkill | null = selectedRequestedSkill
+    ): AIAssistAssistContext | undefined => {
         const assistContext: AIAssistAssistContext = {};
 
         if (composerState.mentionedStudent) {
             assistContext.mentionedStudent = composerState.mentionedStudent;
         }
 
-        if (composerState.requestedSkill) {
-            assistContext.requestedSkill = composerState.requestedSkill;
-        }
-
-        if (composerState.unknownSkillText) {
-            assistContext.unknownSkillText = composerState.unknownSkillText;
+        if (requestedSkill) {
+            assistContext.requestedSkill = requestedSkill;
         }
 
         return Object.keys(assistContext).length > 0
@@ -1724,19 +765,12 @@ const AIAssistPage = (): JSX.Element => {
         if (assistContext?.mentionedStudent?.displayName) {
             tokens.push(`@${assistContext.mentionedStudent.displayName}`);
         }
-        if (assistContext?.requestedSkill) {
-            tokens.push(`#${assistContext.requestedSkill}`);
-        }
-        if (assistContext?.unknownSkillText) {
-            tokens.push(`#${assistContext.unknownSkillText}`);
-        }
-
         return tokens.join(' ').trim();
     };
 
     const handleSubmit = useCallback(async (): Promise<void> => {
         const trimmedInput = input.trim();
-        const assistContext = buildAssistContext();
+        const assistContext = buildAssistContext(selectedRequestedSkill);
         const submissionMessage = buildSubmissionMessage(
             trimmedInput,
             assistContext
@@ -1771,22 +805,15 @@ const AIAssistPage = (): JSX.Element => {
             const onError = (message: string): void => {
                 void message;
                 hasStreamError = true;
-                setError(aiAssistGenericErrorMessage);
+                setError(
+                    translate(
+                        'aiAssist.errorGeneric',
+                        'AI Assist is temporarily unavailable. Please try again.'
+                    )
+                );
                 setStreamedAssistantContent('');
                 setStreamedAssistantReferences({});
                 setStreamStatusWithMinDuration(null, true);
-            };
-            const onReferences = (
-                references: Record<string, AIAssistMessageLinkHint>
-            ): void => {
-                setStreamStatusWithMinDuration('Finalizing response...');
-                setStreamedAssistantReferences(
-                    references &&
-                        typeof references === 'object' &&
-                        !Array.isArray(references)
-                        ? references
-                        : {}
-                );
             };
 
             if (!conversationId) {
@@ -1799,7 +826,6 @@ const AIAssistPage = (): JSX.Element => {
                     {
                         onProgress,
                         onToken,
-                        onReferences,
                         onError
                     }
                 );
@@ -1818,14 +844,14 @@ const AIAssistPage = (): JSX.Element => {
 
                 addConversationToTop(conversation);
                 setConversationId(conversation.id);
-                setDraftConversation(null);
                 setMessages([
                     userMessage,
                     withResponseSkillTrace(assistantMessage, responseSkillTrace)
                 ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
-                setSelectedQuickSkill(null);
+                setSelectedRequestedSkill(null);
+
                 setStreamedAssistantContent('');
                 setStreamedAssistantReferences({});
                 setStreamStatusWithMinDuration(null);
@@ -1842,7 +868,6 @@ const AIAssistPage = (): JSX.Element => {
                 {
                     onProgress,
                     onToken,
-                    onReferences,
                     onError
                 }
             );
@@ -1879,7 +904,8 @@ const AIAssistPage = (): JSX.Element => {
                 );
             }
             setInput(defaultInput);
-            setSelectedQuickSkill(null);
+            setSelectedRequestedSkill(null);
+
             touchConversation(conversationId);
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
@@ -1887,7 +913,12 @@ const AIAssistPage = (): JSX.Element => {
         } catch (err) {
             void err;
             hasStreamError = true;
-            setError(aiAssistGenericErrorMessage);
+            setError(
+                translate(
+                    'aiAssist.errorGeneric',
+                    'AI Assist is temporarily unavailable. Please try again.'
+                )
+            );
             setStreamedAssistantContent('');
             setStreamedAssistantReferences({});
             setStreamStatusWithMinDuration(null, true);
@@ -1908,6 +939,7 @@ const AIAssistPage = (): JSX.Element => {
         isSending,
         preferredLanguage,
         scrollTranscriptToBottom,
+        selectedRequestedSkill,
         setStreamStatusWithMinDuration,
         touchConversation
     ]);
@@ -1943,39 +975,6 @@ const AIAssistPage = (): JSX.Element => {
                 const student = mentionSuggestions[highlightedMentionIndex];
                 if (student) {
                     handleMentionSuggestionClick(student);
-                }
-                return;
-            }
-        }
-
-        if (skillSuggestions.length > 0) {
-            if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                setHighlightedSkillIndex((previous) =>
-                    Math.min(previous + 1, skillSuggestions.length - 1)
-                );
-                return;
-            }
-
-            if (event.key === 'ArrowUp') {
-                event.preventDefault();
-                setHighlightedSkillIndex((previous) =>
-                    Math.max(previous - 1, 0)
-                );
-                return;
-            }
-
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                setHighlightedSkillIndex(0);
-                return;
-            }
-
-            if (event.key === 'Enter' && !event.altKey) {
-                event.preventDefault();
-                const skill = skillSuggestions[highlightedSkillIndex];
-                if (skill) {
-                    handleSkillSuggestionClick(skill);
                 }
                 return;
             }
@@ -2057,106 +1056,75 @@ const AIAssistPage = (): JSX.Element => {
             setError(
                 err instanceof Error
                     ? err.message
-                    : 'Failed to archive AI Assist conversation'
+                    : translate(
+                          'aiAssist.errorArchiveConversation',
+                          'Failed to archive AI Assist conversation'
+                      )
             );
         } finally {
             setDeletingConversationId(null);
         }
     };
 
-    const renderStudentButtons = (
-        students: AIAssistPickerStudent[],
-        sectionTestId: string
-    ): JSX.Element => (
-        <Stack data-testid={sectionTestId} spacing={1}>
-            {students.length === 0 ? (
-                <Typography color="text.secondary" variant="body2">
-                    {translate(
-                        'aiAssist.noStudentsAvailable',
-                        'No students available.'
-                    )}
-                </Typography>
-            ) : (
-                students.map((student) => {
-                    const studentMeta = formatStudentMeta(student, translate);
+    const handleChooseStudent = async (): Promise<void> => {
+        setPickerMode(true);
+        setIsLoadingPickerStudents(true);
+        try {
+            const [recentRes, myRes] = await Promise.all([
+                getAIAssistRecentStudents(),
+                getAIAssistMyStudents()
+            ]);
+            setRecentStudents(recentRes.data || []);
+            setMyStudents(myRes.data || []);
+        } catch {
+            setRecentStudents([]);
+            setMyStudents([]);
+        } finally {
+            setIsLoadingPickerStudents(false);
+        }
+    };
 
-                    return (
-                        <Button
-                            aria-label={student.name}
-                            key={student.id}
-                            fullWidth
-                            onClick={() => {
-                                handleSelectStudent(student);
-                            }}
-                            sx={{
-                                justifyContent: 'flex-start',
-                                px: 1.5,
-                                py: 1,
-                                textAlign: 'left',
-                                textTransform: 'none'
-                            }}
-                            variant="outlined"
-                        >
-                            <Stack alignItems="flex-start" spacing={0.25}>
-                                <Typography variant="body2">
-                                    {student.name}
-                                </Typography>
-                                {studentMeta ? (
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="caption"
-                                    >
-                                        {studentMeta}
-                                    </Typography>
-                                ) : null}
-                            </Stack>
-                        </Button>
-                    );
-                })
-            )}
-        </Stack>
-    );
+    const handlePickStudent = (student: AIAssistPickerStudent): void => {
+        const mention = `@${student.name} `;
+        setSelectedMentionedStudent({
+            id: student.id,
+            displayName: student.name
+        });
+        setInput(mention);
+        setCursorPosition(mention.length);
+        setPickerMode(false);
+    };
 
-    const renderQuickSkillChips = (): JSX.Element => (
-        <Stack direction="row" flexWrap="wrap" gap={1}>
-            {quickSkills.map((quickSkill) => {
-                const isSelected =
-                    composerState.requestedSkill === quickSkill.id;
+    const handleSkillClick = (skillId: string): void => {
+        setSelectedRequestedSkill(skillId as AIAssistQuickSkill);
+    };
 
-                return (
-                    <Chip
-                        clickable
-                        color={isSelected ? 'primary' : 'default'}
-                        key={quickSkill.id}
-                        label={translate(
-                            quickSkill.labelKey,
-                            quickSkill.id === 'summarize_student'
-                                ? 'Summarize a student'
-                                : quickSkill.id === 'identify_risk'
-                                  ? 'Find application risks'
-                                  : quickSkill.id === 'review_messages'
-                                    ? 'Check latest messages'
-                                    : quickSkill.id === 'review_messages_recent'
-                                      ? 'Summarize recent messages'
-                                      : quickSkill.id === 'review_messages_all'
-                                        ? 'Summarize all messages'
-                                        : quickSkill.id ===
-                                            'review_document_threads'
-                                          ? 'Check document threads'
-                                          : quickSkill.id ===
-                                              'summarize_lead_meetings'
-                                            ? 'Summarize meetings'
-                                            : 'Review open tasks'
-                        )}
-                        onClick={() => {
-                            handleQuickSkillClick(quickSkill);
-                        }}
-                        variant={isSelected ? 'filled' : 'outlined'}
-                    />
-                );
-            })}
-        </Stack>
-    );
+    const handleSkillSuggestionClick = (skill: {
+        id: string;
+        label: string;
+    }): void => {
+        const currentCursorIndex =
+            composerInputRef.current?.selectionStart ?? cursorPosition;
+        const replaced = replaceTokenAtCursor({
+            value: input,
+            cursorIndex: currentCursorIndex,
+            trigger: '#',
+            replacement: `#${skill.id}`
+        });
+        setSelectedRequestedSkill(skill.id as AIAssistQuickSkill);
+        setInput(replaced.nextValue);
+        setCursorPosition(replaced.nextCursorIndex);
+        window.requestAnimationFrame(() => {
+            const targetInput = composerInputRef.current;
+            if (!targetInput) {
+                return;
+            }
+            targetInput.setSelectionRange(
+                replaced.nextCursorIndex,
+                replaced.nextCursorIndex
+            );
+        });
+    };
 
     const renderComposerSuggestions = (): JSX.Element | null => {
         const hasMentionSuggestions =
@@ -2183,6 +1151,25 @@ const AIAssistPage = (): JSX.Element => {
                 variant="outlined"
             >
                 <Stack spacing={0}>
+                    {hasSkillSuggestions ? (
+                        <Stack spacing={0} sx={{ p: 0.5 }}>
+                            {skillSuggestions.map((skill) => (
+                                <Button
+                                    aria-label={`Use skill ${skill.id}`}
+                                    fullWidth
+                                    key={skill.id}
+                                    onClick={() => {
+                                        handleSkillSuggestionClick(skill);
+                                    }}
+                                    size="small"
+                                    sx={{ justifyContent: 'flex-start' }}
+                                    variant="text"
+                                >
+                                    {skill.id}
+                                </Button>
+                            ))}
+                        </Stack>
+                    ) : null}
                     {hasMentionSuggestions ? (
                         <Stack spacing={0}>
                             {isLoadingMentionSuggestions ? (
@@ -2264,193 +1251,38 @@ const AIAssistPage = (): JSX.Element => {
                             )}
                         </Stack>
                     ) : null}
-                    {hasSkillSuggestions ? (
-                        <Stack spacing={0.75} sx={{ p: 1 }}>
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                {translate(
-                                    'aiAssist.skillSuggestions',
-                                    'Skill suggestions'
-                                )}
-                            </Typography>
-                            <Stack direction="row" flexWrap="wrap" gap={1}>
-                                {skillSuggestions.map((quickSkill, index) => (
-                                    <Button
-                                        aria-label={`Use skill ${quickSkill.id}`}
-                                        color={
-                                            index === highlightedSkillIndex
-                                                ? 'primary'
-                                                : 'inherit'
-                                        }
-                                        key={quickSkill.id}
-                                        onClick={() => {
-                                            handleSkillSuggestionClick(
-                                                quickSkill
-                                            );
-                                        }}
-                                        size="small"
-                                        variant="outlined"
-                                    >
-                                        #{quickSkill.id}
-                                    </Button>
-                                ))}
-                            </Stack>
-                        </Stack>
-                    ) : null}
                 </Stack>
             </Paper>
         );
     };
 
-    const renderDraftState = (): JSX.Element => {
-        if (draftConversation?.mode === 'studentPicker') {
+    const renderHomeState = (): JSX.Element => {
+        if (pickerMode) {
             return (
-                <Stack spacing={2}>
-                    <Typography variant="subtitle1">
-                        {translate('aiAssist.chooseStudent', 'Choose student')}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                        {translate(
-                            'aiAssist.chooseStudentHelp',
-                            'Start from a recent student or someone already assigned to you.'
-                        )}
-                    </Typography>
-                    {isLoadingStudentPicker ? (
-                        <Stack
-                            alignItems="center"
-                            justifyContent="center"
-                            spacing={1}
-                            sx={{ minHeight: 160 }}
-                        >
-                            <CircularProgress size={24} />
-                            <Typography color="text.secondary" variant="body2">
-                                {translate(
-                                    'aiAssist.loadingStudents',
-                                    'Loading students...'
-                                )}
-                            </Typography>
-                        </Stack>
-                    ) : (
-                        <Stack divider={<Divider flexItem />} spacing={2}>
-                            <Stack spacing={1}>
-                                <Typography variant="subtitle2">
-                                    {translate(
-                                        'aiAssist.recentStudents',
-                                        'Recent students'
-                                    )}
-                                </Typography>
-                                {renderStudentButtons(
-                                    recentStudents,
-                                    'ai-assist-student-section-recent'
-                                )}
-                            </Stack>
-                            <Stack spacing={1}>
-                                <Typography variant="subtitle2">
-                                    {translate(
-                                        'aiAssist.myStudents',
-                                        'My students'
-                                    )}
-                                </Typography>
-                                {renderStudentButtons(
-                                    myStudents,
-                                    'ai-assist-student-section-mine'
-                                )}
-                            </Stack>
-                        </Stack>
-                    )}
-                </Stack>
-            );
-        }
-
-        if (
-            draftConversation?.mode === 'studentReady' &&
-            draftConversation.student
-        ) {
-            const studentMeta = formatStudentMeta(
-                draftConversation.student,
-                translate
-            );
-
-            return (
-                <Stack spacing={1.5}>
-                    <Typography variant="subtitle1">
-                        {translate(
-                            'aiAssist.startWithStudent',
-                            `Start with ${draftConversation.student.name}`,
-                            {
-                                studentName: draftConversation.student.name
-                            }
-                        )}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                        {translate(
-                            'aiAssist.startWithStudentHelp',
-                            'Pick a quick start or edit the message before sending.'
-                        )}
-                    </Typography>
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                        <Chip
-                            color="primary"
-                            label={draftConversation.student.name}
-                            variant="outlined"
-                        />
-                        <Button
-                            onClick={handleChooseStudent}
-                            size="small"
-                            variant="text"
-                        >
-                            {translate(
-                                'aiAssist.changeStudent',
-                                'Change student'
-                            )}
-                        </Button>
-                    </Stack>
-                    {studentMeta ? (
-                        <Typography color="text.secondary" variant="caption">
-                            {studentMeta}
-                        </Typography>
-                    ) : null}
-                </Stack>
-            );
-        }
-
-        if (draftConversation?.mode === 'blank') {
-            return (
-                <Stack spacing={1.5}>
-                    <Typography variant="subtitle1">
-                        {translate('aiAssist.blankChat', 'Blank chat')}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                        {translate(
-                            'aiAssist.blankChatHelp',
-                            'Draft the first message locally, then send when it is ready.'
-                        )}
-                    </Typography>
-                </Stack>
+                <StudentPicker
+                    isLoading={isLoadingPickerStudents}
+                    myStudents={myStudents}
+                    onPickStudent={handlePickStudent}
+                    recentStudents={recentStudents}
+                />
             );
         }
 
         return (
-            <Stack spacing={2}>
-                <Typography variant="subtitle1">
-                    {translate(
-                        'aiAssist.startWithQuestion',
-                        'Start with a question'
-                    )}
+            <Stack spacing={2} sx={{ p: 2 }}>
+                <Typography fontWeight={700} variant="subtitle1">
+                    {translate('aiAssist.overviewTitle', 'Your overview')}
                 </Typography>
-                <Typography color="text.secondary" variant="body2">
-                    {translate(
-                        'aiAssist.startWithQuestionHelp',
-                        'Start a blank draft or choose a student before sending the first message.'
-                    )}
-                </Typography>
-                <Stack direction="row" flexWrap="wrap" gap={1}>
-                    <Button onClick={handleChooseStudent} variant="contained">
+                <Stack direction="row" gap={1}>
+                    <Button
+                        onClick={() => {
+                            void handleChooseStudent();
+                        }}
+                        variant="outlined"
+                    >
                         {translate('aiAssist.chooseStudent', 'Choose student')}
                     </Button>
-                    <Button onClick={handleBlankChat} variant="outlined">
+                    <Button onClick={handleNewConversation} variant="outlined">
                         {translate('aiAssist.blankChat', 'Blank chat')}
                     </Button>
                 </Stack>
@@ -2458,10 +1290,74 @@ const AIAssistPage = (): JSX.Element => {
         );
     };
 
-    const composerAssistContext = buildAssistContext();
+    const composerAssistContext = buildAssistContext(selectedRequestedSkill);
     const canSubmit = Boolean(
         buildSubmissionMessage(input.trim(), composerAssistContext)
     );
+
+    if (workbenchMode === 'portfolio') {
+        return (
+            <Box
+                sx={{
+                    boxSizing: 'border-box',
+                    height: {
+                        xs: 'calc(100vh - 112px)',
+                        md: 'calc(100vh - 112px)'
+                    },
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    width: '100%'
+                }}
+            >
+                <PortfolioView
+                    onAnalyzeStudent={(student) => {
+                        setAnalysisStudent(student);
+                        setWorkbenchMode('student');
+                    }}
+                    onChatPrompt={(prompt) => {
+                        handleSeedPrompt(prompt);
+                    }}
+                    onOpenChat={() => setWorkbenchMode('chat')}
+                />
+            </Box>
+        );
+    }
+
+    if (workbenchMode === 'student' && analysisStudent) {
+        return (
+            <Box
+                sx={{
+                    boxSizing: 'border-box',
+                    height: {
+                        xs: 'calc(100vh - 112px)',
+                        md: 'calc(100vh - 112px)'
+                    },
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    width: '100%'
+                }}
+            >
+                <StudentAnalysisView
+                    student={analysisStudent}
+                    cached={
+                        analysisCacheRef.current.get(analysisStudent.id) ?? null
+                    }
+                    onBack={() => setWorkbenchMode('portfolio')}
+                    onOpenChat={() => setWorkbenchMode('chat')}
+                    onConversationCreated={(convId, conversation) => {
+                        addConversationToTop(conversation);
+                    }}
+                    onCacheAnalysis={(text, convId) => {
+                        analysisCacheRef.current.set(analysisStudent.id, {
+                            text,
+                            conversationId: convId,
+                            ranAt: Date.now()
+                        });
+                    }}
+                />
+            </Box>
+        );
+    }
 
     return (
         <Box
@@ -2508,6 +1404,14 @@ const AIAssistPage = (): JSX.Element => {
                             'Initial release for testing. Output quality and behavior may change.'
                         )}
                     </Typography>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Button
+                        onClick={() => setWorkbenchMode('portfolio')}
+                        size="small"
+                        variant="outlined"
+                    >
+                        {translate('aiAssist.overviewButton', 'Portfolio')}
+                    </Button>
                 </Paper>
 
                 {error ? <Alert severity="error">{error}</Alert> : null}
@@ -2583,7 +1487,7 @@ const AIAssistPage = (): JSX.Element => {
                                         </Typography>
                                     </Stack>
                                 ) : messages.length === 0 ? (
-                                    renderDraftState()
+                                    renderHomeState()
                                 ) : (
                                     <Stack spacing={1.5}>
                                         {messages.map((message) => {
@@ -2615,8 +1519,14 @@ const AIAssistPage = (): JSX.Element => {
                                                     >
                                                         {message.role ===
                                                         'assistant'
-                                                            ? 'Assistant'
-                                                            : 'You'}
+                                                            ? translate(
+                                                                  'aiAssist.roleAssistant',
+                                                                  'Assistant'
+                                                              )
+                                                            : translate(
+                                                                  'aiAssist.roleYou',
+                                                                  'You'
+                                                              )}
                                                     </Typography>
                                                     <MessageContent
                                                         message={message}
@@ -2669,37 +1579,13 @@ const AIAssistPage = (): JSX.Element => {
                                                             ) : null}
                                                         </Stack>
                                                     ) : null}
-                                                    {assistantTrace.length >
-                                                    0 ? (
-                                                        <Stack
-                                                            spacing={1}
-                                                            sx={{ mt: 1.5 }}
-                                                        >
-                                                            <Typography
-                                                                fontWeight={700}
-                                                                variant="caption"
-                                                            >
-                                                                {translate(
-                                                                    'aiAssist.toolsUsed',
-                                                                    'Tools used'
-                                                                )}{' '}
-                                                                (
-                                                                {
-                                                                    assistantTrace.length
-                                                                }
-                                                                )
-                                                            </Typography>
-                                                            {assistantTrace.map(
-                                                                (toolCall) => (
-                                                                    <ToolTraceCard
-                                                                        key={`${message.id}-${toolCall.id}`}
-                                                                        toolCall={
-                                                                            toolCall
-                                                                        }
-                                                                    />
-                                                                )
-                                                            )}
-                                                        </Stack>
+                                                    {message.role ===
+                                                    'assistant' ? (
+                                                        <SourcesSummary
+                                                            toolCalls={
+                                                                assistantTrace
+                                                            }
+                                                        />
                                                     ) : null}
                                                 </Paper>
                                             );
@@ -2744,7 +1630,10 @@ const AIAssistPage = (): JSX.Element => {
                                             gutterBottom
                                             variant="caption"
                                         >
-                                            Assistant
+                                            {translate(
+                                                'aiAssist.roleAssistant',
+                                                'Assistant'
+                                            )}
                                         </Typography>
                                         <MessageContent
                                             message={{
@@ -2792,37 +1681,42 @@ const AIAssistPage = (): JSX.Element => {
                                 }}
                             >
                                 <Stack spacing={1.5}>
-                                    <Stack spacing={1}>
-                                        {renderQuickSkillChips()}
-                                        {composerState.mentionedStudent
-                                            ?.displayName ? (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="caption"
-                                            >
-                                                {translate(
-                                                    'aiAssist.currentStudent',
-                                                    'Current student:'
-                                                )}{' '}
-                                                {
-                                                    composerState
-                                                        .mentionedStudent
-                                                        .displayName
-                                                }
-                                            </Typography>
-                                        ) : null}
-                                        {composerState.unknownSkillText ? (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="caption"
-                                            >
-                                                {translate(
-                                                    'aiAssist.unknownSkillAutoMode',
-                                                    'Unknown skill, using auto mode'
-                                                )}
-                                            </Typography>
-                                        ) : null}
-                                    </Stack>
+                                    {mentionedStudent ? (
+                                        <SkillBar
+                                            onSkillClick={handleSkillClick}
+                                            selectedSkillId={
+                                                selectedRequestedSkill
+                                            }
+                                            skills={KNOWN_SKILLS}
+                                        />
+                                    ) : null}
+                                    {isUnknownSkillHint ? (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="caption"
+                                        >
+                                            {translate(
+                                                'aiAssist.unknownSkill',
+                                                'Unknown skill, using auto mode'
+                                            )}
+                                        </Typography>
+                                    ) : null}
+                                    {composerState.mentionedStudent
+                                        ?.displayName ? (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="caption"
+                                        >
+                                            {translate(
+                                                'aiAssist.currentStudent',
+                                                'Current student:'
+                                            )}{' '}
+                                            {
+                                                composerState.mentionedStudent
+                                                    .displayName
+                                            }
+                                        </Typography>
+                                    ) : null}
                                     <Box sx={{ position: 'relative' }}>
                                         {selectedMentionedStudent ? (
                                             <Box
@@ -3032,7 +1926,10 @@ const AIAssistPage = (): JSX.Element => {
                                                                 isRenaming
                                                             }
                                                             fullWidth
-                                                            label="Conversation title"
+                                                            label={translate(
+                                                                'aiAssist.conversationTitle',
+                                                                'Conversation title'
+                                                            )}
                                                             onBlur={() => {
                                                                 void saveRename();
                                                             }}
@@ -3051,7 +1948,10 @@ const AIAssistPage = (): JSX.Element => {
                                                             value={draftTitle}
                                                         />
                                                         <IconButton
-                                                            aria-label="Cancel rename"
+                                                            aria-label={translate(
+                                                                'aiAssist.cancelRename',
+                                                                'Cancel rename'
+                                                            )}
                                                             disabled={
                                                                 isRenaming
                                                             }
@@ -3104,7 +2004,13 @@ const AIAssistPage = (): JSX.Element => {
                                                             {conversation.title}
                                                         </Button>
                                                         <IconButton
-                                                            aria-label={`Rename ${conversation.title}`}
+                                                            aria-label={translate(
+                                                                'aiAssist.renameConversation',
+                                                                'Rename {{title}}',
+                                                                {
+                                                                    title: conversation.title
+                                                                }
+                                                            )}
                                                             disabled={
                                                                 isLoadingConversation ||
                                                                 isRenaming ||
@@ -3120,7 +2026,13 @@ const AIAssistPage = (): JSX.Element => {
                                                             <EditOutlinedIcon fontSize="small" />
                                                         </IconButton>
                                                         <IconButton
-                                                            aria-label={`Delete ${conversation.title}`}
+                                                            aria-label={translate(
+                                                                'aiAssist.deleteConversation',
+                                                                'Delete {{title}}',
+                                                                {
+                                                                    title: conversation.title
+                                                                }
+                                                            )}
                                                             disabled={
                                                                 isLoadingConversation ||
                                                                 isDeleting
@@ -3139,31 +2051,6 @@ const AIAssistPage = (): JSX.Element => {
                                             </Stack>
                                         );
                                     })}
-                                </Stack>
-                            )}
-                        </Paper>
-                        <Paper sx={{ p: 2 }} variant="outlined">
-                            <Typography gutterBottom variant="h6">
-                                {translate('aiAssist.toolTrace', 'Tool trace')}
-                            </Typography>
-                            {trace.length === 0 ? (
-                                <Typography
-                                    color="text.secondary"
-                                    variant="body2"
-                                >
-                                    {translate(
-                                        'aiAssist.toolTraceEmpty',
-                                        'Tool calls will appear here after an answer.'
-                                    )}
-                                </Typography>
-                            ) : (
-                                <Stack spacing={1.5}>
-                                    {trace.map((toolCall) => (
-                                        <ToolTraceCard
-                                            key={`side-rail-${toolCall.id}`}
-                                            toolCall={toolCall}
-                                        />
-                                    ))}
                                 </Stack>
                             )}
                         </Paper>

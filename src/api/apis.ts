@@ -556,6 +556,22 @@ export const getAIAssistConversation = (conversationId: string) =>
         `/api/ai-assist/conversations/${conversationId}`
     );
 
+export interface AIAssistLatestAnalysisResponse {
+    success: boolean;
+    data: {
+        conversationId: string;
+        content: string;
+        analyzedAt: string;
+    } | null;
+}
+
+// Most recent persisted deep-dive analysis for a student (survives reloads).
+// Returns null when the student has never been analyzed.
+export const getAIAssistLatestAnalysis = (studentId: string) =>
+    getData<AIAssistLatestAnalysisResponse>(
+        `/api/ai-assist/students/${studentId}/latest-analysis`
+    );
+
 export const updateAIAssistConversation = (
     conversationId: string,
     payload: UpdateAIAssistConversationPayload
@@ -744,6 +760,50 @@ export const getAIAssistMyStudents = () =>
 export const searchAIAssistStudents = (query: string) =>
     getData<GetAIAssistPickerStudentsResponse>(
         `/api/ai-assist/students/search?q=${encodeURIComponent(query)}`
+    );
+
+export interface AIAssistOverviewItem {
+    student?: {
+        id?: string;
+        name?: string;
+        chineseName?: string;
+        email?: string;
+        joinedAt?: string | null;
+        applyingProgramCount?: number;
+        hasEditors?: boolean;
+        offerCount?: number;
+        rejectCount?: number;
+    };
+    program?: { school?: string; name?: string } | null;
+    deadline?: string;
+    daysUntil?: number;
+    fileType?: string;
+    updatedAt?: string;
+    missingDocuments?: string[];
+    // Days a document thread has been waiting on the team (thread-stall signal).
+    stalledDays?: number | null;
+    // Days since the last message with the student; null when never contacted
+    // (communication-gap signal).
+    lastContactDays?: number | null;
+}
+
+export interface AIAssistOverviewResponse {
+    success: boolean;
+    data: {
+        role?: string;
+        studentCount: number;
+        deadlineWindowDays: number;
+        emphasis: string[];
+        buckets: Record<
+            string,
+            { count: number; items: AIAssistOverviewItem[] }
+        >;
+    };
+}
+
+export const getAIAssistOverview = (days?: number) =>
+    getData<AIAssistOverviewResponse>(
+        `/api/ai-assist/overview${days ? `?days=${days}` : ''}`
     );
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
