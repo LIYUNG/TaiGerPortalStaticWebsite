@@ -25,7 +25,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendIcon from '@mui/icons-material/Send';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { streamAIAssistFirstMessage, streamAIAssistMessage } from '@/api';
+import {
+    getAIAssistLatestAnalysis,
+    streamAIAssistFirstMessage,
+    streamAIAssistMessage
+} from '@/api';
 import DEMO from '@/store/constant';
 import type {
     AIAssistConversation,
@@ -47,6 +51,7 @@ interface StudentAnalysisViewProps {
     onCacheAnalysis?: (text: string, conversationId: string) => void;
 }
 
+// Relative-time label for when an analysis was last produced.
 const formatAgo = (ts: number): string => {
     const mins = Math.max(Math.floor((Date.now() - ts) / 60000), 0);
     if (mins < 1) return 'just now';
@@ -163,6 +168,27 @@ export const StudentAnalysisView = ({
         onCacheAnalysis
     ]);
 
+    const hydrateOrAnalyze = useCallback(async (): Promise<void> => {
+        // Cross-reload reuse: load the last persisted analysis for this student
+        // before spending tokens on a fresh deep-dive. The header shows when it
+        // was run and offers Re-analyze.
+        setIsAnalyzing(true);
+        try {
+            const res = await getAIAssistLatestAnalysis(student.id);
+            if (res?.data?.content) {
+                setAnalysisText(res.data.content);
+                setConversationId(res.data.conversationId);
+                setAnalyzedAt(new Date(res.data.analyzedAt).getTime());
+                onCacheAnalysis?.(res.data.content, res.data.conversationId);
+                setIsAnalyzing(false);
+                return;
+            }
+        } catch {
+            // No persisted analysis (or lookup failed) — fall through to a run.
+        }
+        await runAnalysis();
+    }, [student.id, runAnalysis, onCacheAnalysis]);
+
     useEffect(() => {
         if (hasRunRef.current) return;
         hasRunRef.current = true;
@@ -170,8 +196,8 @@ export const StudentAnalysisView = ({
         // expensive multi-tool deep-dive. The header exposes Re-analyze for a
         // forced refresh.
         if (cached?.text) return;
-        void runAnalysis();
-    }, [cached, runAnalysis]);
+        void hydrateOrAnalyze();
+    }, [cached, hydrateOrAnalyze]);
 
     const sendFollowUp = useCallback(async (): Promise<void> => {
         const text = followUpInput.trim();

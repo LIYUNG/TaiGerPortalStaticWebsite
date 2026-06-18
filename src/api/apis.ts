@@ -556,6 +556,22 @@ export const getAIAssistConversation = (conversationId: string) =>
         `/api/ai-assist/conversations/${conversationId}`
     );
 
+export interface AIAssistLatestAnalysisResponse {
+    success: boolean;
+    data: {
+        conversationId: string;
+        content: string;
+        analyzedAt: string;
+    } | null;
+}
+
+// Most recent persisted deep-dive analysis for a student (survives reloads).
+// Returns null when the student has never been analyzed.
+export const getAIAssistLatestAnalysis = (studentId: string) =>
+    getData<AIAssistLatestAnalysisResponse>(
+        `/api/ai-assist/students/${studentId}/latest-analysis`
+    );
+
 export const updateAIAssistConversation = (
     conversationId: string,
     payload: UpdateAIAssistConversationPayload
