@@ -11,6 +11,7 @@ import {
     getProgramRequirementsV2,
     getCourse,
     getCommunicationThreadV2,
+    getCommunicationDraft,
     getPdfV2,
     getMyCommunicationThreadV2,
     getMessagThread,
@@ -181,6 +182,15 @@ export const getCommunicationQuery = (
     queryKey: ['communications', studentId],
     queryFn: () => getCommunicationThreadV2({ studentId }),
     staleTime: 1000 * 50 // 50 seconds
+});
+
+export const getCommunicationDraftQuery = (
+    studentId: StudentId
+): UseQueryOptions => ({
+    queryKey: ['communications', studentId, 'draft'],
+    queryFn: () => getCommunicationDraft(studentId),
+    enabled: !!studentId,
+    staleTime: 1000 * 30
 });
 
 export const getInterviewsByStudentIdQuery = (

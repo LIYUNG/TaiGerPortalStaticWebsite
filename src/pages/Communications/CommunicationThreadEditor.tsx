@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -27,6 +27,7 @@ import type { OutputData } from '@editorjs/editorjs';
 import { useAuth } from '@components/AuthProvider';
 import { CVMLRL_DOC_PRECHECK_STATUS_E } from '@utils/contants';
 import { TaiGerChatAssistant } from '@/api';
+import useCommunicationDraft from '@hooks/useCommunicationDraft';
 import { appConfig } from '../../config';
 
 export interface CheckResultItem {
@@ -61,6 +62,47 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     });
     const [isSending, setIsSending] = useState(false);
 
+    // ── Server-side draft (Slack-style: continue an unsent message later) ──
+    const { draft, isDraftLoaded, status, saveDraft, clearDraft } =
+        useCommunicationDraft(studentId);
+    // Normalized (blocks-only, ignores EditorJS `time`) snapshot of what's been
+    // persisted, so re-emitting the same content (e.g. the restore echo or the
+    // initial empty editor) doesn't trigger a redundant save/delete.
+    const lastSavedBlocksRef = useRef<string>('[]');
+    const draftAppliedRef = useRef(false);
+
+    // Reset per-thread tracking when the conversation changes.
+    useEffect(() => {
+        draftAppliedRef.current = false;
+        lastSavedBlocksRef.current = '[]';
+    }, [studentId]);
+
+    // Restore the saved draft once it loads (only into an empty editor, so we
+    // never clobber text the user already started typing).
+    useEffect(() => {
+        if (!isDraftLoaded || draftAppliedRef.current) return;
+        draftAppliedRef.current = true;
+        if (draft && composeRef.current?.isEmpty()) {
+            lastSavedBlocksRef.current = JSON.stringify(draft.blocks ?? []);
+            composeRef.current.restore(draft);
+            // Reflect that the editor now has restored content (enables Send).
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setHasContent(true);
+        }
+    }, [isDraftLoaded, draft]);
+
+    const handleContentChange = useCallback(
+        (value: OutputData) => {
+            setHasContent(Boolean(value?.blocks && value.blocks.length > 0));
+            const blocksKey = JSON.stringify(value?.blocks ?? []);
+            if (blocksKey !== lastSavedBlocksRef.current) {
+                lastSavedBlocksRef.current = blocksKey;
+                saveDraft(value);
+            }
+        },
+        [saveDraft]
+    );
+
     const handleSend = useCallback(
         (e: React.MouseEvent) => {
             if (isSending) return;
@@ -70,9 +112,12 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
             handleClickSave?.(e, content);
             composeRef.current?.reset();
             setHasContent(false);
+            // The message is sent — drop the saved draft.
+            lastSavedBlocksRef.current = '[]';
+            clearDraft();
             setIsSending(false);
         },
-        [isSending, handleClickSave]
+        [isSending, handleClickSave, clearDraft]
     );
 
     const handleClick = () => {
@@ -144,13 +189,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                 | { _id: string; student_id: { _id: string } }
                                 | undefined
                         }
-                        onContentChange={(value) =>
-                            setHasContent(
-                                Boolean(
-                                    value?.blocks && value.blocks.length > 0
-                                )
-                            )
-                        }
+                        onContentChange={handleContentChange}
                     />
                 </Box>
 
@@ -273,6 +312,23 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                 </IconButton>
                             </span>
                         </Tooltip>
+                    ) : null}
+                    {status === 'saving' || status === 'saved' ? (
+                        <Typography
+                            color="text.secondary"
+                            sx={{ ml: 0.5 }}
+                            variant="caption"
+                        >
+                            {status === 'saving'
+                                ? t('Saving draft…', {
+                                      ns: 'common',
+                                      defaultValue: 'Saving draft…'
+                                  })
+                                : t('Draft saved', {
+                                      ns: 'common',
+                                      defaultValue: 'Draft saved'
+                                  })}
+                        </Typography>
                     ) : null}
                     <Box sx={{ flex: 1 }} />
                     <Tooltip

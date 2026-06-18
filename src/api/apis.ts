@@ -1481,6 +1481,30 @@ export const updateAMessageInCommunicationThreadV2 = ({
         { message }
     );
 
+// ── Per-user message drafts (saved-but-unsent message per student thread) ──
+export interface CommunicationDraft {
+    _id: string;
+    user_id: string;
+    student_id: string;
+    message: string;
+    updatedAt?: string;
+}
+export interface CommunicationDraftResponse {
+    success: boolean;
+    data: CommunicationDraft | null;
+}
+export const getCommunicationDraft = (studentId: StudentId) =>
+    getData<CommunicationDraftResponse>(
+        `/api/communications/${studentId}/draft`
+    );
+export const saveCommunicationDraft = (studentId: StudentId, message: string) =>
+    putData<CommunicationDraftResponse>(
+        `/api/communications/${studentId}/draft`,
+        { message }
+    );
+export const deleteCommunicationDraft = (studentId: StudentId) =>
+    deleteData<{ success: boolean }>(`/api/communications/${studentId}/draft`);
+
 export const deleteAMessageInCommunicationThreadV2 = ({
     student_id,
     communication_messageId
