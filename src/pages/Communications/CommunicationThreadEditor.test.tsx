@@ -7,7 +7,10 @@ const { restoreSpy, draftState, draftHook } = vi.hoisted(() => ({
     draftState: { value: null as OutputData | null },
     draftHook: {
         saveDraft: vi.fn(),
-        clearDraft: vi.fn()
+        clearDraft: vi.fn(),
+        attachFiles: vi.fn(),
+        removeFile: vi.fn(),
+        invalidateDraft: vi.fn()
     }
 }));
 
@@ -19,10 +22,15 @@ vi.mock('react-router-dom', async (orig) => ({
 vi.mock('@hooks/useCommunicationDraft', () => ({
     default: () => ({
         draft: draftState.value,
+        draftFiles: [],
+        isAttaching: false,
         isDraftLoaded: true,
         status: 'idle',
         saveDraft: draftHook.saveDraft,
-        clearDraft: draftHook.clearDraft
+        clearDraft: draftHook.clearDraft,
+        attachFiles: draftHook.attachFiles,
+        removeFile: draftHook.removeFile,
+        invalidateDraft: draftHook.invalidateDraft
     })
 }));
 
@@ -56,6 +64,20 @@ vi.mock('@components/EditorJs/ComposeEditor', async () => {
 vi.mock('@/api', () => ({
     TaiGerChatAssistant: vi.fn(),
     BASE_URL: 'http://localhost:3000'
+}));
+
+vi.mock('@contexts/use-snack-bar', () => ({
+    useSnackBar: () => ({
+        setMessage: vi.fn(),
+        setSeverity: vi.fn(),
+        setOpenSnackbar: vi.fn()
+    })
+}));
+
+vi.mock('@pages/Utils/util_functions', () => ({
+    readPDF: vi.fn().mockResolvedValue({}),
+    readDOCX: vi.fn().mockResolvedValue({}),
+    readXLSX: vi.fn().mockResolvedValue({})
 }));
 
 vi.mock('react-markdown', () => ({

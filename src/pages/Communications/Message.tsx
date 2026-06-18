@@ -369,14 +369,24 @@ const Message = ({
                                 variant="outlined"
                             >
                                 <Typography
-                                    onClick={() =>
+                                    onClick={() => {
+                                        // Fetch by the (opaque) storage key —
+                                        // the last segment of file.path — and
+                                        // pass the friendly name for the
+                                        // download filename. Legacy files store
+                                        // the friendly name as the key segment,
+                                        // so this works for both.
+                                        const storageName =
+                                            (file.path ?? '')
+                                                .split('/')
+                                                .pop() || file.name;
                                         handleClick(
-                                            `/api/communications/${message?.student_id?._id.toString()}/chat/${
+                                            `/api/communications/${message?.student_id?._id.toString()}/chat/${storageName}?name=${encodeURIComponent(
                                                 file.name
-                                            }`,
+                                            )}`,
                                             file.name
-                                        )
-                                    }
+                                        );
+                                    }}
                                     sx={{
                                         alignItems: 'center',
                                         cursor: 'pointer',

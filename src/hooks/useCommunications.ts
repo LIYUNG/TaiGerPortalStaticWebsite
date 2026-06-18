@@ -64,6 +64,16 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             queryClient.invalidateQueries({
                 queryKey: ['communications', 'my']
             });
+            // The server moved the draft's staged files onto the message and
+            // deleted the draft — refetch it so the composer's attachment list
+            // clears.
+            queryClient.invalidateQueries({
+                queryKey: [
+                    'communications',
+                    communicationsState.student._id?.toString(),
+                    'draft'
+                ]
+            });
             setCommunicationsState((prevState) => ({
                 ...prevState,
                 editorState: {},

@@ -1531,11 +1531,16 @@ export const updateAMessageInCommunicationThreadV2 = ({
     );
 
 // ── Per-user message drafts (saved-but-unsent message per student thread) ──
+export interface CommunicationDraftFile {
+    name: string;
+    path: string;
+}
 export interface CommunicationDraft {
     _id: string;
     user_id: string;
     student_id: string;
     message: string;
+    files?: CommunicationDraftFile[];
     updatedAt?: string;
 }
 export interface CommunicationDraftResponse {
@@ -1553,6 +1558,32 @@ export const saveCommunicationDraft = (studentId: StudentId, message: string) =>
     );
 export const deleteCommunicationDraft = (studentId: StudentId) =>
     deleteData<{ success: boolean }>(`/api/communications/${studentId}/draft`);
+
+// Attach: upload files (FormData, field 'files') to the draft area. The backend
+// stores them in S3 and records refs on the draft.
+export interface UploadCommunicationDraftFilesResponse {
+    success: boolean;
+    data: { files: CommunicationDraftFile[]; draft: CommunicationDraft };
+}
+export const uploadCommunicationDraftFiles = (
+    studentId: StudentId,
+    formData: FormData
+) =>
+    request.post<UploadCommunicationDraftFilesResponse>(
+        `/api/communications/${studentId}/draft/files`,
+        formData
+    );
+
+// Unattach: delete a staged draft file (by its S3 key) — removes it from S3 and
+// the draft.
+export const deleteCommunicationDraftFile = (
+    studentId: StudentId,
+    path: string
+) =>
+    request.delete<{ success: boolean; data: CommunicationDraft | null }>(
+        `/api/communications/${studentId}/draft/files`,
+        { data: { path } }
+    );
 
 export const deleteAMessageInCommunicationThreadV2 = ({
     student_id,

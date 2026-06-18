@@ -483,6 +483,8 @@ const CommunicationExpandPageMessagesComponent = ({
                                 files={files}
                                 handleClickSave={handleClickSave}
                                 onFileChange={onFileChange}
+                                studentFirstname={student.firstname}
+                                studentId={student._id.toString()}
                                 thread={thread}
                             />
                         </Card>
