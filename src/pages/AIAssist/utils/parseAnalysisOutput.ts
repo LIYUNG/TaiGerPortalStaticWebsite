@@ -25,12 +25,22 @@ export interface ParsedAnalysis {
     isStructured: boolean;
 }
 
-const extractSection = (text: string, header: string, nextHeader: string): string => {
+const extractSection = (
+    text: string,
+    header: string,
+    nextHeader: string
+): string => {
     const start = text.indexOf(`**${header}:**`);
     if (start === -1) return '';
     const contentStart = start + `**${header}:**`.length;
-    const nextStart = nextHeader ? text.indexOf(`**${nextHeader}:**`, contentStart) : -1;
-    return (nextStart === -1 ? text.slice(contentStart) : text.slice(contentStart, nextStart)).trim();
+    const nextStart = nextHeader
+        ? text.indexOf(`**${nextHeader}:**`, contentStart)
+        : -1;
+    return (
+        nextStart === -1
+            ? text.slice(contentStart)
+            : text.slice(contentStart, nextStart)
+    ).trim();
 };
 
 const parseBullets = (section: string): string[] =>
@@ -88,7 +98,9 @@ export const parseAnalysisOutput = (text: string): ParsedAnalysis => {
         .map((line) => {
             const m = line.match(/\[RISK:(HIGH|MEDIUM|LOW)\]/);
             const severity = (m?.[1] as 'HIGH' | 'MEDIUM' | 'LOW') ?? 'MEDIUM';
-            const riskText = line.replace(/^-\s*\[RISK:(HIGH|MEDIUM|LOW)\]\s*/, '').trim();
+            const riskText = line
+                .replace(/^-\s*\[RISK:(HIGH|MEDIUM|LOW)\]\s*/, '')
+                .trim();
             return { severity, text: riskText };
         });
 
@@ -106,7 +118,23 @@ export const parseAnalysisOutput = (text: string): ParsedAnalysis => {
 
     const analysisSection = extractSection(text, 'ANALYSIS', '');
 
-    const isStructured = Boolean(health) && (blockers.length > 0 || risks.length > 0 || actions.length > 0);
+    // The full template was followed when HEALTH is set and the ANALYSIS section
+    // is present — even for a healthy student with no blockers/risks/actions.
+    // Falling back to raw markdown only when the template is genuinely absent
+    // avoids hiding the structured view for "all clear" cases.
+    const isStructured =
+        Boolean(health) &&
+        (text.includes('**ANALYSIS:**') ||
+            blockers.length > 0 ||
+            risks.length > 0 ||
+            actions.length > 0);
 
-    return { health, blockers, risks, actions, analysis: analysisSection || text, isStructured };
+    return {
+        health,
+        blockers,
+        risks,
+        actions,
+        analysis: analysisSection || text,
+        isStructured
+    };
 };

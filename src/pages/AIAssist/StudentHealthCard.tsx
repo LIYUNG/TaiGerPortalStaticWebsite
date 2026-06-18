@@ -2,7 +2,12 @@ import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material';
 import { HealthBadge } from './components/HealthBadge';
 
 export type PortfolioSignal = {
-    type: 'deadline' | 'thread_waiting' | 'admitted_unconfirmed' | 'missing_docs';
+    type:
+        | 'deadline'
+        | 'thread_waiting'
+        | 'comm_gap'
+        | 'admitted_unconfirmed'
+        | 'missing_docs';
     urgency: 'critical' | 'high' | 'medium';
     label: string;
 };
@@ -41,11 +46,25 @@ export const StudentHealthCard = ({
             onClick={() => onAnalyze(student)}
         >
             <Stack alignItems="flex-start" spacing={0.5}>
-                <Stack alignItems="center" direction="row" justifyContent="space-between" sx={{ width: '100%' }}>
-                    <Typography fontWeight={700} variant="body1" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ width: '100%' }}
+                >
+                    <Typography
+                        fontWeight={700}
+                        variant="body1"
+                        sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '60%'
+                        }}
+                    >
                         {student.name}
                     </Typography>
-                    <HealthBadge health={student.overallHealth} />
+                    <HealthBadge health={student.overallHealth} preliminary />
                 </Stack>
                 {student.email && (
                     <Typography color="text.disabled" variant="caption" noWrap>
@@ -56,11 +75,22 @@ export const StudentHealthCard = ({
 
             {topSignal && (
                 <Box>
-                    <Typography color="text.secondary" variant="caption" fontWeight={600} sx={{ mb: 0.5, display: 'block' }}>
+                    <Typography
+                        color="text.secondary"
+                        variant="caption"
+                        fontWeight={600}
+                        sx={{ mb: 0.5, display: 'block' }}
+                    >
                         Top priority
                     </Typography>
                     <Chip
-                        color={topSignal.urgency === 'critical' ? 'error' : topSignal.urgency === 'high' ? 'warning' : 'default'}
+                        color={
+                            topSignal.urgency === 'critical'
+                                ? 'error'
+                                : topSignal.urgency === 'high'
+                                  ? 'warning'
+                                  : 'default'
+                        }
                         label={topSignal.label}
                         size="small"
                         sx={{ borderRadius: 0.75 }}
@@ -71,7 +101,8 @@ export const StudentHealthCard = ({
 
             {student.signals.length > 1 && (
                 <Typography color="text.disabled" variant="caption">
-                    +{student.signals.length - 1} more signal{student.signals.length - 1 === 1 ? '' : 's'}
+                    +{student.signals.length - 1} more signal
+                    {student.signals.length - 1 === 1 ? '' : 's'}
                 </Typography>
             )}
 

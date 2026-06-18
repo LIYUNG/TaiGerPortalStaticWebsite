@@ -24,26 +24,37 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendIcon from '@mui/icons-material/Send';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {
-    streamAIAssistFirstMessage,
-    streamAIAssistMessage
-} from '@/api';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { streamAIAssistFirstMessage, streamAIAssistMessage } from '@/api';
 import DEMO from '@/store/constant';
 import type {
     AIAssistConversation,
     AIAssistMessage,
-    AIAssistStreamProgressEvent,
-    AIAssistToolCall
+    AIAssistStreamProgressEvent
 } from '@/api/types';
 import { AnalysisDisplay } from './AnalysisDisplay';
 import type { PortfolioStudent } from './StudentHealthCard';
 
 interface StudentAnalysisViewProps {
     student: PortfolioStudent;
+    cached?: { text: string; conversationId: string; ranAt: number } | null;
     onBack: () => void;
     onOpenChat?: () => void;
-    onConversationCreated?: (convId: string, conversation: AIAssistConversation) => void;
+    onConversationCreated?: (
+        convId: string,
+        conversation: AIAssistConversation
+    ) => void;
+    onCacheAnalysis?: (text: string, conversationId: string) => void;
 }
+
+const formatAgo = (ts: number): string => {
+    const mins = Math.max(Math.floor((Date.now() - ts) / 60000), 0);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+};
 
 const buildAnalysisPrompt = (student: PortfolioStudent): string => {
     const signals = student.signals.map((s) => s.label).join('; ');
@@ -57,7 +68,8 @@ const buildAnalysisPrompt = (student: PortfolioStudent): string => {
 
 const resolveStatus = (event: AIAssistStreamProgressEvent): string | null => {
     if (event.type === 'thinking') return 'Thinking...';
-    if (event.type === 'tool_start') return `Fetching: ${event.toolName ?? 'data'}...`;
+    if (event.type === 'tool_start')
+        return `Fetching: ${event.toolName ?? 'data'}...`;
     if (event.type === 'tool_done') return 'Thinking...';
     if (event.type === 'status' && event.phase === 'completed') return null;
     return null;
@@ -65,23 +77,33 @@ const resolveStatus = (event: AIAssistStreamProgressEvent): string | null => {
 
 export const StudentAnalysisView = ({
     student,
+    cached,
     onBack,
     onOpenChat,
-    onConversationCreated
+    onConversationCreated,
+    onCacheAnalysis
 }: StudentAnalysisViewProps): JSX.Element => {
     const { i18n } = useTranslation();
     const preferredLanguage = i18n.language || 'zh-TW';
-    const [analysisText, setAnalysisText] = useState('');
+    const [analysisText, setAnalysisText] = useState(cached?.text ?? '');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [streamStatus, setStreamStatus] = useState<string | null>(null);
-    const [conversationId, setConversationId] = useState<string | null>(null);
+    const [conversationId, setConversationId] = useState<string | null>(
+        cached?.conversationId ?? null
+    );
+    const [analyzedAt, setAnalyzedAt] = useState<number | null>(
+        cached?.ranAt ?? null
+    );
     const [followUpInput, setFollowUpInput] = useState('');
     const [isSendingFollowUp, setIsSendingFollowUp] = useState(false);
     const [messages, setMessages] = useState<AIAssistMessage[]>([]);
-    const [trace, setTrace] = useState<AIAssistToolCall[]>([]);
+    const [streamingFollowUp, setStreamingFollowUp] = useState('');
     const hasRunRef = useRef(false);
-    const profileUrl = DEMO.STUDENT_DATABASE_STUDENTID_LINK(student.id, DEMO.PROFILE_HASH);
+    const profileUrl = DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+        student.id,
+        DEMO.PROFILE_HASH
+    );
 
     const runAnalysis = useCallback(async (): Promise<void> => {
         setIsAnalyzing(true);
@@ -94,7 +116,10 @@ export const StudentAnalysisView = ({
                     message: buildAnalysisPrompt(student),
                     preferredLanguage,
                     assistContext: {
-                        mentionedStudent: { id: student.id, displayName: student.name },
+                        mentionedStudent: {
+                            id: student.id,
+                            displayName: student.name
+                        },
                         analysisMode: true
                     }
                 },
@@ -117,24 +142,36 @@ export const StudentAnalysisView = ({
                 throw new Error('No response data');
             }
 
-            const { conversation, assistantMessage, trace: responseTrace } = response.data;
+            const { conversation, assistantMessage } = response.data;
+            const finalText = assistantMessage.content || analysisText;
             setConversationId(conversation.id);
-            setAnalysisText(assistantMessage.content || analysisText);
-            setTrace(responseTrace || []);
+            setAnalysisText(finalText);
+            setAnalyzedAt(Date.now());
             onConversationCreated?.(conversation.id, conversation);
+            onCacheAnalysis?.(finalText, conversation.id);
         } catch {
             setError('Analysis failed. Please try again.');
         } finally {
             setIsAnalyzing(false);
             setStreamStatus(null);
         }
-    }, [student, onConversationCreated]);
+    }, [
+        student,
+        analysisText,
+        preferredLanguage,
+        onConversationCreated,
+        onCacheAnalysis
+    ]);
 
     useEffect(() => {
         if (hasRunRef.current) return;
         hasRunRef.current = true;
+        // Reuse a cached analysis from this session instead of re-running an
+        // expensive multi-tool deep-dive. The header exposes Re-analyze for a
+        // forced refresh.
+        if (cached?.text) return;
         void runAnalysis();
-    }, [runAnalysis]);
+    }, [cached, runAnalysis]);
 
     const sendFollowUp = useCallback(async (): Promise<void> => {
         const text = followUpInput.trim();
@@ -143,9 +180,13 @@ export const StudentAnalysisView = ({
         setIsSendingFollowUp(true);
         setFollowUpInput('');
 
-        const userMsg: AIAssistMessage = { id: String(Date.now()), role: 'user', content: text };
+        const userMsg: AIAssistMessage = {
+            id: String(Date.now()),
+            role: 'user',
+            content: text
+        };
         setMessages((prev) => [...prev, userMsg]);
-        let assistantContent = '';
+        setStreamingFollowUp('');
 
         try {
             const response = await streamAIAssistMessage(
@@ -153,7 +194,7 @@ export const StudentAnalysisView = ({
                 { message: text, preferredLanguage },
                 {
                     onToken: (chunk) => {
-                        assistantContent += chunk;
+                        setStreamingFollowUp((prev) => prev + chunk);
                     },
                     onError: () => {
                         setError('Follow-up failed.');
@@ -162,16 +203,16 @@ export const StudentAnalysisView = ({
             );
 
             if (response?.data) {
-                const { assistantMessage, trace: nextTrace } = response.data;
+                const { assistantMessage } = response.data;
                 setMessages((prev) => [...prev, assistantMessage]);
-                setTrace((prev) => [...prev, ...(nextTrace || [])]);
             }
         } catch {
             setError('Follow-up failed.');
         } finally {
             setIsSendingFollowUp(false);
+            setStreamingFollowUp('');
         }
-    }, [followUpInput, isSendingFollowUp, conversationId]);
+    }, [followUpInput, isSendingFollowUp, conversationId, preferredLanguage]);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
         if (e.key === 'Enter' && !e.altKey && !e.shiftKey) {
@@ -181,7 +222,14 @@ export const StudentAnalysisView = ({
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                minHeight: 0
+            }}
+        >
             {/* Header */}
             <Stack
                 alignItems="center"
@@ -204,7 +252,13 @@ export const StudentAnalysisView = ({
                 {student.signals.slice(0, 2).map((s, i) => (
                     <Chip
                         key={i}
-                        color={s.urgency === 'critical' ? 'error' : s.urgency === 'high' ? 'warning' : 'default'}
+                        color={
+                            s.urgency === 'critical'
+                                ? 'error'
+                                : s.urgency === 'high'
+                                  ? 'warning'
+                                  : 'default'
+                        }
                         label={s.label}
                         size="small"
                         sx={{ borderRadius: 0.75 }}
@@ -241,14 +295,54 @@ export const StudentAnalysisView = ({
                     {/* AI Analysis */}
                     <Paper sx={{ p: 2 }} variant="outlined">
                         <Stack spacing={2}>
-                            <Stack alignItems="center" direction="row" justifyContent="space-between">
-                                <Typography fontWeight={700} variant="subtitle2">
-                                    AI Analysis
-                                </Typography>
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                justifyContent="space-between"
+                            >
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={1}
+                                >
+                                    <Typography
+                                        fontWeight={700}
+                                        variant="subtitle2"
+                                    >
+                                        AI Analysis
+                                    </Typography>
+                                    {!isAnalyzing && analyzedAt && (
+                                        <Typography
+                                            color="text.disabled"
+                                            variant="caption"
+                                        >
+                                            analyzed {formatAgo(analyzedAt)}
+                                        </Typography>
+                                    )}
+                                    {!isAnalyzing && analysisText && (
+                                        <Button
+                                            onClick={() => void runAnalysis()}
+                                            size="small"
+                                            startIcon={
+                                                <RefreshIcon fontSize="small" />
+                                            }
+                                            sx={{ minWidth: 0 }}
+                                        >
+                                            Re-analyze
+                                        </Button>
+                                    )}
+                                </Stack>
                                 {isAnalyzing && streamStatus && (
-                                    <Stack alignItems="center" direction="row" spacing={0.75}>
+                                    <Stack
+                                        alignItems="center"
+                                        direction="row"
+                                        spacing={0.75}
+                                    >
                                         <CircularProgress size={12} />
-                                        <Typography color="text.secondary" variant="caption">
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="caption"
+                                        >
                                             {streamStatus}
                                         </Typography>
                                     </Stack>
@@ -265,7 +359,10 @@ export const StudentAnalysisView = ({
                     {messages.length > 0 && (
                         <Stack spacing={1.5}>
                             <Divider>
-                                <Typography color="text.secondary" variant="caption">
+                                <Typography
+                                    color="text.secondary"
+                                    variant="caption"
+                                >
                                     Follow-up
                                 </Typography>
                             </Divider>
@@ -274,7 +371,10 @@ export const StudentAnalysisView = ({
                                     key={msg.id}
                                     sx={{
                                         p: 1.5,
-                                        bgcolor: msg.role === 'user' ? 'action.hover' : 'background.paper'
+                                        bgcolor:
+                                            msg.role === 'user'
+                                                ? 'action.hover'
+                                                : 'background.paper'
                                     }}
                                     variant="outlined"
                                 >
@@ -284,7 +384,9 @@ export const StudentAnalysisView = ({
                                         gutterBottom
                                         variant="caption"
                                     >
-                                        {msg.role === 'user' ? 'You' : 'Assistant'}
+                                        {msg.role === 'user'
+                                            ? 'You'
+                                            : 'Assistant'}
                                     </Typography>
                                     <AnalysisDisplay
                                         isStreaming={false}
@@ -292,6 +394,38 @@ export const StudentAnalysisView = ({
                                     />
                                 </Paper>
                             ))}
+                            {isSendingFollowUp && (
+                                <Paper sx={{ p: 1.5 }} variant="outlined">
+                                    <Typography
+                                        color="text.secondary"
+                                        fontWeight={700}
+                                        gutterBottom
+                                        variant="caption"
+                                    >
+                                        Assistant
+                                    </Typography>
+                                    {streamingFollowUp ? (
+                                        <AnalysisDisplay
+                                            isStreaming
+                                            rawText={streamingFollowUp}
+                                        />
+                                    ) : (
+                                        <Stack
+                                            alignItems="center"
+                                            direction="row"
+                                            spacing={0.75}
+                                        >
+                                            <CircularProgress size={12} />
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="caption"
+                                            >
+                                                Thinking...
+                                            </Typography>
+                                        </Stack>
+                                    )}
+                                </Paper>
+                            )}
                         </Stack>
                     )}
                 </Stack>
@@ -315,7 +449,11 @@ export const StudentAnalysisView = ({
                                 <InputAdornment position="end">
                                     <IconButton
                                         color="primary"
-                                        disabled={isSendingFollowUp || isAnalyzing || !followUpInput.trim()}
+                                        disabled={
+                                            isSendingFollowUp ||
+                                            isAnalyzing ||
+                                            !followUpInput.trim()
+                                        }
                                         onClick={() => void sendFollowUp()}
                                         size="small"
                                     >

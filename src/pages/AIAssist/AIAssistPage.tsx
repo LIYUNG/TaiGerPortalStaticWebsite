@@ -710,9 +710,17 @@ const AIAssistPage = (): JSX.Element => {
         },
         [t]
     );
-    const [workbenchMode, setWorkbenchMode] = useState<WorkbenchMode>('portfolio');
+    const [workbenchMode, setWorkbenchMode] =
+        useState<WorkbenchMode>('portfolio');
     const [analysisStudent, setAnalysisStudent] =
         useState<PortfolioStudent | null>(null);
+    // Session cache of student deep-dive analyses (studentId -> result). Lets the
+    // user navigate back and forth between the portfolio and a student without
+    // re-running an expensive multi-tool analysis on every visit. Persists for
+    // the lifetime of this page; a "Re-analyze" control forces a fresh run.
+    const analysisCacheRef = useRef<
+        Map<string, { text: string; conversationId: string; ranAt: number }>
+    >(new Map());
 
     const skipInitialAutoloadRef = useRef(false);
     const composerInputRef = useRef<
@@ -1746,7 +1754,10 @@ const AIAssistPage = (): JSX.Element => {
             <Box
                 sx={{
                     boxSizing: 'border-box',
-                    height: { xs: 'calc(100vh - 112px)', md: 'calc(100vh - 112px)' },
+                    height: {
+                        xs: 'calc(100vh - 112px)',
+                        md: 'calc(100vh - 112px)'
+                    },
                     minHeight: 0,
                     overflow: 'hidden',
                     width: '100%'
@@ -1771,7 +1782,10 @@ const AIAssistPage = (): JSX.Element => {
             <Box
                 sx={{
                     boxSizing: 'border-box',
-                    height: { xs: 'calc(100vh - 112px)', md: 'calc(100vh - 112px)' },
+                    height: {
+                        xs: 'calc(100vh - 112px)',
+                        md: 'calc(100vh - 112px)'
+                    },
                     minHeight: 0,
                     overflow: 'hidden',
                     width: '100%'
@@ -1779,10 +1793,20 @@ const AIAssistPage = (): JSX.Element => {
             >
                 <StudentAnalysisView
                     student={analysisStudent}
+                    cached={
+                        analysisCacheRef.current.get(analysisStudent.id) ?? null
+                    }
                     onBack={() => setWorkbenchMode('portfolio')}
                     onOpenChat={() => setWorkbenchMode('chat')}
                     onConversationCreated={(convId, conversation) => {
                         addConversationToTop(conversation);
+                    }}
+                    onCacheAnalysis={(text, convId) => {
+                        analysisCacheRef.current.set(analysisStudent.id, {
+                            text,
+                            conversationId: convId,
+                            ranAt: Date.now()
+                        });
                     }}
                 />
             </Box>

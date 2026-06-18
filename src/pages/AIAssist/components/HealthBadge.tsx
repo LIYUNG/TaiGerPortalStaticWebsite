@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material';
+import { Chip, Tooltip } from '@mui/material';
 
 const HEALTH_CONFIG: Record<string, { color: string; label: string }> = {
     Healthy: { color: 'success', label: 'Healthy' },
@@ -12,19 +12,33 @@ const HEALTH_CONFIG: Record<string, { color: string; label: string }> = {
 
 export const HealthBadge = ({
     health,
-    size = 'small'
+    size = 'small',
+    preliminary = false
 }: {
     health: string;
     size?: 'small' | 'medium';
+    // When true, marks the badge as a rule-based portfolio estimate rather than
+    // the authoritative AI deep-dive verdict — the two can legitimately differ.
+    preliminary?: boolean;
 }): JSX.Element => {
     const config = HEALTH_CONFIG[health] ?? { color: 'default', label: health };
-    return (
+    const chip = (
         <Chip
             color={config.color as 'success' | 'warning' | 'error' | 'default'}
-            label={config.label}
+            label={preliminary ? `~${config.label}` : config.label}
             size={size}
             sx={{ fontWeight: 700, borderRadius: 1 }}
-            variant="filled"
+            variant={preliminary ? 'outlined' : 'filled'}
         />
+    );
+
+    if (!preliminary) {
+        return chip;
+    }
+
+    return (
+        <Tooltip title="Preliminary estimate from portfolio signals. Open the student for the full AI analysis.">
+            {chip}
+        </Tooltip>
     );
 };

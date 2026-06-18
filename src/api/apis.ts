@@ -754,6 +754,11 @@ export interface AIAssistOverviewItem {
     fileType?: string;
     updatedAt?: string;
     missingDocuments?: string[];
+    // Days a document thread has been waiting on the team (thread-stall signal).
+    stalledDays?: number | null;
+    // Days since the last message with the student; null when never contacted
+    // (communication-gap signal).
+    lastContactDays?: number | null;
 }
 
 export interface AIAssistOverviewResponse {

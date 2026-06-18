@@ -12,7 +12,11 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
 import { getAIAssistOverview, AIAssistOverviewItem } from '../../api/apis';
-import { StudentHealthCard, PortfolioStudent, PortfolioSignal } from './StudentHealthCard';
+import {
+    StudentHealthCard,
+    PortfolioStudent,
+    PortfolioSignal
+} from './StudentHealthCard';
 
 interface PortfolioViewProps {
     onAnalyzeStudent: (student: PortfolioStudent) => void;
@@ -33,7 +37,10 @@ const buildPortfolioStudents = (
 ): PortfolioStudent[] => {
     const byId = new Map<string, PortfolioStudent>();
 
-    const addSignal = (item: AIAssistOverviewItem, signal: PortfolioSignal): void => {
+    const addSignal = (
+        item: AIAssistOverviewItem,
+        signal: PortfolioSignal
+    ): void => {
         const id = item.student?.id;
         if (!id) return;
         if (!byId.has(id)) {
@@ -62,10 +69,29 @@ const buildPortfolioStudents = (
     });
 
     (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
+        const stalled = item.stalledDays ?? null;
+        const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
         addSignal(item, {
             type: 'thread_waiting',
-            urgency: 'medium',
-            label: `Thread waiting on team${item.fileType ? ` · ${item.fileType}` : ''}`
+            // A thread the team has sat on for over a week is a real bottleneck.
+            urgency: stalled !== null && stalled >= 7 ? 'high' : 'medium',
+            label:
+                stalled !== null
+                    ? `Thread stalled ${stalled}d${fileLabel}`
+                    : `Thread waiting on team${fileLabel}`
+        });
+    });
+
+    (buckets.communicationGaps?.items ?? []).forEach((item) => {
+        const days = item.lastContactDays ?? null;
+        addSignal(item, {
+            // No contact for 6+ weeks is a strong drop-off signal → escalate.
+            urgency: days === null || days >= 42 ? 'critical' : 'high',
+            type: 'comm_gap',
+            label:
+                days === null
+                    ? 'No messages logged yet'
+                    : `No reply in ${days}d`
         });
     });
 
@@ -146,7 +172,11 @@ export const PortfolioView = ({
     return (
         <Stack spacing={3} sx={{ height: '100%', overflow: 'auto', p: 2 }}>
             <Stack spacing={1}>
-                <Stack alignItems="center" direction="row" justifyContent="space-between">
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    justifyContent="space-between"
+                >
                     <Typography fontWeight={700} variant="h6">
                         Portfolio — needs attention
                     </Typography>
@@ -160,7 +190,8 @@ export const PortfolioView = ({
                     </Button>
                 </Stack>
                 <Typography color="text.secondary" variant="body2">
-                    Students with active risks, upcoming deadlines, or stalled threads. Click any card to run a deep-dive analysis.
+                    Students with active risks, upcoming deadlines, or stalled
+                    threads. Click any card to run a deep-dive analysis.
                 </Typography>
                 <TextField
                     fullWidth
@@ -170,7 +201,12 @@ export const PortfolioView = ({
                                 <SendIcon
                                     fontSize="small"
                                     onClick={handleChatSubmit}
-                                    sx={{ cursor: 'pointer', color: chatInput.trim() ? 'primary.main' : 'action.disabled' }}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        color: chatInput.trim()
+                                            ? 'primary.main'
+                                            : 'action.disabled'
+                                    }}
                                 />
                             </InputAdornment>
                         )
@@ -190,7 +226,12 @@ export const PortfolioView = ({
             </Stack>
 
             {isLoading ? (
-                <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ minHeight: 200 }}>
+                <Stack
+                    alignItems="center"
+                    justifyContent="center"
+                    spacing={1}
+                    sx={{ minHeight: 200 }}
+                >
                     <CircularProgress size={24} />
                     <Typography color="text.secondary" variant="body2">
                         Loading portfolio...
@@ -201,12 +242,22 @@ export const PortfolioView = ({
                     Could not load portfolio data.
                 </Alert>
             ) : students.length === 0 ? (
-                <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ minHeight: 200 }}>
-                    <Typography color="text.secondary" fontWeight={600} variant="body1">
+                <Stack
+                    alignItems="center"
+                    justifyContent="center"
+                    spacing={1}
+                    sx={{ minHeight: 200 }}
+                >
+                    <Typography
+                        color="text.secondary"
+                        fontWeight={600}
+                        variant="body1"
+                    >
                         ✓ All students on track
                     </Typography>
                     <Typography color="text.secondary" variant="body2">
-                        No urgent items detected. Use the search above to ask about specific students.
+                        No urgent items detected. Use the search above to ask
+                        about specific students.
                     </Typography>
                 </Stack>
             ) : (
