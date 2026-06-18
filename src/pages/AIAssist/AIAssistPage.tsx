@@ -53,6 +53,8 @@ import type {
 } from '@/api/types';
 import { PortfolioView } from './PortfolioView';
 import { StudentAnalysisView } from './StudentAnalysisView';
+import { AnalysisDisplay } from './AnalysisDisplay';
+import { parseAnalysisOutput } from './utils/parseAnalysisOutput';
 import type { PortfolioStudent } from './StudentHealthCard';
 
 type WorkbenchMode = 'portfolio' | 'student' | 'chat';
@@ -671,6 +673,13 @@ const MessageContent = ({
         message.content || '',
         message.linkHints
     );
+    // Structured deep-dive analyses are persisted in the parseable section
+    // format. Render them with the same structured view as the Student Analysis
+    // screen instead of raw markdown (e.g. when the conversation is reopened
+    // from chat history).
+    if (parseAnalysisOutput(content).isStructured) {
+        return <AnalysisDisplay isStreaming={false} rawText={content} />;
+    }
     const hasMarkdownSyntax = /(^|\s)([#>*`-]|\d+\.)\s|[*_`[\]()]/m.test(
         content
     );
