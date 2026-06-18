@@ -47,7 +47,7 @@ const buildPortfolioStudents = (
             byId.set(id, {
                 id,
                 name: item.student?.name ?? id,
-                email: item.student?.email,
+                chineseName: item.student?.chineseName,
                 signals: [],
                 overallHealth: 'Medium Risk'
             });

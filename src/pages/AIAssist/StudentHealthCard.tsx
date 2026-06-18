@@ -1,4 +1,5 @@
 import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { HealthBadge } from './components/HealthBadge';
 
 export type PortfolioSignal = {
@@ -15,7 +16,7 @@ export type PortfolioSignal = {
 export type PortfolioStudent = {
     id: string;
     name: string;
-    email?: string;
+    chineseName?: string;
     signals: PortfolioSignal[];
     overallHealth: string;
 };
@@ -29,6 +30,10 @@ export const StudentHealthCard = ({
     student,
     onAnalyze
 }: StudentHealthCardProps): JSX.Element => {
+    const { i18n } = useTranslation();
+    const isZh = i18n.language.startsWith('zh');
+    const displayName =
+        isZh && student.chineseName ? student.chineseName : student.name;
     const topSignal = student.signals[0];
 
     return (
@@ -39,6 +44,8 @@ export const StudentHealthCard = ({
                 flexDirection: 'column',
                 gap: 1.5,
                 cursor: 'pointer',
+                minWidth: 0,
+                overflow: 'hidden',
                 transition: 'box-shadow 0.15s',
                 '&:hover': { boxShadow: 4 }
             }}
@@ -62,15 +69,10 @@ export const StudentHealthCard = ({
                             maxWidth: '60%'
                         }}
                     >
-                        {student.name}
+                        {displayName}
                     </Typography>
                     <HealthBadge health={student.overallHealth} preliminary />
                 </Stack>
-                {student.email && (
-                    <Typography color="text.disabled" variant="caption" noWrap>
-                        {student.email}
-                    </Typography>
-                )}
             </Stack>
 
             {topSignal && (
@@ -93,7 +95,14 @@ export const StudentHealthCard = ({
                         }
                         label={topSignal.label}
                         size="small"
-                        sx={{ borderRadius: 0.75 }}
+                        sx={{
+                            borderRadius: 0.75,
+                            maxWidth: '100%',
+                            '& .MuiChip-label': {
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }
+                        }}
                         variant="outlined"
                     />
                 </Box>

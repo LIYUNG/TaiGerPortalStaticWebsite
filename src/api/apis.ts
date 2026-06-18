@@ -763,7 +763,12 @@ export const searchAIAssistStudents = (query: string) =>
     );
 
 export interface AIAssistOverviewItem {
-    student?: { id?: string; name?: string; email?: string };
+    student?: {
+        id?: string;
+        name?: string;
+        chineseName?: string;
+        email?: string;
+    };
     program?: { school?: string; name?: string } | null;
     deadline?: string;
     daysUntil?: number;
