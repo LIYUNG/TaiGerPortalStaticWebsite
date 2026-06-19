@@ -183,13 +183,19 @@ const buildPortfolioStudents = (
                 isZh ? signal.summaryZh : signal.summaryEn
             )?.trim();
             if (summary) {
-                const days =
+                const when = signal.occurredAt
+                    ? new Date(signal.occurredAt).toLocaleDateString(
+                          isZh ? 'zh-TW' : 'en'
+                      )
+                    : null;
+                const ago =
                     signal.sinceDays != null && signal.sinceDays > 0
                         ? isZh
-                            ? `（${signal.sinceDays} 天）`
-                            : ` (${signal.sinceDays}d)`
-                        : '';
-                g.lines.push(`${summary}${days}`);
+                            ? `${signal.sinceDays} 天前`
+                            : `${signal.sinceDays}d ago`
+                        : null;
+                const meta = [when, ago].filter(Boolean).join(' · ');
+                g.lines.push(meta ? `${summary}（${meta}）` : summary);
             }
             byType.set(signal.type, g);
         });

@@ -799,6 +799,9 @@ export interface AIAssistOverviewItem {
         summaryEn?: string;
         summaryZh?: string;
         evidence?: string;
+        // Real event time of the evidencing message + its id (for jump-to-message).
+        occurredAt?: string | null;
+        sourceMessageId?: string | null;
         sinceDays?: number | null;
     }[];
 }
