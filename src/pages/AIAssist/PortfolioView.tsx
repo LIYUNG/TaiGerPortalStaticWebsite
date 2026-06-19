@@ -88,34 +88,33 @@ const buildPortfolioStudents = (
     });
 
     (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
-        const stalled = item.stalledDays ?? null;
+        const stalled = item.stalledDays ?? 0;
+        const urgency =
+            stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
-        const base =
-            stalled !== null
-                ? t(
-                      'aiAssist.signalThreadStalled',
-                      'Thread stalled {{count}}d',
-                      { count: stalled }
-                  )
-                : t('aiAssist.signalThreadWaiting', 'Thread waiting on team');
+        const base = t(
+            'aiAssist.signalThreadStalled',
+            'Reply needed {{count}}d',
+            { count: stalled }
+        );
         addSignal(item, {
             type: 'thread_waiting',
-            urgency: stalled !== null && stalled >= 7 ? 'high' : 'medium',
+            urgency,
             label: `${base}${fileLabel}`
         });
     });
 
     (buckets.communicationGaps?.items ?? []).forEach((item) => {
-        const days = item.lastContactDays ?? null;
+        const days = item.lastContactDays ?? 0;
+        const urgency = days >= 14 ? 'critical' : days >= 7 ? 'high' : 'medium';
         addSignal(item, {
-            urgency: days === null || days >= 42 ? 'critical' : 'high',
+            urgency,
             type: 'comm_gap',
-            label:
-                days === null
-                    ? t('aiAssist.signalNoMessages', 'No messages logged yet')
-                    : t('aiAssist.signalNoReply', 'No reply in {{count}}d', {
-                          count: days
-                      })
+            label: t(
+                'aiAssist.signalStudentWaiting',
+                'Student waiting {{count}}d for reply',
+                { count: days }
+            )
         });
     });
 
