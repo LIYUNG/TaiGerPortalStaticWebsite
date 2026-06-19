@@ -1,13 +1,24 @@
 import { Chip, Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
-const HEALTH_CONFIG: Record<string, { color: string; label: string }> = {
-    Healthy: { color: 'success', label: 'Healthy' },
-    'On Track': { color: 'success', label: 'On Track' },
-    'Minor Risk': { color: 'warning', label: 'Minor Risk' },
-    'Medium Risk': { color: 'warning', label: 'Medium Risk' },
-    'High Risk': { color: 'error', label: 'High Risk' },
-    Critical: { color: 'error', label: 'Critical' },
-    Stalled: { color: 'default', label: 'Stalled' }
+const HEALTH_COLOR: Record<string, string> = {
+    Healthy: 'success',
+    'On Track': 'success',
+    'Minor Risk': 'warning',
+    'Medium Risk': 'warning',
+    'High Risk': 'error',
+    Critical: 'error',
+    Stalled: 'default'
+};
+
+const HEALTH_I18N_KEY: Record<string, string> = {
+    Healthy: 'aiAssist.healthHealthy',
+    'On Track': 'aiAssist.healthOnTrack',
+    'Minor Risk': 'aiAssist.healthMinorRisk',
+    'Medium Risk': 'aiAssist.healthMediumRisk',
+    'High Risk': 'aiAssist.healthHighRisk',
+    Critical: 'aiAssist.healthCritical',
+    Stalled: 'aiAssist.healthStalled'
 };
 
 export const HealthBadge = ({
@@ -21,11 +32,16 @@ export const HealthBadge = ({
     // the authoritative AI deep-dive verdict — the two can legitimately differ.
     preliminary?: boolean;
 }): JSX.Element => {
-    const config = HEALTH_CONFIG[health] ?? { color: 'default', label: health };
+    const { t } = useTranslation();
+    const color = HEALTH_COLOR[health] ?? 'default';
+    const label = t(
+        HEALTH_I18N_KEY[health] ?? 'aiAssist.healthUnknown',
+        health
+    );
     const chip = (
         <Chip
-            color={config.color as 'success' | 'warning' | 'error' | 'default'}
-            label={preliminary ? `~${config.label}` : config.label}
+            color={color as 'success' | 'warning' | 'error' | 'default'}
+            label={preliminary ? `~${label}` : label}
             size={size}
             sx={{ fontWeight: 700, borderRadius: 1 }}
             variant={preliminary ? 'outlined' : 'filled'}
@@ -37,7 +53,12 @@ export const HealthBadge = ({
     }
 
     return (
-        <Tooltip title="Preliminary estimate from portfolio signals. Open the student for the full AI analysis.">
+        <Tooltip
+            title={t(
+                'aiAssist.healthPreliminaryTooltip',
+                'Preliminary estimate from portfolio signals. Open the student for the full AI analysis.'
+            )}
+        >
             {chip}
         </Tooltip>
     );

@@ -150,32 +150,70 @@ export const StudentHealthCard = ({
                 />
             )}
 
-            <Stack spacing={0.5}>
-                {student.signals.map((signal, i) => (
-                    <Chip
-                        key={i}
-                        color={
-                            signal.urgency === 'critical'
-                                ? 'error'
-                                : signal.urgency === 'high'
-                                  ? 'warning'
-                                  : 'default'
-                        }
-                        label={signal.label}
-                        size="small"
-                        sx={{
-                            alignSelf: 'flex-start',
-                            borderRadius: 0.75,
-                            maxWidth: '100%',
-                            '& .MuiChip-label': {
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }
-                        }}
-                        variant="outlined"
-                    />
-                ))}
-            </Stack>
+            {(() => {
+                const PER_TYPE = 2;
+                const TYPE_LABEL: Record<string, string> = {
+                    deadline: isZh ? '個截止日' : ' more deadline(s)',
+                    thread_waiting: isZh ? '個待回覆文件' : ' more thread(s)',
+                    comm_gap: isZh ? '個未回訊息' : ' more message gap(s)',
+                    admitted_unconfirmed: isZh
+                        ? '個待確認錄取'
+                        : ' more admission(s)',
+                    missing_docs: isZh ? '個缺少文件' : ' more missing doc(s)'
+                };
+                const grouped = new Map<string, typeof student.signals>();
+                for (const signal of student.signals) {
+                    if (!grouped.has(signal.type)) grouped.set(signal.type, []);
+                    grouped.get(signal.type)!.push(signal);
+                }
+                return (
+                    <Stack spacing={0.5}>
+                        {Array.from(grouped.entries()).map(
+                            ([type, signals]) => (
+                                <Stack key={type} spacing={0.5}>
+                                    {signals
+                                        .slice(0, PER_TYPE)
+                                        .map((signal, i) => (
+                                            <Chip
+                                                key={i}
+                                                color={
+                                                    signal.urgency ===
+                                                    'critical'
+                                                        ? 'error'
+                                                        : signal.urgency ===
+                                                            'high'
+                                                          ? 'warning'
+                                                          : 'default'
+                                                }
+                                                label={signal.label}
+                                                size="small"
+                                                sx={{
+                                                    alignSelf: 'flex-start',
+                                                    borderRadius: 0.75,
+                                                    maxWidth: '100%',
+                                                    '& .MuiChip-label': {
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis'
+                                                    }
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
+                                    {signals.length > PER_TYPE && (
+                                        <Typography
+                                            color="text.disabled"
+                                            variant="caption"
+                                        >
+                                            +{signals.length - PER_TYPE}
+                                            {TYPE_LABEL[type] ?? ' more'}
+                                        </Typography>
+                                    )}
+                                </Stack>
+                            )
+                        )}
+                    </Stack>
+                );
+            })()}
         </Paper>
     );
 };
