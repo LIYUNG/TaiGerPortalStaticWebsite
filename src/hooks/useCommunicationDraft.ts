@@ -91,16 +91,19 @@ const useCommunicationDraft = (
         const message = pendingRef.current;
         pendingRef.current = null;
         try {
-            if (message === '') {
-                await deleteCommunicationDraft(studentId);
-            } else {
-                await saveCommunicationDraft(studentId, message);
-            }
+            // Always PUT (even for empty text): the backend keeps the draft if it
+            // still has attachments and only deletes a truly-empty one. Crucially,
+            // seed the query cache with the saved result so a remount (e.g.
+            // reopening a mobile Drawer) restores the latest draft instead of the
+            // pre-typing cached value — the query's staleTime would otherwise
+            // skip the refetch and serve the stale empty draft.
+            const res = await saveCommunicationDraft(studentId, message);
+            queryClient.setQueryData(draftQueryKey, res);
             setStatus('saved');
         } catch {
             setStatus('error');
         }
-    }, [studentId]);
+    }, [studentId, queryClient, draftQueryKey]);
 
     const saveDraft = useCallback(
         (content: OutputData) => {

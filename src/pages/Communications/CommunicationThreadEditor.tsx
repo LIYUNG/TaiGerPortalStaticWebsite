@@ -171,15 +171,36 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
 
     // Restore the saved draft once it loads (only into an empty editor, so we
     // never clobber text the user already started typing).
+    //
+    // On a fresh mount (e.g. reopening a mobile Drawer that unmounts its
+    // children) the draft query data is already cached, so this effect can run
+    // before the ComposeEditor has attached its ref. Retry on the next frame
+    // until the editor is ready, and only mark "applied" once we actually act —
+    // otherwise a too-early run would skip the restore and never recover.
     useEffect(() => {
         if (!isDraftLoaded || draftAppliedRef.current) return;
-        draftAppliedRef.current = true;
-        if (draft && composeRef.current?.isEmpty()) {
-            lastSavedBlocksRef.current = JSON.stringify(draft.blocks ?? []);
-            composeRef.current.restore(draft);
-            // Reflect that the editor now has restored content (enables Send).
-            setHasContent(true);
+        if (!draft) {
+            draftAppliedRef.current = true; // nothing to restore
+            return;
         }
+        let raf = 0;
+        const attempt = () => {
+            const editor = composeRef.current;
+            if (!editor) {
+                raf = window.requestAnimationFrame(attempt); // not ready yet
+                return;
+            }
+            draftAppliedRef.current = true;
+            if (editor.isEmpty()) {
+                lastSavedBlocksRef.current = JSON.stringify(draft.blocks ?? []);
+                editor.restore(draft);
+                // Reflect that the editor now has restored content (enables Send).
+                setHasContent(true);
+            }
+            // else: the user already started typing — keep their content.
+        };
+        raf = window.requestAnimationFrame(attempt);
+        return () => window.cancelAnimationFrame(raf);
     }, [isDraftLoaded, draft]);
 
     const handleContentChange = useCallback(
