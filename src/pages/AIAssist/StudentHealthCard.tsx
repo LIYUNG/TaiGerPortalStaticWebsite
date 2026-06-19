@@ -9,7 +9,8 @@ export type PortfolioSignal = {
         | 'thread_waiting'
         | 'comm_gap'
         | 'admitted_unconfirmed'
-        | 'missing_docs';
+        | 'missing_docs'
+        | 'comm_risk';
     urgency: 'critical' | 'high' | 'medium';
     label: string;
 };
@@ -159,7 +160,8 @@ export const StudentHealthCard = ({
                     admitted_unconfirmed: isZh
                         ? '個待確認錄取'
                         : ' more admission(s)',
-                    missing_docs: isZh ? '個缺少文件' : ' more missing doc(s)'
+                    missing_docs: isZh ? '個缺少文件' : ' more missing doc(s)',
+                    comm_risk: isZh ? '個溝通風險' : ' more risk(s)'
                 };
                 const grouped = new Map<string, typeof student.signals>();
                 for (const signal of student.signals) {

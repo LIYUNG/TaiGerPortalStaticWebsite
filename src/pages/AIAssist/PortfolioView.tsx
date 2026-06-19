@@ -31,6 +31,21 @@ interface PortfolioViewProps {
 
 const URGENCY_ORDER = { critical: 0, high: 1, medium: 2 };
 
+// Implicit communication-risk signal type → short English fallback label
+// (translations live under aiAssist.commRisk_<type>).
+const COMM_RISK_FALLBACK: Record<string, string> = {
+    frustration: 'Frustration',
+    confusion: 'Confusion',
+    repeated_unanswered_question: 'Repeated unanswered Q',
+    broken_promise: 'Broken promise',
+    deadline_anxiety: 'Deadline anxiety',
+    engagement_cooling: 'Cooling engagement',
+    mentions_competitor_or_refund: 'Competitor / refund',
+    sentiment_declining: 'Declining sentiment',
+    dissatisfaction_with_service: 'Service dissatisfaction',
+    urgent_unaddressed_request: 'Urgent request unaddressed'
+};
+
 const HEALTH_FROM_URGENCY: Record<string, string> = {
     critical: 'Critical',
     high: 'High Risk',
@@ -136,6 +151,28 @@ const buildPortfolioStudents = (
             type: 'admitted_unconfirmed',
             urgency: 'medium',
             label: programLabel ? `${base} · ${programLabel}` : base
+        });
+    });
+
+    (buckets.communicationRiskSignals?.items ?? []).forEach((item) => {
+        const urgency: 'high' | 'medium' =
+            item.riskLevel === 'high' ? 'high' : 'medium';
+        (item.signals ?? []).forEach((signal) => {
+            const name = t(
+                `aiAssist.commRisk_${signal.type}`,
+                COMM_RISK_FALLBACK[signal.type] ?? signal.type
+            );
+            const since =
+                signal.sinceDays != null && signal.sinceDays > 0
+                    ? t('aiAssist.signalSince', ' · {{count}}d', {
+                          count: signal.sinceDays
+                      })
+                    : '';
+            addSignal(item, {
+                type: 'comm_risk',
+                urgency,
+                label: `${name}${since}`
+            });
         });
     });
 
@@ -279,12 +316,14 @@ export const PortfolioView = ({
                                             ? [
                                                   '截止日 7–30 天內',
                                                   '學生訊息等待回覆 7–13 天',
-                                                  '文件討論串未回覆 7–13 天'
+                                                  '文件討論串未回覆 7–13 天',
+                                                  '訊息內容高度隱性風險（提及退費/競品、強烈不滿）'
                                               ]
                                             : [
                                                   'Deadline in 7–30 days',
                                                   'Student waiting 7–13 days for reply',
-                                                  'Document thread unanswered 7–13 days'
+                                                  'Document thread unanswered 7–13 days',
+                                                  'High implicit content risk (refund/competitor mention, strong dissatisfaction)'
                                               ]
                                     },
                                     {
@@ -296,6 +335,7 @@ export const PortfolioView = ({
                                                   '文件討論串未回覆 3–6 天',
                                                   '已錄取但未確認入學',
                                                   '缺少必要基本文件',
+                                                  '訊息內容隱性風險（困惑、互動轉冷、承諾未兌現）',
                                                   '已在其他學校確認入學的學生的所有信號'
                                               ]
                                             : [
@@ -303,6 +343,7 @@ export const PortfolioView = ({
                                                   'Document thread unanswered 3–6 days',
                                                   'Admitted but enrolment not confirmed',
                                                   'Missing required base documents',
+                                                  'Implicit content risk (confusion, cooling engagement, broken promises)',
                                                   'Any signal where student confirmed enrolment elsewhere'
                                               ]
                                     }
