@@ -71,7 +71,8 @@ const buildPortfolioStudents = (
 
     (buckets.upcomingDeadlines?.items ?? []).forEach((item) => {
         const days = item.daysUntil ?? 999;
-        const urgency = days < 7 ? 'critical' : 'high';
+        const rawUrgency = days < 7 ? 'critical' : 'high';
+        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const programLabel = item.program
             ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
             : '';
@@ -89,8 +90,9 @@ const buildPortfolioStudents = (
 
     (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
         const stalled = item.stalledDays ?? 0;
-        const urgency =
+        const rawUrgency =
             stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
+        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
         const base = t(
             'aiAssist.signalThreadStalled',
