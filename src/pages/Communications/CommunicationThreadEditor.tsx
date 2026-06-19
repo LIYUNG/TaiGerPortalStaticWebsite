@@ -161,47 +161,61 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     // persisted, so re-emitting the same content (e.g. the restore echo or the
     // initial empty editor) doesn't trigger a redundant save/delete.
     const lastSavedBlocksRef = useRef<string>('[]');
-    const draftAppliedRef = useRef(false);
+    // The student id whose draft is currently applied to the editor. Drives the
+    // single sync effect below; `undefined` until the first draft is applied.
+    const appliedStudentRef = useRef<string | undefined>(undefined);
 
-    // Reset per-thread tracking when the conversation changes.
-    useEffect(() => {
-        draftAppliedRef.current = false;
-        lastSavedBlocksRef.current = '[]';
-    }, [studentId]);
-
-    // Restore the saved draft once it loads (only into an empty editor, so we
-    // never clobber text the user already started typing).
+    // Keep the editor's content in sync with the active student's saved draft.
     //
-    // On a fresh mount (e.g. reopening a mobile Drawer that unmounts its
-    // children) the draft query data is already cached, so this effect can run
-    // before the ComposeEditor has attached its ref. Retry on the next frame
-    // until the editor is ready, and only mark "applied" once we actually act —
-    // otherwise a too-early run would skip the restore and never recover.
+    // This is ONE effect on purpose. Splitting "clear on student change" and
+    // "restore when the draft loads" into two effects raced: the clear mutates
+    // the editor value asynchronously (a remount) while the restore read it back
+    // via rAF, so depending on frame timing the restore saw the *previous*
+    // student's content, decided the editor was "not empty", and skipped — which
+    // is why a draft sometimes only appeared after switching away and back.
+    //
+    // Here a single rAF (which also waits for the ComposeEditor ref on a fresh
+    // mount) does the whole decision atomically:
+    //   • Student switch  → always replace the editor with the new student's
+    //     draft (or clear it), since it still holds the previous student's text.
+    //   • First load for a student → only fill an empty editor, so we don't
+    //     clobber text the user already started typing before the draft arrived.
     useEffect(() => {
-        if (!isDraftLoaded || draftAppliedRef.current) return;
-        if (!draft) {
-            draftAppliedRef.current = true; // nothing to restore
-            return;
-        }
+        if (!studentId || !isDraftLoaded) return;
+        if (appliedStudentRef.current === studentId) return;
+
         let raf = 0;
-        const attempt = () => {
+        const apply = () => {
             const editor = composeRef.current;
             if (!editor) {
-                raf = window.requestAnimationFrame(attempt); // not ready yet
+                raf = window.requestAnimationFrame(apply); // ref not ready yet
                 return;
             }
-            draftAppliedRef.current = true;
-            if (editor.isEmpty()) {
-                lastSavedBlocksRef.current = JSON.stringify(draft.blocks ?? []);
-                editor.restore(draft);
-                // Reflect that the editor now has restored content (enables Send).
-                setHasContent(true);
+            const prevApplied = appliedStudentRef.current;
+            const switched =
+                prevApplied !== undefined && prevApplied !== studentId;
+            appliedStudentRef.current = studentId;
+
+            // On a switch the editor holds the previous student's content, so we
+            // can't gate on isEmpty() (it would never be empty) — always replace.
+            // On the first application, preserve any text the user already typed.
+            if (switched || editor.isEmpty()) {
+                if (draft) {
+                    lastSavedBlocksRef.current = JSON.stringify(
+                        draft.blocks ?? []
+                    );
+                    editor.restore(draft);
+                    setHasContent(Boolean(draft.blocks?.length));
+                } else {
+                    lastSavedBlocksRef.current = '[]';
+                    editor.reset();
+                    setHasContent(false);
+                }
             }
-            // else: the user already started typing — keep their content.
         };
-        raf = window.requestAnimationFrame(attempt);
+        raf = window.requestAnimationFrame(apply);
         return () => window.cancelAnimationFrame(raf);
-    }, [isDraftLoaded, draft]);
+    }, [studentId, isDraftLoaded, draft]);
 
     const handleContentChange = useCallback(
         (value: OutputData) => {

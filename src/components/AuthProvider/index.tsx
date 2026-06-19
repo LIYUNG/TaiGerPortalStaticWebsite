@@ -44,7 +44,17 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     };
 
     const handleLogout = (): void => {
+        // Mark the session logged out first. staleTime: Infinity keeps this from
+        // refetching, so removing the rest of the cache below can't trigger a
+        // verify() that races the server logout and re-authenticates the user.
         queryClient.setQueryData(VERIFY_QUERY_KEY, null);
+        // Drop every other cached query so the previous user's data (students,
+        // communications, etc.) doesn't linger for the next session on this
+        // browser. Keep only auth/verify, which we just set to null.
+        queryClient.removeQueries({
+            predicate: (query) => query.queryKey[0] !== VERIFY_QUERY_KEY[0]
+        });
+        queryClient.getMutationCache().clear();
         // Fire server-side logout in the background; local session is already cleared
         logout().catch(() => undefined);
     };
