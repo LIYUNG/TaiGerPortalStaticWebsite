@@ -794,6 +794,10 @@ export interface AIAssistOverviewItem {
     signals?: {
         type: string;
         severity: 'low' | 'medium' | 'high';
+        // LLM-generated specific risk label, produced in both languages at scan
+        // time (free text, so not i18n-keyed).
+        summaryEn?: string;
+        summaryZh?: string;
         evidence?: string;
         sinceDays?: number | null;
     }[];

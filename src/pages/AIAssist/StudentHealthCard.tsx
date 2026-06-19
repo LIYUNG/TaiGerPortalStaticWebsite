@@ -1,4 +1,9 @@
-import { Chip, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
+import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { HealthBadge } from './components/HealthBadge';
@@ -13,6 +18,8 @@ export type PortfolioSignal = {
         | 'comm_risk';
     urgency: 'critical' | 'high' | 'medium';
     label: string;
+    // Full text for a hover tooltip when `label` is a shortened/collapsed form.
+    detail?: string;
 };
 
 export type PortfolioStudent = {
@@ -81,64 +88,90 @@ export const StudentHealthCard = ({
             variant="outlined"
             onClick={() => onAnalyze(student)}
         >
-            {/* Name + health */}
+            {/* Name (slightly larger) + term/join two-line block beside it,
+                health badge on the far right. */}
             <Stack
                 alignItems="center"
                 direction="row"
                 justifyContent="space-between"
-                spacing={0.5}
+                spacing={1}
             >
-                <Typography
-                    component={RouterLink}
-                    fontWeight={700}
-                    variant="body1"
-                    to={`/student-database/${student.id}#profile`}
-                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    sx={{
-                        color: 'inherit',
-                        overflow: 'hidden',
-                        textDecoration: 'none',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 1,
-                        minWidth: 0,
-                        '&:hover': { textDecoration: 'underline' }
-                    }}
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={1}
+                    sx={{ minWidth: 0 }}
                 >
-                    {displayName}
-                </Typography>
+                    <Typography
+                        component={RouterLink}
+                        fontWeight={700}
+                        variant="subtitle1"
+                        to={`/student-database/${student.id}#profile`}
+                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                        sx={{
+                            color: 'inherit',
+                            overflow: 'hidden',
+                            textDecoration: 'none',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 1,
+                            minWidth: 0,
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
+                    >
+                        {displayName}
+                    </Typography>
+                    <Stack spacing={0} sx={{ flexShrink: 0 }}>
+                        {termLabel && (
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                                sx={{ lineHeight: 1.3 }}
+                            >
+                                {termLabel}
+                            </Typography>
+                        )}
+                        {joinLabel && (
+                            <Typography
+                                color="text.disabled"
+                                variant="caption"
+                                sx={{ lineHeight: 1.3 }}
+                            >
+                                {isZh
+                                    ? `加入 ${joinLabel}`
+                                    : `Joined ${joinLabel}`}
+                            </Typography>
+                        )}
+                    </Stack>
+                </Stack>
                 <HealthBadge health={student.overallHealth} preliminary />
             </Stack>
 
-            {/* Application terms + join date on separate lines for clarity */}
-            <Stack spacing={0.25}>
-                {termLabel && (
-                    <Typography color="text.secondary" variant="caption">
-                        {termLabel}
-                    </Typography>
-                )}
-                {joinLabel && (
-                    <Typography color="text.disabled" variant="caption">
-                        {isZh ? `加入 ${joinLabel}` : `Joined ${joinLabel}`}
-                    </Typography>
-                )}
-                {/* Communication-risk signals: one borderless line, items
-                    separated by ｜, distinct from the chips below. */}
-                {commRiskSignals.length > 0 && (
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: commRiskHigh
-                                ? 'warning.main'
-                                : 'text.secondary',
-                            lineHeight: 1.5,
-                            wordBreak: 'break-word'
-                        }}
-                    >
-                        {commRiskSignals.map((s) => s.label).join('  ｜  ')}
-                    </Typography>
-                )}
-            </Stack>
+            {/* Communication-risk: one borderless line under the header. Each
+                item shows the i18n category; hover reveals the LLM's specific
+                description (detail). */}
+            {commRiskSignals.length > 0 && (
+                <Typography
+                    variant="caption"
+                    sx={{
+                        color: commRiskHigh ? 'warning.main' : 'text.secondary',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word'
+                    }}
+                >
+                    {commRiskSignals.map((s, i) => (
+                        <Box
+                            key={i}
+                            component="span"
+                            title={s.detail}
+                            sx={s.detail ? { cursor: 'help' } : undefined}
+                        >
+                            {i > 0 ? '  ｜  ' : ''}
+                            {s.label}
+                        </Box>
+                    ))}
+                </Typography>
+            )}
 
             {/* Outcome stats */}
             <Stack direction="row" flexWrap="wrap" gap={1}>
@@ -176,67 +209,120 @@ export const StudentHealthCard = ({
             )}
 
             {(() => {
-                const PER_TYPE = 2;
-                const TYPE_LABEL: Record<string, string> = {
-                    deadline: isZh ? '個截止日' : ' more deadline(s)',
-                    thread_waiting: isZh ? '個待回覆文件' : ' more thread(s)',
-                    comm_gap: isZh ? '個未回訊息' : ' more message gap(s)',
-                    admitted_unconfirmed: isZh
-                        ? '個待確認錄取'
-                        : ' more admission(s)',
-                    missing_docs: isZh ? '個缺少文件' : ' more missing doc(s)',
-                    comm_risk: isZh ? '個溝通風險' : ' more risk(s)'
-                };
+                // Borderless icon rows. Time-critical items (deadlines, waiting,
+                // threads) shown individually; low-priority items collapsed to a
+                // single count row to keep the card calm and scannable.
+                const urgencyColor = (u: string): string =>
+                    u === 'critical'
+                        ? 'error.main'
+                        : u === 'high'
+                          ? 'warning.main'
+                          : 'text.secondary';
+                const iconSx = { fontSize: 15, flexShrink: 0, mt: '2px' };
+
                 const grouped = new Map<string, typeof student.signals>();
                 for (const signal of otherSignals) {
                     if (!grouped.has(signal.type)) grouped.set(signal.type, []);
                     grouped.get(signal.type)!.push(signal);
                 }
+                const get = (type: string) => grouped.get(type) ?? [];
+
+                type Row = {
+                    key: string;
+                    icon: JSX.Element;
+                    text: string;
+                    color: string;
+                    title?: string;
+                };
+                const rows: Row[] = [];
+
+                const deadlines = get('deadline');
+                deadlines.slice(0, 2).forEach((s, i) =>
+                    rows.push({
+                        key: `deadline-${i}`,
+                        icon: <AccessTimeRoundedIcon sx={iconSx} />,
+                        text: s.label,
+                        color: urgencyColor(s.urgency),
+                        title: s.label
+                    })
+                );
+                if (deadlines.length > 2) {
+                    rows.push({
+                        key: 'deadline-more',
+                        icon: <AccessTimeRoundedIcon sx={iconSx} />,
+                        text: isZh
+                            ? `還有 ${deadlines.length - 2} 個截止日`
+                            : `+${deadlines.length - 2} more deadlines`,
+                        color: 'text.disabled'
+                    });
+                }
+
+                [...get('comm_gap'), ...get('thread_waiting')].forEach((s, i) =>
+                    rows.push({
+                        key: `wait-${i}`,
+                        icon:
+                            s.type === 'comm_gap' ? (
+                                <HourglassEmptyRoundedIcon sx={iconSx} />
+                            ) : (
+                                <ForumOutlinedIcon sx={iconSx} />
+                            ),
+                        text: s.label,
+                        color: urgencyColor(s.urgency),
+                        title: s.label
+                    })
+                );
+
+                const admitted = get('admitted_unconfirmed');
+                if (admitted.length) {
+                    rows.push({
+                        key: 'admitted',
+                        icon: <SchoolOutlinedIcon sx={iconSx} />,
+                        text: isZh
+                            ? `${admitted.length} 個待確認入學`
+                            : `${admitted.length} to confirm enrolment`,
+                        color: urgencyColor(admitted[0].urgency)
+                    });
+                }
+
+                get('missing_docs').forEach((s, i) =>
+                    rows.push({
+                        key: `docs-${i}`,
+                        icon: <DescriptionOutlinedIcon sx={iconSx} />,
+                        text: s.label,
+                        color: 'text.secondary',
+                        title: s.detail ?? s.label
+                    })
+                );
+
+                if (!rows.length) return null;
                 return (
-                    <Stack spacing={0.5}>
-                        {Array.from(grouped.entries()).map(
-                            ([type, signals]) => (
-                                <Stack key={type} spacing={0.5}>
-                                    {signals
-                                        .slice(0, PER_TYPE)
-                                        .map((signal, i) => (
-                                            <Chip
-                                                key={i}
-                                                color={
-                                                    signal.urgency ===
-                                                    'critical'
-                                                        ? 'error'
-                                                        : signal.urgency ===
-                                                            'high'
-                                                          ? 'warning'
-                                                          : 'default'
-                                                }
-                                                label={signal.label}
-                                                size="small"
-                                                sx={{
-                                                    alignSelf: 'flex-start',
-                                                    borderRadius: 0.75,
-                                                    maxWidth: '100%',
-                                                    '& .MuiChip-label': {
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis'
-                                                    }
-                                                }}
-                                                variant="outlined"
-                                            />
-                                        ))}
-                                    {signals.length > PER_TYPE && (
-                                        <Typography
-                                            color="text.disabled"
-                                            variant="caption"
-                                        >
-                                            +{signals.length - PER_TYPE}
-                                            {TYPE_LABEL[type] ?? ' more'}
-                                        </Typography>
-                                    )}
-                                </Stack>
-                            )
-                        )}
+                    <Stack spacing={0.5} sx={{ mt: 0.5 }}>
+                        {rows.map((r) => (
+                            <Stack
+                                key={r.key}
+                                alignItems="flex-start"
+                                direction="row"
+                                spacing={0.75}
+                            >
+                                <Box sx={{ color: r.color, display: 'flex' }}>
+                                    {r.icon}
+                                </Box>
+                                <Typography
+                                    title={r.title}
+                                    variant="caption"
+                                    sx={{
+                                        color: r.color,
+                                        lineHeight: 1.4,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        minWidth: 0
+                                    }}
+                                >
+                                    {r.text}
+                                </Typography>
+                            </Stack>
+                        ))}
                     </Stack>
                 );
             })()}

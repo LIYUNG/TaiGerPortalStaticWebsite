@@ -60,7 +60,8 @@ type TFn = (
 
 const buildPortfolioStudents = (
     buckets: Record<string, { count: number; items: AIAssistOverviewItem[] }>,
-    t: TFn
+    t: TFn,
+    isZh: boolean
 ): PortfolioStudent[] => {
     const byId = new Map<string, PortfolioStudent>();
 
@@ -100,10 +101,13 @@ const buildPortfolioStudents = (
             'Deadline in {{count}} days',
             { count: days }
         );
+        const elsewhere = item.confirmedElsewhere
+            ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
+            : '';
         addSignal(item, {
             type: 'deadline',
             urgency,
-            label: programLabel ? `${base} · ${programLabel}` : base
+            label: `${programLabel ? `${base} · ${programLabel}` : base}${elsewhere}`
         });
     });
 
@@ -113,6 +117,9 @@ const buildPortfolioStudents = (
             stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
         const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
+        const elsewhere = item.confirmedElsewhere
+            ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
+            : '';
         const base = t(
             'aiAssist.signalThreadStalled',
             'Reply needed {{count}}d',
@@ -121,7 +128,7 @@ const buildPortfolioStudents = (
         addSignal(item, {
             type: 'thread_waiting',
             urgency,
-            label: `${base}${fileLabel}`
+            label: `${base}${fileLabel}${elsewhere}`
         });
     });
 
@@ -155,34 +162,68 @@ const buildPortfolioStudents = (
     });
 
     (buckets.communicationRiskSignals?.items ?? []).forEach((item) => {
-        const urgency: 'high' | 'medium' =
-            item.riskLevel === 'high' ? 'high' : 'medium';
+        // Dedupe by category: each type shown once (× count when repeated);
+        // hover reveals that type's specific bilingual case descriptions.
+        const sevRank: Record<string, number> = { low: 1, medium: 2, high: 3 };
+        const byType = new Map<
+            string,
+            { severity: string; count: number; lines: string[] }
+        >();
         (item.signals ?? []).forEach((signal) => {
-            const name = t(
-                `aiAssist.commRisk_${signal.type}`,
-                COMM_RISK_FALLBACK[signal.type] ?? signal.type
+            const g = byType.get(signal.type) ?? {
+                severity: 'low',
+                count: 0,
+                lines: []
+            };
+            g.count += 1;
+            if ((sevRank[signal.severity] ?? 0) > (sevRank[g.severity] ?? 0)) {
+                g.severity = signal.severity;
+            }
+            const summary = (
+                isZh ? signal.summaryZh : signal.summaryEn
+            )?.trim();
+            if (summary) {
+                const days =
+                    signal.sinceDays != null && signal.sinceDays > 0
+                        ? isZh
+                            ? `（${signal.sinceDays} 天）`
+                            : ` (${signal.sinceDays}d)`
+                        : '';
+                g.lines.push(`${summary}${days}`);
+            }
+            byType.set(signal.type, g);
+        });
+
+        byType.forEach((g, type) => {
+            const typeLabel = t(
+                `aiAssist.commRisk_${type}`,
+                COMM_RISK_FALLBACK[type] ?? type
             );
-            const since =
-                signal.sinceDays != null && signal.sinceDays > 0
-                    ? t('aiAssist.signalSince', ' · {{count}}d', {
-                          count: signal.sinceDays
-                      })
-                    : '';
             addSignal(item, {
                 type: 'comm_risk',
-                urgency,
-                label: `${name}${since}`
+                urgency: g.severity === 'high' ? 'high' : 'medium',
+                label: g.count > 1 ? `${typeLabel} ×${g.count}` : typeLabel,
+                detail: g.lines.join('\n') || undefined
             });
         });
     });
 
     (buckets.missingBaseDocuments?.items ?? []).forEach((item) => {
-        const docs = (item.missingDocuments ?? []).slice(0, 2).join(', ');
+        const docs = item.missingDocuments ?? [];
         const base = t('aiAssist.signalMissingDocs', 'Missing docs');
         addSignal(item, {
             type: 'missing_docs',
             urgency: 'medium',
-            label: docs ? `${base}: ${docs}` : base
+            label: docs.length
+                ? t(
+                      'aiAssist.signalMissingDocsCount',
+                      '{{count}} missing docs',
+                      {
+                          count: docs.length
+                      }
+                  )
+                : base,
+            detail: docs.length ? `${base}: ${docs.join(', ')}` : undefined
         });
     });
 
@@ -223,8 +264,8 @@ export const PortfolioView = ({
     );
 
     const students = useMemo(
-        () => buildPortfolioStudents(buckets, t as TFn),
-        [buckets, t]
+        () => buildPortfolioStudents(buckets, t as TFn, isZh),
+        [buckets, t, isZh]
     );
 
     useEffect(() => {
