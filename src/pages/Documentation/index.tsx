@@ -220,23 +220,19 @@ const Documentation = (props: DocumentationProps) => {
             </Breadcrumbs>
             {documentationState.isEdit ? (
                 <DocPageEdit
+                    key={category}
                     category={category ?? ''}
-                    document_title={
-                        documentationState.document_title ?? ''
-                    }
-                    editorState={
-                        documentationState.editorState as OutputData
-                    }
+                    document_title={documentationState.document_title ?? ''}
+                    editorState={documentationState.editorState as OutputData}
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={handleClickSave}
                 />
             ) : (
                 <DocPageView
+                    key={category}
                     author={documentationState.author}
                     category={category ?? ''}
-                    editorState={
-                        documentationState.editorState as OutputData
-                    }
+                    editorState={documentationState.editorState as OutputData}
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={() => {}}
                 />
