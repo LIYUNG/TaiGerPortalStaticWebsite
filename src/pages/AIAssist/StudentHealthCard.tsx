@@ -57,6 +57,14 @@ export const StudentHealthCard = ({
             ? student.applicationTerms.join(' · ')
             : null;
 
+    // Communication-risk signals read better as a single inline line under the
+    // name than as bordered chips. Split them out from the chip-rendered rest.
+    const commRiskSignals = student.signals.filter(
+        (s) => s.type === 'comm_risk'
+    );
+    const otherSignals = student.signals.filter((s) => s.type !== 'comm_risk');
+    const commRiskHigh = commRiskSignals.some((s) => s.urgency === 'high');
+
     return (
         <Paper
             sx={{
@@ -114,6 +122,22 @@ export const StudentHealthCard = ({
                         {isZh ? `加入 ${joinLabel}` : `Joined ${joinLabel}`}
                     </Typography>
                 )}
+                {/* Communication-risk signals: one borderless line, items
+                    separated by ｜, distinct from the chips below. */}
+                {commRiskSignals.length > 0 && (
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: commRiskHigh
+                                ? 'warning.main'
+                                : 'text.secondary',
+                            lineHeight: 1.5,
+                            wordBreak: 'break-word'
+                        }}
+                    >
+                        {commRiskSignals.map((s) => s.label).join('  ｜  ')}
+                    </Typography>
+                )}
             </Stack>
 
             {/* Outcome stats */}
@@ -164,7 +188,7 @@ export const StudentHealthCard = ({
                     comm_risk: isZh ? '個溝通風險' : ' more risk(s)'
                 };
                 const grouped = new Map<string, typeof student.signals>();
-                for (const signal of student.signals) {
+                for (const signal of otherSignals) {
                     if (!grouped.has(signal.type)) grouped.set(signal.type, []);
                     grouped.get(signal.type)!.push(signal);
                 }
