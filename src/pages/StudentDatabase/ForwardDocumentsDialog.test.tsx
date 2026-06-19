@@ -93,8 +93,8 @@ describe('ForwardDocumentsDialog', () => {
         expect(
             screen.queryByLabelText('ML — General Documents')
         ).not.toBeInTheDocument();
-        // Base-document section is hidden in scoped mode.
-        expect(screen.queryByText('ForwardTestDocX')).not.toBeInTheDocument();
+        // Existing base documents are shown and checked by default.
+        expect(screen.getByLabelText('ForwardTestDocX')).toBeChecked();
         // Subject is prefilled with the student + program.
         expect(screen.getByLabelText('Subject')).toHaveValue(
             'Stu Dent - TUM CSE - Documents'
@@ -129,7 +129,8 @@ describe('ForwardDocumentsDialog', () => {
         ).mock.calls[0];
         expect(studentId).toBe('s1');
         expect(payload.recipientIds).toEqual(['a1']);
-        expect(payload.baseDocumentNames).toEqual([]);
+        // All existing base documents are attached by default.
+        expect(payload.baseDocumentNames).toEqual(['ForwardTestDocX']);
         expect([...payload.threadIds].sort()).toEqual([
             'app-ml',
             'gen-cv',
