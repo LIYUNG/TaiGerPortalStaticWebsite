@@ -33,21 +33,18 @@ export interface EditorNewProps {
 
 const EditorNew = (props: EditorNewProps) => {
     const { t } = useTranslation();
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const ejInstance = useRef<EditorJS | null>(null);
     const [editorState, setEditorState] = useState<OutputData>(
         props.editorState ?? { time: 0, blocks: [] }
     );
     const [contentReady, setContentready] = useState(true);
-    let editor: EditorJS;
 
-    const initEditor = () => {
-        editor = new EditorJS({
-            holder: 'editorjs',
+    const initEditor = (holderEl: HTMLElement) => {
+        const editor = new EditorJS({
+            holder: holderEl,
             logLevel: 'ERROR',
             data: props.editorState ?? undefined,
-            onReady: () => {
-                ejInstance.current = editor ?? null;
-            },
             onChange: async (api: {
                 saver: { save: () => Promise<OutputData> };
             }) => {
@@ -196,22 +193,40 @@ const EditorNew = (props: EditorNewProps) => {
                 }
             }
         }) as EditorJS;
+        return editor;
     };
 
     useEffect(() => {
-        if (ejInstance.current === null) {
-            initEditor();
+        const container = containerRef.current;
+        if (!container) {
+            return;
         }
+        // Mount EditorJS into a fresh child element rather than a fixed holder.
+        // Under React StrictMode the effect runs mount → cleanup → mount and
+        // React reuses the SAME container DOM node across that cycle. If both
+        // editors shared one holder, destroying the first (in cleanup) would
+        // wipe the holder the second is rendering into — leaving it blank.
+        // Giving each mount its own child element isolates them, so the first
+        // editor's deferred destroy only removes its own node.
+        const holderEl = document.createElement('div');
+        container.appendChild(holderEl);
+        const editor = initEditor(holderEl);
+        ejInstance.current = editor;
         return () => {
-            ejInstance?.current?.destroy();
             ejInstance.current = null;
+            // Destroy via the editor's own isReady promise so it works even if
+            // cleanup runs before onReady, then remove this mount's holder.
+            editor.isReady
+                .then(() => editor.destroy())
+                .catch(() => {})
+                .finally(() => holderEl.remove());
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
         <>
-            <Box id="editorjs" />
+            <Box id="editorjs" ref={containerRef} />
             {props.readOnly ? null : (
                 <>
                     <Button
