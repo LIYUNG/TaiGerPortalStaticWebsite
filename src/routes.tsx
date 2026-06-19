@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 import { appConfig } from './config';
 import {
     getMyAcademicBackgroundLoader,
@@ -703,8 +704,15 @@ const routes = [
     },
     {
         path: '/ai-assist',
+        element: <AIAssist />,
         errorElement: <DefaultErrorPage />,
-        element: <AIAssist />
+        children: [
+            { index: true, element: <Navigate to="portfolio" replace /> },
+            { path: 'portfolio' },
+            { path: 'student/:studentId' },
+            { path: 'chat' },
+            { path: 'chat/:conversationId' }
+        ]
     },
     {
         path: '/customer-center/add-ticket',

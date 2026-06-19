@@ -1,16 +1,20 @@
-import { useEffect, useState, JSX } from 'react';
+import { useEffect, useMemo, useState, JSX } from 'react';
 import {
     Alert,
     Box,
     Button,
     CircularProgress,
+    Divider,
+    IconButton,
     InputAdornment,
+    Popover,
     Stack,
     TextField,
     Typography
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useTranslation } from 'react-i18next';
 import { getAIAssistOverview, type AIAssistOverviewItem } from '@/api';
 import {
@@ -62,7 +66,8 @@ const buildPortfolioStudents = (
                 applyingProgramCount: item.student?.applyingProgramCount ?? 0,
                 offerCount: item.student?.offerCount ?? 0,
                 rejectCount: item.student?.rejectCount ?? 0,
-                hasEditors: item.student?.hasEditors ?? true
+                hasEditors: item.student?.hasEditors ?? true,
+                applicationTerms: item.student?.applicationTerms ?? []
             });
         }
         byId.get(id)!.signals.push(signal);
@@ -70,7 +75,8 @@ const buildPortfolioStudents = (
 
     (buckets.upcomingDeadlines?.items ?? []).forEach((item) => {
         const days = item.daysUntil ?? 999;
-        const urgency = days < 7 ? 'critical' : 'high';
+        const rawUrgency = days < 7 ? 'critical' : 'high';
+        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const programLabel = item.program
             ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
             : '';
@@ -87,34 +93,34 @@ const buildPortfolioStudents = (
     });
 
     (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
-        const stalled = item.stalledDays ?? null;
+        const stalled = item.stalledDays ?? 0;
+        const rawUrgency =
+            stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
+        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
-        const base =
-            stalled !== null
-                ? t(
-                      'aiAssist.signalThreadStalled',
-                      'Thread stalled {{count}}d',
-                      { count: stalled }
-                  )
-                : t('aiAssist.signalThreadWaiting', 'Thread waiting on team');
+        const base = t(
+            'aiAssist.signalThreadStalled',
+            'Reply needed {{count}}d',
+            { count: stalled }
+        );
         addSignal(item, {
             type: 'thread_waiting',
-            urgency: stalled !== null && stalled >= 7 ? 'high' : 'medium',
+            urgency,
             label: `${base}${fileLabel}`
         });
     });
 
     (buckets.communicationGaps?.items ?? []).forEach((item) => {
-        const days = item.lastContactDays ?? null;
+        const days = item.lastContactDays ?? 0;
+        const urgency = days >= 14 ? 'critical' : days >= 7 ? 'high' : 'medium';
         addSignal(item, {
-            urgency: days === null || days >= 42 ? 'critical' : 'high',
+            urgency,
             type: 'comm_gap',
-            label:
-                days === null
-                    ? t('aiAssist.signalNoMessages', 'No messages logged yet')
-                    : t('aiAssist.signalNoReply', 'No reply in {{count}}d', {
-                          count: days
-                      })
+            label: t(
+                'aiAssist.signalStudentWaiting',
+                'Student waiting {{count}}d for reply',
+                { count: days }
+            )
         });
     });
 
@@ -167,20 +173,29 @@ export const PortfolioView = ({
     onChatPrompt,
     onOpenChat
 }: PortfolioViewProps): JSX.Element => {
-    const { t } = useTranslation();
-    const [students, setStudents] = useState<PortfolioStudent[]>([]);
+    const { t, i18n } = useTranslation();
+    const isZh = i18n.language.startsWith('zh');
+    const [buckets, setBuckets] = useState<
+        Record<string, { count: number; items: AIAssistOverviewItem[] }>
+    >({});
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [chatInput, setChatInput] = useState('');
+    const [helpAnchor, setHelpAnchor] = useState<HTMLButtonElement | null>(
+        null
+    );
+
+    const students = useMemo(
+        () => buildPortfolioStudents(buckets, t as TFn),
+        [buckets, t]
+    );
 
     useEffect(() => {
         let active = true;
         getAIAssistOverview()
             .then((res) => {
                 if (!active) return;
-                setStudents(
-                    buildPortfolioStudents(res?.data?.buckets ?? {}, t as TFn)
-                );
+                setBuckets(res?.data?.buckets ?? {});
                 setHasError(false);
             })
             .catch(() => {
@@ -208,12 +223,121 @@ export const PortfolioView = ({
                     direction="row"
                     justifyContent="space-between"
                 >
-                    <Typography fontWeight={700} variant="h6">
-                        {t(
-                            'aiAssist.portfolioHeading',
-                            'Portfolio — needs attention'
-                        )}
-                    </Typography>
+                    <Stack alignItems="center" direction="row" spacing={0.5}>
+                        <Typography fontWeight={700} variant="h6">
+                            {t(
+                                'aiAssist.portfolioHeading',
+                                'Portfolio — needs attention'
+                            )}
+                        </Typography>
+                        <IconButton
+                            aria-label="Risk level explanation"
+                            onClick={(e) => setHelpAnchor(e.currentTarget)}
+                            size="small"
+                        >
+                            <InfoOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <Popover
+                            anchorEl={helpAnchor}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left'
+                            }}
+                            onClose={() => setHelpAnchor(null)}
+                            open={Boolean(helpAnchor)}
+                            slotProps={{
+                                paper: { sx: { maxWidth: 360, p: 2 } }
+                            }}
+                        >
+                            <Stack spacing={1.5}>
+                                <Typography fontWeight={700} variant="body2">
+                                    {isZh
+                                        ? '風險等級計算方式'
+                                        : 'How risk levels are calculated'}
+                                </Typography>
+                                <Divider />
+                                {[
+                                    {
+                                        color: 'error.main',
+                                        label: isZh ? '緊急' : 'Critical',
+                                        items: isZh
+                                            ? [
+                                                  '截止日不足 7 天',
+                                                  '學生訊息等待回覆 ≥ 14 天',
+                                                  '文件討論串未回覆 ≥ 14 天'
+                                              ]
+                                            : [
+                                                  'Deadline in < 7 days',
+                                                  'Student waiting ≥ 14 days for reply',
+                                                  'Document thread unanswered ≥ 14 days'
+                                              ]
+                                    },
+                                    {
+                                        color: 'warning.main',
+                                        label: isZh ? '高風險' : 'High Risk',
+                                        items: isZh
+                                            ? [
+                                                  '截止日 7–30 天內',
+                                                  '學生訊息等待回覆 7–13 天',
+                                                  '文件討論串未回覆 7–13 天'
+                                              ]
+                                            : [
+                                                  'Deadline in 7–30 days',
+                                                  'Student waiting 7–13 days for reply',
+                                                  'Document thread unanswered 7–13 days'
+                                              ]
+                                    },
+                                    {
+                                        color: 'text.secondary',
+                                        label: isZh ? '中風險' : 'Medium Risk',
+                                        items: isZh
+                                            ? [
+                                                  '學生訊息等待回覆 3–6 天',
+                                                  '文件討論串未回覆 3–6 天',
+                                                  '已錄取但未確認入學',
+                                                  '缺少必要基本文件',
+                                                  '已在其他學校確認入學的學生的所有信號'
+                                              ]
+                                            : [
+                                                  'Student waiting 3–6 days for reply',
+                                                  'Document thread unanswered 3–6 days',
+                                                  'Admitted but enrolment not confirmed',
+                                                  'Missing required base documents',
+                                                  'Any signal where student confirmed enrolment elsewhere'
+                                              ]
+                                    }
+                                ].map(({ color, label, items }) => (
+                                    <Stack key={label} spacing={0.5}>
+                                        <Typography
+                                            color={color}
+                                            fontWeight={600}
+                                            variant="caption"
+                                        >
+                                            {label}
+                                        </Typography>
+                                        {items.map((item) => (
+                                            <Typography
+                                                key={item}
+                                                color="text.secondary"
+                                                variant="caption"
+                                            >
+                                                · {item}
+                                            </Typography>
+                                        ))}
+                                    </Stack>
+                                ))}
+                                <Divider />
+                                <Typography
+                                    color="text.disabled"
+                                    variant="caption"
+                                >
+                                    {isZh
+                                        ? '卡片顏色 = 最嚴重的信號。已在其他學校確認入學的學生，所有信號上限為中風險。'
+                                        : 'Card colour = worst signal. Students who confirmed enrolment elsewhere are capped at Medium.'}
+                                </Typography>
+                            </Stack>
+                        </Popover>
+                    </Stack>
                     <Button
                         onClick={onOpenChat}
                         size="small"

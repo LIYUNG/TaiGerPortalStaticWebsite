@@ -773,6 +773,7 @@ export interface AIAssistOverviewItem {
         hasEditors?: boolean;
         offerCount?: number;
         rejectCount?: number;
+        applicationTerms?: string[];
     };
     program?: { school?: string; name?: string } | null;
     deadline?: string;
@@ -785,6 +786,9 @@ export interface AIAssistOverviewItem {
     // Days since the last message with the student; null when never contacted
     // (communication-gap signal).
     lastContactDays?: number | null;
+    // True when the student already confirmed enrolment on another application —
+    // signals for this item should be treated as lower priority.
+    confirmedElsewhere?: boolean;
 }
 
 export interface AIAssistOverviewResponse {
