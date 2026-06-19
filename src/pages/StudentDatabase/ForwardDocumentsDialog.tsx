@@ -212,6 +212,10 @@ const ForwardDocumentsDialog = ({
                 })),
         [student.profile]
     );
+    const baseDocumentNamesAll = useMemo(
+        () => baseDocuments.map((doc) => doc.name),
+        [baseDocuments]
+    );
 
     const threadOptions = useMemo<ThreadOption[]>(
         () => collectThreadOptions(student, application, labels),
@@ -221,7 +225,10 @@ const ForwardDocumentsDialog = ({
     const [recipients, setRecipients] = useState<IUserWithId[]>([]);
     const [cc, setCc] = useState<IUserWithId[]>([]);
     const [bcc, setBcc] = useState<IUserWithId[]>([]);
-    const [selectedBaseNames, setSelectedBaseNames] = useState<string[]>([]);
+    // All existing base ("My Documents") files are attached by default; the user
+    // can deselect any.
+    const [selectedBaseNames, setSelectedBaseNames] =
+        useState<string[]>(baseDocumentNamesAll);
     // Scoped mode defaults to all of the application's + general documents.
     const [selectedThreadIds, setSelectedThreadIds] = useState<string[]>(() =>
         application
@@ -399,7 +406,7 @@ const ForwardDocumentsDialog = ({
 
                     <Divider sx={{ my: 2 }} />
 
-                    {!application && (
+                    {baseDocuments.length > 0 && (
                         <>
                             <Typography
                                 sx={{ fontWeight: 600 }}
@@ -407,47 +414,36 @@ const ForwardDocumentsDialog = ({
                             >
                                 {t('Base documents', { ns: 'common' })}
                             </Typography>
-                            {baseDocuments.length > 0 ? (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        ml: 1
-                                    }}
-                                >
-                                    {baseDocuments.map((doc) => (
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedBaseNames.includes(
-                                                        doc.name
-                                                    )}
-                                                    disabled={isSending}
-                                                    onChange={() =>
-                                                        toggle(
-                                                            selectedBaseNames,
-                                                            doc.name,
-                                                            setSelectedBaseNames
-                                                        )
-                                                    }
-                                                    size="small"
-                                                />
-                                            }
-                                            key={doc.name}
-                                            label={doc.label}
-                                        />
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Typography
-                                    color="text.secondary"
-                                    variant="body2"
-                                >
-                                    {t('No base documents uploaded', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            )}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    ml: 1
+                                }}
+                            >
+                                {baseDocuments.map((doc) => (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={selectedBaseNames.includes(
+                                                    doc.name
+                                                )}
+                                                disabled={isSending}
+                                                onChange={() =>
+                                                    toggle(
+                                                        selectedBaseNames,
+                                                        doc.name,
+                                                        setSelectedBaseNames
+                                                    )
+                                                }
+                                                size="small"
+                                            />
+                                        }
+                                        key={doc.name}
+                                        label={doc.label}
+                                    />
+                                ))}
+                            </Box>
                         </>
                     )}
 
