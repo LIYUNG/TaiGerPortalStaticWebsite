@@ -773,6 +773,7 @@ export interface AIAssistOverviewItem {
         hasEditors?: boolean;
         offerCount?: number;
         rejectCount?: number;
+        applicationTerms?: string[];
     };
     program?: { school?: string; name?: string } | null;
     deadline?: string;

@@ -1,5 +1,6 @@
 import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import { HealthBadge } from './components/HealthBadge';
 
 export type PortfolioSignal = {
@@ -24,6 +25,7 @@ export type PortfolioStudent = {
     offerCount?: number;
     rejectCount?: number;
     hasEditors?: boolean;
+    applicationTerms?: string[];
 };
 
 interface StudentHealthCardProps {
@@ -74,13 +76,19 @@ export const StudentHealthCard = ({
                     sx={{ width: '100%' }}
                 >
                     <Typography
+                        component={RouterLink}
                         fontWeight={700}
                         variant="body1"
+                        to={`/student-database/${student.id}#profile`}
+                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
                         sx={{
+                            color: 'inherit',
                             overflow: 'hidden',
+                            textDecoration: 'none',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            maxWidth: '60%'
+                            maxWidth: '60%',
+                            '&:hover': { textDecoration: 'underline' }
                         }}
                     >
                         {displayName}
@@ -96,6 +104,15 @@ export const StudentHealthCard = ({
                     gap={0.75}
                     sx={{ width: '100%' }}
                 >
+                    {student.applicationTerms &&
+                        student.applicationTerms.length > 0 && (
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                {student.applicationTerms.join(' · ')}
+                            </Typography>
+                        )}
                     {(student.applyingProgramCount ?? 0) > 0 && (
                         <Typography color="text.secondary" variant="caption">
                             {t('aiAssist.cardPrograms', '{{count}} programs', {

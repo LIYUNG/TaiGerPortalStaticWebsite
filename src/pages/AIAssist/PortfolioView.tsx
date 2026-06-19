@@ -62,7 +62,8 @@ const buildPortfolioStudents = (
                 applyingProgramCount: item.student?.applyingProgramCount ?? 0,
                 offerCount: item.student?.offerCount ?? 0,
                 rejectCount: item.student?.rejectCount ?? 0,
-                hasEditors: item.student?.hasEditors ?? true
+                hasEditors: item.student?.hasEditors ?? true,
+                applicationTerms: item.student?.applicationTerms ?? []
             });
         }
         byId.get(id)!.signals.push(signal);

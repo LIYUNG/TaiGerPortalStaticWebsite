@@ -27,6 +27,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useMatch, useNavigate } from 'react-router-dom';
 
 import {
     deleteAIAssistConversation,
@@ -110,10 +111,22 @@ const AIAssistPage = (): JSX.Element => {
         },
         [t]
     );
-    const [workbenchMode, setWorkbenchMode] =
-        useState<WorkbenchMode>('portfolio');
-    const [analysisStudent, setAnalysisStudent] =
-        useState<PortfolioStudent | null>(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const chatMatch = useMatch('/ai-assist/chat/:conversationId');
+    const studentMatch = useMatch('/ai-assist/student/:studentId');
+    const portfolioMatch = useMatch('/ai-assist/portfolio');
+
+    const workbenchMode = useMemo<WorkbenchMode>(() => {
+        if (portfolioMatch) return 'portfolio';
+        if (studentMatch) return 'student';
+        return 'chat';
+    }, [portfolioMatch, studentMatch]);
+
+    const urlConversationId = chatMatch?.params.conversationId ?? null;
+    const analysisStudent =
+        (location.state as { student?: PortfolioStudent } | null)?.student ??
+        null;
     // Session cache of student deep-dive analyses (studentId -> result). Lets the
     // user navigate back and forth between the portfolio and a student without
     // re-running an expensive multi-tool analysis on every visit. Persists for
@@ -121,6 +134,10 @@ const AIAssistPage = (): JSX.Element => {
     const analysisCacheRef = useRef<
         Map<string, { text: string; conversationId: string; ranAt: number }>
     >(new Map());
+
+    const initialUrlConversationIdRef = useRef(
+        chatMatch?.params.conversationId ?? null
+    );
 
     const skipInitialAutoloadRef = useRef(false);
     const composerInputRef = useRef<
@@ -569,7 +586,11 @@ const AIAssistPage = (): JSX.Element => {
                 // Land on the overview home by default (not the most recent
                 // conversation) so the cross-portfolio overview is the first
                 // thing staff see. Past conversations remain in the sidebar.
-                if (!skipInitialAutoloadRef.current) {
+                // Skip if the URL already points to a specific conversation.
+                if (
+                    !skipInitialAutoloadRef.current &&
+                    !initialUrlConversationIdRef.current
+                ) {
                     clearActiveWorkspace();
                 }
             } catch (err) {
@@ -588,6 +609,11 @@ const AIAssistPage = (): JSX.Element => {
 
         void loadConversations();
     }, [clearActiveWorkspace, loadConversation]);
+
+    useEffect(() => {
+        if (!urlConversationId || urlConversationId === conversationId) return;
+        void loadConversation(urlConversationId);
+    }, [urlConversationId, conversationId, loadConversation]);
 
     useEffect(() => {
         if (isLoadingConversation) {
@@ -705,6 +731,7 @@ const AIAssistPage = (): JSX.Element => {
         skipInitialAutoloadRef.current = true;
         setError(null);
         clearActiveWorkspace();
+        navigate('/ai-assist/chat');
     };
 
     const handleSeedPrompt = (prompt: string): void => {
@@ -712,7 +739,7 @@ const AIAssistPage = (): JSX.Element => {
         setError(null);
         clearActiveWorkspace();
         setInput(prompt);
-        setWorkbenchMode('chat');
+        navigate('/ai-assist/chat');
     };
 
     const handleMentionSuggestionClick = (
@@ -843,6 +870,9 @@ const AIAssistPage = (): JSX.Element => {
                 } = response.data;
 
                 addConversationToTop(conversation);
+                navigate(`/ai-assist/chat/${conversation.id}`, {
+                    replace: true
+                });
                 setConversationId(conversation.id);
                 setMessages([
                     userMessage,
@@ -937,6 +967,7 @@ const AIAssistPage = (): JSX.Element => {
         input,
         isLoadingConversation,
         isSending,
+        navigate,
         preferredLanguage,
         scrollTranscriptToBottom,
         selectedRequestedSkill,
@@ -1047,9 +1078,10 @@ const AIAssistPage = (): JSX.Element => {
 
             if (conversationId === conversation.id) {
                 if (nextConversation) {
-                    await loadConversation(nextConversation.id);
+                    navigate(`/ai-assist/chat/${nextConversation.id}`);
                 } else {
                     clearActiveWorkspace();
+                    navigate('/ai-assist/chat');
                 }
             }
         } catch (err) {
@@ -1311,13 +1343,14 @@ const AIAssistPage = (): JSX.Element => {
             >
                 <PortfolioView
                     onAnalyzeStudent={(student) => {
-                        setAnalysisStudent(student);
-                        setWorkbenchMode('student');
+                        navigate(`/ai-assist/student/${student.id}`, {
+                            state: { student }
+                        });
                     }}
                     onChatPrompt={(prompt) => {
                         handleSeedPrompt(prompt);
                     }}
-                    onOpenChat={() => setWorkbenchMode('chat')}
+                    onOpenChat={() => navigate('/ai-assist/chat')}
                 />
             </Box>
         );
@@ -1342,10 +1375,11 @@ const AIAssistPage = (): JSX.Element => {
                     cached={
                         analysisCacheRef.current.get(analysisStudent.id) ?? null
                     }
-                    onBack={() => setWorkbenchMode('portfolio')}
-                    onOpenChat={() => setWorkbenchMode('chat')}
+                    onBack={() => navigate('/ai-assist/portfolio')}
+                    onOpenChat={() => navigate('/ai-assist/chat')}
                     onConversationCreated={(convId, conversation) => {
                         addConversationToTop(conversation);
+                        navigate(`/ai-assist/chat/${convId}`);
                     }}
                     onCacheAnalysis={(text, convId) => {
                         analysisCacheRef.current.set(analysisStudent.id, {
@@ -1406,7 +1440,7 @@ const AIAssistPage = (): JSX.Element => {
                     </Typography>
                     <Box sx={{ flexGrow: 1 }} />
                     <Button
-                        onClick={() => setWorkbenchMode('portfolio')}
+                        onClick={() => navigate('/ai-assist/portfolio')}
                         size="small"
                         variant="outlined"
                     >
@@ -1980,8 +2014,8 @@ const AIAssistPage = (): JSX.Element => {
                                                             fullWidth
                                                             onClick={() => {
                                                                 if (!isActive) {
-                                                                    void loadConversation(
-                                                                        conversation.id
+                                                                    navigate(
+                                                                        `/ai-assist/chat/${conversation.id}`
                                                                     );
                                                                 }
                                                             }}
