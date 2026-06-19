@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../Utils/TabTitle', () => ({
     TabTitle: vi.fn()
@@ -17,7 +18,11 @@ import AIAssist from './index';
 
 describe('AIAssist', () => {
     it('renders the AI Assist page', () => {
-        render(<AIAssist />);
+        render(
+            <MemoryRouter initialEntries={['/ai-assist/chat']}>
+                <AIAssist />
+            </MemoryRouter>
+        );
 
         expect(screen.getByTestId('ai-assist-page')).toBeTruthy();
     });

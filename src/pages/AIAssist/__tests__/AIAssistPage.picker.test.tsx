@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 
 const apiMocks = vi.hoisted(() => ({
     createAIAssistConversation: vi.fn(),
@@ -40,7 +41,10 @@ const render = (
     ui: Parameters<typeof rtlRender>[0],
     options?: Parameters<typeof rtlRender>[1]
 ): ReturnType<typeof rtlRender> => {
-    const result = rtlRender(ui, options);
+    const result = rtlRender(
+        <MemoryRouter initialEntries={['/ai-assist']}>{ui}</MemoryRouter>,
+        options
+    );
     const chatHistoryButton = screen.queryByRole('button', {
         name: 'Chat / History'
     });
