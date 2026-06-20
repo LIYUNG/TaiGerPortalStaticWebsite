@@ -43,7 +43,12 @@ const COMM_RISK_FALLBACK: Record<string, string> = {
     mentions_competitor_or_refund: 'Competitor / refund',
     sentiment_declining: 'Declining sentiment',
     dissatisfaction_with_service: 'Service dissatisfaction',
-    urgent_unaddressed_request: 'Urgent request unaddressed'
+    urgent_unaddressed_request: 'Urgent request unaddressed',
+    technical_access_issue: 'Technical / access issue',
+    missing_document_blocker: 'Missing document',
+    financial_concern: 'Financial concern',
+    low_confidence_in_outcome: 'Low confidence in outcome',
+    other: 'Other'
 };
 
 const HEALTH_FROM_URGENCY: Record<string, string> = {
