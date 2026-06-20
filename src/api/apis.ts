@@ -789,6 +789,21 @@ export interface AIAssistOverviewItem {
     // True when the student already confirmed enrolment on another application —
     // signals for this item should be treated as lower priority.
     confirmedElsewhere?: boolean;
+    // communicationRiskSignals bucket: implicit risks mined from message content.
+    riskLevel?: 'none' | 'low' | 'medium' | 'high';
+    signals?: {
+        type: string;
+        severity: 'low' | 'medium' | 'high';
+        // LLM-generated specific risk label, produced in both languages at scan
+        // time (free text, so not i18n-keyed).
+        summaryEn?: string;
+        summaryZh?: string;
+        evidence?: string;
+        // Real event time of the evidencing message + its id (for jump-to-message).
+        occurredAt?: string | null;
+        sourceMessageId?: string | null;
+        sinceDays?: number | null;
+    }[];
 }
 
 export interface AIAssistOverviewResponse {

@@ -31,6 +31,21 @@ interface PortfolioViewProps {
 
 const URGENCY_ORDER = { critical: 0, high: 1, medium: 2 };
 
+// Implicit communication-risk signal type → short English fallback label
+// (translations live under aiAssist.commRisk_<type>).
+const COMM_RISK_FALLBACK: Record<string, string> = {
+    frustration: 'Frustration',
+    confusion: 'Confusion',
+    repeated_unanswered_question: 'Repeated unanswered Q',
+    broken_promise: 'Broken promise',
+    deadline_anxiety: 'Deadline anxiety',
+    engagement_cooling: 'Cooling engagement',
+    mentions_competitor_or_refund: 'Competitor / refund',
+    sentiment_declining: 'Declining sentiment',
+    dissatisfaction_with_service: 'Service dissatisfaction',
+    urgent_unaddressed_request: 'Urgent request unaddressed'
+};
+
 const HEALTH_FROM_URGENCY: Record<string, string> = {
     critical: 'Critical',
     high: 'High Risk',
@@ -45,7 +60,8 @@ type TFn = (
 
 const buildPortfolioStudents = (
     buckets: Record<string, { count: number; items: AIAssistOverviewItem[] }>,
-    t: TFn
+    t: TFn,
+    isZh: boolean
 ): PortfolioStudent[] => {
     const byId = new Map<string, PortfolioStudent>();
 
@@ -85,10 +101,13 @@ const buildPortfolioStudents = (
             'Deadline in {{count}} days',
             { count: days }
         );
+        const elsewhere = item.confirmedElsewhere
+            ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
+            : '';
         addSignal(item, {
             type: 'deadline',
             urgency,
-            label: programLabel ? `${base} · ${programLabel}` : base
+            label: `${programLabel ? `${base} · ${programLabel}` : base}${elsewhere}`
         });
     });
 
@@ -98,6 +117,9 @@ const buildPortfolioStudents = (
             stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
         const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
         const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
+        const elsewhere = item.confirmedElsewhere
+            ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
+            : '';
         const base = t(
             'aiAssist.signalThreadStalled',
             'Reply needed {{count}}d',
@@ -106,7 +128,7 @@ const buildPortfolioStudents = (
         addSignal(item, {
             type: 'thread_waiting',
             urgency,
-            label: `${base}${fileLabel}`
+            label: `${base}${fileLabel}${elsewhere}`
         });
     });
 
@@ -139,13 +161,75 @@ const buildPortfolioStudents = (
         });
     });
 
+    (buckets.communicationRiskSignals?.items ?? []).forEach((item) => {
+        // Dedupe by category: each type shown once (× count when repeated);
+        // hover reveals that type's specific bilingual case descriptions.
+        const sevRank: Record<string, number> = { low: 1, medium: 2, high: 3 };
+        const byType = new Map<
+            string,
+            { severity: string; count: number; lines: string[] }
+        >();
+        (item.signals ?? []).forEach((signal) => {
+            const g = byType.get(signal.type) ?? {
+                severity: 'low',
+                count: 0,
+                lines: []
+            };
+            g.count += 1;
+            if ((sevRank[signal.severity] ?? 0) > (sevRank[g.severity] ?? 0)) {
+                g.severity = signal.severity;
+            }
+            const summary = (
+                isZh ? signal.summaryZh : signal.summaryEn
+            )?.trim();
+            if (summary) {
+                const when = signal.occurredAt
+                    ? new Date(signal.occurredAt).toLocaleDateString(
+                          isZh ? 'zh-TW' : 'en'
+                      )
+                    : null;
+                const ago =
+                    signal.sinceDays != null && signal.sinceDays > 0
+                        ? isZh
+                            ? `${signal.sinceDays} 天前`
+                            : `${signal.sinceDays}d ago`
+                        : null;
+                const meta = [when, ago].filter(Boolean).join(' · ');
+                g.lines.push(meta ? `${summary}（${meta}）` : summary);
+            }
+            byType.set(signal.type, g);
+        });
+
+        byType.forEach((g, type) => {
+            const typeLabel = t(
+                `aiAssist.commRisk_${type}`,
+                COMM_RISK_FALLBACK[type] ?? type
+            );
+            addSignal(item, {
+                type: 'comm_risk',
+                urgency: g.severity === 'high' ? 'high' : 'medium',
+                label: g.count > 1 ? `${typeLabel} ×${g.count}` : typeLabel,
+                detail: g.lines.join('\n') || undefined
+            });
+        });
+    });
+
     (buckets.missingBaseDocuments?.items ?? []).forEach((item) => {
-        const docs = (item.missingDocuments ?? []).slice(0, 2).join(', ');
+        const docs = item.missingDocuments ?? [];
         const base = t('aiAssist.signalMissingDocs', 'Missing docs');
         addSignal(item, {
             type: 'missing_docs',
             urgency: 'medium',
-            label: docs ? `${base}: ${docs}` : base
+            label: docs.length
+                ? t(
+                      'aiAssist.signalMissingDocsCount',
+                      '{{count}} missing docs',
+                      {
+                          count: docs.length
+                      }
+                  )
+                : base,
+            detail: docs.length ? `${base}: ${docs.join(', ')}` : undefined
         });
     });
 
@@ -186,8 +270,8 @@ export const PortfolioView = ({
     );
 
     const students = useMemo(
-        () => buildPortfolioStudents(buckets, t as TFn),
-        [buckets, t]
+        () => buildPortfolioStudents(buckets, t as TFn, isZh),
+        [buckets, t, isZh]
     );
 
     useEffect(() => {
@@ -279,12 +363,14 @@ export const PortfolioView = ({
                                             ? [
                                                   '截止日 7–30 天內',
                                                   '學生訊息等待回覆 7–13 天',
-                                                  '文件討論串未回覆 7–13 天'
+                                                  '文件討論串未回覆 7–13 天',
+                                                  '訊息內容高度隱性風險（提及退費/競品、強烈不滿）'
                                               ]
                                             : [
                                                   'Deadline in 7–30 days',
                                                   'Student waiting 7–13 days for reply',
-                                                  'Document thread unanswered 7–13 days'
+                                                  'Document thread unanswered 7–13 days',
+                                                  'High implicit content risk (refund/competitor mention, strong dissatisfaction)'
                                               ]
                                     },
                                     {
@@ -296,6 +382,7 @@ export const PortfolioView = ({
                                                   '文件討論串未回覆 3–6 天',
                                                   '已錄取但未確認入學',
                                                   '缺少必要基本文件',
+                                                  '訊息內容隱性風險（困惑、互動轉冷、承諾未兌現）',
                                                   '已在其他學校確認入學的學生的所有信號'
                                               ]
                                             : [
@@ -303,6 +390,7 @@ export const PortfolioView = ({
                                                   'Document thread unanswered 3–6 days',
                                                   'Admitted but enrolment not confirmed',
                                                   'Missing required base documents',
+                                                  'Implicit content risk (confusion, cooling engagement, broken promises)',
                                                   'Any signal where student confirmed enrolment elsewhere'
                                               ]
                                     }
