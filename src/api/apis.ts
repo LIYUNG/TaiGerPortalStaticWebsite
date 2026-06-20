@@ -762,36 +762,28 @@ export const searchAIAssistStudents = (query: string) =>
         `/api/ai-assist/students/search?q=${encodeURIComponent(query)}`
     );
 
-export interface AIAssistOverviewItem {
-    student?: {
-        id?: string;
-        name?: string;
-        chineseName?: string;
-        email?: string;
-        joinedAt?: string | null;
-        applyingProgramCount?: number;
-        hasEditors?: boolean;
-        offerCount?: number;
-        rejectCount?: number;
-        applicationTerms?: string[];
-    };
+export type AIAssistUrgency = 'critical' | 'high' | 'medium';
+
+// One actionable signal for a student. `bucket` discriminates which fields are
+// set. Urgency is computed server-side; the frontend only localizes + renders.
+export interface AIAssistOverviewSignal {
+    bucket: string;
+    urgency: AIAssistUrgency;
+    // upcomingDeadlines / admittedNotConfirmed
     program?: { school?: string; name?: string } | null;
-    deadline?: string;
+    // upcomingDeadlines
     daysUntil?: number;
-    fileType?: string;
-    updatedAt?: string;
-    missingDocuments?: string[];
-    // Days a document thread has been waiting on the team (thread-stall signal).
+    deadline?: string;
+    // threadsWaitingOnTeam
     stalledDays?: number | null;
-    // Days since the last message with the student; null when never contacted
-    // (communication-gap signal).
+    fileType?: string | null;
+    // communicationGaps — null when never contacted
     lastContactDays?: number | null;
-    // True when the student already confirmed enrolment on another application —
-    // signals for this item should be treated as lower priority.
-    confirmedElsewhere?: boolean;
-    // communicationRiskSignals bucket: implicit risks mined from message content.
+    // missingBaseDocuments
+    missingDocuments?: string[];
+    // communicationRiskSignals: implicit risks mined from message content.
     riskLevel?: 'none' | 'low' | 'medium' | 'high';
-    signals?: {
+    riskSignals?: {
         type: string;
         severity: 'low' | 'medium' | 'high';
         // LLM-generated specific risk label, produced in both languages at scan
@@ -806,6 +798,26 @@ export interface AIAssistOverviewItem {
     }[];
 }
 
+// Pre-grouped, deduped student record. The student object appears once and
+// carries all of its signals — no per-bucket duplication.
+export interface AIAssistOverviewStudent {
+    id: string;
+    name?: string;
+    chineseName?: string;
+    email?: string;
+    joinedAt?: string | null;
+    applyingProgramCount?: number;
+    hasEditors?: boolean;
+    offerCount?: number;
+    rejectCount?: number;
+    applicationTerms?: string[];
+    // True when the student already confirmed enrolment elsewhere — all their
+    // signals are treated as lower priority.
+    confirmedElsewhere?: boolean;
+    overallUrgency: AIAssistUrgency;
+    signals: AIAssistOverviewSignal[];
+}
+
 export interface AIAssistOverviewResponse {
     success: boolean;
     data: {
@@ -813,10 +825,10 @@ export interface AIAssistOverviewResponse {
         studentCount: number;
         deadlineWindowDays: number;
         emphasis: string[];
-        buckets: Record<
-            string,
-            { count: number; items: AIAssistOverviewItem[] }
-        >;
+        hasMoreStudents: boolean;
+        // Worst-first, pre-grouped. Render directly. Each signal carries its
+        // `bucket` tag, so per-bucket counts are derivable client-side.
+        students: AIAssistOverviewStudent[];
     };
 }
 
