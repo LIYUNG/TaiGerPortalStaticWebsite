@@ -16,7 +16,7 @@ import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useTranslation } from 'react-i18next';
-import { getAIAssistOverview, type AIAssistOverviewItem } from '@/api';
+import { getAIAssistOverview, type AIAssistOverviewStudent } from '@/api';
 import {
     StudentHealthCard,
     PortfolioStudent,
@@ -63,199 +63,196 @@ type TFn = (
     opts?: Record<string, unknown>
 ) => string;
 
+// The backend (GET /api/ai-assist/overview) now returns students pre-grouped,
+// worst-first, with per-signal urgency already computed. This function only
+// localizes each structured signal into a display PortfolioSignal — no
+// cross-bucket join or urgency derivation happens here anymore.
 const buildPortfolioStudents = (
-    buckets: Record<string, { count: number; items: AIAssistOverviewItem[] }>,
+    students: AIAssistOverviewStudent[],
     t: TFn,
     isZh: boolean
-): PortfolioStudent[] => {
-    const byId = new Map<string, PortfolioStudent>();
-
-    const addSignal = (
-        item: AIAssistOverviewItem,
-        signal: PortfolioSignal
-    ): void => {
-        const id = item.student?.id;
-        if (!id) return;
-        if (!byId.has(id)) {
-            byId.set(id, {
-                id,
-                name: item.student?.name ?? id,
-                chineseName: item.student?.chineseName,
-                signals: [],
-                overallHealth: 'Medium Risk',
-                joinedAt: item.student?.joinedAt ?? null,
-                applyingProgramCount: item.student?.applyingProgramCount ?? 0,
-                offerCount: item.student?.offerCount ?? 0,
-                rejectCount: item.student?.rejectCount ?? 0,
-                hasEditors: item.student?.hasEditors ?? true,
-                applicationTerms: item.student?.applicationTerms ?? []
-            });
-        }
-        byId.get(id)!.signals.push(signal);
-    };
-
-    (buckets.upcomingDeadlines?.items ?? []).forEach((item) => {
-        const days = item.daysUntil ?? 999;
-        const rawUrgency = days < 7 ? 'critical' : 'high';
-        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
-        const programLabel = item.program
-            ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
-            : '';
-        const base = t(
-            'aiAssist.signalDeadline',
-            'Deadline in {{count}} days',
-            { count: days }
-        );
-        const elsewhere = item.confirmedElsewhere
+): PortfolioStudent[] =>
+    students.map((stu) => {
+        const signals: PortfolioSignal[] = [];
+        const elsewhere = stu.confirmedElsewhere
             ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
             : '';
-        addSignal(item, {
-            type: 'deadline',
-            urgency,
-            label: `${programLabel ? `${base} · ${programLabel}` : base}${elsewhere}`
-        });
-    });
 
-    (buckets.threadsWaitingOnTeam?.items ?? []).forEach((item) => {
-        const stalled = item.stalledDays ?? 0;
-        const rawUrgency =
-            stalled >= 14 ? 'critical' : stalled >= 7 ? 'high' : 'medium';
-        const urgency = item.confirmedElsewhere ? 'medium' : rawUrgency;
-        const fileLabel = item.fileType ? ` · ${item.fileType}` : '';
-        const elsewhere = item.confirmedElsewhere
-            ? ` · ${t('aiAssist.signalConfirmedElsewhere', 'enrolled elsewhere')}`
-            : '';
-        const base = t(
-            'aiAssist.signalThreadStalled',
-            'Reply needed {{count}}d',
-            { count: stalled }
-        );
-        addSignal(item, {
-            type: 'thread_waiting',
-            urgency,
-            label: `${base}${fileLabel}${elsewhere}`
-        });
-    });
+        stu.signals.forEach((sig) => {
+            switch (sig.bucket) {
+                case 'upcomingDeadlines': {
+                    const days = sig.daysUntil ?? 999;
+                    const programLabel = sig.program
+                        ? `${sig.program.school ?? ''} ${sig.program.name ?? ''}`.trim()
+                        : '';
+                    const base = t(
+                        'aiAssist.signalDeadline',
+                        'Deadline in {{count}} days',
+                        { count: days }
+                    );
+                    signals.push({
+                        type: 'deadline',
+                        urgency: sig.urgency,
+                        label: `${programLabel ? `${base} · ${programLabel}` : base}${elsewhere}`
+                    });
+                    break;
+                }
+                case 'threadsWaitingOnTeam': {
+                    const stalled = sig.stalledDays ?? 0;
+                    const fileLabel = sig.fileType ? ` · ${sig.fileType}` : '';
+                    const base = t(
+                        'aiAssist.signalThreadStalled',
+                        'Reply needed {{count}}d',
+                        { count: stalled }
+                    );
+                    signals.push({
+                        type: 'thread_waiting',
+                        urgency: sig.urgency,
+                        label: `${base}${fileLabel}${elsewhere}`
+                    });
+                    break;
+                }
+                case 'communicationGaps': {
+                    const days = sig.lastContactDays ?? 0;
+                    signals.push({
+                        type: 'comm_gap',
+                        urgency: sig.urgency,
+                        label: t(
+                            'aiAssist.signalStudentWaiting',
+                            'Student waiting {{count}}d for reply',
+                            { count: days }
+                        )
+                    });
+                    break;
+                }
+                case 'admittedNotConfirmed': {
+                    const programLabel = sig.program
+                        ? `${sig.program.school ?? ''} ${sig.program.name ?? ''}`.trim()
+                        : '';
+                    const base = t(
+                        'aiAssist.signalAdmitted',
+                        'Admitted — enrolment not confirmed'
+                    );
+                    signals.push({
+                        type: 'admitted_unconfirmed',
+                        urgency: sig.urgency,
+                        label: programLabel ? `${base} · ${programLabel}` : base
+                    });
+                    break;
+                }
+                case 'missingBaseDocuments': {
+                    const docs = sig.missingDocuments ?? [];
+                    const base = t(
+                        'aiAssist.signalMissingDocs',
+                        'Missing docs'
+                    );
+                    signals.push({
+                        type: 'missing_docs',
+                        urgency: sig.urgency,
+                        label: docs.length
+                            ? t(
+                                  'aiAssist.signalMissingDocsCount',
+                                  '{{count}} missing docs',
+                                  { count: docs.length }
+                              )
+                            : base,
+                        detail: docs.length
+                            ? `${base}: ${docs.join(', ')}`
+                            : undefined
+                    });
+                    break;
+                }
+                case 'communicationRiskSignals': {
+                    // Dedupe by category: each type shown once (× count when
+                    // repeated); hover reveals that type's specific bilingual
+                    // case descriptions.
+                    const sevRank: Record<string, number> = {
+                        low: 1,
+                        medium: 2,
+                        high: 3
+                    };
+                    const byType = new Map<
+                        string,
+                        { severity: string; count: number; lines: string[] }
+                    >();
+                    (sig.riskSignals ?? []).forEach((rs) => {
+                        const g = byType.get(rs.type) ?? {
+                            severity: 'low',
+                            count: 0,
+                            lines: []
+                        };
+                        g.count += 1;
+                        if (
+                            (sevRank[rs.severity] ?? 0) >
+                            (sevRank[g.severity] ?? 0)
+                        ) {
+                            g.severity = rs.severity;
+                        }
+                        const summary = (
+                            isZh ? rs.summaryZh : rs.summaryEn
+                        )?.trim();
+                        if (summary) {
+                            const when = rs.occurredAt
+                                ? new Date(rs.occurredAt).toLocaleDateString(
+                                      isZh ? 'zh-TW' : 'en'
+                                  )
+                                : null;
+                            const ago =
+                                rs.sinceDays != null && rs.sinceDays > 0
+                                    ? isZh
+                                        ? `${rs.sinceDays} 天前`
+                                        : `${rs.sinceDays}d ago`
+                                    : null;
+                            const meta = [when, ago]
+                                .filter(Boolean)
+                                .join(' · ');
+                            g.lines.push(
+                                meta ? `${summary}（${meta}）` : summary
+                            );
+                        }
+                        byType.set(rs.type, g);
+                    });
 
-    (buckets.communicationGaps?.items ?? []).forEach((item) => {
-        const days = item.lastContactDays ?? 0;
-        const urgency = days >= 14 ? 'critical' : days >= 7 ? 'high' : 'medium';
-        addSignal(item, {
-            urgency,
-            type: 'comm_gap',
-            label: t(
-                'aiAssist.signalStudentWaiting',
-                'Student waiting {{count}}d for reply',
-                { count: days }
-            )
-        });
-    });
-
-    (buckets.admittedNotConfirmed?.items ?? []).forEach((item) => {
-        const programLabel = item.program
-            ? `${item.program.school ?? ''} ${item.program.name ?? ''}`.trim()
-            : '';
-        const base = t(
-            'aiAssist.signalAdmitted',
-            'Admitted — enrolment not confirmed'
-        );
-        addSignal(item, {
-            type: 'admitted_unconfirmed',
-            urgency: 'medium',
-            label: programLabel ? `${base} · ${programLabel}` : base
-        });
-    });
-
-    (buckets.communicationRiskSignals?.items ?? []).forEach((item) => {
-        // Dedupe by category: each type shown once (× count when repeated);
-        // hover reveals that type's specific bilingual case descriptions.
-        const sevRank: Record<string, number> = { low: 1, medium: 2, high: 3 };
-        const byType = new Map<
-            string,
-            { severity: string; count: number; lines: string[] }
-        >();
-        (item.signals ?? []).forEach((signal) => {
-            const g = byType.get(signal.type) ?? {
-                severity: 'low',
-                count: 0,
-                lines: []
-            };
-            g.count += 1;
-            if ((sevRank[signal.severity] ?? 0) > (sevRank[g.severity] ?? 0)) {
-                g.severity = signal.severity;
+                    byType.forEach((g, type) => {
+                        const typeLabel = t(
+                            `aiAssist.commRisk_${type}`,
+                            COMM_RISK_FALLBACK[type] ?? type
+                        );
+                        signals.push({
+                            type: 'comm_risk',
+                            urgency: g.severity === 'high' ? 'high' : 'medium',
+                            label:
+                                g.count > 1
+                                    ? `${typeLabel} ×${g.count}`
+                                    : typeLabel,
+                            detail: g.lines.join('\n') || undefined
+                        });
+                    });
+                    break;
+                }
             }
-            const summary = (
-                isZh ? signal.summaryZh : signal.summaryEn
-            )?.trim();
-            if (summary) {
-                const when = signal.occurredAt
-                    ? new Date(signal.occurredAt).toLocaleDateString(
-                          isZh ? 'zh-TW' : 'en'
-                      )
-                    : null;
-                const ago =
-                    signal.sinceDays != null && signal.sinceDays > 0
-                        ? isZh
-                            ? `${signal.sinceDays} 天前`
-                            : `${signal.sinceDays}d ago`
-                        : null;
-                const meta = [when, ago].filter(Boolean).join(' · ');
-                g.lines.push(meta ? `${summary}（${meta}）` : summary);
-            }
-            byType.set(signal.type, g);
         });
 
-        byType.forEach((g, type) => {
-            const typeLabel = t(
-                `aiAssist.commRisk_${type}`,
-                COMM_RISK_FALLBACK[type] ?? type
-            );
-            addSignal(item, {
-                type: 'comm_risk',
-                urgency: g.severity === 'high' ? 'high' : 'medium',
-                label: g.count > 1 ? `${typeLabel} ×${g.count}` : typeLabel,
-                detail: g.lines.join('\n') || undefined
-            });
-        });
-    });
-
-    (buckets.missingBaseDocuments?.items ?? []).forEach((item) => {
-        const docs = item.missingDocuments ?? [];
-        const base = t('aiAssist.signalMissingDocs', 'Missing docs');
-        addSignal(item, {
-            type: 'missing_docs',
-            urgency: 'medium',
-            label: docs.length
-                ? t(
-                      'aiAssist.signalMissingDocsCount',
-                      '{{count}} missing docs',
-                      {
-                          count: docs.length
-                      }
-                  )
-                : base,
-            detail: docs.length ? `${base}: ${docs.join(', ')}` : undefined
-        });
-    });
-
-    const students = Array.from(byId.values()).map((student) => {
-        const sorted = [...student.signals].sort(
+        const sorted = signals.sort(
             (a, b) => URGENCY_ORDER[a.urgency] - URGENCY_ORDER[b.urgency]
         );
-        const topUrgency = sorted[0]?.urgency ?? 'medium';
+
         return {
-            ...student,
+            id: stu.id,
+            name: stu.name ?? stu.id,
+            chineseName: stu.chineseName,
             signals: sorted,
-            overallHealth: HEALTH_FROM_URGENCY[topUrgency] ?? 'Medium Risk'
+            overallHealth:
+                HEALTH_FROM_URGENCY[stu.overallUrgency] ?? 'Medium Risk',
+            joinedAt: stu.joinedAt ?? null,
+            applyingProgramCount: stu.applyingProgramCount ?? 0,
+            offerCount: stu.offerCount ?? 0,
+            rejectCount: stu.rejectCount ?? 0,
+            hasEditors: stu.hasEditors ?? true,
+            applicationTerms: stu.applicationTerms ?? []
         };
     });
-
-    return students.sort((a, b) => {
-        const aTop = URGENCY_ORDER[a.signals[0]?.urgency ?? 'medium'];
-        const bTop = URGENCY_ORDER[b.signals[0]?.urgency ?? 'medium'];
-        return aTop - bTop;
-    });
-};
+// Backend already sorts students worst-first; preserve that order.
 
 export const PortfolioView = ({
     onAnalyzeStudent,
@@ -264,9 +261,9 @@ export const PortfolioView = ({
 }: PortfolioViewProps): JSX.Element => {
     const { t, i18n } = useTranslation();
     const isZh = i18n.language.startsWith('zh');
-    const [buckets, setBuckets] = useState<
-        Record<string, { count: number; items: AIAssistOverviewItem[] }>
-    >({});
+    const [overviewStudents, setOverviewStudents] = useState<
+        AIAssistOverviewStudent[]
+    >([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [chatInput, setChatInput] = useState('');
@@ -275,8 +272,8 @@ export const PortfolioView = ({
     );
 
     const students = useMemo(
-        () => buildPortfolioStudents(buckets, t as TFn, isZh),
-        [buckets, t, isZh]
+        () => buildPortfolioStudents(overviewStudents, t as TFn, isZh),
+        [overviewStudents, t, isZh]
     );
 
     useEffect(() => {
@@ -284,7 +281,7 @@ export const PortfolioView = ({
         getAIAssistOverview()
             .then((res) => {
                 if (!active) return;
-                setBuckets(res?.data?.buckets ?? {});
+                setOverviewStudents(res?.data?.students ?? []);
                 setHasError(false);
             })
             .catch(() => {
