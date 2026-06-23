@@ -465,6 +465,7 @@ export default function PortalCredentialsCard(
                             <PortalCredentialsApplicationBlock
                                 key={appId}
                                 appId={appId}
+                                closed={application.closed ?? '-'}
                                 credentials={rowCreds}
                                 isChanged={isChangedMap[appId] ?? false}
                                 isSubmittingThisApp={
