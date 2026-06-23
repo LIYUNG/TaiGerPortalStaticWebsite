@@ -20,6 +20,12 @@
         "saving": "Saving…",
         "portalA": "Application portal A",
         "portalB": "Application portal B",
-        "missingCredentialsWarning": "Please register and provide credentials"
+        "missingCredentialsWarning": "Please register and provide credentials",
+        "copy": "Copy",
+        "copied": "Copied",
+        "nothingToCopy": "Nothing to copy yet",
+        "submitted": "Submitted",
+        "notSubmitted": "Not submitted yet",
+        "withdrawn": "Withdrawn"
     }
 }

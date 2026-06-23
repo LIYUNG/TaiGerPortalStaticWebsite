@@ -20,6 +20,12 @@
         "saving": "儲存中…",
         "portalA": "申請入口 A",
         "portalB": "申請入口 B",
-        "missingCredentialsWarning": "請註冊帳號密碼並更新至此"
+        "missingCredentialsWarning": "請註冊帳號密碼並更新至此",
+        "copy": "複製",
+        "copied": "已複製",
+        "nothingToCopy": "尚無內容可複製",
+        "submitted": "已送出",
+        "notSubmitted": "尚未送出",
+        "withdrawn": "已撤回"
     }
 }

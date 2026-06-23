@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import Filter1OutlinedIcon from '@mui/icons-material/Filter1Outlined';
 import Filter2OutlinedIcon from '@mui/icons-material/Filter2Outlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import {
@@ -13,6 +19,7 @@ import {
     Chip,
     CircularProgress,
     Grid,
+    IconButton,
     InputAdornment,
     Link,
     Paper,
@@ -27,9 +34,127 @@ import type { IProgramWithId } from '@taiger-common/model';
 import { LinkableNewlineText } from '../Utils/checking-functions';
 import type { PortalCredentialFields } from './portalCredentialsUtils';
 
+/**
+ * Copy text to the clipboard, falling back to a hidden textarea + execCommand
+ * for browsers / non-secure (http) contexts where navigator.clipboard is absent.
+ */
+async function copyTextToClipboard(text: string): Promise<void> {
+    if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } finally {
+        document.body.removeChild(textarea);
+    }
+}
+
+type CredentialTextFieldProps = {
+    id: string;
+    label: string;
+    value: string;
+    color: 'primary' | 'secondary';
+    startIcon: React.ReactNode;
+    onChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
+};
+
+/**
+ * A portal credential input (account or password) with a one-click copy button
+ * in the trailing adornment. The icon briefly turns into a check on success.
+ */
+function CredentialTextField({
+    id,
+    label,
+    value,
+    color,
+    startIcon,
+    onChange
+}: CredentialTextFieldProps) {
+    const { t } = useTranslation('portalManagement');
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        if (!value) {
+            return;
+        }
+        try {
+            await copyTextToClipboard(value);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1500);
+        } catch {
+            // Silently ignore — copying is a convenience, the value is still visible.
+        }
+    };
+
+    const copyTooltip = (() => {
+        if (!value) {
+            return t('portalCreds.nothingToCopy');
+        }
+        return copied ? t('portalCreds.copied') : t('portalCreds.copy');
+    })();
+
+    return (
+        <TextField
+            fullWidth
+            autoComplete="off"
+            color={color}
+            id={id}
+            InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        {startIcon}
+                    </InputAdornment>
+                ),
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <Tooltip title={copyTooltip}>
+                            <span>
+                                <IconButton
+                                    aria-label={t('portalCreds.copy')}
+                                    disabled={!value}
+                                    edge="end"
+                                    onClick={handleCopy}
+                                    size="small"
+                                >
+                                    {copied ? (
+                                        <CheckOutlinedIcon
+                                            color="success"
+                                            fontSize="small"
+                                        />
+                                    ) : (
+                                        <ContentCopyOutlinedIcon fontSize="small" />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </InputAdornment>
+                )
+            }}
+            label={label}
+            margin="dense"
+            onChange={onChange}
+            size="small"
+            type="text"
+            value={value}
+        />
+    );
+}
+
 type PortalCredentialsApplicationBlockProps = {
     program: IProgramWithId;
     appId: string;
+    /** Submission state: '-' = not yet, 'O' = submitted, 'X' = withdrawn. */
+    closed: string;
     credentials: PortalCredentialFields;
     isChanged: boolean;
     isUpdateLoaded: boolean;
@@ -39,6 +164,51 @@ type PortalCredentialsApplicationBlockProps = {
     ) => void;
     onUpdateClick: () => void;
 };
+
+/**
+ * Read-only badge showing whether this application has been submitted on the
+ * university's own system. The value is managed on the Applications page; here
+ * it is shown for at-a-glance reference. '-' = not yet, 'O' = submitted,
+ * 'X' = withdrawn.
+ */
+function SubmissionStatusChip({ closed }: { closed: string }) {
+    const { t } = useTranslation('portalManagement');
+
+    if (closed === 'X') {
+        return (
+            <Chip
+                color="error"
+                icon={<CancelOutlinedIcon />}
+                label={t('portalCreds.withdrawn')}
+                size="small"
+                sx={{ fontWeight: 600, width: 'fit-content' }}
+                variant="outlined"
+            />
+        );
+    }
+
+    const submitted = closed === 'O';
+    return (
+        <Chip
+            color={submitted ? 'success' : 'default'}
+            icon={
+                submitted ? (
+                    <CheckCircleOutlineIcon />
+                ) : (
+                    <RadioButtonUncheckedIcon />
+                )
+            }
+            label={
+                submitted
+                    ? t('portalCreds.submitted')
+                    : t('portalCreds.notSubmitted')
+            }
+            size="small"
+            sx={{ fontWeight: 600, width: 'fit-content' }}
+            variant={submitted ? 'filled' : 'outlined'}
+        />
+    );
+}
 
 function shouldShowMissingCredentialsWarning(
     program: IProgramWithId,
@@ -65,6 +235,7 @@ const fieldGridProps = {
 export function PortalCredentialsApplicationBlock({
     program,
     appId,
+    closed,
     credentials,
     isChanged,
     isUpdateLoaded,
@@ -147,37 +318,49 @@ export function PortalCredentialsApplicationBlock({
                             </Link>
                         </Typography>
                     </Box>
-                    {hasAnyPortal ? (
-                        <Tooltip title={saveTooltip}>
-                            <span>
-                                <Button
-                                    color="primary"
-                                    disabled={saveDisabled}
-                                    onClick={onUpdateClick}
-                                    size="medium"
-                                    startIcon={
-                                        !isUpdateLoaded ||
-                                        isSubmittingThisApp ? (
-                                            <CircularProgress
-                                                aria-hidden
-                                                color="inherit"
-                                                size={18}
-                                                thickness={5}
-                                            />
-                                        ) : (
-                                            <SaveOutlinedIcon aria-hidden />
-                                        )
-                                    }
-                                    sx={{ flexShrink: 0, minWidth: 128 }}
-                                    variant="contained"
-                                >
-                                    {!isUpdateLoaded || isSubmittingThisApp
-                                        ? tTrans('Updating')
-                                        : tTrans('Update', { ns: 'common' })}
-                                </Button>
-                            </span>
-                        </Tooltip>
-                    ) : null}
+                    <Stack
+                        alignItems="center"
+                        direction="row"
+                        flexWrap="wrap"
+                        justifyContent="flex-end"
+                        spacing={1.5}
+                        useFlexGap
+                    >
+                        <SubmissionStatusChip closed={closed} />
+                        {hasAnyPortal ? (
+                            <Tooltip title={saveTooltip}>
+                                <span>
+                                    <Button
+                                        color="primary"
+                                        disabled={saveDisabled}
+                                        onClick={onUpdateClick}
+                                        size="medium"
+                                        startIcon={
+                                            !isUpdateLoaded ||
+                                            isSubmittingThisApp ? (
+                                                <CircularProgress
+                                                    aria-hidden
+                                                    color="inherit"
+                                                    size={18}
+                                                    thickness={5}
+                                                />
+                                            ) : (
+                                                <SaveOutlinedIcon aria-hidden />
+                                            )
+                                        }
+                                        sx={{ flexShrink: 0, minWidth: 128 }}
+                                        variant="contained"
+                                    >
+                                        {!isUpdateLoaded || isSubmittingThisApp
+                                            ? tTrans('Updating')
+                                            : tTrans('Update', {
+                                                  ns: 'common'
+                                              })}
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                        ) : null}
+                    </Stack>
                 </Stack>
 
                 {hasAnyPortal ? (
@@ -270,55 +453,38 @@ export function PortalCredentialsApplicationBlock({
                                     rowSpacing={2}
                                 >
                                     <Grid item {...fieldGridProps}>
-                                        <TextField
-                                            fullWidth
-                                            autoComplete="off"
+                                        <CredentialTextField
                                             color="primary"
                                             id={`${appId}_application_portal_a_account`}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <PersonOutlineIcon
-                                                            aria-hidden
-                                                            color="action"
-                                                            fontSize="small"
-                                                        />
-                                                    </InputAdornment>
-                                                )
-                                            }}
                                             label={tTrans('Account', {
                                                 ns: 'common'
                                             })}
-                                            margin="dense"
                                             onChange={onCredentialFieldChange}
-                                            size="small"
+                                            startIcon={
+                                                <PersonOutlineIcon
+                                                    aria-hidden
+                                                    color="action"
+                                                    fontSize="small"
+                                                />
+                                            }
                                             value={credentials.account_portal_a}
                                         />
                                     </Grid>
                                     <Grid item {...fieldGridProps}>
-                                        <TextField
-                                            fullWidth
-                                            autoComplete="off"
+                                        <CredentialTextField
                                             color="primary"
                                             id={`${appId}_application_portal_a_password`}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <LockOutlinedIcon
-                                                            aria-hidden
-                                                            color="action"
-                                                            fontSize="small"
-                                                        />
-                                                    </InputAdornment>
-                                                )
-                                            }}
                                             label={tTrans('Password', {
                                                 ns: 'common'
                                             })}
-                                            margin="dense"
                                             onChange={onCredentialFieldChange}
-                                            size="small"
-                                            type="text"
+                                            startIcon={
+                                                <LockOutlinedIcon
+                                                    aria-hidden
+                                                    color="action"
+                                                    fontSize="small"
+                                                />
+                                            }
                                             value={
                                                 credentials.password_portal_a
                                             }
@@ -342,7 +508,9 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {tTrans('Link', { ns: 'common' })}
+                                                {tTrans('Link', {
+                                                    ns: 'common'
+                                                })}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={
@@ -403,55 +571,38 @@ export function PortalCredentialsApplicationBlock({
                                     rowSpacing={2}
                                 >
                                     <Grid item {...fieldGridProps}>
-                                        <TextField
-                                            fullWidth
-                                            autoComplete="off"
+                                        <CredentialTextField
                                             color="secondary"
                                             id={`${appId}_application_portal_b_account`}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <PersonOutlineIcon
-                                                            aria-hidden
-                                                            color="action"
-                                                            fontSize="small"
-                                                        />
-                                                    </InputAdornment>
-                                                )
-                                            }}
                                             label={tTrans('Account', {
                                                 ns: 'common'
                                             })}
-                                            margin="dense"
                                             onChange={onCredentialFieldChange}
-                                            size="small"
+                                            startIcon={
+                                                <PersonOutlineIcon
+                                                    aria-hidden
+                                                    color="action"
+                                                    fontSize="small"
+                                                />
+                                            }
                                             value={credentials.account_portal_b}
                                         />
                                     </Grid>
                                     <Grid item {...fieldGridProps}>
-                                        <TextField
-                                            fullWidth
-                                            autoComplete="off"
+                                        <CredentialTextField
                                             color="secondary"
                                             id={`${appId}_application_portal_b_password`}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <LockOutlinedIcon
-                                                            aria-hidden
-                                                            color="action"
-                                                            fontSize="small"
-                                                        />
-                                                    </InputAdornment>
-                                                )
-                                            }}
                                             label={tTrans('Password', {
                                                 ns: 'common'
                                             })}
-                                            margin="dense"
                                             onChange={onCredentialFieldChange}
-                                            size="small"
-                                            type="text"
+                                            startIcon={
+                                                <LockOutlinedIcon
+                                                    aria-hidden
+                                                    color="action"
+                                                    fontSize="small"
+                                                />
+                                            }
                                             value={
                                                 credentials.password_portal_b
                                             }
@@ -475,7 +626,9 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {tTrans('Link', { ns: 'common' })}
+                                                {tTrans('Link', {
+                                                    ns: 'common'
+                                                })}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={
