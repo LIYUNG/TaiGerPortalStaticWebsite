@@ -1,5 +1,12 @@
 {
     "#": "#",
+    "AI assist": "AI 协助",
+    "AI is drafting a reply…": "AI 正在草拟回复…",
+    "No reply was generated. Please try again.": "没有生成回复，请重试。",
+    "AI-generated draft — review and edit before sending.": "AI 生成的草稿 — 发送前请检查并编辑。",
+    "Insert into draft": "插入草稿",
+    "Dismiss": "忽略",
+    "Failed to generate an AI reply. Please try again.": "AI 回复生成失败，请重试。",
     "Accept": "接受",
     "Accept All": "接受全部",
     "Account": "帐号",

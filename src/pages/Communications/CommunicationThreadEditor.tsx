@@ -18,7 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { is_TaiGer_Agent, is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_role } from '@taiger-common/core';
 import type { IUser } from '@taiger-common/model';
 import { useParams } from 'react-router-dom';
 
@@ -30,9 +30,10 @@ import FilePreview from '@components/FilePreview/FilePreview';
 import { CVMLRL_DOC_PRECHECK_STATUS_E } from '@utils/contants';
 import { readDOCX, readPDF, readXLSX } from '@pages/Utils/util_functions';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { TaiGerChatAssistant } from '@/api';
+import { generateStudentReplyDraft } from '@/api';
 import type { CommunicationDraftFile } from '@/api/apis';
 import useCommunicationDraft from '@hooks/useCommunicationDraft';
+import { markdownToEditorJsBlocks } from '@utils/markdownToEditorJs';
 import { appConfig } from '../../config';
 
 export interface CheckResultItem {
@@ -116,6 +117,10 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         isGenerating: false
     });
     const [isSending, setIsSending] = useState(false);
+    // True once an AI-generated reply has been inserted into the composer and is
+    // awaiting the agent's review/edit/send. Drives the "review before sending"
+    // banner. Cleared on send.
+    const [aiInserted, setAiInserted] = useState(false);
 
     // ── Server-side draft (Slack-style: continue an unsent message later) ──
     const {
@@ -248,6 +253,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
             // message and deletes the draft as a unit).
             composeRef.current?.reset();
             setHasContent(false);
+            setAiInserted(false);
             lastSavedBlocksRef.current = '[]';
             resetDraftCache();
 
@@ -383,29 +389,99 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         ]
     );
 
+    // Generate a context-grounded reply DRAFT. The streamed text is shown as a
+    // suggestion the agent can Insert (into the composer), edit, then Send — or
+    // Dismiss. It is never sent automatically.
     const onSubmit = async () => {
-        setStreamingData((prev) => ({ ...prev, isGenerating: true }));
-        const response = await TaiGerChatAssistant('abc', studentId ?? '');
-        const reader = response.body
-            ?.pipeThrough(new TextDecoderStream())
-            .getReader();
-        if (!reader) {
+        if (!studentId) return;
+        setStreamingData({ data: '', isGenerating: true });
+        try {
+            const response = await generateStudentReplyDraft(studentId);
+            const reader = response.body
+                ?.pipeThrough(new TextDecoderStream())
+                .getReader();
+            if (!reader) {
+                setStreamingData((prev) => ({ ...prev, isGenerating: false }));
+                return;
+            }
+            let data = '';
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                data += value;
+                setStreamingData((prev) => ({ ...prev, data }));
+            }
+            setStreamingData({
+                data:
+                    data.trim() ||
+                    t('No reply was generated. Please try again.', {
+                        ns: 'common',
+                        defaultValue:
+                            'No reply was generated. Please try again.'
+                    }),
+                isGenerating: false
+            });
+        } catch {
             setStreamingData((prev) => ({ ...prev, isGenerating: false }));
-            return;
+            setSeverity('error');
+            setMessage(
+                t('Failed to generate an AI reply. Please try again.', {
+                    ns: 'common',
+                    defaultValue:
+                        'Failed to generate an AI reply. Please try again.'
+                })
+            );
+            setOpenSnackbar(true);
         }
-        let data = '';
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            data += value;
-            setStreamingData((prev) => ({ ...prev, data }));
-        }
-        setStreamingData((prev) => ({ ...prev, data, isGenerating: false }));
     };
+
+    // Approve the suggestion: drop it into the composer as the editable draft.
+    // The agent still reviews and presses Send (no auto-send).
+    const insertSuggestion = useCallback(() => {
+        if (!streamingData.data) return;
+        const blocks = markdownToEditorJsBlocks(streamingData.data);
+        composeRef.current?.restore(blocks);
+        lastSavedBlocksRef.current = JSON.stringify(blocks.blocks ?? []);
+        setHasContent(Boolean(blocks.blocks?.length));
+        saveDraft(blocks);
+        setAiInserted(true);
+        setStreamingData({ data: '', isGenerating: false });
+    }, [streamingData.data, saveDraft]);
+
+    const dismissSuggestion = useCallback(() => {
+        setStreamingData({ data: '', isGenerating: false });
+    }, []);
     const sendDisabled = !hasContent || props.buttonDisabled || isSending;
 
     return (
         <>
+            {aiInserted && hasContent ? (
+                <Box
+                    sx={{
+                        alignItems: 'center',
+                        bgcolor: 'warning.light',
+                        borderRadius: 1,
+                        color: 'warning.contrastText',
+                        display: 'flex',
+                        gap: 0.5,
+                        mb: 0.5,
+                        px: 1,
+                        py: 0.5
+                    }}
+                >
+                    <AutoFixHighIcon fontSize="small" />
+                    <Typography variant="caption">
+                        {t(
+                            'AI-generated draft — review and edit before sending.',
+                            {
+                                ns: 'common',
+                                defaultValue:
+                                    'AI-generated draft — review and edit before sending.'
+                            }
+                        )}
+                    </Typography>
+                </Box>
+            ) : null}
             <Box
                 sx={{
                     border: '1px solid',
@@ -665,8 +741,11 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 </Box>
             </Box>
 
-            {/* AI assistant streamed suggestion (agents only) */}
-            {is_TaiGer_Agent(user as IUser) && streamingData.data ? (
+            {/* AI streamed reply suggestion — shown to any staff who can trigger
+                it (same gate as the trigger button), with a live "drafting…"
+                state because the agentic call can take a while before tokens. */}
+            {is_TaiGer_role(user as IUser) &&
+            (streamingData.isGenerating || streamingData.data) ? (
                 <Box
                     sx={{
                         mt: 1,
@@ -675,19 +754,66 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         bgcolor: 'action.hover'
                     }}
                 >
-                    <Typography
-                        color="text.secondary"
-                        sx={{ display: 'block', mb: 0.5 }}
-                        variant="caption"
+                    <Box
+                        sx={{
+                            alignItems: 'center',
+                            display: 'flex',
+                            gap: 0.5,
+                            mb: 0.5
+                        }}
                     >
-                        {t('AI assist', {
-                            ns: 'common',
-                            defaultValue: 'AI assist'
-                        })}
-                    </Typography>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {streamingData.data}
-                    </ReactMarkdown>
+                        {streamingData.isGenerating ? (
+                            <CircularProgress size={14} />
+                        ) : null}
+                        <Typography color="text.secondary" variant="caption">
+                            {streamingData.isGenerating && !streamingData.data
+                                ? t('AI is drafting a reply…', {
+                                      ns: 'common',
+                                      defaultValue: 'AI is drafting a reply…'
+                                  })
+                                : t('AI assist', {
+                                      ns: 'common',
+                                      defaultValue: 'AI assist'
+                                  })}
+                        </Typography>
+                    </Box>
+                    {streamingData.data ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {streamingData.data}
+                        </ReactMarkdown>
+                    ) : null}
+                    {!streamingData.isGenerating && streamingData.data ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 1,
+                                mt: 1,
+                                justifyContent: 'flex-end'
+                            }}
+                        >
+                            <Button
+                                onClick={dismissSuggestion}
+                                size="small"
+                                variant="text"
+                            >
+                                {t('Dismiss', {
+                                    ns: 'common',
+                                    defaultValue: 'Dismiss'
+                                })}
+                            </Button>
+                            <Button
+                                onClick={insertSuggestion}
+                                size="small"
+                                startIcon={<AutoFixHighIcon fontSize="small" />}
+                                variant="contained"
+                            >
+                                {t('Insert into draft', {
+                                    ns: 'common',
+                                    defaultValue: 'Insert into draft'
+                                })}
+                            </Button>
+                        </Box>
+                    ) : null}
                 </Box>
             ) : null}
 

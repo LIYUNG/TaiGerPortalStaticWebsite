@@ -1,5 +1,12 @@
 {
     "#": "#",
+    "AI assist": "AI assist",
+    "AI is drafting a reply…": "AI is drafting a reply…",
+    "No reply was generated. Please try again.": "No reply was generated. Please try again.",
+    "AI-generated draft — review and edit before sending.": "AI-generated draft — review and edit before sending.",
+    "Insert into draft": "Insert into draft",
+    "Dismiss": "Dismiss",
+    "Failed to generate an AI reply. Please try again.": "Failed to generate an AI reply. Please try again.",
     "Accept": "Accept",
     "Accept All": "Accept All",
     "Account": "Account",

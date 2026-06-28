@@ -1938,6 +1938,18 @@ export const TaiGerChatAssistant = (prompt: string, studentId: StudentId) =>
         body: JSON.stringify({ prompt }) // server is expecting JSON
     });
 
+// Generate a context-grounded reply DRAFT to a student (overview +
+// communications + document threads + applications). Streams the reply text
+// (raw chunks). The result is a draft only — staff review/edit and press Send;
+// it is never sent automatically.
+export const generateStudentReplyDraft = (studentId: StudentId) =>
+    fetch(`${BASE_URL}/api/ai-assist/students/${studentId}/reply-draft`, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({})
+    });
+
 export const cvmlrlAi2 = (prompt: string) =>
     fetch(`${BASE_URL}/api/taigerai/cvmlrl`, {
         method: 'post', // HTTP POST to send query to server
