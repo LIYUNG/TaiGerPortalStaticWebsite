@@ -373,7 +373,22 @@ const Message = ({
                             width: 'fit-content',
                             maxWidth: '100%',
                             overflowWrap: 'break-word',
-                            wordBreak: 'break-word'
+                            wordBreak: 'break-word',
+                            // Theme-aware selection: EditorJS's defaults are
+                            // tuned for a light canvas and look washed out /
+                            // illegible in dark mode.
+                            '& ::selection': {
+                                backgroundColor: alpha(
+                                    theme.palette.primary.main,
+                                    0.35
+                                )
+                            },
+                            '& .ce-block--selected .ce-block__content': {
+                                backgroundColor: alpha(
+                                    theme.palette.primary.main,
+                                    0.18
+                                )
+                            }
                         }}
                     >
                         <EditorSimple

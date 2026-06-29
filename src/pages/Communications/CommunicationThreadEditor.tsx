@@ -11,6 +11,7 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -433,6 +434,17 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         '& .codex-editor__redactor': { pb: '0 !important' },
                         '& .ce-block__content, & .ce-toolbar__content': {
                             maxWidth: 'unset'
+                        },
+                        // Theme-aware selection: EditorJS's defaults are tuned
+                        // for a light canvas and look washed out / illegible in
+                        // dark mode.
+                        '& ::selection': {
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.primary.main, 0.35)
+                        },
+                        '& .ce-block--selected .ce-block__content': {
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.primary.main, 0.18)
                         }
                     }}
                 >
