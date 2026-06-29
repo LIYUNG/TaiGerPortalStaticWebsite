@@ -5,6 +5,7 @@ import type { OutputData } from '@editorjs/editorjs';
 import { getCommunicationDraftQuery } from '@/api/query';
 import {
     saveCommunicationDraft,
+    saveCommunicationDraftAiSuggestion,
     deleteCommunicationDraft,
     uploadCommunicationDraftFiles,
     deleteCommunicationDraftFile,
@@ -24,6 +25,19 @@ const hasBlocks = (content?: OutputData | null): boolean =>
 export interface UseCommunicationDraftResult {
     /** The saved draft (parsed) for this thread, or null. */
     draft: OutputData | null;
+    /** Provenance of the saved draft ('ai' once an AI reply was inserted). */
+    draftSource?: 'human' | 'ai';
+    /** A generated-but-not-yet-approved AI reply (raw markdown), or '' if none. */
+    pendingSuggestion: string;
+    /** Persist a generated-but-unapproved AI suggestion so it survives reload. */
+    savePendingSuggestion: (
+        suggestion: string,
+        aiModel?: string
+    ) => Promise<void>;
+    /** Clear the persisted pending AI suggestion. */
+    clearPendingSuggestion: () => Promise<void>;
+    /** Persist the given content as an AI-sourced draft (immediate, not debounced). */
+    saveAiDraft: (content: OutputData, aiModel?: string) => Promise<void>;
     /** Attachments staged on the draft (upload-on-attach). */
     draftFiles: CommunicationDraftFile[];
     /** True while an attach upload is in flight. */
@@ -74,6 +88,13 @@ const useCommunicationDraft = (
         [data]
     );
 
+    const draftSource = (data as CommunicationDraftResponse | undefined)?.data
+        ?.source;
+
+    const pendingSuggestion =
+        (data as CommunicationDraftResponse | undefined)?.data
+            ?.aiPendingSuggestion ?? '';
+
     const draft = useMemo<OutputData | null>(() => {
         const message = (data as CommunicationDraftResponse | undefined)?.data
             ?.message;
@@ -119,6 +140,64 @@ const useCommunicationDraft = (
             }, DEBOUNCE_MS);
         },
         [studentId, flush]
+    );
+
+    // Persist an AI-generated reply as the draft, immediately (no debounce) and
+    // stamped with source: 'ai' so it survives reload and can be audited on
+    // send. Seeds the query cache with the saved result.
+    const saveAiDraft = useCallback(
+        async (content: OutputData, aiModel?: string) => {
+            if (!studentId) return;
+            if (timerRef.current) {
+                window.clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+            pendingRef.current = null;
+            setStatus('saving');
+            try {
+                const res = await saveCommunicationDraft(
+                    studentId,
+                    JSON.stringify(content),
+                    { source: 'ai', aiModel }
+                );
+                // The axios instance resolves 4xx (validateStatus < 500), so a
+                // failed save would otherwise look like success and the draft
+                // would silently vanish on reload. Verify and surface it.
+                if (!(res as CommunicationDraftResponse | undefined)?.success) {
+                    throw new Error('Draft was not saved.');
+                }
+                queryClient.setQueryData(draftQueryKey, res);
+                setStatus('saved');
+            } catch (error) {
+                setStatus('error');
+                throw error;
+            }
+        },
+        [studentId, queryClient, draftQueryKey]
+    );
+
+    // Persist a generated-but-unapproved AI suggestion (immediate). Seeds the
+    // query cache so the suggestion panel survives reload. Does not touch the
+    // editable draft message.
+    const savePendingSuggestion = useCallback(
+        async (suggestion: string, aiModel?: string) => {
+            if (!studentId) return;
+            const res = await saveCommunicationDraftAiSuggestion(
+                studentId,
+                suggestion,
+                aiModel
+            );
+            if (!(res as CommunicationDraftResponse | undefined)?.success) {
+                throw new Error('Suggestion was not saved.');
+            }
+            queryClient.setQueryData(draftQueryKey, res);
+        },
+        [studentId, queryClient, draftQueryKey]
+    );
+
+    const clearPendingSuggestion = useCallback(
+        () => savePendingSuggestion(''),
+        [savePendingSuggestion]
     );
 
     const clearDraft = useCallback(() => {
@@ -223,6 +302,11 @@ const useCommunicationDraft = (
 
     return {
         draft,
+        draftSource,
+        pendingSuggestion,
+        savePendingSuggestion,
+        clearPendingSuggestion,
+        saveAiDraft,
         draftFiles,
         isAttaching,
         isDraftLoaded: isSuccess,
