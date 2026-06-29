@@ -1,6 +1,7 @@
 import {
     useRef,
     useState,
+    useEffect,
     useCallback,
     type ChangeEvent,
     type MouseEvent
@@ -20,6 +21,7 @@ import {
     Stack,
     CircularProgress
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import i18next from 'i18next';
 
 import { useAuth } from '../AuthProvider';
@@ -67,10 +69,44 @@ const DocThreadEditor = ({
 }: DocThreadEditorProps) => {
     const { user } = useAuth();
     const composeRef = useRef<ComposeEditorRef>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const [hasContent, setHasContent] = useState(false);
+    const [isActive, setIsActive] = useState(false);
     const [isSending, setIsSending] = useState(false);
 
     const canSend = Boolean(hasContent && !buttonDisabled && !readOnly);
+
+    // Drive the expanded height from React state instead of the CSS
+    // `:focus-within`: the card grows once the user starts editing and only
+    // folds back when they click outside it. This keeps the larger state
+    // through transient focus loss — e.g. clicking an EditorJS toolbar action
+    // to convert a block to a bullet list — which previously folded the card.
+    const expanded = isActive;
+
+    const handleFocus = () => setIsActive(true);
+
+    // Fold when the user clicks outside the card. EditorJS renders some
+    // toolbars/popovers at the document body (outside the card DOM), so clicks
+    // on those must not count as "outside" or picking a block style would fold
+    // the editor.
+    useEffect(() => {
+        if (!isActive) return;
+        const handlePointerDown = (e: globalThis.MouseEvent) => {
+            const target = e.target as Element | null;
+            if (containerRef.current?.contains(target as Node)) return;
+            if (
+                target?.closest?.(
+                    '.ce-popover, .ce-toolbar, .ce-inline-toolbar, .ce-conversion-toolbar, .ce-settings'
+                )
+            ) {
+                return;
+            }
+            setIsActive(false);
+        };
+        document.addEventListener('mousedown', handlePointerDown);
+        return () =>
+            document.removeEventListener('mousedown', handlePointerDown);
+    }, [isActive]);
 
     const handleAttachClick = () => {
         if (readOnly) return;
@@ -118,25 +154,25 @@ const DocThreadEditor = ({
 
     return (
         <Box
+            ref={containerRef}
+            onFocus={handleFocus}
             sx={{
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: expanded ? 'primary.main' : 'divider',
                 borderRadius: 2,
                 bgcolor: 'background.paper',
                 px: 1.5,
                 py: 1,
-                transition: 'border-color 0.15s',
-                '&:focus-within': { borderColor: 'primary.main' },
-                // Dynamic height: grows with text while focused (up to the
-                // larger cap), shrinks back to a compact height when focus leaves.
-                '&:focus-within .compose-scroll': { maxHeight: 380 }
+                transition: 'border-color 0.15s'
             }}
         >
-            {/* Editor: capped height with internal scroll so it stays compact. */}
+            {/* Editor: capped height with internal scroll so it stays compact.
+                Grows to the larger cap while editing (focused or has content)
+                and shrinks back when the user is done. */}
             <Box
                 className="compose-scroll"
                 sx={{
-                    maxHeight: 96,
+                    maxHeight: expanded ? 380 : 96,
                     overflowY: 'auto',
                     transition: 'max-height 0.2s ease',
                     // EditorJS reserves wide right padding for its inline
@@ -144,6 +180,16 @@ const DocThreadEditor = ({
                     '& .codex-editor__redactor': { pb: '0 !important' },
                     '& .ce-block__content, & .ce-toolbar__content': {
                         maxWidth: 'unset'
+                    },
+                    // Theme-aware selection: EditorJS's defaults are tuned for a
+                    // light canvas and look washed out / illegible in dark mode.
+                    '& ::selection': {
+                        backgroundColor: (theme) =>
+                            alpha(theme.palette.primary.main, 0.35)
+                    },
+                    '& .ce-block--selected .ce-block__content': {
+                        backgroundColor: (theme) =>
+                            alpha(theme.palette.primary.main, 0.18)
                     }
                 }}
             >
