@@ -119,12 +119,21 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const [isSending, setIsSending] = useState(false);
     // True once an AI-generated reply has been inserted into the composer and is
     // awaiting the agent's review/edit/send. Drives the "review before sending"
-    // banner. Cleared on send.
+    // banner. Cleared on send. (The persisted draftSource covers reloads.)
     const [aiInserted, setAiInserted] = useState(false);
+    // Set when the backend flags the student's latest message as emotionally
+    // sensitive; the agent must explicitly acknowledge before inserting.
+    const [sensitive, setSensitive] = useState(false);
+    const [sensitiveAck, setSensitiveAck] = useState(false);
 
     // ── Server-side draft (Slack-style: continue an unsent message later) ──
     const {
         draft,
+        draftSource,
+        pendingSuggestion,
+        savePendingSuggestion,
+        clearPendingSuggestion,
+        saveAiDraft,
         draftFiles,
         isAttaching,
         isDraftLoaded,
@@ -394,9 +403,12 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     // Dismiss. It is never sent automatically.
     const onSubmit = async () => {
         if (!studentId) return;
+        setSensitive(false);
+        setSensitiveAck(false);
         setStreamingData({ data: '', isGenerating: true });
         try {
             const response = await generateStudentReplyDraft(studentId);
+            setSensitive(response.headers.get('X-Reply-Sensitive') === '1');
             const reader = response.body
                 ?.pipeThrough(new TextDecoderStream())
                 .getReader();
@@ -411,9 +423,10 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 data += value;
                 setStreamingData((prev) => ({ ...prev, data }));
             }
+            const finalText = data.trim();
             setStreamingData({
                 data:
-                    data.trim() ||
+                    finalText ||
                     t('No reply was generated. Please try again.', {
                         ns: 'common',
                         defaultValue:
@@ -421,6 +434,11 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     }),
                 isGenerating: false
             });
+            // Persist the suggestion so it survives a reload and can still be
+            // approved/dismissed later. Best-effort — it's already on screen.
+            if (finalText) {
+                void savePendingSuggestion(finalText).catch(() => undefined);
+            }
         } catch {
             setStreamingData((prev) => ({ ...prev, isGenerating: false }));
             setSeverity('error');
@@ -437,25 +455,61 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
 
     // Approve the suggestion: drop it into the composer as the editable draft.
     // The agent still reviews and presses Send (no auto-send).
-    const insertSuggestion = useCallback(() => {
-        if (!streamingData.data) return;
-        const blocks = markdownToEditorJsBlocks(streamingData.data);
+    // The suggestion to act on: the live stream if present, else the persisted
+    // pending suggestion (restored after a reload).
+    const suggestionText = streamingData.data || pendingSuggestion;
+
+    const insertSuggestion = useCallback(async () => {
+        if (!suggestionText) return;
+        // For a sensitive case, require an explicit acknowledgement first.
+        if (sensitive && !sensitiveAck) {
+            setSensitiveAck(true);
+            return;
+        }
+        const blocks = markdownToEditorJsBlocks(suggestionText);
         composeRef.current?.restore(blocks);
         lastSavedBlocksRef.current = JSON.stringify(blocks.blocks ?? []);
         setHasContent(Boolean(blocks.blocks?.length));
-        saveDraft(blocks);
         setAiInserted(true);
         setStreamingData({ data: '', isGenerating: false });
-    }, [streamingData.data, saveDraft]);
+        // Persist with AI provenance (survives reload). saveAiDraft clears the
+        // pending suggestion server-side. If the save fails, tell the user
+        // instead of silently losing it on reload.
+        try {
+            await saveAiDraft(blocks);
+        } catch {
+            setSeverity('error');
+            setMessage(
+                t('Could not save the draft. Please try again.', {
+                    ns: 'common',
+                    defaultValue: 'Could not save the draft. Please try again.'
+                })
+            );
+            setOpenSnackbar(true);
+        }
+    }, [
+        suggestionText,
+        saveAiDraft,
+        sensitive,
+        sensitiveAck,
+        t,
+        setSeverity,
+        setMessage,
+        setOpenSnackbar
+    ]);
 
     const dismissSuggestion = useCallback(() => {
         setStreamingData({ data: '', isGenerating: false });
-    }, []);
+        setSensitive(false);
+        setSensitiveAck(false);
+        // Drop the persisted suggestion too, so it doesn't reappear on reload.
+        void clearPendingSuggestion().catch(() => undefined);
+    }, [clearPendingSuggestion]);
     const sendDisabled = !hasContent || props.buttonDisabled || isSending;
 
     return (
         <>
-            {aiInserted && hasContent ? (
+            {(aiInserted || draftSource === 'ai') && hasContent ? (
                 <Box
                     sx={{
                         alignItems: 'center',
@@ -745,7 +799,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 it (same gate as the trigger button), with a live "drafting…"
                 state because the agentic call can take a while before tokens. */}
             {is_TaiGer_role(user as IUser) &&
-            (streamingData.isGenerating || streamingData.data) ? (
+            (streamingData.isGenerating || suggestionText) ? (
                 <Box
                     sx={{
                         mt: 1,
@@ -777,12 +831,28 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                   })}
                         </Typography>
                     </Box>
-                    {streamingData.data ? (
+                    {suggestionText ? (
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {streamingData.data}
+                            {suggestionText}
                         </ReactMarkdown>
                     ) : null}
-                    {!streamingData.isGenerating && streamingData.data ? (
+                    {sensitive && suggestionText ? (
+                        <Typography
+                            color="warning.main"
+                            sx={{ display: 'block', mt: 1 }}
+                            variant="caption"
+                        >
+                            {t(
+                                'This student may be upset or in distress — please review this reply carefully and personalize it before sending.',
+                                {
+                                    ns: 'common',
+                                    defaultValue:
+                                        'This student may be upset or in distress — please review this reply carefully and personalize it before sending.'
+                                }
+                            )}
+                        </Typography>
+                    ) : null}
+                    {!streamingData.isGenerating && suggestionText ? (
                         <Box
                             sx={{
                                 display: 'flex',
@@ -802,15 +872,22 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                 })}
                             </Button>
                             <Button
+                                color={sensitive ? 'warning' : 'primary'}
                                 onClick={insertSuggestion}
                                 size="small"
                                 startIcon={<AutoFixHighIcon fontSize="small" />}
                                 variant="contained"
                             >
-                                {t('Insert into draft', {
-                                    ns: 'common',
-                                    defaultValue: 'Insert into draft'
-                                })}
+                                {sensitive && !sensitiveAck
+                                    ? t('Review carefully — confirm insert', {
+                                          ns: 'common',
+                                          defaultValue:
+                                              'Review carefully — confirm insert'
+                                      })
+                                    : t('Insert into draft', {
+                                          ns: 'common',
+                                          defaultValue: 'Insert into draft'
+                                      })}
                             </Button>
                         </Box>
                     ) : null}

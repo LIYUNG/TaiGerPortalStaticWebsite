@@ -1631,6 +1631,14 @@ export interface CommunicationDraft {
     user_id: string;
     student_id: string;
     message: string;
+    // Provenance: 'ai' once an AI-generated reply was inserted (stays 'ai' even
+    // after edits). Drives the "review before sending" banner.
+    source?: 'human' | 'ai';
+    aiModel?: string;
+    // A generated-but-not-yet-approved AI reply (raw markdown), persisted so the
+    // suggestion survives reload and can still be approved/dismissed.
+    aiPendingSuggestion?: string;
+    aiPendingModel?: string;
     files?: CommunicationDraftFile[];
     updatedAt?: string;
 }
@@ -1638,17 +1646,38 @@ export interface CommunicationDraftResponse {
     success: boolean;
     data: CommunicationDraft | null;
 }
+// AI provenance, sent only when persisting an AI-generated reply as the draft.
+export interface CommunicationDraftAiMeta {
+    source: 'ai';
+    aiModel?: string;
+}
 export const getCommunicationDraft = (studentId: StudentId) =>
     getData<CommunicationDraftResponse>(
         `/api/communications/${studentId}/draft`
     );
-export const saveCommunicationDraft = (studentId: StudentId, message: string) =>
+export const saveCommunicationDraft = (
+    studentId: StudentId,
+    message: string,
+    aiMeta?: CommunicationDraftAiMeta
+) =>
     putData<CommunicationDraftResponse>(
         `/api/communications/${studentId}/draft`,
-        { message }
+        aiMeta ? { message, ...aiMeta } : { message }
     );
 export const deleteCommunicationDraft = (studentId: StudentId) =>
     deleteData<{ success: boolean }>(`/api/communications/${studentId}/draft`);
+
+// Persist (or clear, with an empty suggestion) a generated-but-unapproved AI
+// reply so it survives reload. Does not touch the editable draft message.
+export const saveCommunicationDraftAiSuggestion = (
+    studentId: StudentId,
+    suggestion: string,
+    aiModel?: string
+) =>
+    putData<CommunicationDraftResponse>(
+        `/api/communications/${studentId}/draft/ai-suggestion`,
+        { suggestion, aiModel }
+    );
 
 // Attach: upload files (FormData, field 'files') to the draft area. The backend
 // stores them in S3 and records refs on the draft.
