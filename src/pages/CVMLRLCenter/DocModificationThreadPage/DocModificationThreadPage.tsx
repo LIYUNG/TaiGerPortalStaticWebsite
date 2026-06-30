@@ -9,6 +9,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import FolderIcon from '@mui/icons-material/Folder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HistoryIcon from '@mui/icons-material/History';
@@ -46,6 +47,7 @@ import {
 import { TabTitle } from '../../Utils/TabTitle';
 import type { DocumentThreadResponse } from '@/api/types';
 import FilesList from './FilesList';
+import CVDraftGenerator from './CVDraftGenerator';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
@@ -107,6 +109,7 @@ interface DocModificationThreadPageThread {
 /** Stable hash segment keys for doc thread tabs (avoids new object refs in useMemo deps). */
 const DOC_THREAD_TAB_KEYS = {
     discussion: 'communication',
+    aiDraft: 'ai-draft',
     generalRL: 'general-rl',
     files: 'files',
     database: 'database',
@@ -880,12 +883,15 @@ const DocModificationThreadPage = ({
     const tabKeys = useMemo(
         () => [
             DOC_THREAD_TAB_KEYS.discussion,
+            ...(isTaiGerUser && fileType.includes('CV')
+                ? [DOC_THREAD_TAB_KEYS.aiDraft]
+                : []),
             ...(isGeneralRL ? [DOC_THREAD_TAB_KEYS.generalRL] : []),
             DOC_THREAD_TAB_KEYS.files,
             ...(isTaiGerUser ? [DOC_THREAD_TAB_KEYS.database] : []),
             DOC_THREAD_TAB_KEYS.audit
         ],
-        [isGeneralRL, isTaiGerUser]
+        [isGeneralRL, isTaiGerUser, fileType]
     );
 
     const tabIndexMap = useMemo(() => {
@@ -905,6 +911,7 @@ const DocModificationThreadPage = ({
     }, [tabKeys]);
 
     const discussionTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.discussion];
+    const aiDraftTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.aiDraft];
     const rlReqTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.generalRL];
     const filesTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.files];
     const databaseTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.database];
@@ -1005,6 +1012,20 @@ const DocModificationThreadPage = ({
                                 value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
                         }}
                     />
+                    {isTaiGerUser && fileType.includes('CV') ? (
+                        <Tab
+                            aria-label="AI Draft"
+                            icon={<AutoAwesomeIcon />}
+                            label={isMobile ? undefined : 'AI Draft'}
+                            {...a11yProps(value, aiDraftTabIndex)}
+                            sx={{
+                                fontWeight:
+                                    value === aiDraftTabIndex
+                                        ? 'bold'
+                                        : 'normal'
+                            }}
+                        />
+                    ) : null}
                     {isGeneralRL ? (
                         <Tab
                             aria-label={t('Requirements', {
@@ -1244,6 +1265,30 @@ const DocModificationThreadPage = ({
                         <Audit audit={threadAuditLog as IAuditWithId[]} />
                     </Box>
                 </CustomTabPanel>
+                {isTaiGerUser && fileType.includes('CV') ? (
+                    <CustomTabPanel
+                        fillHeight={isAppShell}
+                        index={aiDraftTabIndex}
+                        value={value}
+                    >
+                        <Box
+                            sx={{
+                                flex: 1,
+                                minHeight: 0,
+                                overflowY: 'auto',
+                                p: 2
+                            }}
+                        >
+                            <CVDraftGenerator
+                                studentId={
+                                    thread?.student_id?._id?.toString() ?? ''
+                                }
+                                fileType={fileType}
+                                programFullName={docName}
+                            />
+                        </Box>
+                    </CustomTabPanel>
+                ) : null}
             </Box>
 
             <DocumentCheckingResultModal
