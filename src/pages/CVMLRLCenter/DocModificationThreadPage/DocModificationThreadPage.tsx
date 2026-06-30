@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import FolderIcon from '@mui/icons-material/Folder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HistoryIcon from '@mui/icons-material/History';
@@ -48,6 +49,8 @@ import { TabTitle } from '../../Utils/TabTitle';
 import type { DocumentThreadResponse } from '@/api/types';
 import FilesList from './FilesList';
 import CVDraftGenerator from './CVDraftGenerator';
+import AdditionalInformationCard from './AdditionalInformationCard';
+import CVProfileForm from '@components/CVProfileForm';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
@@ -110,6 +113,7 @@ interface DocModificationThreadPageThread {
 const DOC_THREAD_TAB_KEYS = {
     discussion: 'communication',
     aiDraft: 'ai-draft',
+    cvDetails: 'cv-details',
     generalRL: 'general-rl',
     files: 'files',
     database: 'database',
@@ -883,6 +887,7 @@ const DocModificationThreadPage = ({
     const tabKeys = useMemo(
         () => [
             DOC_THREAD_TAB_KEYS.discussion,
+            ...(fileType.includes('CV') ? [DOC_THREAD_TAB_KEYS.cvDetails] : []),
             ...(isTaiGerUser && fileType.includes('CV')
                 ? [DOC_THREAD_TAB_KEYS.aiDraft]
                 : []),
@@ -912,6 +917,7 @@ const DocModificationThreadPage = ({
 
     const discussionTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.discussion];
     const aiDraftTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.aiDraft];
+    const cvDetailsTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.cvDetails];
     const rlReqTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.generalRL];
     const filesTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.files];
     const databaseTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.database];
@@ -1012,11 +1018,33 @@ const DocModificationThreadPage = ({
                                 value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
                         }}
                     />
+                    {fileType.includes('CV') ? (
+                        <Tab
+                            aria-label={t('cvDetailsTab', { ns: 'cvmlrl' })}
+                            icon={<EditNoteIcon />}
+                            label={
+                                isMobile
+                                    ? undefined
+                                    : t('cvDetailsTab', { ns: 'cvmlrl' })
+                            }
+                            {...a11yProps(value, cvDetailsTabIndex)}
+                            sx={{
+                                fontWeight:
+                                    value === cvDetailsTabIndex
+                                        ? 'bold'
+                                        : 'normal'
+                            }}
+                        />
+                    ) : null}
                     {isTaiGerUser && fileType.includes('CV') ? (
                         <Tab
-                            aria-label="AI Draft"
+                            aria-label={t('aiDraftTab', { ns: 'cvmlrl' })}
                             icon={<AutoAwesomeIcon />}
-                            label={isMobile ? undefined : 'AI Draft'}
+                            label={
+                                isMobile
+                                    ? undefined
+                                    : t('aiDraftTab', { ns: 'cvmlrl' })
+                            }
                             {...a11yProps(value, aiDraftTabIndex)}
                             sx={{
                                 fontWeight:
@@ -1265,6 +1293,38 @@ const DocModificationThreadPage = ({
                         <Audit audit={threadAuditLog as IAuditWithId[]} />
                     </Box>
                 </CustomTabPanel>
+                {fileType.includes('CV') ? (
+                    <CustomTabPanel
+                        fillHeight={isAppShell}
+                        index={cvDetailsTabIndex}
+                        value={value}
+                    >
+                        <Box
+                            sx={{
+                                flex: 1,
+                                minHeight: 0,
+                                overflowY: 'auto',
+                                p: 2
+                            }}
+                        >
+                            <AdditionalInformationCard
+                                threadId={thread?._id?.toString() ?? ''}
+                                initialValue={
+                                    (
+                                        thread as {
+                                            additional_information?: string;
+                                        }
+                                    ).additional_information ?? ''
+                                }
+                            />
+                            <CVProfileForm
+                                studentId={
+                                    thread?.student_id?._id?.toString() ?? ''
+                                }
+                            />
+                        </Box>
+                    </CustomTabPanel>
+                ) : null}
                 {isTaiGerUser && fileType.includes('CV') ? (
                     <CustomTabPanel
                         fillHeight={isAppShell}
@@ -1285,6 +1345,7 @@ const DocModificationThreadPage = ({
                                 }
                                 fileType={fileType}
                                 programFullName={docName}
+                                documentsthreadId={thread?._id?.toString()}
                             />
                         </Box>
                     </CustomTabPanel>

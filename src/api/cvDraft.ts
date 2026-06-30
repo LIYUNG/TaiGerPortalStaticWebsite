@@ -3,7 +3,7 @@
 // structured CVDraft plus a reviewer checklist (no docx yet). Mirrors the
 // backend contract in services/ai-assist/cv/types.ts.
 
-import { postData } from './request';
+import { getData, postData, putData } from './request';
 
 export interface CVPersonal {
     fullName: string;
@@ -103,6 +103,7 @@ export interface GenerateCVDraftPayload {
     programId?: string;
     programFullName?: string;
     editorRequirements?: string;
+    documentsthreadId?: string;
 }
 
 export interface GenerateCVDraftResponse {
@@ -116,5 +117,79 @@ export const generateCvDraft = (
 ) =>
     postData<GenerateCVDraftResponse>(
         `/api/ai-assist/students/${studentId}/cv-draft`,
+        payload
+    );
+
+export interface UpdateAdditionalInformationResponse {
+    success: boolean;
+    data: { additionalInformation: string };
+}
+
+// Persist the thread-scoped CV "additional information" (student + editor
+// editable). PUT /api/document-threads/:threadId/additional-information
+export const updateCvAdditionalInformation = (
+    threadId: string,
+    additionalInformation: string
+) =>
+    putData<UpdateAdditionalInformationResponse>(
+        `/api/document-threads/${threadId}/additional-information`,
+        { additionalInformation }
+    );
+
+// --- Reusable CV profile (lives on the student User; shared between the CV
+// thread "CV Details" tab and the student-database survey tab) ---
+export interface CvProfilePersonalInformation {
+    nationality?: string;
+    birthplace?: string;
+    address?: string;
+    phone?: string;
+}
+export interface CvProfileExperience {
+    period?: string;
+    job_title?: string;
+    company?: string;
+    city?: string;
+    country?: string;
+    bullets?: string[];
+}
+export interface CvProfileAward {
+    date?: string;
+    title?: string;
+    description?: string;
+}
+export interface CvProfileComputerSkill {
+    name?: string;
+    level?: string;
+}
+export interface CvProfileSkills {
+    computer?: CvProfileComputerSkill[];
+    other?: string[];
+}
+export interface CvProfileInterests {
+    hobbies?: string;
+    social_engagement?: string;
+    competitive_sports?: string;
+}
+export interface CvProfileData {
+    personal_information: CvProfilePersonalInformation;
+    professional_experience: CvProfileExperience[];
+    awards: CvProfileAward[];
+    skills: CvProfileSkills;
+    interests: CvProfileInterests;
+}
+export interface CvProfileResponse {
+    success: boolean;
+    data: CvProfileData;
+}
+
+export const getStudentCvProfile = (studentId: string) =>
+    getData<CvProfileResponse>(`/api/account/survey/cv-profile/${studentId}`);
+
+export const updateStudentCvProfile = (
+    studentId: string,
+    payload: Partial<CvProfileData>
+) =>
+    postData<CvProfileResponse>(
+        `/api/account/survey/cv-profile/${studentId}`,
         payload
     );

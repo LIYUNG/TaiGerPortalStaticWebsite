@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Alert,
     AlertTitle,
@@ -28,6 +29,7 @@ interface CVDraftGeneratorProps {
     programId?: string;
     programFullName?: string;
     editorRequirements?: string;
+    documentsthreadId?: string;
 }
 
 const Field = ({ label, value }: { label: string; value?: string }) =>
@@ -96,12 +98,13 @@ const ExperienceBlock = ({ items }: { items: CVExperience[] }) =>
     ) : null;
 
 const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
+    const { t } = useTranslation();
     const errors = items.filter((i) => i.level === 'error');
     const warnings = items.filter((i) => i.level === 'warning');
     if (!items.length) {
         return (
             <Alert severity="success">
-                No issues found. The draft looks complete.
+                {t('aiDraft.noIssues', { ns: 'cvmlrl' })}
             </Alert>
         );
     }
@@ -109,7 +112,10 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
         <Stack spacing={1}>
             {errors.length > 0 && (
                 <Alert severity="error">
-                    <AlertTitle>Must fix ({errors.length})</AlertTitle>
+                    <AlertTitle>
+                        {t('aiDraft.mustFix', { ns: 'cvmlrl' })} (
+                        {errors.length})
+                    </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {errors.map((it, i) => (
                             <li key={i}>
@@ -121,7 +127,10 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
             )}
             {warnings.length > 0 && (
                 <Alert severity="warning">
-                    <AlertTitle>Review ({warnings.length})</AlertTitle>
+                    <AlertTitle>
+                        {t('aiDraft.review', { ns: 'cvmlrl' })} (
+                        {warnings.length})
+                    </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {warnings.map((it, i) => (
                             <li key={i}>
@@ -209,8 +218,11 @@ const CVDraftGenerator = ({
     fileType,
     programId,
     programFullName,
-    editorRequirements
+    editorRequirements,
+    documentsthreadId
 }: CVDraftGeneratorProps) => {
+    const { t } = useTranslation();
+    const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<CVDraftResult | null>(null);
@@ -229,15 +241,16 @@ const CVDraftGenerator = ({
                 fileType,
                 programId,
                 programFullName,
-                editorRequirements: mergedRequirements
+                editorRequirements: mergedRequirements,
+                documentsthreadId
             });
             if (resp?.success) {
                 setResult(resp.data);
             } else {
-                setError('Generation failed. Please try again.');
+                setError(td('failed'));
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'Generation failed.');
+            setError(e instanceof Error ? e.message : td('failed'));
         } finally {
             setLoading(false);
         }
@@ -251,14 +264,11 @@ const CVDraftGenerator = ({
                 spacing={1}
                 sx={{ mb: 1 }}
             >
-                <Typography variant="h6">AI first draft (beta)</Typography>
-                <Chip size="small" label="CVDraft + checklist" />
+                <Typography variant="h6">{td('title')}</Typography>
+                <Chip size="small" label={td('chip')} />
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Generates a first-draft CV from the student profile and survey.
-                You can generate even when data is incomplete — missing items
-                are listed in the checklist rather than invented. Fill gaps in
-                the box below and regenerate. No document is created yet.
+                {td('subtitle')}
             </Typography>
 
             <TextField
@@ -266,8 +276,8 @@ const CVDraftGenerator = ({
                 multiline
                 minRows={2}
                 size="small"
-                label="Add or correct facts the survey is missing (optional)"
-                placeholder="e.g. GPA 3.8/4.30; Internship at Acme, 06/2022–08/2022, built CI pipeline; German B2"
+                label={td('notesLabel')}
+                placeholder={td('notesPlaceholder')}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 disabled={loading}
@@ -284,7 +294,7 @@ const CVDraftGenerator = ({
                     ) : undefined
                 }
             >
-                {result ? 'Regenerate first draft' : 'Generate first draft'}
+                {result ? td('regenerate') : td('generate')}
             </Button>
 
             {error && (
@@ -303,7 +313,7 @@ const CVDraftGenerator = ({
                         color="text.secondary"
                         sx={{ display: 'block', mt: 1 }}
                     >
-                        Generated by {result.meta.model} at{' '}
+                        {td('generatedBy')} {result.meta.model} at{' '}
                         {new Date(result.meta.generatedAt).toLocaleString()}
                     </Typography>
                 </Box>
