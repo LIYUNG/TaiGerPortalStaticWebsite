@@ -3,7 +3,7 @@
 // structured CVDraft plus a reviewer checklist (no docx yet). Mirrors the
 // backend contract in services/ai-assist/cv/types.ts.
 
-import { getData, postData, putData } from './request';
+import { BASE_URL, getData, postData, putData } from './request';
 
 export interface CVPersonal {
     fullName: string;
@@ -193,3 +193,49 @@ export const updateStudentCvProfile = (
         `/api/account/survey/cv-profile/${studentId}`,
         payload
     );
+
+export interface RenderCvDraftResponse {
+    success: boolean;
+    data: { name: string; path: string };
+}
+
+// Stage B: render the reviewed CVDraft into a docx and attach it to the thread.
+export const renderCvDraft = (
+    studentId: string,
+    payload: { draft: CVDraft; documentsthreadId?: string }
+) =>
+    postData<RenderCvDraftResponse>(
+        `/api/ai-assist/students/${studentId}/cv-draft/render`,
+        payload
+    );
+
+export interface SavedCvDraftResponse {
+    success: boolean;
+    data: CVDraftResult | null;
+}
+
+// Load the persisted CVDraft for a thread (restores the AI Draft tab on refresh).
+export const getSavedCvDraft = (documentsthreadId: string) =>
+    getData<SavedCvDraftResponse>(
+        `/api/ai-assist/threads/${documentsthreadId}/cv-draft`
+    );
+
+// Render + stream the docx straight back as a download (no S3 needed).
+export const downloadCvDraft = async (
+    studentId: string,
+    draft: CVDraft
+): Promise<Blob> => {
+    const resp = await fetch(
+        `${BASE_URL}/api/ai-assist/students/${studentId}/cv-draft/render/download`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ draft })
+        }
+    );
+    if (!resp.ok) {
+        throw new Error(`Download failed (${resp.status})`);
+    }
+    return resp.blob();
+};

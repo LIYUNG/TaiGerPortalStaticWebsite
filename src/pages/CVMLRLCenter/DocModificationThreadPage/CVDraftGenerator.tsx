@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -16,6 +16,9 @@ import {
 
 import {
     generateCvDraft,
+    renderCvDraft,
+    getSavedCvDraft,
+    downloadCvDraft,
     type CVDraft,
     type CVDraftResult,
     type CVChecklistItem,
@@ -229,10 +232,28 @@ const CVDraftGenerator = ({
     // Editor-supplied facts to fill gaps the survey/profile is missing. Sent as
     // part of editorRequirements; the model uses them but still never invents.
     const [notes, setNotes] = useState('');
+    const [rendering, setRendering] = useState(false);
+    const [renderError, setRenderError] = useState<string | null>(null);
+    const [rendered, setRendered] = useState<string | null>(null);
+
+    // Restore the last generated draft on refresh (persisted on the thread).
+    useEffect(() => {
+        if (!documentsthreadId) return;
+        getSavedCvDraft(documentsthreadId)
+            .then((resp) => {
+                if (resp?.success && resp.data) {
+                    setResult(resp.data);
+                }
+            })
+            .catch(() => {});
+         
+    }, [documentsthreadId]);
 
     const onGenerate = async () => {
         setLoading(true);
         setError(null);
+        setRendered(null);
+        setRenderError(null);
         try {
             const mergedRequirements = [editorRequirements, notes.trim()]
                 .filter(Boolean)
@@ -253,6 +274,55 @@ const CVDraftGenerator = ({
             setError(e instanceof Error ? e.message : td('failed'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const onCreateDocx = async () => {
+        if (!result) return;
+        if (
+            result.validation.errorCount > 0 &&
+             
+            !window.confirm(td('confirmErrors'))
+        ) {
+            return;
+        }
+        setRendering(true);
+        setRenderError(null);
+        try {
+            const resp = await renderCvDraft(studentId, {
+                draft: result.draft,
+                documentsthreadId
+            });
+            if (resp?.success) {
+                setRendered(resp.data.name);
+            } else {
+                setRenderError(td('docxFailed'));
+            }
+        } catch (e) {
+            setRenderError(e instanceof Error ? e.message : td('docxFailed'));
+        } finally {
+            setRendering(false);
+        }
+    };
+
+    const onDownload = async () => {
+        if (!result) return;
+        setRendering(true);
+        setRenderError(null);
+        try {
+            const blob = await downloadCvDraft(studentId, result.draft);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'CV_first_draft.docx';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            setRenderError(e instanceof Error ? e.message : td('docxFailed'));
+        } finally {
+            setRendering(false);
         }
     };
 
@@ -308,6 +378,41 @@ const CVDraftGenerator = ({
                     <Checklist items={result.validation.items} />
                     <Divider sx={{ my: 2 }} />
                     <DraftView draft={result.draft} />
+                    <Divider sx={{ my: 2 }} />
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="contained"
+                            onClick={onCreateDocx}
+                            disabled={rendering}
+                            startIcon={
+                                rendering ? (
+                                    <CircularProgress
+                                        size={16}
+                                        color="inherit"
+                                    />
+                                ) : undefined
+                            }
+                        >
+                            {td('createDocx')}
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={onDownload}
+                            disabled={rendering}
+                        >
+                            {td('downloadDocx')}
+                        </Button>
+                    </Stack>
+                    {rendered ? (
+                        <Alert severity="success" sx={{ mt: 1.5 }}>
+                            {td('docxSaved')}: {rendered}
+                        </Alert>
+                    ) : null}
+                    {renderError ? (
+                        <Alert severity="error" sx={{ mt: 1.5 }}>
+                            {renderError}
+                        </Alert>
+                    ) : null}
                     <Typography
                         variant="caption"
                         color="text.secondary"

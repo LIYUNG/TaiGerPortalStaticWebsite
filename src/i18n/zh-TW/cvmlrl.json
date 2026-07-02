@@ -117,6 +117,11 @@
         "mustFix": "必須修正",
         "review": "建議檢查",
         "noIssues": "沒有發現問題,草稿看起來完整。",
-        "generatedBy": "生成者"
+        "generatedBy": "生成者",
+        "createDocx": "產生 CV 草稿(.docx)",
+        "docxSaved": "已存到 thread",
+        "docxFailed": "無法產生文件,請再試一次。",
+        "confirmErrors": "checklist 還有必須修正的項目。仍要產生 .docx 嗎?",
+        "downloadDocx": "下載 .docx"
     }
 }
