@@ -5,3 +5,4 @@ export * from './types';
 export * from './client';
 export * from './request';
 export * from './dataLoader';
+export * from './cvDraft';
