@@ -54,6 +54,7 @@ import EditorDocsProgress from '../CVMLRLCenter/EditorDocsProgress';
 import type { EditorDocsProgressStudent } from '../CVMLRLCenter/EditorDocsProgress';
 import UniAssistListCard from '../UniAssist/UniAssistListCard';
 import SurveyComponent from '../Survey/SurveyComponent';
+import CVProfileForm from '@components/CVProfileForm';
 import Notes from '../Notes/index';
 import ApplicationProgress from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress';
 import ApplicationProgressCards from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgressCards';
@@ -784,6 +785,9 @@ export const SingleStudentPageMainContent = ({
                                     singleStudentPage.student._id.toString()
                             }}
                             onSurveySuccess={refetch}
+                        />
+                        <CVProfileForm
+                            studentId={singleStudentPage.student._id.toString()}
                         />
                     </CustomTabPanel>
                     <CustomTabPanel index={6} value={value}>
