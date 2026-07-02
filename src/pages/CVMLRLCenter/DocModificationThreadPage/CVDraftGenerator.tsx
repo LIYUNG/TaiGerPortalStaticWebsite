@@ -48,8 +48,10 @@ const EducationBlock = ({
 }: {
     items: CVEducation[];
     title: string;
-}) =>
-    items.length ? (
+}) => {
+    const { t } = useTranslation();
+    const dv = (k: string) => t(`draftView.${k}`, { ns: 'cvmlrl' });
+    return items.length ? (
         <Box sx={{ mb: 1 }}>
             <Typography variant="subtitle2">{title}</Typography>
             {items.map((e, i) => (
@@ -60,24 +62,29 @@ const EducationBlock = ({
                             .filter(Boolean)
                             .join(', ')}
                     </Typography>
-                    <Field label="Major" value={e.major} />
-                    <Field label="Minor" value={e.minor} />
-                    <Field label="GPA" value={e.gpa} />
-                    <Field label="GSAT" value={e.gsat} />
-                    <Field label="Courses" value={e.courses} />
+                    <Field label={dv('major')} value={e.major} />
+                    <Field label={dv('minor')} value={e.minor} />
+                    <Field label={dv('gpa')} value={e.gpa} />
+                    <Field label={dv('gsat')} value={e.gsat} />
+                    <Field label={dv('courses')} value={e.courses} />
                     <Field
-                        label="Special activities"
+                        label={dv('specialActivities')}
                         value={e.specialActivities}
                     />
                 </Box>
             ))}
         </Box>
     ) : null;
+};
 
-const ExperienceBlock = ({ items }: { items: CVExperience[] }) =>
-    items.length ? (
+const ExperienceBlock = ({ items }: { items: CVExperience[] }) => {
+    const { t } = useTranslation();
+    const dv = (k: string) => t(`draftView.${k}`, { ns: 'cvmlrl' });
+    return items.length ? (
         <Box sx={{ mb: 1 }}>
-            <Typography variant="subtitle2">Practical experience</Typography>
+            <Typography variant="subtitle2">
+                {dv('practicalExperience')}
+            </Typography>
             {items.map((x, i) => (
                 <Box key={i} sx={{ pl: 1, mb: 0.5 }}>
                     <Typography variant="body2">
@@ -99,6 +106,7 @@ const ExperienceBlock = ({ items }: { items: CVExperience[] }) =>
             ))}
         </Box>
     ) : null;
+};
 
 const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
     const { t } = useTranslation();
@@ -147,74 +155,94 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
     );
 };
 
-const DraftView = ({ draft }: { draft: CVDraft }) => (
-    <Box>
-        <Typography variant="subtitle2">Personal information</Typography>
-        <Box sx={{ pl: 1, mb: 1 }}>
-            <Field label="Name" value={draft.personal.fullName} />
-            <Field
-                label="Birthday / place"
-                value={[draft.personal.birthday, draft.personal.birthplace]
-                    .filter(Boolean)
-                    .join(' / ')}
-            />
-            <Field label="Nationality" value={draft.personal.nationality} />
-            <Field label="Address" value={draft.personal.address} />
-            <Field label="Phone" value={draft.personal.phone} />
-            <Field label="E-Mail" value={draft.personal.email} />
-        </Box>
-        <EducationBlock items={draft.universities} title="University" />
-        <EducationBlock
-            items={draft.seniorHighSchools}
-            title="Senior high school"
-        />
-        <EducationBlock
-            items={draft.juniorHighSchools}
-            title="Junior high school"
-        />
-        <ExperienceBlock items={draft.experience} />
-        {draft.awards.length > 0 && (
-            <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Awards</Typography>
-                {draft.awards.map((a, i) => (
-                    <Typography key={i} variant="body2" sx={{ pl: 1 }}>
-                        <b>{a.date}</b> {a.title} — {a.description}
-                    </Typography>
-                ))}
+const DraftView = ({ draft }: { draft: CVDraft }) => {
+    const { t } = useTranslation();
+    const dv = (k: string) => t(`draftView.${k}`, { ns: 'cvmlrl' });
+    return (
+        <Box>
+            <Typography variant="subtitle2">
+                {dv('personalInformation')}
+            </Typography>
+            <Box sx={{ pl: 1, mb: 1 }}>
+                <Field label={dv('name')} value={draft.personal.fullName} />
+                <Field
+                    label={dv('birthdayPlace')}
+                    value={[draft.personal.birthday, draft.personal.birthplace]
+                        .filter(Boolean)
+                        .join(' / ')}
+                />
+                <Field
+                    label={dv('nationality')}
+                    value={draft.personal.nationality}
+                />
+                <Field label={dv('address')} value={draft.personal.address} />
+                <Field label={dv('phone')} value={draft.personal.phone} />
+                <Field label={dv('email')} value={draft.personal.email} />
             </Box>
-        )}
-        <Typography variant="subtitle2">Skills</Typography>
-        <Box sx={{ pl: 1, mb: 1 }}>
-            {draft.languages.length > 0 && (
-                <Field
-                    label="Languages"
-                    value={draft.languages
-                        .map(
-                            (l) =>
-                                `${l.name} – ${l.level}${l.testScore ? ` (${l.testScore})` : ''}`
-                        )
-                        .join('; ')}
-                />
+            <EducationBlock
+                items={draft.universities}
+                title={dv('university')}
+            />
+            <EducationBlock
+                items={draft.seniorHighSchools}
+                title={dv('seniorHighSchool')}
+            />
+            <EducationBlock
+                items={draft.juniorHighSchools}
+                title={dv('juniorHighSchool')}
+            />
+            <ExperienceBlock items={draft.experience} />
+            {draft.awards.length > 0 && (
+                <Box sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2">{dv('awards')}</Typography>
+                    {draft.awards.map((a, i) => (
+                        <Typography key={i} variant="body2" sx={{ pl: 1 }}>
+                            <b>{a.date}</b> {a.title} — {a.description}
+                        </Typography>
+                    ))}
+                </Box>
             )}
-            {draft.computer.length > 0 && (
+            <Typography variant="subtitle2">{dv('skills')}</Typography>
+            <Box sx={{ pl: 1, mb: 1 }}>
+                {draft.languages.length > 0 && (
+                    <Field
+                        label={dv('languages')}
+                        value={draft.languages
+                            .map(
+                                (l) =>
+                                    `${l.name} – ${l.level}${l.testScore ? ` (${l.testScore})` : ''}`
+                            )
+                            .join('; ')}
+                    />
+                )}
+                {draft.computer.length > 0 && (
+                    <Field
+                        label={dv('computer')}
+                        value={draft.computer
+                            .map((c) => `${c.name} – ${c.level}`)
+                            .join('; ')}
+                    />
+                )}
+                <Field label={dv('otherSkills')} value={draft.otherSkills} />
+            </Box>
+            <Typography variant="subtitle2">
+                {dv('hobbiesInterests')}
+            </Typography>
+            <Box sx={{ pl: 1, mb: 1 }}>
                 <Field
-                    label="Computer"
-                    value={draft.computer
-                        .map((c) => `${c.name} – ${c.level}`)
-                        .join('; ')}
+                    label={dv('socialEngagement')}
+                    value={draft.socialEngagement}
                 />
-            )}
-            <Field label="Other skills" value={draft.otherSkills} />
+                <Field
+                    label={dv('competitiveSports')}
+                    value={draft.competitiveSports}
+                />
+                <Field label={dv('hobbies')} value={draft.hobbies} />
+            </Box>
+            <Field label={dv('anythingElse')} value={draft.anythingElse} />
         </Box>
-        <Typography variant="subtitle2">Hobbies & interests</Typography>
-        <Box sx={{ pl: 1, mb: 1 }}>
-            <Field label="Social engagement" value={draft.socialEngagement} />
-            <Field label="Competitive sports" value={draft.competitiveSports} />
-            <Field label="Hobbies" value={draft.hobbies} />
-        </Box>
-        <Field label="Anything else" value={draft.anythingElse} />
-    </Box>
-);
+    );
+};
 
 const CVDraftGenerator = ({
     studentId,
@@ -239,14 +267,17 @@ const CVDraftGenerator = ({
     // Restore the last generated draft on refresh (persisted on the thread).
     useEffect(() => {
         if (!documentsthreadId) return;
+        let active = true;
         getSavedCvDraft(documentsthreadId)
             .then((resp) => {
-                if (resp?.success && resp.data) {
+                if (active && resp?.success && resp.data) {
                     setResult(resp.data);
                 }
             })
             .catch(() => {});
-         
+        return () => {
+            active = false;
+        };
     }, [documentsthreadId]);
 
     const onGenerate = async () => {
@@ -281,7 +312,6 @@ const CVDraftGenerator = ({
         if (!result) return;
         if (
             result.validation.errorCount > 0 &&
-             
             !window.confirm(td('confirmErrors'))
         ) {
             return;

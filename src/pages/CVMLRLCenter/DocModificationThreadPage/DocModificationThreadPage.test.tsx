@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import DocModificationThreadPage from './DocModificationThreadPage';
 
 vi.mock('@components/AuthProvider', () => ({
@@ -137,7 +137,7 @@ vi.mock('i18next', () => ({
     default: { t: (key: string) => key }
 }));
 
-const mockThread = {
+const makeThread = (overrides = {}) => ({
     _id: 'thread123',
     file_type: 'CV',
     student_id: {
@@ -147,38 +147,67 @@ const mockThread = {
     },
     isFinalVersion: false,
     flag_by_user_id: [],
-    messages: []
+    messages: [],
+    ...overrides
+});
+
+const renderPage = (threadProps = makeThread()) => {
+    const queryClient = new QueryClient({
+        defaultOptions: {
+            queries: { retry: false },
+            mutations: { retry: false }
+        }
+    });
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter>
+                <DocModificationThreadPage threadProps={threadProps} />
+            </MemoryRouter>
+        </QueryClientProvider>
+    );
 };
 
 describe('DocModificationThreadPage', () => {
-    beforeEach(() => {
-        const queryClient = new QueryClient({
-            defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
-        });
-        render(
-            <QueryClientProvider client={queryClient}>
-                <MemoryRouter>
-                    <DocModificationThreadPage threadProps={mockThread} />
-                </MemoryRouter>
-            </QueryClientProvider>
-        );
-    });
-
     it('renders the tabs', () => {
+        renderPage();
         expect(screen.getAllByRole('tab').length).toBeGreaterThan(0);
     });
 
     it('renders the discussion tab panel by default', () => {
+        renderPage();
         expect(screen.getByTestId('tab-panel-0')).toBeInTheDocument();
     });
 
     it('renders the information block', () => {
+        renderPage();
         expect(screen.getByTestId('information-block')).toBeInTheDocument();
     });
 
     it('renders the document checking result modal', () => {
+        renderPage();
         expect(
             screen.getByTestId('document-checking-result-modal')
         ).toBeInTheDocument();
+    });
+
+    // The i18n mock returns the key, so tabs surface their aria-label keys.
+    it('shows CV Details and AI Draft tabs for a CV thread', () => {
+        renderPage(makeThread({ file_type: 'CV' }));
+        expect(
+            screen.getByRole('tab', { name: 'cvDetailsTab' })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: 'aiDraftTab' })
+        ).toBeInTheDocument();
+    });
+
+    it('hides CV Details and AI Draft tabs for a non-CV thread', () => {
+        renderPage(makeThread({ file_type: 'Essay' }));
+        expect(
+            screen.queryByRole('tab', { name: 'cvDetailsTab' })
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('tab', { name: 'aiDraftTab' })
+        ).not.toBeInTheDocument();
     });
 });

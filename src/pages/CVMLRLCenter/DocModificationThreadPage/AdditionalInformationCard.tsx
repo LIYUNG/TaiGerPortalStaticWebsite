@@ -31,11 +31,15 @@ const AdditionalInformationCard = ({
     const ta = (k: string) => t(`additionalInfo.${k}`, { ns: NS });
 
     const [value, setValue] = useState(initialValue);
+    // Baseline the "dirty" check against the last persisted value rather than
+    // the (never-changing) initial prop, so Save disables and the "Saved …"
+    // status appears after a successful save.
+    const [savedValue, setSavedValue] = useState(initialValue);
     const [saving, setSaving] = useState(false);
     const [savedAt, setSavedAt] = useState<Date | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const dirty = value !== initialValue;
+    const dirty = value !== savedValue;
 
     const onSave = async () => {
         setSaving(true);
@@ -43,6 +47,7 @@ const AdditionalInformationCard = ({
         try {
             const resp = await updateCvAdditionalInformation(threadId, value);
             if (resp?.success) {
+                setSavedValue(value);
                 setSavedAt(new Date());
             } else {
                 setError(ta('saveFailed'));
