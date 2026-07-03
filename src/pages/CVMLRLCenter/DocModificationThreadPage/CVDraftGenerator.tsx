@@ -378,6 +378,23 @@ const Coverage = ({
     );
 };
 
+// Maps CVDraft top-level keys to draftView i18n labels for the regenerate diff.
+const SECTION_LABEL: Record<string, string> = {
+    personal: 'personalInformation',
+    universities: 'university',
+    seniorHighSchools: 'seniorHighSchool',
+    juniorHighSchools: 'juniorHighSchool',
+    experience: 'practicalExperience',
+    awards: 'awards',
+    languages: 'languages',
+    computer: 'computer',
+    otherSkills: 'otherSkills',
+    socialEngagement: 'socialEngagement',
+    competitiveSports: 'competitiveSports',
+    hobbies: 'hobbies',
+    anythingElse: 'anythingElse'
+};
+
 const CVDraftGenerator = ({
     studentId,
     fileType,
@@ -422,6 +439,8 @@ const CVDraftGenerator = ({
     const [requestOpen, setRequestOpen] = useState(false);
     const [requestMsg, setRequestMsg] = useState('');
     const [requestCopied, setRequestCopied] = useState(false);
+    // Undo-of-regenerate (restore the previous draft from history).
+    const [undoing, setUndoing] = useState(false);
     // "Attach to thread" dialog — the editor writes their own message.
     const [attachOpen, setAttachOpen] = useState(false);
     const [attachMessage, setAttachMessage] = useState('');
@@ -643,6 +662,41 @@ const CVDraftGenerator = ({
         }
     };
 
+    // Which top-level draft sections differ from the previous version (history[0]).
+    const changedSections = (): string[] => {
+        const prev = result?.history?.[0]?.draft;
+        if (!prev || !result) return [];
+        const cur = result.draft as unknown as Record<string, unknown>;
+        const prevRec = prev as unknown as Record<string, unknown>;
+        return Object.keys(SECTION_LABEL).filter(
+            (k) => JSON.stringify(cur[k]) !== JSON.stringify(prevRec[k])
+        );
+    };
+
+    // Undo the last regenerate/edit by restoring the previous draft. This itself
+    // snapshots the current draft into history server-side, so it is reversible.
+    const onUndo = async () => {
+        const prev = result?.history?.[0]?.draft;
+        if (!prev || !documentsthreadId) return;
+        setUndoing(true);
+        try {
+            const resp = await updateCvDraft(documentsthreadId, {
+                draft: prev,
+                degree
+            });
+            if (resp?.success && resp.data) {
+                setResult(resp.data);
+                setRendered(null);
+                setReused(false);
+                setAttached(false);
+            }
+        } catch {
+            // best-effort undo
+        } finally {
+            setUndoing(false);
+        }
+    };
+
     // Draft a single student-facing message from the current checklist gaps.
     // The editor reviews/edits before sending — nothing is posted automatically.
     const openRequest = () => {
@@ -779,6 +833,33 @@ const CVDraftGenerator = ({
                                 hasPhoto={result.hasPhoto}
                                 onNavigate={onNavigateToCvDetails}
                             />
+                            {result.history &&
+                            result.history.length > 0 &&
+                            changedSections().length > 0 ? (
+                                <Alert
+                                    severity="info"
+                                    sx={{ mt: 1 }}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={onUndo}
+                                            disabled={undoing || editing}
+                                        >
+                                            {td('undo')}
+                                        </Button>
+                                    }
+                                >
+                                    {td('changedSince')}:{' '}
+                                    {changedSections()
+                                        .map((k) =>
+                                            t(`draftView.${SECTION_LABEL[k]}`, {
+                                                ns: 'cvmlrl'
+                                            })
+                                        )
+                                        .join(', ')}
+                                </Alert>
+                            ) : null}
                             {editing ? (
                                 <Box sx={{ mt: 1 }}>
                                     {editError ? (

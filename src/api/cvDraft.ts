@@ -107,6 +107,13 @@ export interface CVDraftResult {
     // re-enable Attach after a refresh / tab switch without re-rendering).
     renderedCurrent?: boolean;
     rendered?: { name: string; path: string; photoEmbedded?: boolean } | null;
+    // Bounded history of previous drafts (newest first) — powers the regenerate
+    // diff and undo.
+    history?: Array<{
+        draft: CVDraft;
+        meta?: { generatedAt?: string; editedAt?: string; model?: string };
+        savedAt?: string;
+    }>;
 }
 
 export interface GenerateCVDraftPayload {
