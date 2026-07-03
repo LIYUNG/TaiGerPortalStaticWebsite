@@ -25,6 +25,7 @@ import {
     renderCvDraft,
     attachCvDraftToThread,
     getSavedCvDraft,
+    getCvReadiness,
     downloadCvDraft,
     updateCvDraft,
     type CVDraft,
@@ -412,6 +413,15 @@ const CVDraftGenerator = ({
     const [editing, setEditing] = useState(false);
     const [savingEdit, setSavingEdit] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
+    // Pre-generation readiness (shown before the first draft exists).
+    const [readiness, setReadiness] = useState<
+        { key: string; ok: boolean }[] | null
+    >(null);
+    // "Request missing info" — an editable, editor-reviewed student message
+    // drafted from the checklist gaps. Never auto-posted.
+    const [requestOpen, setRequestOpen] = useState(false);
+    const [requestMsg, setRequestMsg] = useState('');
+    const [requestCopied, setRequestCopied] = useState(false);
     // "Attach to thread" dialog — the editor writes their own message.
     const [attachOpen, setAttachOpen] = useState(false);
     const [attachMessage, setAttachMessage] = useState('');
@@ -444,6 +454,22 @@ const CVDraftGenerator = ({
             active = false;
         };
     }, [documentsthreadId]);
+
+    // Pre-generation readiness snapshot from the profile (cheap GET). Rendered
+    // only in the empty state (before a draft exists), so a wasted call when a
+    // draft is already saved is harmless.
+    useEffect(() => {
+        if (!studentId) return;
+        let active = true;
+        getCvReadiness(studentId)
+            .then((r) => {
+                if (active && r?.success) setReadiness(r.data.readiness);
+            })
+            .catch(() => {});
+        return () => {
+            active = false;
+        };
+    }, [studentId]);
 
     const onGenerate = async () => {
         setLoading(true);
@@ -617,6 +643,30 @@ const CVDraftGenerator = ({
         }
     };
 
+    // Draft a single student-facing message from the current checklist gaps.
+    // The editor reviews/edits before sending — nothing is posted automatically.
+    const openRequest = () => {
+        const lines = (result?.validation.items ?? []).map(
+            (i) => `- ${i.message}`
+        );
+        setRequestMsg(
+            [td('requestIntro'), '', ...lines, '', td('requestOutro')].join(
+                '\n'
+            )
+        );
+        setRequestCopied(false);
+        setRequestOpen(true);
+    };
+    const copyRequest = async () => {
+        try {
+            await navigator.clipboard.writeText(requestMsg);
+            setRequestCopied(true);
+            setTimeout(() => setRequestCopied(false), 1500);
+        } catch {
+            // clipboard may be unavailable — the editor can still select+copy.
+        }
+    };
+
     return (
         <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Stack
@@ -657,6 +707,43 @@ const CVDraftGenerator = ({
             >
                 {result ? td('regenerate') : td('generate')}
             </Button>
+
+            {!result && !loading && readiness ? (
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                        {td('readinessTitle')} (
+                        {readiness.filter((r) => r.ok).length}/
+                        {readiness.length})
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {readiness.map((r) => (
+                            <Chip
+                                key={r.key}
+                                size="small"
+                                variant={r.ok ? 'filled' : 'outlined'}
+                                color={r.ok ? 'success' : 'default'}
+                                label={`${r.ok ? '\u2713' : '\u2013'} ${t(
+                                    `coverage.${r.key}`,
+                                    { ns: 'cvmlrl' }
+                                )}`}
+                                onClick={
+                                    !r.ok ? onNavigateToCvDetails : undefined
+                                }
+                                clickable={
+                                    !r.ok && Boolean(onNavigateToCvDetails)
+                                }
+                            />
+                        ))}
+                    </Box>
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mt: 0.5 }}
+                    >
+                        {td('readinessHint')}
+                    </Typography>
+                </Box>
+            ) : null}
 
             {error && (
                 <Alert severity="error" sx={{ mt: 2 }}>
@@ -729,6 +816,14 @@ const CVDraftGenerator = ({
                                         >
                                             {td('editFields')}
                                         </Button>
+                                        {result.validation.items.length > 0 ? (
+                                            <Button
+                                                variant="outlined"
+                                                onClick={openRequest}
+                                            >
+                                                {td('requestButton')}
+                                            </Button>
+                                        ) : null}
                                         <Button
                                             variant="contained"
                                             onClick={onRenderDocx}
@@ -924,6 +1019,42 @@ const CVDraftGenerator = ({
                                 onClick={onConfirmRender}
                             >
                                 {td('confirmCreate')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={requestOpen}
+                        onClose={() => setRequestOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('requestTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1.5 }}
+                            >
+                                {td('requestSubtitle')}
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={6}
+                                size="small"
+                                value={requestMsg}
+                                onChange={(e) => setRequestMsg(e.target.value)}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setRequestOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button variant="contained" onClick={copyRequest}>
+                                {requestCopied
+                                    ? td('requestCopied')
+                                    : td('requestCopy')}
                             </Button>
                         </DialogActions>
                     </Dialog>

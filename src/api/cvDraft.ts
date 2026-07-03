@@ -275,6 +275,23 @@ export const validateCvDraft = (
         payload
     );
 
+export interface CvReadinessItem {
+    key: string;
+    ok: boolean;
+}
+export interface CvReadinessResponse {
+    success: boolean;
+    data: { readiness: CvReadinessItem[] };
+}
+
+// Pre-generation readiness: which CV sections the profile can already fill,
+// computed server-side from the same knownFacts the generator uses. Lets the AI
+// Draft tab show gaps BEFORE spending an AI credit.
+export const getCvReadiness = (studentId: string) =>
+    getData<CvReadinessResponse>(
+        `/api/ai-assist/students/${studentId}/cv-draft/readiness`
+    );
+
 // Persist editor inline edits to the reviewed draft. Re-validates server-side and
 // drops any rendered .docx (the edited draft must be re-created before attaching).
 export const updateCvDraft = (
