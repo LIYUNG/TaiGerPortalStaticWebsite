@@ -99,6 +99,9 @@ export interface CVDraftResult {
         // Set when the AI returned an unparseable draft — the draft is empty and
         // the UI should show a retry state (not a checklist of spurious errors).
         parseError?: string;
+        // Editor notes that fed this draft (provenance) — used to restore the
+        // notes box after a refresh / tab switch.
+        editorNotes?: string;
     };
     // True when the student has a passport photo on file (AI Draft coverage).
     hasPhoto?: boolean;
@@ -107,6 +110,9 @@ export interface CVDraftResult {
     // re-enable Attach after a refresh / tab switch without re-rendering).
     renderedCurrent?: boolean;
     rendered?: { name: string; path: string; photoEmbedded?: boolean } | null;
+    // Set by getSavedCvDraft when the generation inputs (CV Details / photo)
+    // changed since this draft was made — the UI prompts a regenerate (W3).
+    inputsChanged?: boolean;
     // Bounded history of previous drafts (newest first) — powers the regenerate
     // diff and undo.
     history?: Array<{

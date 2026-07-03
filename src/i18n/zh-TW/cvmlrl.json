@@ -180,6 +180,7 @@
         "requestCopied": "已複製！",
         "changedSince": "與前一版相比有變動",
         "undo": "還原",
+        "inputsChanged": "CV 資料或證件照在這份草稿產生後有變動。重新產生以納入最新內容。",
         "docxReady": "草稿已就緒",
         "attachSuccess": "已傳到 thread。",
         "attachStale": "草稿在產生 .docx 之後又有變更，請先重新產生再傳送。",

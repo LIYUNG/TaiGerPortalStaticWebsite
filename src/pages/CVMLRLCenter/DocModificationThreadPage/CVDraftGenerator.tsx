@@ -456,6 +456,11 @@ const CVDraftGenerator = ({
             .then((resp) => {
                 if (active && resp?.success && resp.data) {
                     setResult(resp.data);
+                    // Restore the editor notes that fed this draft (survives tab
+                    // switch / refresh) — provenance from meta (W6).
+                    if (resp.data.meta?.editorNotes) {
+                        setNotes(resp.data.meta.editorNotes);
+                    }
                     // Restore the "ready to attach" state if the persisted .docx
                     // is still current for this draft — otherwise a tab switch or
                     // refresh would needlessly disable Attach (U1).
@@ -824,6 +829,24 @@ const CVDraftGenerator = ({
                         </Alert>
                     ) : (
                         <Box>
+                            {result.inputsChanged ? (
+                                <Alert
+                                    severity="warning"
+                                    sx={{ mb: 1 }}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={onGenerate}
+                                            disabled={loading}
+                                        >
+                                            {td('regenerate')}
+                                        </Button>
+                                    }
+                                >
+                                    {td('inputsChanged')}
+                                </Alert>
+                            ) : null}
                             <Checklist
                                 items={result.validation.items}
                                 onNavigate={onNavigateToCvDetails}
