@@ -259,6 +259,33 @@ export const getSavedCvDraft = (documentsthreadId: string) =>
         `/api/ai-assist/threads/${documentsthreadId}/cv-draft`
     );
 
+export interface ValidateCvDraftResponse {
+    success: boolean;
+    data: { validation: CVValidationResult };
+}
+
+// Re-run the deterministic checklist over an editor-edited draft (no LLM, no
+// persistence) so the checklist stays honest after inline edits.
+export const validateCvDraft = (
+    studentId: string,
+    payload: { draft: CVDraft; fileType?: string; degree?: string }
+) =>
+    postData<ValidateCvDraftResponse>(
+        `/api/ai-assist/students/${studentId}/cv-draft/validate`,
+        payload
+    );
+
+// Persist editor inline edits to the reviewed draft. Re-validates server-side and
+// drops any rendered .docx (the edited draft must be re-created before attaching).
+export const updateCvDraft = (
+    documentsthreadId: string,
+    payload: { draft: CVDraft; degree?: string }
+) =>
+    putData<SavedCvDraftResponse>(
+        `/api/ai-assist/threads/${documentsthreadId}/cv-draft`,
+        payload
+    );
+
 // Render + stream the docx straight back as a download (no S3 needed).
 export const downloadCvDraft = async (
     studentId: string,

@@ -26,12 +26,14 @@ import {
     attachCvDraftToThread,
     getSavedCvDraft,
     downloadCvDraft,
+    updateCvDraft,
     type CVDraft,
     type CVDraftResult,
     type CVChecklistItem,
     type CVEducation,
     type CVExperience
 } from '@/api';
+import CVDraftEditForm from './CVDraftEditForm';
 
 interface CVDraftGeneratorProps {
     studentId: string;
@@ -406,6 +408,10 @@ const CVDraftGenerator = ({
     const [reused, setReused] = useState(false);
     // Confirm dialog shown when creating the .docx while must-fix items remain.
     const [confirmOpen, setConfirmOpen] = useState(false);
+    // Inline structured editing of the reviewed draft.
+    const [editing, setEditing] = useState(false);
+    const [savingEdit, setSavingEdit] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
     // "Attach to thread" dialog — the editor writes their own message.
     const [attachOpen, setAttachOpen] = useState(false);
     const [attachMessage, setAttachMessage] = useState('');
@@ -583,6 +589,34 @@ const CVDraftGenerator = ({
         }
     };
 
+    // Persist inline edits: the server re-validates and drops the rendered .docx,
+    // so the checklist refreshes and the editor must re-create the working copy
+    // before attaching (keeps the stale guard honest).
+    const onSaveEdits = async (draft: CVDraft) => {
+        if (!documentsthreadId) return;
+        setSavingEdit(true);
+        setEditError(null);
+        try {
+            const resp = await updateCvDraft(documentsthreadId, {
+                draft,
+                degree
+            });
+            if (resp?.success && resp.data) {
+                setResult(resp.data);
+                setRendered(null);
+                setReused(false);
+                setAttached(false);
+                setEditing(false);
+            } else {
+                setEditError(td('editFailed'));
+            }
+        } catch (e) {
+            setEditError(e instanceof Error ? e.message : td('editFailed'));
+        } finally {
+            setSavingEdit(false);
+        }
+    };
+
     return (
         <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Stack
@@ -658,92 +692,147 @@ const CVDraftGenerator = ({
                                 hasPhoto={result.hasPhoto}
                                 onNavigate={onNavigateToCvDetails}
                             />
-                            <Divider sx={{ my: 2 }} />
-                            <DraftView draft={result.draft} />
-                            <Divider sx={{ my: 2 }} />
-                            <Stack direction="row" spacing={1} flexWrap="wrap">
-                                <Button
-                                    variant="contained"
-                                    onClick={onRenderDocx}
-                                    disabled={rendering}
-                                    startIcon={
-                                        rendering ? (
-                                            <CircularProgress
-                                                size={16}
-                                                color="inherit"
-                                            />
-                                        ) : undefined
-                                    }
-                                >
-                                    {rendered
-                                        ? td('regenerateDocx')
-                                        : td('createDocx')}
-                                </Button>
-                                <Tooltip
-                                    title={
-                                        rendered ? '' : td('attachDisabledHint')
-                                    }
-                                >
-                                    <span>
+                            {editing ? (
+                                <Box sx={{ mt: 1 }}>
+                                    {editError ? (
+                                        <Alert severity="error" sx={{ mb: 1 }}>
+                                            {editError}
+                                        </Alert>
+                                    ) : null}
+                                    <CVDraftEditForm
+                                        initial={result.draft}
+                                        saving={savingEdit}
+                                        onSave={onSaveEdits}
+                                        onCancel={() => {
+                                            setEditing(false);
+                                            setEditError(null);
+                                        }}
+                                    />
+                                </Box>
+                            ) : (
+                                <Box>
+                                    <Divider sx={{ my: 2 }} />
+                                    <DraftView draft={result.draft} />
+                                    <Divider sx={{ my: 2 }} />
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        flexWrap="wrap"
+                                    >
                                         <Button
                                             variant="outlined"
-                                            color="secondary"
-                                            onClick={openAttach}
-                                            disabled={rendering || !rendered}
+                                            onClick={() => {
+                                                setEditing(true);
+                                                setEditError(null);
+                                            }}
+                                            disabled={rendering}
                                         >
-                                            {td('attachToThread')}
+                                            {td('editFields')}
                                         </Button>
-                                    </span>
-                                </Tooltip>
-                            </Stack>
-                            {rendered ? (
-                                <Alert severity="success" sx={{ mt: 1.5 }}>
-                                    {reused
-                                        ? td('reusedBanner')
-                                        : `${td('docxReady')}: ${rendered.name}`}
-                                    <Link
-                                        component="button"
-                                        type="button"
-                                        variant="body2"
-                                        onClick={onDownload}
-                                        sx={{ ml: 1 }}
+                                        <Button
+                                            variant="contained"
+                                            onClick={onRenderDocx}
+                                            disabled={rendering}
+                                            startIcon={
+                                                rendering ? (
+                                                    <CircularProgress
+                                                        size={16}
+                                                        color="inherit"
+                                                    />
+                                                ) : undefined
+                                            }
+                                        >
+                                            {rendered
+                                                ? td('regenerateDocx')
+                                                : td('createDocx')}
+                                        </Button>
+                                        <Tooltip
+                                            title={
+                                                rendered
+                                                    ? ''
+                                                    : td('attachDisabledHint')
+                                            }
+                                        >
+                                            <span>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="secondary"
+                                                    onClick={openAttach}
+                                                    disabled={
+                                                        rendering || !rendered
+                                                    }
+                                                >
+                                                    {td('attachToThread')}
+                                                </Button>
+                                            </span>
+                                        </Tooltip>
+                                    </Stack>
+                                    {rendered ? (
+                                        <Alert
+                                            severity="success"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {reused
+                                                ? td('reusedBanner')
+                                                : `${td('docxReady')}: ${rendered.name}`}
+                                            <Link
+                                                component="button"
+                                                type="button"
+                                                variant="body2"
+                                                onClick={onDownload}
+                                                sx={{ ml: 1 }}
+                                            >
+                                                {td('downloadDocx')}
+                                            </Link>
+                                        </Alert>
+                                    ) : null}
+                                    {rendered &&
+                                    result.hasPhoto &&
+                                    rendered.photoEmbedded === false ? (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {td('photoNotEmbedded')}
+                                        </Alert>
+                                    ) : null}
+                                    {attached ? (
+                                        <Alert
+                                            severity="success"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {td('attachSuccess')}
+                                        </Alert>
+                                    ) : null}
+                                    {attachError ? (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {attachError}
+                                        </Alert>
+                                    ) : null}
+                                    {renderError ? (
+                                        <Alert
+                                            severity="error"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {renderError}
+                                        </Alert>
+                                    ) : null}
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 1 }}
                                     >
-                                        {td('downloadDocx')}
-                                    </Link>
-                                </Alert>
-                            ) : null}
-                            {rendered &&
-                            result.hasPhoto &&
-                            rendered.photoEmbedded === false ? (
-                                <Alert severity="warning" sx={{ mt: 1.5 }}>
-                                    {td('photoNotEmbedded')}
-                                </Alert>
-                            ) : null}
-                            {attached ? (
-                                <Alert severity="success" sx={{ mt: 1.5 }}>
-                                    {td('attachSuccess')}
-                                </Alert>
-                            ) : null}
-                            {attachError ? (
-                                <Alert severity="warning" sx={{ mt: 1.5 }}>
-                                    {attachError}
-                                </Alert>
-                            ) : null}
-                            {renderError ? (
-                                <Alert severity="error" sx={{ mt: 1.5 }}>
-                                    {renderError}
-                                </Alert>
-                            ) : null}
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{ display: 'block', mt: 1 }}
-                            >
-                                {td('generatedBy')} {result.meta.model} at{' '}
-                                {new Date(
-                                    result.meta.generatedAt
-                                ).toLocaleString()}
-                            </Typography>
+                                        {td('generatedBy')} {result.meta.model}{' '}
+                                        at{' '}
+                                        {new Date(
+                                            result.meta.generatedAt
+                                        ).toLocaleString()}
+                                    </Typography>
+                                </Box>
+                            )}
                         </Box>
                     )}
 
