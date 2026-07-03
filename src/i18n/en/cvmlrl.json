@@ -151,6 +151,42 @@
         "docxSaved": "Saved to the thread",
         "docxFailed": "Could not create the document. Please try again.",
         "confirmErrors": "There are must-fix items in the checklist. Create the .docx anyway?",
-        "downloadDocx": "Download .docx"
+        "downloadDocx": "Download .docx",
+        "regenerateDocx": "Regenerate .docx",
+        "attachToThread": "Attach to thread…",
+        "docxReady": "Draft ready",
+        "attachSuccess": "Attached to the thread.",
+        "attachStale": "The draft changed since the .docx was generated. Please regenerate before attaching.",
+        "attachFailed": "Could not attach. Please try again.",
+        "attachDefaultMessage": "Attached is the first draft of your CV. Please review it and let us know if anything needs adjusting.",
+        "attachDialogTitle": "Attach CV draft to thread",
+        "attachDialogSubtitle": "This posts the .docx to the thread so the student can see it. Edit the message below before sending.",
+        "attachMessageLabel": "Message to the student",
+        "cancel": "Cancel",
+        "attachSend": "Attach & send"
+    },
+    "coverage": {
+        "title": "Coverage",
+        "hint": "Green = filled. Outlined = still needs input — add it in CV Details / the profile, then regenerate.",
+        "photo": "Photo",
+        "name": "Name",
+        "contact": "Contact",
+        "birthNationality": "Birth / nationality",
+        "university": "University",
+        "highSchool": "High school",
+        "experience": "Experience",
+        "awards": "Awards",
+        "languages": "Languages",
+        "computer": "Computer skills",
+        "otherSkills": "Other skills",
+        "hobbies": "Interests"
+    },
+    "passportPhoto": {
+        "title": "Passport photo",
+        "none": "No photo",
+        "upload": "Upload photo",
+        "replace": "Replace photo",
+        "formats": "PNG, JPG, GIF or BMP",
+        "uploadFailed": "Upload failed. Please try again."
     }
 }

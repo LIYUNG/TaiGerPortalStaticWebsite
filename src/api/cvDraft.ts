@@ -96,6 +96,8 @@ export interface CVDraftResult {
         programId?: string;
         generatedAt: string;
     };
+    // True when the student has a passport photo on file (AI Draft coverage).
+    hasPhoto?: boolean;
 }
 
 export interface GenerateCVDraftPayload {
@@ -196,7 +198,9 @@ export const updateStudentCvProfile = (
 
 export interface RenderCvDraftResponse {
     success: boolean;
-    data: { name: string; path: string };
+    // `hash` fingerprints the rendered draft; `reused` is true when the server
+    // skipped re-rendering because the draft was unchanged.
+    data: { name: string; path: string; hash?: string; reused?: boolean };
 }
 
 // Stage B: render the reviewed CVDraft into a docx and attach it to the thread.
@@ -206,6 +210,23 @@ export const renderCvDraft = (
 ) =>
     postData<RenderCvDraftResponse>(
         `/api/ai-assist/students/${studentId}/cv-draft/render`,
+        payload
+    );
+
+export interface AttachCvDraftResponse {
+    success: boolean;
+    data: { name: string; path: string };
+}
+
+// Attach the already-rendered docx to the thread as a student-visible message
+// with an editor-supplied note. Rejects (409) if the draft changed since the
+// last render — regenerate first.
+export const attachCvDraftToThread = (
+    documentsthreadId: string,
+    payload: { draft: CVDraft; message: string }
+) =>
+    postData<AttachCvDraftResponse>(
+        `/api/ai-assist/threads/${documentsthreadId}/cv-draft/attach`,
         payload
     );
 
@@ -238,4 +259,33 @@ export const downloadCvDraft = async (
         throw new Error(`Download failed (${resp.status})`);
     }
     return resp.blob();
+};
+
+// --- CV Details: passport photo (profile doc "Passport_Photo") ---
+
+// Fetch the student's passport photo as a Blob for preview. Throws on 404 (none).
+export const getCvPassportPhoto = async (studentId: string): Promise<Blob> => {
+    const resp = await fetch(
+        `${BASE_URL}/api/ai-assist/students/${studentId}/cv-photo`,
+        { credentials: 'include' }
+    );
+    if (!resp.ok) {
+        throw new Error(`No passport photo (${resp.status})`);
+    }
+    return resp.blob();
+};
+
+export interface UploadPassportPhotoResponse {
+    success: boolean;
+    data: unknown;
+}
+
+// Upload / replace the student's passport photo (multipart, field "file").
+export const uploadPassportPhoto = (studentId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return postData<UploadPassportPhotoResponse>(
+        `/api/students/${studentId}/files/Passport_Photo`,
+        formData
+    );
 };

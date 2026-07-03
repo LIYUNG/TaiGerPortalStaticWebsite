@@ -51,6 +51,7 @@ import FilesList from './FilesList';
 import CVDraftGenerator from './CVDraftGenerator';
 import AdditionalInformationCard from './AdditionalInformationCard';
 import CVProfileForm from '@components/CVProfileForm';
+import PassportPhotoCard from './PassportPhotoCard';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
@@ -1307,6 +1308,11 @@ const DocModificationThreadPage = ({
                                 p: 2
                             }}
                         >
+                            <PassportPhotoCard
+                                studentId={
+                                    thread?.student_id?._id?.toString() ?? ''
+                                }
+                            />
                             <AdditionalInformationCard
                                 threadId={thread?._id?.toString() ?? ''}
                                 initialValue={

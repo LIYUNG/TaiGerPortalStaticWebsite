@@ -8,6 +8,10 @@ import {
     Card,
     Chip,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Divider,
     Stack,
     TextField,
@@ -17,6 +21,7 @@ import {
 import {
     generateCvDraft,
     renderCvDraft,
+    attachCvDraftToThread,
     getSavedCvDraft,
     downloadCvDraft,
     type CVDraft,
@@ -244,6 +249,72 @@ const DraftView = ({ draft }: { draft: CVDraft }) => {
     );
 };
 
+const Coverage = ({
+    draft,
+    hasPhoto
+}: {
+    draft: CVDraft;
+    hasPhoto?: boolean;
+}) => {
+    const { t } = useTranslation();
+    const cv = (k: string) => t(`coverage.${k}`, { ns: 'cvmlrl' });
+    const p = draft.personal;
+    const items: Array<[string, boolean]> = [
+        ['photo', Boolean(hasPhoto)],
+        ['name', Boolean(p.fullName)],
+        ['contact', Boolean(p.phone || p.email || p.address)],
+        [
+            'birthNationality',
+            Boolean(p.birthday || p.birthplace || p.nationality)
+        ],
+        ['university', draft.universities.length > 0],
+        [
+            'highSchool',
+            draft.seniorHighSchools.length > 0 ||
+                draft.juniorHighSchools.length > 0
+        ],
+        ['experience', draft.experience.length > 0],
+        ['awards', draft.awards.length > 0],
+        ['languages', draft.languages.length > 0],
+        ['computer', draft.computer.length > 0],
+        ['otherSkills', Boolean(draft.otherSkills)],
+        [
+            'hobbies',
+            Boolean(
+                draft.hobbies ||
+                    draft.socialEngagement ||
+                    draft.competitiveSports
+            )
+        ]
+    ];
+    const filled = items.filter(([, v]) => v).length;
+    return (
+        <Box sx={{ mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                {cv('title')} ({filled}/{items.length})
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {items.map(([k, v]) => (
+                    <Chip
+                        key={k}
+                        size="small"
+                        variant={v ? 'filled' : 'outlined'}
+                        color={v ? 'success' : 'default'}
+                        label={`${v ? '✓' : '–'} ${cv(k)}`}
+                    />
+                ))}
+            </Box>
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.5 }}
+            >
+                {cv('hint')}
+            </Typography>
+        </Box>
+    );
+};
+
 const CVDraftGenerator = ({
     studentId,
     fileType,
@@ -262,7 +333,18 @@ const CVDraftGenerator = ({
     const [notes, setNotes] = useState('');
     const [rendering, setRendering] = useState(false);
     const [renderError, setRenderError] = useState<string | null>(null);
-    const [rendered, setRendered] = useState<string | null>(null);
+    // The rendered working .docx (stable S3 key). Cleared whenever the draft is
+    // (re)generated, so a stale file can never be attached.
+    const [rendered, setRendered] = useState<{
+        name: string;
+        path: string;
+    } | null>(null);
+    // "Attach to thread" dialog — the editor writes their own message.
+    const [attachOpen, setAttachOpen] = useState(false);
+    const [attachMessage, setAttachMessage] = useState('');
+    const [attaching, setAttaching] = useState(false);
+    const [attachError, setAttachError] = useState<string | null>(null);
+    const [attached, setAttached] = useState(false);
 
     // Restore the last generated draft on refresh (persisted on the thread).
     useEffect(() => {
@@ -285,6 +367,8 @@ const CVDraftGenerator = ({
         setError(null);
         setRendered(null);
         setRenderError(null);
+        setAttached(false);
+        setAttachError(null);
         try {
             const mergedRequirements = [editorRequirements, notes.trim()]
                 .filter(Boolean)
@@ -308,7 +392,7 @@ const CVDraftGenerator = ({
         }
     };
 
-    const onCreateDocx = async () => {
+    const onRenderDocx = async () => {
         if (!result) return;
         if (
             result.validation.errorCount > 0 &&
@@ -324,7 +408,9 @@ const CVDraftGenerator = ({
                 documentsthreadId
             });
             if (resp?.success) {
-                setRendered(resp.data.name);
+                setRendered({ name: resp.data.name, path: resp.data.path });
+                setAttached(false);
+                setAttachError(null);
             } else {
                 setRenderError(td('docxFailed'));
             }
@@ -332,6 +418,43 @@ const CVDraftGenerator = ({
             setRenderError(e instanceof Error ? e.message : td('docxFailed'));
         } finally {
             setRendering(false);
+        }
+    };
+
+    const openAttach = () => {
+        setAttachError(null);
+        setAttachMessage(td('attachDefaultMessage'));
+        setAttachOpen(true);
+    };
+
+    const onAttach = async () => {
+        if (!result || !documentsthreadId) return;
+        setAttaching(true);
+        setAttachError(null);
+        try {
+            const resp = await attachCvDraftToThread(documentsthreadId, {
+                draft: result.draft,
+                message: attachMessage
+            });
+            if (resp?.success) {
+                setAttached(true);
+                setAttachOpen(false);
+            } else {
+                setAttachError(td('attachFailed'));
+            }
+        } catch (e) {
+            // A 409 means the rendered file is stale (draft changed since it was
+            // generated); clear it so the editor must regenerate before sharing.
+            const msg = e instanceof Error ? e.message : td('attachFailed');
+            if (/change|regenerate|stale|409/i.test(msg)) {
+                setRendered(null);
+                setAttachOpen(false);
+                setAttachError(td('attachStale'));
+            } else {
+                setAttachError(msg);
+            }
+        } finally {
+            setAttaching(false);
         }
     };
 
@@ -406,13 +529,14 @@ const CVDraftGenerator = ({
             {result && (
                 <Box sx={{ mt: 2 }}>
                     <Checklist items={result.validation.items} />
+                    <Coverage draft={result.draft} hasPhoto={result.hasPhoto} />
                     <Divider sx={{ my: 2 }} />
                     <DraftView draft={result.draft} />
                     <Divider sx={{ my: 2 }} />
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} flexWrap="wrap">
                         <Button
                             variant="contained"
-                            onClick={onCreateDocx}
+                            onClick={onRenderDocx}
                             disabled={rendering}
                             startIcon={
                                 rendering ? (
@@ -423,7 +547,7 @@ const CVDraftGenerator = ({
                                 ) : undefined
                             }
                         >
-                            {td('createDocx')}
+                            {rendered ? td('regenerateDocx') : td('createDocx')}
                         </Button>
                         <Button
                             variant="outlined"
@@ -432,10 +556,28 @@ const CVDraftGenerator = ({
                         >
                             {td('downloadDocx')}
                         </Button>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={openAttach}
+                            disabled={rendering || !rendered}
+                        >
+                            {td('attachToThread')}
+                        </Button>
                     </Stack>
                     {rendered ? (
                         <Alert severity="success" sx={{ mt: 1.5 }}>
-                            {td('docxSaved')}: {rendered}
+                            {td('docxReady')}: {rendered.name}
+                        </Alert>
+                    ) : null}
+                    {attached ? (
+                        <Alert severity="success" sx={{ mt: 1.5 }}>
+                            {td('attachSuccess')}
+                        </Alert>
+                    ) : null}
+                    {attachError ? (
+                        <Alert severity="warning" sx={{ mt: 1.5 }}>
+                            {attachError}
                         </Alert>
                     ) : null}
                     {renderError ? (
@@ -451,6 +593,59 @@ const CVDraftGenerator = ({
                         {td('generatedBy')} {result.meta.model} at{' '}
                         {new Date(result.meta.generatedAt).toLocaleString()}
                     </Typography>
+
+                    <Dialog
+                        open={attachOpen}
+                        onClose={() => !attaching && setAttachOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('attachDialogTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1.5 }}
+                            >
+                                {td('attachDialogSubtitle')}
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                size="small"
+                                label={td('attachMessageLabel')}
+                                value={attachMessage}
+                                onChange={(e) =>
+                                    setAttachMessage(e.target.value)
+                                }
+                                disabled={attaching}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onClick={() => setAttachOpen(false)}
+                                disabled={attaching}
+                            >
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={onAttach}
+                                disabled={attaching}
+                                startIcon={
+                                    attaching ? (
+                                        <CircularProgress
+                                            size={16}
+                                            color="inherit"
+                                        />
+                                    ) : undefined
+                                }
+                            >
+                                {td('attachSend')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Box>
             )}
         </Card>

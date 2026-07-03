@@ -151,6 +151,42 @@
         "docxSaved": "已保存到 thread",
         "docxFailed": "无法生成文件,请重试。",
         "confirmErrors": "checklist 还有必须修正的项目。仍要生成 .docx 吗?",
-        "downloadDocx": "下载 .docx"
+        "downloadDocx": "下载 .docx",
+        "regenerateDocx": "重新生成 .docx",
+        "attachToThread": "传到 thread…",
+        "docxReady": "草稿已就绪",
+        "attachSuccess": "已传到 thread。",
+        "attachStale": "草稿在生成 .docx 之后又有变更，请先重新生成再传送。",
+        "attachFailed": "传送失败，请重试。",
+        "attachDefaultMessage": "附上您的 CV 第一版草稿，请查看，如需调整请告诉我们。",
+        "attachDialogTitle": "将 CV 草稿传到 thread",
+        "attachDialogSubtitle": "这会把 .docx 贴到 thread 让学生看到。送出前请先编辑下方讯息。",
+        "attachMessageLabel": "给学生的讯息",
+        "cancel": "取消",
+        "attachSend": "传送"
+    },
+    "coverage": {
+        "title": "资料完整度",
+        "hint": "绿色＝已填；空心＝还需补充，请到 CV 资料 / profile 补上后重新生成。",
+        "photo": "照片",
+        "name": "姓名",
+        "contact": "联络方式",
+        "birthNationality": "生日 / 国籍",
+        "university": "大学",
+        "highSchool": "高中",
+        "experience": "经历",
+        "awards": "奖项",
+        "languages": "语言",
+        "computer": "电脑技能",
+        "otherSkills": "其他技能",
+        "hobbies": "兴趣"
+    },
+    "passportPhoto": {
+        "title": "证件照",
+        "none": "尚未上传",
+        "upload": "上传照片",
+        "replace": "更换照片",
+        "formats": "PNG、JPG、GIF 或 BMP",
+        "uploadFailed": "上传失败，请重试。"
     }
 }
