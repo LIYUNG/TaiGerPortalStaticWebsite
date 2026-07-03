@@ -13,8 +13,10 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
+    Link,
     Stack,
     TextField,
+    Tooltip,
     Typography
 } from '@mui/material';
 
@@ -35,9 +37,14 @@ interface CVDraftGeneratorProps {
     studentId: string;
     fileType: string;
     programId?: string;
+    // Target program degree (e.g. "Bachelor" / "Master"). Threaded to the
+    // generator/validator so the bachelor-only rules (junior high school) apply.
+    degree?: string;
     programFullName?: string;
     editorRequirements?: string;
     documentsthreadId?: string;
+    // Switch the parent tab view to CV Details (checklist / coverage deep-links).
+    onNavigateToCvDetails?: () => void;
 }
 
 const Field = ({ label, value }: { label: string; value?: string }) =>
@@ -113,10 +120,24 @@ const ExperienceBlock = ({ items }: { items: CVExperience[] }) => {
     ) : null;
 };
 
-const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
+const Checklist = ({
+    items,
+    onNavigate
+}: {
+    items: CVChecklistItem[];
+    onNavigate?: () => void;
+}) => {
     const { t } = useTranslation();
     const errors = items.filter((i) => i.level === 'error');
     const warnings = items.filter((i) => i.level === 'warning');
+    // A checklist item is actionable when it points at data the editor fixes in
+    // CV Details (i.e. not a transient system/parse error).
+    const clickable = (section: string) =>
+        Boolean(onNavigate) && section !== 'system';
+    const itemSx = (section: string) =>
+        clickable(section)
+            ? { cursor: 'pointer', textDecoration: 'underline dotted' }
+            : undefined;
     if (!items.length) {
         return (
             <Alert severity="success">
@@ -134,7 +155,22 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
                     </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {errors.map((it, i) => (
-                            <li key={i}>
+                            <li
+                                key={i}
+                                onClick={
+                                    clickable(it.section)
+                                        ? onNavigate
+                                        : undefined
+                                }
+                                title={
+                                    clickable(it.section)
+                                        ? t('aiDraft.fixInCvDetails', {
+                                              ns: 'cvmlrl'
+                                          })
+                                        : undefined
+                                }
+                                style={itemSx(it.section)}
+                            >
                                 <b>[{it.section}]</b> {it.message}
                             </li>
                         ))}
@@ -149,7 +185,22 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
                     </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {warnings.map((it, i) => (
-                            <li key={i}>
+                            <li
+                                key={i}
+                                onClick={
+                                    clickable(it.section)
+                                        ? onNavigate
+                                        : undefined
+                                }
+                                title={
+                                    clickable(it.section)
+                                        ? t('aiDraft.fixInCvDetails', {
+                                              ns: 'cvmlrl'
+                                          })
+                                        : undefined
+                                }
+                                style={itemSx(it.section)}
+                            >
                                 <b>[{it.section}]</b> {it.message}
                             </li>
                         ))}
@@ -251,10 +302,12 @@ const DraftView = ({ draft }: { draft: CVDraft }) => {
 
 const Coverage = ({
     draft,
-    hasPhoto
+    hasPhoto,
+    onNavigate
 }: {
     draft: CVDraft;
     hasPhoto?: boolean;
+    onNavigate?: () => void;
 }) => {
     const { t } = useTranslation();
     const cv = (k: string) => t(`coverage.${k}`, { ns: 'cvmlrl' });
@@ -294,15 +347,22 @@ const Coverage = ({
                 {cv('title')} ({filled}/{items.length})
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {items.map(([k, v]) => (
-                    <Chip
-                        key={k}
-                        size="small"
-                        variant={v ? 'filled' : 'outlined'}
-                        color={v ? 'success' : 'default'}
-                        label={`${v ? '✓' : '–'} ${cv(k)}`}
-                    />
-                ))}
+                {items.map(([k, v]) => {
+                    // Only unfilled (outlined) chips are actionable — they point
+                    // the editor to data still missing from CV Details.
+                    const isClickable = !v && Boolean(onNavigate);
+                    return (
+                        <Chip
+                            key={k}
+                            size="small"
+                            variant={v ? 'filled' : 'outlined'}
+                            color={v ? 'success' : 'default'}
+                            label={`${v ? '✓' : '–'} ${cv(k)}`}
+                            onClick={isClickable ? onNavigate : undefined}
+                            clickable={isClickable}
+                        />
+                    );
+                })}
             </Box>
             <Typography
                 variant="caption"
@@ -319,9 +379,11 @@ const CVDraftGenerator = ({
     studentId,
     fileType,
     programId,
+    degree,
     programFullName,
     editorRequirements,
-    documentsthreadId
+    documentsthreadId,
+    onNavigateToCvDetails
 }: CVDraftGeneratorProps) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
@@ -338,7 +400,12 @@ const CVDraftGenerator = ({
     const [rendered, setRendered] = useState<{
         name: string;
         path: string;
+        photoEmbedded?: boolean;
     } | null>(null);
+    // True when the last render reused an unchanged file (no new .docx produced).
+    const [reused, setReused] = useState(false);
+    // Confirm dialog shown when creating the .docx while must-fix items remain.
+    const [confirmOpen, setConfirmOpen] = useState(false);
     // "Attach to thread" dialog — the editor writes their own message.
     const [attachOpen, setAttachOpen] = useState(false);
     const [attachMessage, setAttachMessage] = useState('');
@@ -354,6 +421,16 @@ const CVDraftGenerator = ({
             .then((resp) => {
                 if (active && resp?.success && resp.data) {
                     setResult(resp.data);
+                    // Restore the "ready to attach" state if the persisted .docx
+                    // is still current for this draft — otherwise a tab switch or
+                    // refresh would needlessly disable Attach (U1).
+                    if (resp.data.renderedCurrent && resp.data.rendered) {
+                        setRendered({
+                            name: resp.data.rendered.name,
+                            path: resp.data.rendered.path,
+                            photoEmbedded: resp.data.rendered.photoEmbedded
+                        });
+                    }
                 }
             })
             .catch(() => {});
@@ -366,6 +443,7 @@ const CVDraftGenerator = ({
         setLoading(true);
         setError(null);
         setRendered(null);
+        setReused(false);
         setRenderError(null);
         setAttached(false);
         setAttachError(null);
@@ -376,6 +454,7 @@ const CVDraftGenerator = ({
             const resp = await generateCvDraft(studentId, {
                 fileType,
                 programId,
+                degree,
                 programFullName,
                 editorRequirements: mergedRequirements,
                 documentsthreadId
@@ -392,14 +471,10 @@ const CVDraftGenerator = ({
         }
     };
 
-    const onRenderDocx = async () => {
+    // Actually render the reviewed draft into the working .docx. Extracted so it
+    // can run directly (no must-fix items) or after the confirm dialog.
+    const doRender = async () => {
         if (!result) return;
-        if (
-            result.validation.errorCount > 0 &&
-            !window.confirm(td('confirmErrors'))
-        ) {
-            return;
-        }
         setRendering(true);
         setRenderError(null);
         try {
@@ -408,7 +483,12 @@ const CVDraftGenerator = ({
                 documentsthreadId
             });
             if (resp?.success) {
-                setRendered({ name: resp.data.name, path: resp.data.path });
+                setRendered({
+                    name: resp.data.name,
+                    path: resp.data.path,
+                    photoEmbedded: resp.data.photoEmbedded
+                });
+                setReused(Boolean(resp.data.reused));
                 setAttached(false);
                 setAttachError(null);
             } else {
@@ -419,6 +499,22 @@ const CVDraftGenerator = ({
         } finally {
             setRendering(false);
         }
+    };
+
+    const onRenderDocx = async () => {
+        if (!result) return;
+        // Must-fix items present: confirm via a proper dialog (listing them),
+        // not a native window.confirm that looks broken next to the MUI app.
+        if (result.validation.errorCount > 0) {
+            setConfirmOpen(true);
+            return;
+        }
+        await doRender();
+    };
+
+    const onConfirmRender = async () => {
+        setConfirmOpen(false);
+        await doRender();
     };
 
     const openAttach = () => {
@@ -444,10 +540,18 @@ const CVDraftGenerator = ({
             }
         } catch (e) {
             // A 409 means the rendered file is stale (draft changed since it was
-            // generated); clear it so the editor must regenerate before sharing.
+            // generated) or missing; clear it so the editor must regenerate before
+            // sharing. Prefer the machine-readable code, falling back to the old
+            // message regex for resilience.
             const msg = e instanceof Error ? e.message : td('attachFailed');
-            if (/change|regenerate|stale|409/i.test(msg)) {
+            const code = (e as { code?: string })?.code;
+            const isStale =
+                code === 'CV_DRAFT_STALE' ||
+                code === 'CV_DRAFT_NO_RENDER' ||
+                (!code && /change|regenerate|stale|409/i.test(msg));
+            if (isStale) {
                 setRendered(null);
+                setReused(false);
                 setAttachOpen(false);
                 setAttachError(td('attachStale'));
             } else {
@@ -528,71 +632,120 @@ const CVDraftGenerator = ({
 
             {result && (
                 <Box sx={{ mt: 2 }}>
-                    <Checklist items={result.validation.items} />
-                    <Coverage draft={result.draft} hasPhoto={result.hasPhoto} />
-                    <Divider sx={{ my: 2 }} />
-                    <DraftView draft={result.draft} />
-                    <Divider sx={{ my: 2 }} />
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                        <Button
-                            variant="contained"
-                            onClick={onRenderDocx}
-                            disabled={rendering}
-                            startIcon={
-                                rendering ? (
-                                    <CircularProgress
-                                        size={16}
-                                        color="inherit"
-                                    />
-                                ) : undefined
-                            }
-                        >
-                            {rendered ? td('regenerateDocx') : td('createDocx')}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            onClick={onDownload}
-                            disabled={rendering}
-                        >
-                            {td('downloadDocx')}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={openAttach}
-                            disabled={rendering || !rendered}
-                        >
-                            {td('attachToThread')}
-                        </Button>
-                    </Stack>
-                    {rendered ? (
-                        <Alert severity="success" sx={{ mt: 1.5 }}>
-                            {td('docxReady')}: {rendered.name}
+                    {result.meta.parseError ? (
+                        <Alert severity="error">
+                            <AlertTitle>{td('parseFailedTitle')}</AlertTitle>
+                            {td('parseFailedBody')}
+                            <Box sx={{ mt: 1 }}>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={onGenerate}
+                                    disabled={loading}
+                                >
+                                    {td('retry')}
+                                </Button>
+                            </Box>
                         </Alert>
-                    ) : null}
-                    {attached ? (
-                        <Alert severity="success" sx={{ mt: 1.5 }}>
-                            {td('attachSuccess')}
-                        </Alert>
-                    ) : null}
-                    {attachError ? (
-                        <Alert severity="warning" sx={{ mt: 1.5 }}>
-                            {attachError}
-                        </Alert>
-                    ) : null}
-                    {renderError ? (
-                        <Alert severity="error" sx={{ mt: 1.5 }}>
-                            {renderError}
-                        </Alert>
-                    ) : null}
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ display: 'block', mt: 1 }}
-                    >
-                        {td('generatedBy')} {result.meta.model} at{' '}
-                        {new Date(result.meta.generatedAt).toLocaleString()}
-                    </Typography>
+                    ) : (
+                        <Box>
+                            <Checklist
+                                items={result.validation.items}
+                                onNavigate={onNavigateToCvDetails}
+                            />
+                            <Coverage
+                                draft={result.draft}
+                                hasPhoto={result.hasPhoto}
+                                onNavigate={onNavigateToCvDetails}
+                            />
+                            <Divider sx={{ my: 2 }} />
+                            <DraftView draft={result.draft} />
+                            <Divider sx={{ my: 2 }} />
+                            <Stack direction="row" spacing={1} flexWrap="wrap">
+                                <Button
+                                    variant="contained"
+                                    onClick={onRenderDocx}
+                                    disabled={rendering}
+                                    startIcon={
+                                        rendering ? (
+                                            <CircularProgress
+                                                size={16}
+                                                color="inherit"
+                                            />
+                                        ) : undefined
+                                    }
+                                >
+                                    {rendered
+                                        ? td('regenerateDocx')
+                                        : td('createDocx')}
+                                </Button>
+                                <Tooltip
+                                    title={
+                                        rendered ? '' : td('attachDisabledHint')
+                                    }
+                                >
+                                    <span>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={openAttach}
+                                            disabled={rendering || !rendered}
+                                        >
+                                            {td('attachToThread')}
+                                        </Button>
+                                    </span>
+                                </Tooltip>
+                            </Stack>
+                            {rendered ? (
+                                <Alert severity="success" sx={{ mt: 1.5 }}>
+                                    {reused
+                                        ? td('reusedBanner')
+                                        : `${td('docxReady')}: ${rendered.name}`}
+                                    <Link
+                                        component="button"
+                                        type="button"
+                                        variant="body2"
+                                        onClick={onDownload}
+                                        sx={{ ml: 1 }}
+                                    >
+                                        {td('downloadDocx')}
+                                    </Link>
+                                </Alert>
+                            ) : null}
+                            {rendered &&
+                            result.hasPhoto &&
+                            rendered.photoEmbedded === false ? (
+                                <Alert severity="warning" sx={{ mt: 1.5 }}>
+                                    {td('photoNotEmbedded')}
+                                </Alert>
+                            ) : null}
+                            {attached ? (
+                                <Alert severity="success" sx={{ mt: 1.5 }}>
+                                    {td('attachSuccess')}
+                                </Alert>
+                            ) : null}
+                            {attachError ? (
+                                <Alert severity="warning" sx={{ mt: 1.5 }}>
+                                    {attachError}
+                                </Alert>
+                            ) : null}
+                            {renderError ? (
+                                <Alert severity="error" sx={{ mt: 1.5 }}>
+                                    {renderError}
+                                </Alert>
+                            ) : null}
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 1 }}
+                            >
+                                {td('generatedBy')} {result.meta.model} at{' '}
+                                {new Date(
+                                    result.meta.generatedAt
+                                ).toLocaleString()}
+                            </Typography>
+                        </Box>
+                    )}
 
                     <Dialog
                         open={attachOpen}
@@ -643,6 +796,45 @@ const CVDraftGenerator = ({
                                 }
                             >
                                 {td('attachSend')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={confirmOpen}
+                        onClose={() => setConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('confirmErrorsTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1 }}
+                            >
+                                {td('confirmErrorsBody')}
+                            </Typography>
+                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                {result.validation.items
+                                    .filter((it) => it.level === 'error')
+                                    .map((it, i) => (
+                                        <li key={i}>
+                                            <b>[{it.section}]</b> {it.message}
+                                        </li>
+                                    ))}
+                            </ul>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setConfirmOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                onClick={onConfirmRender}
+                            >
+                                {td('confirmCreate')}
                             </Button>
                         </DialogActions>
                     </Dialog>

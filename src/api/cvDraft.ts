@@ -94,16 +94,26 @@ export interface CVDraftResult {
         model: string;
         studentId: string;
         programId?: string;
+        degree?: string;
         generatedAt: string;
+        // Set when the AI returned an unparseable draft — the draft is empty and
+        // the UI should show a retry state (not a checklist of spurious errors).
+        parseError?: string;
     };
     // True when the student has a passport photo on file (AI Draft coverage).
     hasPhoto?: boolean;
+    // Restored by getSavedCvDraft: whether the persisted rendered .docx is still
+    // current for this draft, and the file to attach (so the AI Draft tab can
+    // re-enable Attach after a refresh / tab switch without re-rendering).
+    renderedCurrent?: boolean;
+    rendered?: { name: string; path: string; photoEmbedded?: boolean } | null;
 }
 
 export interface GenerateCVDraftPayload {
     fileType?: string;
     programId?: string;
     programFullName?: string;
+    degree?: string;
     editorRequirements?: string;
     documentsthreadId?: string;
 }
@@ -200,7 +210,15 @@ export interface RenderCvDraftResponse {
     success: boolean;
     // `hash` fingerprints the rendered draft; `reused` is true when the server
     // skipped re-rendering because the draft was unchanged.
-    data: { name: string; path: string; hash?: string; reused?: boolean };
+    data: {
+        name: string;
+        path: string;
+        hash?: string;
+        reused?: boolean;
+        // False when a passport photo existed but could not be embedded
+        // (unsupported format); undefined when no photo was on file.
+        photoEmbedded?: boolean;
+    };
 }
 
 // Stage B: render the reviewed CVDraft into a docx and attach it to the thread.

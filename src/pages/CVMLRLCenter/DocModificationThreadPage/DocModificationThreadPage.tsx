@@ -1350,8 +1350,19 @@ const DocModificationThreadPage = ({
                                     thread?.student_id?._id?.toString() ?? ''
                                 }
                                 fileType={fileType}
+                                programId={
+                                    thread?.program_id?._id
+                                        ? String(thread.program_id._id)
+                                        : undefined
+                                }
+                                degree={thread?.program_id?.degree}
                                 programFullName={docName}
                                 documentsthreadId={thread?._id?.toString()}
+                                onNavigateToCvDetails={() => {
+                                    setValue(cvDetailsTabIndex);
+                                    window.location.hash =
+                                        DOC_THREAD_TAB_KEYS.cvDetails;
+                                }}
                             />
                         </Box>
                     </CustomTabPanel>
