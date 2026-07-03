@@ -1050,7 +1050,7 @@ const CVDraftGenerator = ({
                             <Button
                                 variant="contained"
                                 onClick={onAttach}
-                                disabled={attaching}
+                                disabled={attaching || !attachMessage.trim()}
                                 startIcon={
                                     attaching ? (
                                         <CircularProgress
