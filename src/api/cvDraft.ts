@@ -252,7 +252,8 @@ export const renderCvDraft = (
 
 export interface AttachCvDraftResponse {
     success: boolean;
-    data: { name: string; path: string };
+    // photoEmbedded is false when a photo existed but couldn't be embedded.
+    data: { name: string; path: string; photoEmbedded?: boolean };
 }
 
 // Attach the already-rendered docx to the thread as a student-visible message

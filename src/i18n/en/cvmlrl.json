@@ -223,6 +223,8 @@
         "attachDefaultMessage": "Attached is a draft of your CV. Please review it and let us know if anything needs adjusting.",
         "attachDialogTitle": "Attach CV draft to thread",
         "attachDialogSubtitle": "This posts the .docx to the thread so the student can see it. Edit the message below before sending.",
+        "downloadPreview": "Download a preview first",
+        "attachHasMustFix": "{{n}} must-fix item(s) remain in the checklist — attach anyway only if intended.",
         "attachMessageLabel": "Message to the student",
         "cancel": "Cancel",
         "attachSend": "Attach & send"

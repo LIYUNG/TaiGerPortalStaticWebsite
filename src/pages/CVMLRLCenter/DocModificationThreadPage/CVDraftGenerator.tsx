@@ -1123,9 +1123,7 @@ const CVDraftGenerator = ({
                                             title={
                                                 isFinalVersion
                                                     ? td('attachThreadFinal')
-                                                    : rendered
-                                                      ? ''
-                                                      : td('attachDisabledHint')
+                                                    : ''
                                             }
                                         >
                                             <span>
@@ -1135,7 +1133,7 @@ const CVDraftGenerator = ({
                                                     onClick={openAttach}
                                                     disabled={
                                                         rendering ||
-                                                        !rendered ||
+                                                        editing ||
                                                         Boolean(isFinalVersion)
                                                     }
                                                 >
@@ -1228,6 +1226,24 @@ const CVDraftGenerator = ({
                             >
                                 {td('attachDialogSubtitle')}
                             </Typography>
+                            {result.validation.errorCount > 0 ? (
+                                <Alert severity="warning" sx={{ mb: 1.5 }}>
+                                    {t('aiDraft.attachHasMustFix', {
+                                        ns: 'cvmlrl',
+                                        n: result.validation.errorCount
+                                    })}
+                                </Alert>
+                            ) : null}
+                            <Box sx={{ mb: 1.5 }}>
+                                <Link
+                                    component="button"
+                                    type="button"
+                                    variant="body2"
+                                    onClick={onDownload}
+                                >
+                                    {td('downloadPreview')}
+                                </Link>
+                            </Box>
                             <TextField
                                 fullWidth
                                 multiline

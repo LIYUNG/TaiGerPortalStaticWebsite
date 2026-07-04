@@ -223,6 +223,8 @@
         "attachDefaultMessage": "附上您的 CV 草稿，請查看，若需調整請告訴我們。",
         "attachDialogTitle": "將 CV 草稿傳到 thread",
         "attachDialogSubtitle": "這會把 .docx 貼到 thread 讓學生看到。送出前請先編輯下方訊息。",
+        "downloadPreview": "先下載預覽",
+        "attachHasMustFix": "檢查清單還有 {{n}} 個必須修正的項目——確定無誤再附加。",
         "attachMessageLabel": "給學生的訊息",
         "cancel": "取消",
         "attachSend": "傳送"
