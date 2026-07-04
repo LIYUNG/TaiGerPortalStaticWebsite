@@ -297,6 +297,15 @@ export interface CvReadinessResponse {
     data: { readiness: CvReadinessItem[] };
 }
 
+export interface AiQuotaResponse {
+    success: boolean;
+    data: { quota: number | null; canUse: boolean };
+}
+
+// The current user's remaining TaiGer AI quota (for the "uses 1 credit" microcopy).
+export const getMyAiQuota = () =>
+    getData<AiQuotaResponse>(`/api/ai-assist/ai-quota`);
+
 // Pre-generation readiness: which CV sections the profile can already fill,
 // computed server-side from the same knownFacts the generator uses. Lets the AI
 // Draft tab show gaps BEFORE spending an AI credit.

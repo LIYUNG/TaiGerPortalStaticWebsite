@@ -26,6 +26,7 @@ import {
     attachCvDraftToThread,
     getSavedCvDraft,
     getCvReadiness,
+    getMyAiQuota,
     downloadCvDraft,
     updateCvDraft,
     validateCvDraft,
@@ -439,6 +440,8 @@ const CVDraftGenerator = ({
     const [editValidation, setEditValidation] =
         useState<CVValidationResult | null>(null);
     const editValidateTimer = useRef<ReturnType<typeof setTimeout>>();
+    // Remaining TaiGer AI quota (null while unknown / not gated).
+    const [quota, setQuota] = useState<number | null>(null);
     // Pre-generation readiness (shown before the first draft exists).
     const [readiness, setReadiness] = useState<
         { key: string; ok: boolean }[] | null
@@ -504,6 +507,19 @@ const CVDraftGenerator = ({
         };
     }, [studentId]);
 
+    // Remaining AI quota, refreshed after each generation (which spends one).
+    useEffect(() => {
+        let active = true;
+        getMyAiQuota()
+            .then((r) => {
+                if (active && r?.success) setQuota(r.data.quota);
+            })
+            .catch(() => {});
+        return () => {
+            active = false;
+        };
+    }, []);
+
     const onGenerate = async () => {
         setLoading(true);
         setError(null);
@@ -545,6 +561,11 @@ const CVDraftGenerator = ({
             );
         } finally {
             setLoading(false);
+            getMyAiQuota()
+                .then((r) => {
+                    if (r?.success) setQuota(r.data.quota);
+                })
+                .catch(() => {});
         }
     };
 
@@ -808,6 +829,15 @@ const CVDraftGenerator = ({
             >
                 {result ? td('regenerate') : td('generate')}
             </Button>
+            {quota !== null ? (
+                <Typography
+                    variant="caption"
+                    color={quota <= 0 ? 'error' : 'text.secondary'}
+                    sx={{ display: 'block', mt: 0.5 }}
+                >
+                    {t('aiDraft.quotaInfo', { ns: 'cvmlrl', n: quota })}
+                </Typography>
+            ) : null}
 
             {!result && !loading && readiness ? (
                 <Box sx={{ mt: 2 }}>
