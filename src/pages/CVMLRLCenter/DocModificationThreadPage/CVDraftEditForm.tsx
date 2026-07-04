@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
@@ -71,7 +71,14 @@ const CVDraftEditForm = ({
         JSON.parse(JSON.stringify(initial))
     );
     // Notify the parent of edits so it can live-validate the working draft.
+    // Skip the initial mount (the draft is unchanged then — avoids a redundant
+    // validate call right after opening the editor).
+    const firstEdit = useRef(true);
     useEffect(() => {
+        if (firstEdit.current) {
+            firstEdit.current = false;
+            return;
+        }
         onChange?.(d);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [d]);

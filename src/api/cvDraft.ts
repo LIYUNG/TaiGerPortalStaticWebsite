@@ -117,7 +117,13 @@ export interface CVDraftResult {
     // diff and undo.
     history?: Array<{
         draft: CVDraft;
-        meta?: { generatedAt?: string; editedAt?: string; model?: string };
+        meta?: {
+            generatedAt?: string;
+            editedAt?: string;
+            model?: string;
+            // How that version was made: 'generate' | 'edit' | 'restore'.
+            source?: string;
+        };
         savedAt?: string;
     }>;
 }
@@ -318,7 +324,7 @@ export const getCvReadiness = (studentId: string) =>
 // drops any rendered .docx (the edited draft must be re-created before attaching).
 export const updateCvDraft = (
     documentsthreadId: string,
-    payload: { draft: CVDraft; degree?: string }
+    payload: { draft: CVDraft; degree?: string; source?: string }
 ) =>
     putData<SavedCvDraftResponse>(
         `/api/ai-assist/threads/${documentsthreadId}/cv-draft`,

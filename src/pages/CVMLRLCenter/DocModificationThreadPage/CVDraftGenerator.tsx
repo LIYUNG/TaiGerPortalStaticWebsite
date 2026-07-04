@@ -38,6 +38,7 @@ import {
     type CVExperience
 } from '@/api';
 import CVDraftEditForm from './CVDraftEditForm';
+import CVDraftHistoryDialog from './CVDraftHistoryDialog';
 
 interface CVDraftGeneratorProps {
     studentId: string;
@@ -456,6 +457,8 @@ const CVDraftGenerator = ({
     const [requestCopied, setRequestCopied] = useState(false);
     // Undo-of-regenerate (restore the previous draft from history).
     const [undoing, setUndoing] = useState(false);
+    const [restoreConfirmOpen, setRestoreConfirmOpen] = useState(false);
+    const [historyOpen, setHistoryOpen] = useState(false);
     // "Attach to thread" dialog — the editor writes their own message.
     const [attachOpen, setAttachOpen] = useState(false);
     const [attachMessage, setAttachMessage] = useState('');
@@ -522,6 +525,16 @@ const CVDraftGenerator = ({
             active = false;
         };
     }, []);
+
+    // Cancel a pending live-validate timer on unmount (no setState after unmount).
+    useEffect(
+        () => () => {
+            if (editValidateTimer.current) {
+                clearTimeout(editValidateTimer.current);
+            }
+        },
+        []
+    );
 
     const onGenerate = async () => {
         setLoading(true);
@@ -769,26 +782,46 @@ const CVDraftGenerator = ({
 
     // Undo the last regenerate/edit by restoring the previous draft. This itself
     // snapshots the current draft into history server-side, so it is reversible.
-    const onUndo = async () => {
-        const prev = result?.history?.[0]?.draft;
-        if (!prev || !documentsthreadId) return;
+    // Restore ANY previous version. Non-destructive: the server snapshots the
+    // current draft first (with dedupe), so nothing is lost.
+    const restoreDraft = async (draft: CVDraft) => {
+        if (!documentsthreadId) return;
         setUndoing(true);
+        setError(null);
         try {
             const resp = await updateCvDraft(documentsthreadId, {
-                draft: prev,
-                degree
+                draft,
+                degree,
+                source: 'restore'
             });
             if (resp?.success && resp.data) {
                 setResult(resp.data);
                 setRendered(null);
                 setReused(false);
                 setAttached(false);
+            } else {
+                setError(td('restoreFailed'));
             }
-        } catch {
-            // best-effort undo
+        } catch (e) {
+            setError(e instanceof Error ? e.message : td('restoreFailed'));
         } finally {
             setUndoing(false);
         }
+    };
+
+    const onConfirmRestore = () => {
+        setRestoreConfirmOpen(false);
+        const prev = result?.history?.[0]?.draft;
+        if (prev) restoreDraft(prev);
+    };
+
+    // Human label for the previous version (source + time) for the diff banner.
+    const prevVersionLabel = (): string => {
+        const h = result?.history?.[0];
+        if (!h) return '';
+        const src = td(`src_${h.meta?.source || 'generate'}`);
+        const when = h.savedAt ? new Date(h.savedAt).toLocaleString() : '';
+        return [src, when].filter(Boolean).join(' \u00b7 ');
     };
 
     // Draft a single student-facing message from the current checklist gaps.
@@ -846,7 +879,7 @@ const CVDraftGenerator = ({
             <Button
                 variant="contained"
                 onClick={onGenerateClick}
-                disabled={loading}
+                disabled={loading || editing}
                 startIcon={
                     loading ? (
                         <CircularProgress size={16} color="inherit" />
@@ -951,16 +984,18 @@ const CVDraftGenerator = ({
                                         ? editValidation.items
                                         : result.validation.items
                                 }
-                                onNavigate={onNavigateToCvDetails}
+                                onNavigate={
+                                    editing ? undefined : onNavigateToCvDetails
+                                }
                             />
                             <Coverage
                                 draft={result.draft}
                                 hasPhoto={result.hasPhoto}
-                                onNavigate={onNavigateToCvDetails}
+                                onNavigate={
+                                    editing ? undefined : onNavigateToCvDetails
+                                }
                             />
-                            {result.history &&
-                            result.history.length > 0 &&
-                            changedSections().length > 0 ? (
+                            {result.history && result.history.length > 0 ? (
                                 <Alert
                                     severity="info"
                                     sx={{ mt: 1 }}
@@ -968,21 +1003,40 @@ const CVDraftGenerator = ({
                                         <Button
                                             color="inherit"
                                             size="small"
-                                            onClick={onUndo}
+                                            onClick={() =>
+                                                setRestoreConfirmOpen(true)
+                                            }
                                             disabled={undoing || editing}
                                         >
-                                            {td('undo')}
+                                            {td('restorePrev')}
                                         </Button>
                                     }
                                 >
-                                    {td('changedSince')}:{' '}
-                                    {changedSections()
-                                        .map((k) =>
-                                            t(`draftView.${SECTION_LABEL[k]}`, {
-                                                ns: 'cvmlrl'
-                                            })
-                                        )
-                                        .join(', ')}
+                                    {t('aiDraft.versionCount', {
+                                        ns: 'cvmlrl',
+                                        n: result.history.length + 1
+                                    })}
+                                    {changedSections().length > 0 ? (
+                                        <>
+                                            {' \u00b7 '}
+                                            {td('changedSince')}:{' '}
+                                            {changedSections()
+                                                .map((k) =>
+                                                    t(
+                                                        `draftView.${SECTION_LABEL[k]}`,
+                                                        { ns: 'cvmlrl' }
+                                                    )
+                                                )
+                                                .join(', ')}
+                                        </>
+                                    ) : null}
+                                    <Typography
+                                        variant="caption"
+                                        sx={{ display: 'block', mt: 0.25 }}
+                                    >
+                                        {td('prevVersion')}:{' '}
+                                        {prevVersionLabel()}
+                                    </Typography>
                                 </Alert>
                             ) : null}
                             {editing ? (
@@ -1025,6 +1079,21 @@ const CVDraftGenerator = ({
                                         >
                                             {td('editFields')}
                                         </Button>
+                                        {result.history &&
+                                        result.history.length > 0 ? (
+                                            <Button
+                                                variant="text"
+                                                onClick={() =>
+                                                    setHistoryOpen(true)
+                                                }
+                                                disabled={rendering || editing}
+                                            >
+                                                {t('aiDraft.historyButton', {
+                                                    ns: 'cvmlrl',
+                                                    n: result.history.length + 1
+                                                })}
+                                            </Button>
+                                        ) : null}
                                         {result.validation.items.length > 0 ? (
                                             <Button
                                                 variant="outlined"
@@ -1266,6 +1335,66 @@ const CVDraftGenerator = ({
                             </Button>
                         </DialogActions>
                     </Dialog>
+
+                    <Dialog
+                        open={restoreConfirmOpen}
+                        onClose={() => setRestoreConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('restoreConfirmTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1 }}
+                            >
+                                {td('restoreConfirmBody')}
+                            </Typography>
+                            {changedSections().length > 0 ? (
+                                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                    {changedSections().map((k) => (
+                                        <li key={k}>
+                                            {t(
+                                                `draftView.${SECTION_LABEL[k]}`,
+                                                {
+                                                    ns: 'cvmlrl'
+                                                }
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : null}
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onClick={() => setRestoreConfirmOpen(false)}
+                            >
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                onClick={onConfirmRestore}
+                            >
+                                {td('restorePrev')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    {result.history ? (
+                        <CVDraftHistoryDialog
+                            open={historyOpen}
+                            onClose={() => setHistoryOpen(false)}
+                            current={result.draft}
+                            history={result.history}
+                            restoring={undoing}
+                            onRestore={(d) => {
+                                setHistoryOpen(false);
+                                restoreDraft(d);
+                            }}
+                        />
+                    ) : null}
 
                     <Dialog
                         open={requestOpen}
