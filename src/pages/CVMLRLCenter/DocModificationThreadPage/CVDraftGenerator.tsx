@@ -442,6 +442,9 @@ const CVDraftGenerator = ({
     const editValidateTimer = useRef<ReturnType<typeof setTimeout>>();
     // Remaining TaiGer AI quota (null while unknown / not gated).
     const [quota, setQuota] = useState<number | null>(null);
+    // Confirm dialog when regenerating with unchanged inputs (avoids wasting a
+    // credit + reshuffling a reviewed draft, while still allowing a deliberate re-roll).
+    const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
     // Pre-generation readiness (shown before the first draft exists).
     const [readiness, setReadiness] = useState<
         { key: string; ok: boolean }[] | null
@@ -567,6 +570,29 @@ const CVDraftGenerator = ({
                 })
                 .catch(() => {});
         }
+    };
+
+    // True when nothing that feeds generation has changed since the current draft
+    // (best-effort client check: a draft exists, notes match provenance, and CV
+    // Details / photo weren't flagged as changed). Generation has no server dedup,
+    // so an unchanged regenerate really spends a credit and may reshuffle.
+    const inputsUnchanged = (): boolean =>
+        Boolean(result) &&
+        !result?.meta.parseError &&
+        !result?.inputsChanged &&
+        notes.trim() === (result?.meta.editorNotes ?? '').trim();
+
+    const onGenerateClick = () => {
+        if (inputsUnchanged()) {
+            setRegenConfirmOpen(true);
+        } else {
+            onGenerate();
+        }
+    };
+
+    const onConfirmRegen = () => {
+        setRegenConfirmOpen(false);
+        onGenerate();
     };
 
     // Actually render the reviewed draft into the working .docx. Extracted so it
@@ -819,7 +845,7 @@ const CVDraftGenerator = ({
 
             <Button
                 variant="contained"
-                onClick={onGenerate}
+                onClick={onGenerateClick}
                 disabled={loading}
                 startIcon={
                     loading ? (
@@ -1211,6 +1237,32 @@ const CVDraftGenerator = ({
                                 onClick={onConfirmRender}
                             >
                                 {td('confirmCreate')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={regenConfirmOpen}
+                        onClose={() => setRegenConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('regenConfirmTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography variant="body2" color="text.secondary">
+                                {td('regenConfirmBody')}
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setRegenConfirmOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                onClick={onConfirmRegen}
+                            >
+                                {td('regenConfirmButton')}
                             </Button>
                         </DialogActions>
                     </Dialog>
