@@ -184,6 +184,7 @@
         "docxReady": "草稿已就緒",
         "attachSuccess": "已傳到 thread。",
         "attachStale": "草稿在產生 .docx 之後又有變更，請先重新產生再傳送。",
+        "attachThreadFinal": "此 thread 已標記為 final，請先重新開啟再附加新的 CV 草稿。",
         "attachFailed": "傳送失敗，請再試一次。",
         "attachDefaultMessage": "附上您的 CV 第一版草稿，請查看，若需調整請告訴我們。",
         "attachDialogTitle": "將 CV 草稿傳到 thread",

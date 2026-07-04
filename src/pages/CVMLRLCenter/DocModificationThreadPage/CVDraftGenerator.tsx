@@ -46,6 +46,8 @@ interface CVDraftGeneratorProps {
     programFullName?: string;
     editorRequirements?: string;
     documentsthreadId?: string;
+    // When the thread is final, attaching is blocked (reopen first).
+    isFinalVersion?: boolean;
     // Switch the parent tab view to CV Details (checklist / coverage deep-links).
     onNavigateToCvDetails?: () => void;
 }
@@ -403,6 +405,7 @@ const CVDraftGenerator = ({
     programFullName,
     editorRequirements,
     documentsthreadId,
+    isFinalVersion,
     onNavigateToCvDetails
 }: CVDraftGeneratorProps) => {
     const { t } = useTranslation();
@@ -610,6 +613,11 @@ const CVDraftGenerator = ({
                 setReused(false);
                 setAttachOpen(false);
                 setAttachError(td('attachStale'));
+            } else if (code === 'CV_DRAFT_THREAD_FINAL') {
+                // Terminal for the dialog — retrying won't help until the thread
+                // is reopened. Close it and surface the reason.
+                setAttachOpen(false);
+                setAttachError(td('attachThreadFinal'));
             } else {
                 setAttachError(msg);
             }
@@ -947,9 +955,11 @@ const CVDraftGenerator = ({
                                         </Button>
                                         <Tooltip
                                             title={
-                                                rendered
-                                                    ? ''
-                                                    : td('attachDisabledHint')
+                                                isFinalVersion
+                                                    ? td('attachThreadFinal')
+                                                    : rendered
+                                                      ? ''
+                                                      : td('attachDisabledHint')
                                             }
                                         >
                                             <span>
@@ -958,7 +968,9 @@ const CVDraftGenerator = ({
                                                     color="secondary"
                                                     onClick={openAttach}
                                                     disabled={
-                                                        rendering || !rendered
+                                                        rendering ||
+                                                        !rendered ||
+                                                        Boolean(isFinalVersion)
                                                     }
                                                 >
                                                     {td('attachToThread')}
@@ -1062,6 +1074,11 @@ const CVDraftGenerator = ({
                                 }
                                 disabled={attaching}
                             />
+                            {attachError ? (
+                                <Alert severity="warning" sx={{ mt: 1.5 }}>
+                                    {attachError}
+                                </Alert>
+                            ) : null}
                         </DialogContent>
                         <DialogActions>
                             <Button

@@ -1358,6 +1358,7 @@ const DocModificationThreadPage = ({
                                 degree={thread?.program_id?.degree}
                                 programFullName={docName}
                                 documentsthreadId={thread?._id?.toString()}
+                                isFinalVersion={Boolean(thread?.isFinalVersion)}
                                 onNavigateToCvDetails={() => {
                                     setValue(cvDetailsTabIndex);
                                     window.location.hash =
