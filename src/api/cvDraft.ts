@@ -1,4 +1,4 @@
-// API client for the AI-Assist CV first-draft skill.
+// API client for the AI-Assist CV draft skill.
 // Calls POST /api/ai-assist/students/:studentId/cv-draft which returns a
 // structured CVDraft plus a reviewer checklist (no docx yet). Mirrors the
 // backend contract in services/ai-assist/cv/types.ts.

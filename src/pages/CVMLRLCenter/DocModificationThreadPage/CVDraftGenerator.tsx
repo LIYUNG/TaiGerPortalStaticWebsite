@@ -445,7 +445,7 @@ const CVDraftGenerator = ({
     // Confirm dialog when regenerating with unchanged inputs (avoids wasting a
     // credit + reshuffling a reviewed draft, while still allowing a deliberate re-roll).
     const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
-    // Pre-generation readiness (shown before the first draft exists).
+    // Pre-generation readiness (shown before a draft exists).
     const [readiness, setReadiness] = useState<
         { key: string; ok: boolean }[] | null
     >(null);
@@ -700,7 +700,7 @@ const CVDraftGenerator = ({
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'CV_first_draft.docx';
+            a.download = 'CV_draft.docx';
             document.body.appendChild(a);
             a.click();
             a.remove();
