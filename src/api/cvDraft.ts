@@ -113,15 +113,13 @@ export interface CVDraftResult {
     // Set by getSavedCvDraft when the generation inputs (CV Details / photo)
     // changed since this draft was made — the UI prompts a regenerate (W3).
     inputsChanged?: boolean;
-    // Bounded history of previous drafts (newest first) — powers the regenerate
-    // diff and undo.
+    // Bounded changelog of previous drafts (newest first, last 10) — powers the
+    // per-step diff view. Server trims each entry to draft/source/savedAt.
     history?: Array<{
         draft: CVDraft;
         meta?: {
-            generatedAt?: string;
-            editedAt?: string;
-            model?: string;
-            // How that version was made: 'generate' | 'edit' | 'restore'.
+            // How that version was made: 'generate' | 'edit'. Legacy snapshots
+            // may still carry 'restore'; the UI maps unknown values generically.
             source?: string;
         };
         savedAt?: string;
@@ -325,7 +323,7 @@ export const getCvReadiness = (studentId: string) =>
 // drops any rendered .docx (the edited draft must be re-created before attaching).
 export const updateCvDraft = (
     documentsthreadId: string,
-    payload: { draft: CVDraft; degree?: string; source?: string }
+    payload: { draft: CVDraft; degree?: string }
 ) =>
     putData<SavedCvDraftResponse>(
         `/api/ai-assist/threads/${documentsthreadId}/cv-draft`,

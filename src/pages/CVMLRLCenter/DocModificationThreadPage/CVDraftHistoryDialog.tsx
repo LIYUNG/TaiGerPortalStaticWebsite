@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
     Button,
-    Chip,
     Collapse,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Divider,
+    IconButton,
     Stack,
+    Tooltip,
     Typography
 } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import type { CVDraft } from '@/api';
 
@@ -20,9 +22,6 @@ interface HistoryEntry {
     draft: CVDraft;
     meta?: {
         source?: string;
-        model?: string;
-        generatedAt?: string;
-        editedAt?: string;
     };
     savedAt?: string;
 }
@@ -30,37 +29,45 @@ interface HistoryEntry {
 interface Props {
     open: boolean;
     onClose: () => void;
+    // The live draft — the successor of the newest history entry (entry 0).
     current: CVDraft;
     history: HistoryEntry[];
-    restoring?: boolean;
-    onRestore: (draft: CVDraft) => void;
+    // Pre-expand a row when opened (e.g. the newest, from the regenerate banner).
+    initialExpanded?: number | null;
 }
 
 const MAX_CHANGES = 40;
+// Sources this build writes. Anything else (e.g. a legacy 'restore' snapshot, or
+// a missing source) is labelled generically instead of rendering a missing key.
+const KNOWN_SOURCES = ['generate', 'edit'];
 
 /**
- * Version history browser: lists every kept draft snapshot (newest first) with
- * its source/time, a lazily-computed FIELD-LEVEL diff vs the current draft
- * (what restoring would change), and a Restore action. Restore is non-destructive
- * — the server snapshots the current draft first.
+ * Read-only change log: for each kept snapshot (newest first, last 10) it shows
+ * what THAT step changed — a field-level diff read old -> new against the version
+ * that superseded it. No restore; recovery is per-field copy. The .docx files
+ * attached to the thread remain the durable, permanent record.
  */
 const CVDraftHistoryDialog = ({
     open,
     onClose,
     current,
     history,
-    restoring,
-    onRestore
+    initialExpanded = null
 }: Props) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
     const dv = (k: string) => t(`draftView.${k}`, { ns: 'cvmlrl' });
-    const [expanded, setExpanded] = useState<number | null>(null);
+    const [expanded, setExpanded] = useState<number | null>(initialExpanded);
+
+    // Sync the pre-expanded row each time the dialog opens.
+    useEffect(() => {
+        if (open) setExpanded(initialExpanded ?? null);
+    }, [open, initialExpanded]);
 
     const s = (v: unknown) => (v === undefined || v === null ? '' : String(v));
 
-    // Field-level diff between the current draft (a) and a target version (b):
-    // each entry reads current → target, i.e. what a restore would change.
+    // Field-level diff between an older draft (a) and its successor (b): each
+    // entry reads a -> b (old -> new), i.e. what that single step changed.
     const diffDrafts = (
         a: CVDraft,
         b: CVDraft
@@ -174,13 +181,25 @@ const CVDraftHistoryDialog = ({
         return out;
     };
 
-    const sourceLabel = (src?: string) => td(`src_${src || 'generate'}`);
+    const sourceLabel = (src?: string) =>
+        td(KNOWN_SOURCES.includes(src || '') ? `src_${src}` : 'src_updated');
     const when = (e: HistoryEntry) =>
         e.savedAt ? new Date(e.savedAt).toLocaleString() : '';
-    const total = history.length + 1;
 
-    const renderChanges = (entry: HistoryEntry) => {
-        const changes = diffDrafts(current, entry.draft);
+    // The successor of entry i is the version that replaced it: the previous
+    // (newer) entry, or the live draft for the newest entry (i === 0).
+    const successorOf = (i: number): CVDraft =>
+        i === 0 ? current : history[i - 1].draft;
+
+    const copyValue = (value: string) => {
+        if (navigator?.clipboard?.writeText) {
+            navigator.clipboard.writeText(value).catch(() => {});
+        }
+    };
+
+    const renderChanges = (
+        changes: { label: string; from: string; to: string }[]
+    ) => {
         if (!changes.length) {
             return (
                 <Typography variant="caption" color="text.secondary">
@@ -192,17 +211,34 @@ const CVDraftHistoryDialog = ({
         return (
             <Box sx={{ pl: 1 }}>
                 {shown.map((c, i) => (
-                    <Typography
+                    <Stack
                         key={i}
-                        variant="caption"
-                        sx={{ display: 'block' }}
+                        direction="row"
+                        alignItems="flex-start"
+                        spacing={0.5}
                     >
-                        <b>{c.label}:</b>{' '}
-                        <span style={{ textDecoration: 'line-through' }}>
-                            {c.from || '∅'}
-                        </span>{' '}
-                        → {c.to || '∅'}
-                    </Typography>
+                        <Typography
+                            variant="caption"
+                            sx={{ display: 'block', flex: 1 }}
+                        >
+                            <b>{c.label}:</b>{' '}
+                            <span style={{ textDecoration: 'line-through' }}>
+                                {c.from || '∅'}
+                            </span>{' '}
+                            → {c.to || '∅'}
+                        </Typography>
+                        {c.from ? (
+                            <Tooltip title={td('copyPrev')}>
+                                <IconButton
+                                    size="small"
+                                    sx={{ p: 0.25 }}
+                                    onClick={() => copyValue(c.from)}
+                                >
+                                    <ContentCopyIcon sx={{ fontSize: 14 }} />
+                                </IconButton>
+                            </Tooltip>
+                        ) : null}
+                    </Stack>
                 ))}
                 {changes.length > MAX_CHANGES ? (
                     <Typography variant="caption" color="text.secondary">
@@ -220,21 +256,9 @@ const CVDraftHistoryDialog = ({
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
             <DialogTitle>{td('historyTitle')}</DialogTitle>
             <DialogContent dividers>
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                    sx={{ mb: 1 }}
-                >
-                    <Chip size="small" color="success" label={`v${total}`} />
-                    <Typography variant="body2">
-                        {td('historyCurrent')}
-                    </Typography>
-                </Stack>
-                <Divider />
                 {history.map((entry, i) => {
-                    const version = total - 1 - i;
                     const isOpen = expanded === i;
+                    const changes = diffDrafts(entry.draft, successorOf(i));
                     return (
                         <Box key={i} sx={{ py: 1 }}>
                             <Stack
@@ -243,7 +267,6 @@ const CVDraftHistoryDialog = ({
                                 spacing={1}
                                 flexWrap="wrap"
                             >
-                                <Chip size="small" label={`v${version}`} />
                                 <Typography variant="body2">
                                     {sourceLabel(entry.meta?.source)}
                                 </Typography>
@@ -254,6 +277,17 @@ const CVDraftHistoryDialog = ({
                                     {when(entry)}
                                 </Typography>
                                 <Box sx={{ flex: 1 }} />
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
+                                    {changes.length
+                                        ? t('aiDraft.historyFieldsChanged', {
+                                              ns: 'cvmlrl',
+                                              n: changes.length
+                                          })
+                                        : td('historyNoDiff')}
+                                </Typography>
                                 <Button
                                     size="small"
                                     onClick={() =>
@@ -264,25 +298,23 @@ const CVDraftHistoryDialog = ({
                                         ? td('historyHide')
                                         : td('historyView')}
                                 </Button>
-                                <Button
-                                    size="small"
-                                    variant="outlined"
-                                    color="warning"
-                                    disabled={restoring}
-                                    onClick={() => onRestore(entry.draft)}
-                                >
-                                    {td('historyRestore')}
-                                </Button>
                             </Stack>
                             <Collapse in={isOpen}>
                                 <Box sx={{ mt: 0.5 }}>
-                                    {renderChanges(entry)}
+                                    {renderChanges(changes)}
                                 </Box>
                             </Collapse>
                             <Divider sx={{ mt: 1 }} />
                         </Box>
                     );
                 })}
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                >
+                    {td('historyFootnote')}
+                </Typography>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{td('cancel')}</Button>
