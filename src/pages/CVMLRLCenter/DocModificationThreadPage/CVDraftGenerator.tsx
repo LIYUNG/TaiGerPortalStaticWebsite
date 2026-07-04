@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -28,8 +28,10 @@ import {
     getCvReadiness,
     downloadCvDraft,
     updateCvDraft,
+    validateCvDraft,
     type CVDraft,
     type CVDraftResult,
+    type CVValidationResult,
     type CVChecklistItem,
     type CVEducation,
     type CVExperience
@@ -433,6 +435,10 @@ const CVDraftGenerator = ({
     const [editing, setEditing] = useState(false);
     const [savingEdit, setSavingEdit] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
+    // Live checklist while inline-editing (debounced server validation).
+    const [editValidation, setEditValidation] =
+        useState<CVValidationResult | null>(null);
+    const editValidateTimer = useRef<ReturnType<typeof setTimeout>>();
     // Pre-generation readiness (shown before the first draft exists).
     const [readiness, setReadiness] = useState<
         { key: string; ok: boolean }[] | null
@@ -518,13 +524,25 @@ const CVDraftGenerator = ({
                 editorRequirements: mergedRequirements,
                 documentsthreadId
             });
-            if (resp?.success) {
+            if (resp?.success && resp.data?.meta?.parseError) {
+                // Server didn't persist or charge — keep the existing good draft
+                // on screen and surface a retry error instead of replacing it with
+                // the empty parse-failure draft.
+                setError(td('parseFailedBody'));
+            } else if (resp?.success) {
                 setResult(resp.data);
             } else {
                 setError(td('failed'));
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : td('failed'));
+            const status = (e as { status?: number })?.status;
+            setError(
+                status === 403
+                    ? td('quotaExceeded')
+                    : e instanceof Error
+                      ? e.message
+                      : td('failed')
+            );
         } finally {
             setLoading(false);
         }
@@ -665,6 +683,7 @@ const CVDraftGenerator = ({
                 setReused(false);
                 setAttached(false);
                 setEditing(false);
+                setEditValidation(null);
             } else {
                 setEditError(td('editFailed'));
             }
@@ -673,6 +692,21 @@ const CVDraftGenerator = ({
         } finally {
             setSavingEdit(false);
         }
+    };
+
+    // Debounced live re-validation while inline-editing, so the checklist stays
+    // honest as the editor types (uses the deterministic validate endpoint).
+    const onEditDraftChange = (d: CVDraft) => {
+        if (editValidateTimer.current) {
+            clearTimeout(editValidateTimer.current);
+        }
+        editValidateTimer.current = setTimeout(() => {
+            validateCvDraft(studentId, { draft: d, fileType, degree })
+                .then((r) => {
+                    if (r?.success) setEditValidation(r.data.validation);
+                })
+                .catch(() => {});
+        }, 500);
     };
 
     // Which top-level draft sections differ from the previous version (history[0]).
@@ -856,7 +890,11 @@ const CVDraftGenerator = ({
                                 </Alert>
                             ) : null}
                             <Checklist
-                                items={result.validation.items}
+                                items={
+                                    editing && editValidation
+                                        ? editValidation.items
+                                        : result.validation.items
+                                }
                                 onNavigate={onNavigateToCvDetails}
                             />
                             <Coverage
@@ -902,9 +940,11 @@ const CVDraftGenerator = ({
                                         initial={result.draft}
                                         saving={savingEdit}
                                         onSave={onSaveEdits}
+                                        onChange={onEditDraftChange}
                                         onCancel={() => {
                                             setEditing(false);
                                             setEditError(null);
+                                            setEditValidation(null);
                                         }}
                                     />
                                 </Box>
@@ -923,6 +963,7 @@ const CVDraftGenerator = ({
                                             onClick={() => {
                                                 setEditing(true);
                                                 setEditError(null);
+                                                setEditValidation(null);
                                             }}
                                             disabled={rendering}
                                         >

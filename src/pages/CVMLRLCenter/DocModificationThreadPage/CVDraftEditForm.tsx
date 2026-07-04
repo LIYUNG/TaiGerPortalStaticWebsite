@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
@@ -46,6 +46,8 @@ interface EditProps {
     saving?: boolean;
     onSave: (draft: CVDraft) => void;
     onCancel: () => void;
+    // Emitted on every change so the parent can live-validate (debounced).
+    onChange?: (draft: CVDraft) => void;
 }
 
 /**
@@ -54,7 +56,13 @@ interface EditProps {
  * add / remove experience bullets. Adding whole education/experience entities is
  * intentionally NOT supported here — that happens in CV Details + regenerate.
  */
-const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
+const CVDraftEditForm = ({
+    initial,
+    saving,
+    onSave,
+    onCancel,
+    onChange
+}: EditProps) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
     const dv = (k: string) => t(`draftView.${k}`, { ns: 'cvmlrl' });
@@ -62,6 +70,11 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
     const [d, setD] = useState<CVDraft>(() =>
         JSON.parse(JSON.stringify(initial))
     );
+    // Notify the parent of edits so it can live-validate the working draft.
+    useEffect(() => {
+        onChange?.(d);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [d]);
 
     const field = (
         label: string,
@@ -169,17 +182,17 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                         key={i}
                         sx={{ pl: 1, mb: 1, borderLeft: '2px solid #eee' }}
                     >
-                        {field(dv('university'), e.period, (v) =>
+                        {field(dv('period'), e.period, (v) =>
                             setEdu(group, i, 'period', v)
                         )}
-                        {field(dv('name'), e.institution, (v) =>
+                        {field(dv('institution'), e.institution, (v) =>
                             setEdu(group, i, 'institution', v)
                         )}
                         <Stack direction="row" spacing={1}>
-                            {field(dv('address'), e.city, (v) =>
+                            {field(dv('city'), e.city, (v) =>
                                 setEdu(group, i, 'city', v)
                             )}
-                            {field(dv('nationality'), e.country, (v) =>
+                            {field(dv('country'), e.country, (v) =>
                                 setEdu(group, i, 'country', v)
                             )}
                         </Stack>
@@ -224,10 +237,10 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                 setPersonal('fullName', v)
             )}
             <Stack direction="row" spacing={1}>
-                {field(dv('birthdayPlace'), d.personal.birthday, (v) =>
+                {field(dv('birthday'), d.personal.birthday, (v) =>
                     setPersonal('birthday', v)
                 )}
-                {field(dv('nationality'), d.personal.birthplace, (v) =>
+                {field(dv('birthplace'), d.personal.birthplace, (v) =>
                     setPersonal('birthplace', v)
                 )}
             </Stack>
@@ -258,7 +271,7 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                             key={i}
                             sx={{ pl: 1, mb: 1, borderLeft: '2px solid #eee' }}
                         >
-                            {field(dv('university'), x.period, (v) =>
+                            {field(dv('period'), x.period, (v) =>
                                 setExp(i, 'period', v)
                             )}
                             <Stack direction="row" spacing={1}>
@@ -270,10 +283,10 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                                 )}
                             </Stack>
                             <Stack direction="row" spacing={1}>
-                                {field(dv('address'), x.city, (v) =>
+                                {field(dv('city'), x.city, (v) =>
                                     setExp(i, 'city', v)
                                 )}
-                                {field(dv('nationality'), x.country, (v) =>
+                                {field(dv('country'), x.country, (v) =>
                                     setExp(i, 'country', v)
                                 )}
                             </Stack>
@@ -324,17 +337,15 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                     {d.awards.map((a, i) => (
                         <Box key={i} sx={{ pl: 1, mb: 1 }}>
                             <Stack direction="row" spacing={1}>
-                                {field(dv('gpa'), a.date, (v) =>
+                                {field(dv('date'), a.date, (v) =>
                                     setAward(i, 'date', v)
                                 )}
-                                {field(dv('awards'), a.title, (v) =>
+                                {field(dv('title'), a.title, (v) =>
                                     setAward(i, 'title', v)
                                 )}
                             </Stack>
-                            {field(
-                                dv('specialActivities'),
-                                a.description,
-                                (v) => setAward(i, 'description', v)
+                            {field(dv('description'), a.description, (v) =>
+                                setAward(i, 'description', v)
                             )}
                         </Box>
                     ))}
@@ -352,7 +363,7 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                             <TextField
                                 size="small"
                                 select
-                                label={dv('skills')}
+                                label={dv('level')}
                                 value={
                                     LANGUAGE_LEVELS.includes(
                                         l.level.toLowerCase()
@@ -372,7 +383,7 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                                     </MenuItem>
                                 ))}
                             </TextField>
-                            {field(dv('gsat'), l.testScore, (v) =>
+                            {field(dv('testScore'), l.testScore, (v) =>
                                 setLang(i, 'testScore', v)
                             )}
                         </Stack>
@@ -391,7 +402,7 @@ const CVDraftEditForm = ({ initial, saving, onSave, onCancel }: EditProps) => {
                             <TextField
                                 size="small"
                                 select
-                                label={dv('skills')}
+                                label={dv('level')}
                                 value={
                                     COMPUTER_LEVELS.includes(
                                         c.level.toLowerCase()
