@@ -102,6 +102,9 @@ export interface CVDraftResult {
         // Editor notes that fed this draft (provenance) — used to restore the
         // notes box after a refresh / tab switch.
         editorNotes?: string;
+        // How the live draft was last produced: 'generate' | 'edit'. Used to
+        // label the newest change-log step.
+        source?: string;
     };
     // True when the student has a passport photo on file (AI Draft coverage).
     hasPhoto?: boolean;

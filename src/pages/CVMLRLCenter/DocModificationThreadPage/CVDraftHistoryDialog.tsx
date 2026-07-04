@@ -32,6 +32,8 @@ interface Props {
     // The live draft — the successor of the newest history entry (entry 0).
     current: CVDraft;
     history: HistoryEntry[];
+    // Source of the live draft ('generate' | 'edit') — labels the newest step.
+    currentSource?: string;
     // Pre-expand a row when opened (e.g. the newest, from the regenerate banner).
     initialExpanded?: number | null;
 }
@@ -52,6 +54,7 @@ const CVDraftHistoryDialog = ({
     onClose,
     current,
     history,
+    currentSource,
     initialExpanded = null
 }: Props) => {
     const { t } = useTranslation();
@@ -183,6 +186,10 @@ const CVDraftHistoryDialog = ({
 
     const sourceLabel = (src?: string) =>
         td(KNOWN_SOURCES.includes(src || '') ? `src_${src}` : 'src_updated');
+    // A step's author is the source of the version it PRODUCED (the successor),
+    // not the older snapshot — so an edit of the AI draft reads "edited by you".
+    const stepSource = (i: number): string | undefined =>
+        i === 0 ? currentSource : history[i - 1].meta?.source;
     const when = (e: HistoryEntry) =>
         e.savedAt ? new Date(e.savedAt).toLocaleString() : '';
 
@@ -268,7 +275,7 @@ const CVDraftHistoryDialog = ({
                                 flexWrap="wrap"
                             >
                                 <Typography variant="body2">
-                                    {sourceLabel(entry.meta?.source)}
+                                    {sourceLabel(stepSource(i))}
                                 </Typography>
                                 <Typography
                                     variant="caption"

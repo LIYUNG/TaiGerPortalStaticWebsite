@@ -13,6 +13,7 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
+    IconButton,
     Link,
     Stack,
     TextField,
@@ -1321,6 +1322,7 @@ const CVDraftGenerator = ({
                             onClose={() => setHistoryOpen(false)}
                             current={result.draft}
                             history={result.history}
+                            currentSource={result.meta.source}
                             initialExpanded={historyExpand}
                         />
                     ) : null}
