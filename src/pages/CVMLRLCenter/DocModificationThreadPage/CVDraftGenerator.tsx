@@ -54,9 +54,40 @@ interface CVDraftGeneratorProps {
     documentsthreadId?: string;
     // When the thread is final, attaching is blocked (reopen first).
     isFinalVersion?: boolean;
-    // Switch the parent tab view to CV Details (checklist / coverage deep-links).
-    onNavigateToCvDetails?: () => void;
+    // Switch the parent tab view to CV Details, optionally scrolling to a
+    // section anchor (checklist / coverage deep-links).
+    onNavigateToCvDetails?: (anchor?: string) => void;
+    // Post the "request missing info" message straight to the thread
+    // (student-visible) — reuses the parent's discussion message poster.
+    onPostToThread?: (text: string) => Promise<void>;
 }
+
+// Maps a checklist section or coverage/readiness key to a CV Details form
+// section anchor (see CVProfileForm section ids). Unmapped keys (education,
+// system, photo) return undefined — the tab still opens, just at the top.
+const CV_DETAILS_ANCHOR: Record<string, string> = {
+    // Checklist sections.
+    personal: 'personal',
+    experience: 'experience',
+    timeline: 'experience',
+    awards: 'awards',
+    skills: 'skills',
+    hobbies: 'interests',
+    // education / language have no structured field in the CV Details form, so
+    // send the editor to the Additional Information box (which does feed the CV).
+    education: 'additional',
+    language: 'additional',
+    // Coverage / readiness chip keys.
+    name: 'personal',
+    contact: 'personal',
+    birthNationality: 'personal',
+    university: 'additional',
+    highSchool: 'additional',
+    languages: 'skills',
+    computer: 'skills',
+    otherSkills: 'skills'
+};
+const cvAnchor = (key: string): string | undefined => CV_DETAILS_ANCHOR[key];
 
 const Field = ({ label, value }: { label: string; value?: string }) =>
     value ? (
@@ -136,7 +167,7 @@ const Checklist = ({
     onNavigate
 }: {
     items: CVChecklistItem[];
-    onNavigate?: () => void;
+    onNavigate?: (anchor?: string) => void;
 }) => {
     const { t } = useTranslation();
     const errors = items.filter((i) => i.level === 'error');
@@ -170,7 +201,8 @@ const Checklist = ({
                                 key={i}
                                 onClick={
                                     clickable(it.section)
-                                        ? onNavigate
+                                        ? () =>
+                                              onNavigate?.(cvAnchor(it.section))
                                         : undefined
                                 }
                                 title={
@@ -200,7 +232,8 @@ const Checklist = ({
                                 key={i}
                                 onClick={
                                     clickable(it.section)
-                                        ? onNavigate
+                                        ? () =>
+                                              onNavigate?.(cvAnchor(it.section))
                                         : undefined
                                 }
                                 title={
@@ -318,7 +351,7 @@ const Coverage = ({
 }: {
     draft: CVDraft;
     hasPhoto?: boolean;
-    onNavigate?: () => void;
+    onNavigate?: (anchor?: string) => void;
 }) => {
     const { t } = useTranslation();
     const cv = (k: string) => t(`coverage.${k}`, { ns: 'cvmlrl' });
@@ -369,7 +402,11 @@ const Coverage = ({
                             variant={v ? 'filled' : 'outlined'}
                             color={v ? 'success' : 'default'}
                             label={`${v ? '✓' : '–'} ${cv(k)}`}
-                            onClick={isClickable ? onNavigate : undefined}
+                            onClick={
+                                isClickable
+                                    ? () => onNavigate?.(cvAnchor(k))
+                                    : undefined
+                            }
                             clickable={isClickable}
                         />
                     );
@@ -422,7 +459,8 @@ const CVDraftGenerator = ({
     editorRequirements,
     documentsthreadId,
     isFinalVersion,
-    onNavigateToCvDetails
+    onNavigateToCvDetails,
+    onPostToThread
 }: CVDraftGeneratorProps) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
@@ -467,6 +505,9 @@ const CVDraftGenerator = ({
     const [requestOpen, setRequestOpen] = useState(false);
     const [requestMsg, setRequestMsg] = useState('');
     const [requestCopied, setRequestCopied] = useState(false);
+    const [postingRequest, setPostingRequest] = useState(false);
+    const [requestSendConfirmOpen, setRequestSendConfirmOpen] = useState(false);
+    const [requestError, setRequestError] = useState<string | null>(null);
     // Read-only change log dialog. `historyExpand` pre-expands a row when opened
     // from the regenerate banner (newest = 0); null when opened from the button.
     const [historyOpen, setHistoryOpen] = useState(false);
@@ -817,6 +858,25 @@ const CVDraftGenerator = ({
         }
     };
 
+    // Post the request straight into the discussion thread (student-visible),
+    // via the parent's message poster. Confirmed first.
+    const sendRequestToThread = async () => {
+        if (!onPostToThread) return;
+        setPostingRequest(true);
+        setRequestError(null);
+        try {
+            await onPostToThread(requestMsg);
+            setRequestSendConfirmOpen(false);
+            setRequestOpen(false);
+        } catch (e) {
+            setRequestError(
+                e instanceof Error ? e.message : td('requestSendFailed')
+            );
+        } finally {
+            setPostingRequest(false);
+        }
+    };
+
     return (
         <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Stack
@@ -886,7 +946,12 @@ const CVDraftGenerator = ({
                                     { ns: 'cvmlrl' }
                                 )}`}
                                 onClick={
-                                    !r.ok ? onNavigateToCvDetails : undefined
+                                    !r.ok
+                                        ? () =>
+                                              onNavigateToCvDetails?.(
+                                                  cvAnchor(r.key)
+                                              )
+                                        : undefined
                                 }
                                 clickable={
                                     !r.ok && Boolean(onNavigateToCvDetails)
@@ -1350,15 +1415,68 @@ const CVDraftGenerator = ({
                                 value={requestMsg}
                                 onChange={(e) => setRequestMsg(e.target.value)}
                             />
+                            {requestError ? (
+                                <Alert severity="error" sx={{ mt: 1 }}>
+                                    {requestError}
+                                </Alert>
+                            ) : null}
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setRequestOpen(false)}>
                                 {td('cancel')}
                             </Button>
-                            <Button variant="contained" onClick={copyRequest}>
+                            <Button onClick={copyRequest}>
                                 {requestCopied
                                     ? td('requestCopied')
                                     : td('requestCopy')}
+                            </Button>
+                            {onPostToThread ? (
+                                <Button
+                                    variant="contained"
+                                    onClick={() =>
+                                        setRequestSendConfirmOpen(true)
+                                    }
+                                    disabled={
+                                        postingRequest || !requestMsg.trim()
+                                    }
+                                >
+                                    {td('requestSend')}
+                                </Button>
+                            ) : null}
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={requestSendConfirmOpen}
+                        onClose={() => setRequestSendConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="xs"
+                    >
+                        <DialogTitle>
+                            {td('requestSendConfirmTitle')}
+                        </DialogTitle>
+                        <DialogContent>
+                            <Typography variant="body2" color="text.secondary">
+                                {td('requestSendConfirmBody')}
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onClick={() => setRequestSendConfirmOpen(false)}
+                                disabled={postingRequest}
+                            >
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={sendRequestToThread}
+                                disabled={postingRequest}
+                            >
+                                {postingRequest ? (
+                                    <CircularProgress size={18} />
+                                ) : (
+                                    td('requestSendButton')
+                                )}
                             </Button>
                         </DialogActions>
                     </Dialog>
