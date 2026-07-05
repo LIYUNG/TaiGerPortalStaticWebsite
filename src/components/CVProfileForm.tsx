@@ -33,6 +33,10 @@ import {
 
 interface CVProfileFormProps {
     studentId: string;
+    // Deep-link: section anchor to scroll to (e.g. 'experience'). scrollSignal
+    // changes on each request so re-navigating to the same anchor re-scrolls.
+    scrollTo?: string;
+    scrollSignal?: number;
 }
 
 const NS = 'cvmlrl';
@@ -78,7 +82,11 @@ const composePeriod = (start: string, end: string, present: boolean) => {
     return `${s} – ${e}`;
 };
 
-const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
+const CVProfileForm = ({
+    studentId,
+    scrollTo,
+    scrollSignal
+}: CVProfileFormProps) => {
     const { t } = useTranslation();
     const tp = (k: string) => t(`cvProfile.${k}`, { ns: NS });
 
@@ -109,6 +117,45 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentId]);
 
+    // Deep-link: when the AI Draft checklist sends the editor here with a
+    // section anchor, scroll to it and briefly highlight it. This form and the
+    // sibling cards above it (photo, additional info) all load async, so we
+    // poll for the target element rather than depend on a single load flag, and
+    // re-scroll shortly after in case a late-loading card shifts the layout.
+    useEffect(() => {
+        if (!scrollTo) return;
+        let cancelled = false;
+        const timers: ReturnType<typeof setTimeout>[] = [];
+        const doScroll = (el: HTMLElement) =>
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        let tries = 0;
+        const attempt = () => {
+            if (cancelled) return;
+            const el = document.getElementById(`cvsec-${scrollTo}`);
+            if (!el) {
+                if (tries++ < 25) timers.push(setTimeout(attempt, 80));
+                return;
+            }
+            doScroll(el);
+            const prev = el.style.backgroundColor;
+            el.style.transition = 'background-color 0.4s ease';
+            el.style.backgroundColor = 'rgba(255, 214, 0, 0.35)';
+            // Re-scroll once the sibling cards above have likely settled.
+            timers.push(setTimeout(() => !cancelled && doScroll(el), 500));
+            timers.push(
+                setTimeout(() => {
+                    if (!cancelled) el.style.backgroundColor = prev;
+                }, 1600)
+            );
+        };
+        attempt();
+        return () => {
+            cancelled = true;
+            timers.forEach(clearTimeout);
+        };
+         
+    }, [scrollTo, scrollSignal]);
+
     const onSave = async () => {
         setSaving(true);
         setError(null);
@@ -127,8 +174,18 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
         }
     };
 
-    const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mt: 2, mb: 1 }}>
+    const SectionTitle = ({
+        children,
+        id
+    }: {
+        children: React.ReactNode;
+        id?: string;
+    }) => (
+        <Typography
+            id={id}
+            variant="subtitle1"
+            sx={{ fontWeight: 600, mt: 2, mb: 1 }}
+        >
             {children}
         </Typography>
     );
@@ -193,7 +250,9 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
                 {tp('subtitle')}
             </Typography>
 
-            <SectionTitle>{tp('personalInformation')}</SectionTitle>
+            <SectionTitle id="cvsec-personal">
+                {tp('personalInformation')}
+            </SectionTitle>
             <Grid container spacing={1}>
                 {(
                     ['nationality', 'birthplace', 'address', 'phone'] as const
@@ -210,7 +269,9 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
                 ))}
             </Grid>
 
-            <SectionTitle>{tp('practicalExperience')}</SectionTitle>
+            <SectionTitle id="cvsec-experience">
+                {tp('practicalExperience')}
+            </SectionTitle>
             {data.professional_experience.map((x, i) => {
                 const p = parsePeriod(x.period);
                 return (
@@ -348,7 +409,7 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
                 {tp('addExperience')}
             </Button>
 
-            <SectionTitle>{tp('awards')}</SectionTitle>
+            <SectionTitle id="cvsec-awards">{tp('awards')}</SectionTitle>
             {data.awards.map((a, i) => (
                 <Grid
                     container
@@ -409,7 +470,7 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
                 {tp('addAward')}
             </Button>
 
-            <SectionTitle>{tp('skills')}</SectionTitle>
+            <SectionTitle id="cvsec-skills">{tp('skills')}</SectionTitle>
             {(data.skills.computer ?? []).map((c, i) => (
                 <Grid
                     container
@@ -517,7 +578,9 @@ const CVProfileForm = ({ studentId }: CVProfileFormProps) => {
                 />
             </Box>
 
-            <SectionTitle>{tp('hobbiesInterests')}</SectionTitle>
+            <SectionTitle id="cvsec-interests">
+                {tp('hobbiesInterests')}
+            </SectionTitle>
             <Grid container spacing={1}>
                 {(
                     [

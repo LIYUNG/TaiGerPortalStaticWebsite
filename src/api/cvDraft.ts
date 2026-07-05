@@ -1,4 +1,4 @@
-// API client for the AI-Assist CV first-draft skill.
+// API client for the AI-Assist CV draft skill.
 // Calls POST /api/ai-assist/students/:studentId/cv-draft which returns a
 // structured CVDraft plus a reviewer checklist (no docx yet). Mirrors the
 // backend contract in services/ai-assist/cv/types.ts.
@@ -94,14 +94,46 @@ export interface CVDraftResult {
         model: string;
         studentId: string;
         programId?: string;
+        degree?: string;
         generatedAt: string;
+        // Set when the AI returned an unparseable draft — the draft is empty and
+        // the UI should show a retry state (not a checklist of spurious errors).
+        parseError?: string;
+        // Editor notes that fed this draft (provenance) — used to restore the
+        // notes box after a refresh / tab switch.
+        editorNotes?: string;
+        // How the live draft was last produced: 'generate' | 'edit'. Used to
+        // label the newest change-log step.
+        source?: string;
     };
+    // True when the student has a passport photo on file (AI Draft coverage).
+    hasPhoto?: boolean;
+    // Restored by getSavedCvDraft: whether the persisted rendered .docx is still
+    // current for this draft, and the file to attach (so the AI Draft tab can
+    // re-enable Attach after a refresh / tab switch without re-rendering).
+    renderedCurrent?: boolean;
+    rendered?: { name: string; path: string; photoEmbedded?: boolean } | null;
+    // Set by getSavedCvDraft when the generation inputs (CV Details / photo)
+    // changed since this draft was made — the UI prompts a regenerate (W3).
+    inputsChanged?: boolean;
+    // Bounded changelog of previous drafts (newest first, last 10) — powers the
+    // per-step diff view. Server trims each entry to draft/source/savedAt.
+    history?: Array<{
+        draft: CVDraft;
+        meta?: {
+            // How that version was made: 'generate' | 'edit'. Legacy snapshots
+            // may still carry 'restore'; the UI maps unknown values generically.
+            source?: string;
+        };
+        savedAt?: string;
+    }>;
 }
 
 export interface GenerateCVDraftPayload {
     fileType?: string;
     programId?: string;
     programFullName?: string;
+    degree?: string;
     editorRequirements?: string;
     documentsthreadId?: string;
 }
@@ -196,7 +228,17 @@ export const updateStudentCvProfile = (
 
 export interface RenderCvDraftResponse {
     success: boolean;
-    data: { name: string; path: string };
+    // `hash` fingerprints the rendered draft; `reused` is true when the server
+    // skipped re-rendering because the draft was unchanged.
+    data: {
+        name: string;
+        path: string;
+        hash?: string;
+        reused?: boolean;
+        // False when a passport photo existed but could not be embedded
+        // (unsupported format); undefined when no photo was on file.
+        photoEmbedded?: boolean;
+    };
 }
 
 // Stage B: render the reviewed CVDraft into a docx and attach it to the thread.
@@ -209,6 +251,24 @@ export const renderCvDraft = (
         payload
     );
 
+export interface AttachCvDraftResponse {
+    success: boolean;
+    // photoEmbedded is false when a photo existed but couldn't be embedded.
+    data: { name: string; path: string; photoEmbedded?: boolean };
+}
+
+// Attach the already-rendered docx to the thread as a student-visible message
+// with an editor-supplied note. Rejects (409) if the draft changed since the
+// last render — regenerate first.
+export const attachCvDraftToThread = (
+    documentsthreadId: string,
+    payload: { draft: CVDraft; message: string }
+) =>
+    postData<AttachCvDraftResponse>(
+        `/api/ai-assist/threads/${documentsthreadId}/cv-draft/attach`,
+        payload
+    );
+
 export interface SavedCvDraftResponse {
     success: boolean;
     data: CVDraftResult | null;
@@ -218,6 +278,59 @@ export interface SavedCvDraftResponse {
 export const getSavedCvDraft = (documentsthreadId: string) =>
     getData<SavedCvDraftResponse>(
         `/api/ai-assist/threads/${documentsthreadId}/cv-draft`
+    );
+
+export interface ValidateCvDraftResponse {
+    success: boolean;
+    data: { validation: CVValidationResult };
+}
+
+// Re-run the deterministic checklist over an editor-edited draft (no LLM, no
+// persistence) so the checklist stays honest after inline edits.
+export const validateCvDraft = (
+    studentId: string,
+    payload: { draft: CVDraft; fileType?: string; degree?: string }
+) =>
+    postData<ValidateCvDraftResponse>(
+        `/api/ai-assist/students/${studentId}/cv-draft/validate`,
+        payload
+    );
+
+export interface CvReadinessItem {
+    key: string;
+    ok: boolean;
+}
+export interface CvReadinessResponse {
+    success: boolean;
+    data: { readiness: CvReadinessItem[] };
+}
+
+export interface AiQuotaResponse {
+    success: boolean;
+    data: { quota: number | null; canUse: boolean };
+}
+
+// The current user's remaining TaiGer AI quota (for the "uses 1 credit" microcopy).
+export const getMyAiQuota = () =>
+    getData<AiQuotaResponse>(`/api/ai-assist/ai-quota`);
+
+// Pre-generation readiness: which CV sections the profile can already fill,
+// computed server-side from the same knownFacts the generator uses. Lets the AI
+// Draft tab show gaps BEFORE spending an AI credit.
+export const getCvReadiness = (studentId: string) =>
+    getData<CvReadinessResponse>(
+        `/api/ai-assist/students/${studentId}/cv-draft/readiness`
+    );
+
+// Persist editor inline edits to the reviewed draft. Re-validates server-side and
+// drops any rendered .docx (the edited draft must be re-created before attaching).
+export const updateCvDraft = (
+    documentsthreadId: string,
+    payload: { draft: CVDraft; degree?: string }
+) =>
+    putData<SavedCvDraftResponse>(
+        `/api/ai-assist/threads/${documentsthreadId}/cv-draft`,
+        payload
     );
 
 // Render + stream the docx straight back as a download (no S3 needed).
@@ -238,4 +351,33 @@ export const downloadCvDraft = async (
         throw new Error(`Download failed (${resp.status})`);
     }
     return resp.blob();
+};
+
+// --- CV Details: passport photo (profile doc "Passport_Photo") ---
+
+// Fetch the student's passport photo as a Blob for preview. Throws on 404 (none).
+export const getCvPassportPhoto = async (studentId: string): Promise<Blob> => {
+    const resp = await fetch(
+        `${BASE_URL}/api/ai-assist/students/${studentId}/cv-photo`,
+        { credentials: 'include' }
+    );
+    if (!resp.ok) {
+        throw new Error(`No passport photo (${resp.status})`);
+    }
+    return resp.blob();
+};
+
+export interface UploadPassportPhotoResponse {
+    success: boolean;
+    data: unknown;
+}
+
+// Upload / replace the student's passport photo (multipart, field "file").
+export const uploadPassportPhoto = (studentId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return postData<UploadPassportPhotoResponse>(
+        `/api/students/${studentId}/files/Passport_Photo`,
+        formData
+    );
 };

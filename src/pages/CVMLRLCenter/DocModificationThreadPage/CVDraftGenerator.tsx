@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -8,32 +8,86 @@ import {
     Card,
     Chip,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Divider,
+    IconButton,
+    Link,
     Stack,
     TextField,
+    Tooltip,
     Typography
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
     generateCvDraft,
     renderCvDraft,
+    attachCvDraftToThread,
     getSavedCvDraft,
+    getCvReadiness,
+    getMyAiQuota,
     downloadCvDraft,
+    updateCvDraft,
+    validateCvDraft,
     type CVDraft,
     type CVDraftResult,
+    type CVValidationResult,
     type CVChecklistItem,
     type CVEducation,
     type CVExperience
 } from '@/api';
+import CVDraftEditForm from './CVDraftEditForm';
+import CVDraftHistoryDialog from './CVDraftHistoryDialog';
 
 interface CVDraftGeneratorProps {
     studentId: string;
     fileType: string;
     programId?: string;
+    // Target program degree (e.g. "Bachelor" / "Master"). Threaded to the
+    // generator/validator so the bachelor-only rules (junior high school) apply.
+    degree?: string;
     programFullName?: string;
     editorRequirements?: string;
     documentsthreadId?: string;
+    // When the thread is final, attaching is blocked (reopen first).
+    isFinalVersion?: boolean;
+    // Switch the parent tab view to CV Details, optionally scrolling to a
+    // section anchor (checklist / coverage deep-links).
+    onNavigateToCvDetails?: (anchor?: string) => void;
+    // Post the "request missing info" message straight to the thread
+    // (student-visible) — reuses the parent's discussion message poster.
+    onPostToThread?: (text: string) => Promise<void>;
 }
+
+// Maps a checklist section or coverage/readiness key to a CV Details form
+// section anchor (see CVProfileForm section ids). Unmapped keys (education,
+// system, photo) return undefined — the tab still opens, just at the top.
+const CV_DETAILS_ANCHOR: Record<string, string> = {
+    // Checklist sections.
+    personal: 'personal',
+    experience: 'experience',
+    timeline: 'experience',
+    awards: 'awards',
+    skills: 'skills',
+    hobbies: 'interests',
+    // education / language have no structured field in the CV Details form, so
+    // send the editor to the Additional Information box (which does feed the CV).
+    education: 'additional',
+    language: 'additional',
+    // Coverage / readiness chip keys.
+    name: 'personal',
+    contact: 'personal',
+    birthNationality: 'personal',
+    university: 'additional',
+    highSchool: 'additional',
+    languages: 'skills',
+    computer: 'skills',
+    otherSkills: 'skills'
+};
+const cvAnchor = (key: string): string | undefined => CV_DETAILS_ANCHOR[key];
 
 const Field = ({ label, value }: { label: string; value?: string }) =>
     value ? (
@@ -108,10 +162,24 @@ const ExperienceBlock = ({ items }: { items: CVExperience[] }) => {
     ) : null;
 };
 
-const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
+const Checklist = ({
+    items,
+    onNavigate
+}: {
+    items: CVChecklistItem[];
+    onNavigate?: (anchor?: string) => void;
+}) => {
     const { t } = useTranslation();
     const errors = items.filter((i) => i.level === 'error');
     const warnings = items.filter((i) => i.level === 'warning');
+    // A checklist item is actionable when it points at data the editor fixes in
+    // CV Details (i.e. not a transient system/parse error).
+    const clickable = (section: string) =>
+        Boolean(onNavigate) && section !== 'system';
+    const itemSx = (section: string) =>
+        clickable(section)
+            ? { cursor: 'pointer', textDecoration: 'underline dotted' }
+            : undefined;
     if (!items.length) {
         return (
             <Alert severity="success">
@@ -129,7 +197,23 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
                     </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {errors.map((it, i) => (
-                            <li key={i}>
+                            <li
+                                key={i}
+                                onClick={
+                                    clickable(it.section)
+                                        ? () =>
+                                              onNavigate?.(cvAnchor(it.section))
+                                        : undefined
+                                }
+                                title={
+                                    clickable(it.section)
+                                        ? t('aiDraft.fixInCvDetails', {
+                                              ns: 'cvmlrl'
+                                          })
+                                        : undefined
+                                }
+                                style={itemSx(it.section)}
+                            >
                                 <b>[{it.section}]</b> {it.message}
                             </li>
                         ))}
@@ -144,7 +228,23 @@ const Checklist = ({ items }: { items: CVChecklistItem[] }) => {
                     </AlertTitle>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                         {warnings.map((it, i) => (
-                            <li key={i}>
+                            <li
+                                key={i}
+                                onClick={
+                                    clickable(it.section)
+                                        ? () =>
+                                              onNavigate?.(cvAnchor(it.section))
+                                        : undefined
+                                }
+                                title={
+                                    clickable(it.section)
+                                        ? t('aiDraft.fixInCvDetails', {
+                                              ns: 'cvmlrl'
+                                          })
+                                        : undefined
+                                }
+                                style={itemSx(it.section)}
+                            >
                                 <b>[{it.section}]</b> {it.message}
                             </li>
                         ))}
@@ -244,13 +344,123 @@ const DraftView = ({ draft }: { draft: CVDraft }) => {
     );
 };
 
+const Coverage = ({
+    draft,
+    hasPhoto,
+    onNavigate
+}: {
+    draft: CVDraft;
+    hasPhoto?: boolean;
+    onNavigate?: (anchor?: string) => void;
+}) => {
+    const { t } = useTranslation();
+    const cv = (k: string) => t(`coverage.${k}`, { ns: 'cvmlrl' });
+    const p = draft.personal;
+    const items: Array<[string, boolean]> = [
+        ['photo', Boolean(hasPhoto)],
+        ['name', Boolean(p.fullName)],
+        ['contact', Boolean(p.phone || p.email || p.address)],
+        [
+            'birthNationality',
+            Boolean(p.birthday || p.birthplace || p.nationality)
+        ],
+        ['university', draft.universities.length > 0],
+        [
+            'highSchool',
+            draft.seniorHighSchools.length > 0 ||
+                draft.juniorHighSchools.length > 0
+        ],
+        ['experience', draft.experience.length > 0],
+        ['awards', draft.awards.length > 0],
+        ['languages', draft.languages.length > 0],
+        ['computer', draft.computer.length > 0],
+        ['otherSkills', Boolean(draft.otherSkills)],
+        [
+            'hobbies',
+            Boolean(
+                draft.hobbies ||
+                    draft.socialEngagement ||
+                    draft.competitiveSports
+            )
+        ]
+    ];
+    const filled = items.filter(([, v]) => v).length;
+    return (
+        <Box sx={{ mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                {cv('title')} ({filled}/{items.length})
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {items.map(([k, v]) => {
+                    // Only unfilled (outlined) chips are actionable — they point
+                    // the editor to data still missing from CV Details.
+                    const isClickable = !v && Boolean(onNavigate);
+                    return (
+                        <Chip
+                            key={k}
+                            size="small"
+                            variant={v ? 'filled' : 'outlined'}
+                            color={v ? 'success' : 'default'}
+                            label={`${v ? '✓' : '–'} ${cv(k)}`}
+                            onClick={
+                                isClickable
+                                    ? () => onNavigate?.(cvAnchor(k))
+                                    : undefined
+                            }
+                            clickable={isClickable}
+                        />
+                    );
+                })}
+            </Box>
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.5 }}
+            >
+                {cv('hint')}
+            </Typography>
+        </Box>
+    );
+};
+
+// Maps CVDraft top-level keys to draftView i18n labels for the regenerate diff.
+const SECTION_LABEL: Record<string, string> = {
+    personal: 'personalInformation',
+    universities: 'university',
+    seniorHighSchools: 'seniorHighSchool',
+    juniorHighSchools: 'juniorHighSchool',
+    experience: 'practicalExperience',
+    awards: 'awards',
+    languages: 'languages',
+    computer: 'computer',
+    otherSkills: 'otherSkills',
+    socialEngagement: 'socialEngagement',
+    competitiveSports: 'competitiveSports',
+    hobbies: 'hobbies',
+    anythingElse: 'anythingElse'
+};
+
+// Which top-level draft sections differ between two drafts (old vs new). Powers
+// the ephemeral "this regenerate changed: …" banner.
+const sectionKeysChanged = (prev: CVDraft, next: CVDraft): string[] => {
+    const a = prev as unknown as Record<string, unknown>;
+    const b = next as unknown as Record<string, unknown>;
+    return Object.keys(SECTION_LABEL).filter(
+        (k) => JSON.stringify(a[k]) !== JSON.stringify(b[k])
+    );
+};
+
 const CVDraftGenerator = ({
     studentId,
     fileType,
     programId,
+    degree,
     programFullName,
     editorRequirements,
-    documentsthreadId
+    documentsthreadId,
+    isFinalVersion,
+    onNavigateToCvDetails,
+    onPostToThread
 }: CVDraftGeneratorProps) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
@@ -262,7 +472,56 @@ const CVDraftGenerator = ({
     const [notes, setNotes] = useState('');
     const [rendering, setRendering] = useState(false);
     const [renderError, setRenderError] = useState<string | null>(null);
-    const [rendered, setRendered] = useState<string | null>(null);
+    // The rendered working .docx (stable S3 key). Cleared whenever the draft is
+    // (re)generated, so a stale file can never be attached.
+    const [rendered, setRendered] = useState<{
+        name: string;
+        path: string;
+        photoEmbedded?: boolean;
+    } | null>(null);
+    // True when the last render reused an unchanged file (no new .docx produced).
+    const [reused, setReused] = useState(false);
+    // Confirm dialog shown when creating the .docx while must-fix items remain.
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    // Inline structured editing of the reviewed draft.
+    const [editing, setEditing] = useState(false);
+    const [savingEdit, setSavingEdit] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
+    // Live checklist while inline-editing (debounced server validation).
+    const [editValidation, setEditValidation] =
+        useState<CVValidationResult | null>(null);
+    const editValidateTimer = useRef<ReturnType<typeof setTimeout>>();
+    // Remaining TaiGer AI quota (null while unknown / not gated).
+    const [quota, setQuota] = useState<number | null>(null);
+    // Confirm dialog when regenerating with unchanged inputs (avoids wasting a
+    // credit + reshuffling a reviewed draft, while still allowing a deliberate re-roll).
+    const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
+    // Pre-generation readiness (shown before a draft exists).
+    const [readiness, setReadiness] = useState<
+        { key: string; ok: boolean }[] | null
+    >(null);
+    // "Request missing info" — an editable, editor-reviewed student message
+    // drafted from the checklist gaps. Never auto-posted.
+    const [requestOpen, setRequestOpen] = useState(false);
+    const [requestMsg, setRequestMsg] = useState('');
+    const [requestCopied, setRequestCopied] = useState(false);
+    const [postingRequest, setPostingRequest] = useState(false);
+    const [requestSendConfirmOpen, setRequestSendConfirmOpen] = useState(false);
+    const [requestError, setRequestError] = useState<string | null>(null);
+    // Read-only change log dialog. `historyExpand` pre-expands a row when opened
+    // from the regenerate banner (newest = 0); null when opened from the button.
+    const [historyOpen, setHistoryOpen] = useState(false);
+    const [historyExpand, setHistoryExpand] = useState<number | null>(null);
+    // Ephemeral, in-session only: the top-level sections a just-completed
+    // regenerate changed. Never restored on load — dismissable, and cleared at
+    // the start of every generate.
+    const [regenBanner, setRegenBanner] = useState<string[] | null>(null);
+    // "Attach to thread" dialog — the editor writes their own message.
+    const [attachOpen, setAttachOpen] = useState(false);
+    const [attachMessage, setAttachMessage] = useState('');
+    const [attaching, setAttaching] = useState(false);
+    const [attachError, setAttachError] = useState<string | null>(null);
+    const [attached, setAttached] = useState(false);
 
     // Restore the last generated draft on refresh (persisted on the thread).
     useEffect(() => {
@@ -272,6 +531,21 @@ const CVDraftGenerator = ({
             .then((resp) => {
                 if (active && resp?.success && resp.data) {
                     setResult(resp.data);
+                    // Restore the editor notes that fed this draft (survives tab
+                    // switch / refresh) — provenance from meta (W6).
+                    if (resp.data.meta?.editorNotes) {
+                        setNotes(resp.data.meta.editorNotes);
+                    }
+                    // Restore the "ready to attach" state if the persisted .docx
+                    // is still current for this draft — otherwise a tab switch or
+                    // refresh would needlessly disable Attach (U1).
+                    if (resp.data.renderedCurrent && resp.data.rendered) {
+                        setRendered({
+                            name: resp.data.rendered.name,
+                            path: resp.data.rendered.path,
+                            photoEmbedded: resp.data.rendered.photoEmbedded
+                        });
+                    }
                 }
             })
             .catch(() => {});
@@ -280,11 +554,55 @@ const CVDraftGenerator = ({
         };
     }, [documentsthreadId]);
 
+    // Pre-generation readiness snapshot from the profile (cheap GET). Rendered
+    // only in the empty state (before a draft exists), so a wasted call when a
+    // draft is already saved is harmless.
+    useEffect(() => {
+        if (!studentId) return;
+        let active = true;
+        getCvReadiness(studentId)
+            .then((r) => {
+                if (active && r?.success) setReadiness(r.data.readiness);
+            })
+            .catch(() => {});
+        return () => {
+            active = false;
+        };
+    }, [studentId]);
+
+    // Remaining AI quota, refreshed after each generation (which spends one).
+    useEffect(() => {
+        let active = true;
+        getMyAiQuota()
+            .then((r) => {
+                if (active && r?.success) setQuota(r.data.quota);
+            })
+            .catch(() => {});
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    // Cancel a pending live-validate timer on unmount (no setState after unmount).
+    useEffect(
+        () => () => {
+            if (editValidateTimer.current) {
+                clearTimeout(editValidateTimer.current);
+            }
+        },
+        []
+    );
+
     const onGenerate = async () => {
+        const prevDraft = result?.draft;
         setLoading(true);
         setError(null);
+        setRegenBanner(null);
         setRendered(null);
+        setReused(false);
         setRenderError(null);
+        setAttached(false);
+        setAttachError(null);
         try {
             const mergedRequirements = [editorRequirements, notes.trim()]
                 .filter(Boolean)
@@ -292,30 +610,73 @@ const CVDraftGenerator = ({
             const resp = await generateCvDraft(studentId, {
                 fileType,
                 programId,
+                degree,
                 programFullName,
                 editorRequirements: mergedRequirements,
                 documentsthreadId
             });
-            if (resp?.success) {
+            if (resp?.success && resp.data?.meta?.parseError) {
+                // Server didn't persist or charge — keep the existing good draft
+                // on screen and surface a retry error instead of replacing it with
+                // the empty parse-failure draft.
+                setError(td('parseFailedBody'));
+            } else if (resp?.success) {
                 setResult(resp.data);
+                // Regenerate (a draft already existed): flag which sections moved,
+                // shown as an ephemeral, dismissable banner this session only.
+                if (prevDraft) {
+                    const secs = sectionKeysChanged(prevDraft, resp.data.draft);
+                    if (secs.length) setRegenBanner(secs);
+                }
             } else {
                 setError(td('failed'));
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : td('failed'));
+            const status = (e as { status?: number })?.status;
+            setError(
+                status === 403
+                    ? td('quotaExceeded')
+                    : e instanceof Error
+                      ? e.message
+                      : td('failed')
+            );
         } finally {
             setLoading(false);
+            getMyAiQuota()
+                .then((r) => {
+                    if (r?.success) setQuota(r.data.quota);
+                })
+                .catch(() => {});
         }
     };
 
-    const onCreateDocx = async () => {
-        if (!result) return;
-        if (
-            result.validation.errorCount > 0 &&
-            !window.confirm(td('confirmErrors'))
-        ) {
-            return;
+    // True when nothing that feeds generation has changed since the current draft
+    // (best-effort client check: a draft exists, notes match provenance, and CV
+    // Details / photo weren't flagged as changed). Generation has no server dedup,
+    // so an unchanged regenerate really spends a credit and may reshuffle.
+    const inputsUnchanged = (): boolean =>
+        Boolean(result) &&
+        !result?.meta.parseError &&
+        !result?.inputsChanged &&
+        notes.trim() === (result?.meta.editorNotes ?? '').trim();
+
+    const onGenerateClick = () => {
+        if (inputsUnchanged()) {
+            setRegenConfirmOpen(true);
+        } else {
+            onGenerate();
         }
+    };
+
+    const onConfirmRegen = () => {
+        setRegenConfirmOpen(false);
+        onGenerate();
+    };
+
+    // Actually render the reviewed draft into the working .docx. Extracted so it
+    // can run directly (no must-fix items) or after the confirm dialog.
+    const doRender = async () => {
+        if (!result) return;
         setRendering(true);
         setRenderError(null);
         try {
@@ -324,7 +685,14 @@ const CVDraftGenerator = ({
                 documentsthreadId
             });
             if (resp?.success) {
-                setRendered(resp.data.name);
+                setRendered({
+                    name: resp.data.name,
+                    path: resp.data.path,
+                    photoEmbedded: resp.data.photoEmbedded
+                });
+                setReused(Boolean(resp.data.reused));
+                setAttached(false);
+                setAttachError(null);
             } else {
                 setRenderError(td('docxFailed'));
             }
@@ -332,6 +700,72 @@ const CVDraftGenerator = ({
             setRenderError(e instanceof Error ? e.message : td('docxFailed'));
         } finally {
             setRendering(false);
+        }
+    };
+
+    const onRenderDocx = async () => {
+        if (!result) return;
+        // Must-fix items present: confirm via a proper dialog (listing them),
+        // not a native window.confirm that looks broken next to the MUI app.
+        if (result.validation.errorCount > 0) {
+            setConfirmOpen(true);
+            return;
+        }
+        await doRender();
+    };
+
+    const onConfirmRender = async () => {
+        setConfirmOpen(false);
+        await doRender();
+    };
+
+    const openAttach = () => {
+        setAttachError(null);
+        setAttachMessage(td('attachDefaultMessage'));
+        setAttachOpen(true);
+    };
+
+    const onAttach = async () => {
+        if (!result || !documentsthreadId) return;
+        setAttaching(true);
+        setAttachError(null);
+        try {
+            const resp = await attachCvDraftToThread(documentsthreadId, {
+                draft: result.draft,
+                message: attachMessage
+            });
+            if (resp?.success) {
+                setAttached(true);
+                setAttachOpen(false);
+            } else {
+                setAttachError(td('attachFailed'));
+            }
+        } catch (e) {
+            // A 409 means the rendered file is stale (draft changed since it was
+            // generated) or missing; clear it so the editor must regenerate before
+            // sharing. Prefer the machine-readable code, falling back to the old
+            // message regex for resilience.
+            const msg = e instanceof Error ? e.message : td('attachFailed');
+            const code = (e as { code?: string })?.code;
+            const isStale =
+                code === 'CV_DRAFT_STALE' ||
+                code === 'CV_DRAFT_NO_RENDER' ||
+                (!code && /change|regenerate|stale|409/i.test(msg));
+            if (isStale) {
+                setRendered(null);
+                setReused(false);
+                setAttachOpen(false);
+                setAttachError(td('attachStale'));
+            } else if (code === 'CV_DRAFT_THREAD_FINAL') {
+                // Terminal for the dialog — retrying won't help until the thread
+                // is reopened. Close it and surface the reason.
+                setAttachOpen(false);
+                setAttachError(td('attachThreadFinal'));
+            } else {
+                setAttachError(msg);
+            }
+        } finally {
+            setAttaching(false);
         }
     };
 
@@ -344,7 +778,7 @@ const CVDraftGenerator = ({
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'CV_first_draft.docx';
+            a.download = 'CV_draft.docx';
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -353,6 +787,93 @@ const CVDraftGenerator = ({
             setRenderError(e instanceof Error ? e.message : td('docxFailed'));
         } finally {
             setRendering(false);
+        }
+    };
+
+    // Persist inline edits: the server re-validates and drops the rendered .docx,
+    // so the checklist refreshes and the editor must re-create the working copy
+    // before attaching (keeps the stale guard honest).
+    const onSaveEdits = async (draft: CVDraft) => {
+        if (!documentsthreadId) return;
+        setSavingEdit(true);
+        setEditError(null);
+        try {
+            const resp = await updateCvDraft(documentsthreadId, {
+                draft,
+                degree
+            });
+            if (resp?.success && resp.data) {
+                setResult(resp.data);
+                setRendered(null);
+                setReused(false);
+                setAttached(false);
+                setEditing(false);
+                setEditValidation(null);
+            } else {
+                setEditError(td('editFailed'));
+            }
+        } catch (e) {
+            setEditError(e instanceof Error ? e.message : td('editFailed'));
+        } finally {
+            setSavingEdit(false);
+        }
+    };
+
+    // Debounced live re-validation while inline-editing, so the checklist stays
+    // honest as the editor types (uses the deterministic validate endpoint).
+    const onEditDraftChange = (d: CVDraft) => {
+        if (editValidateTimer.current) {
+            clearTimeout(editValidateTimer.current);
+        }
+        editValidateTimer.current = setTimeout(() => {
+            validateCvDraft(studentId, { draft: d, fileType, degree })
+                .then((r) => {
+                    if (r?.success) setEditValidation(r.data.validation);
+                })
+                .catch(() => {});
+        }, 500);
+    };
+
+    // Draft a single student-facing message from the current checklist gaps.
+    // The editor reviews/edits before sending — nothing is posted automatically.
+    const openRequest = () => {
+        const lines = (result?.validation.items ?? []).map(
+            (i) => `- ${i.message}`
+        );
+        setRequestMsg(
+            [td('requestIntro'), '', ...lines, '', td('requestOutro')].join(
+                '\n'
+            )
+        );
+        setRequestCopied(false);
+        setRequestOpen(true);
+    };
+    const copyRequest = async () => {
+        try {
+            await navigator.clipboard.writeText(requestMsg);
+            setRequestCopied(true);
+            setTimeout(() => setRequestCopied(false), 1500);
+        } catch {
+            // clipboard may be unavailable — the editor can still select+copy.
+        }
+    };
+
+    // Post the request straight into the discussion thread (student-visible),
+    // via the parent's message poster. Confirmed first.
+    const sendRequestToThread = async () => {
+        if (!onPostToThread) return;
+        setPostingRequest(true);
+        setRequestError(null);
+        try {
+            await onPostToThread(requestMsg);
+            setRequestSendConfirmOpen(false);
+            setRequestOpen(false);
+        } catch (e) {
+            setRequestError(
+                e instanceof Error ? e.message : td('requestSendFailed')
+            );
+        } finally {
+            setPostingRequest(false);
         }
     };
 
@@ -386,8 +907,8 @@ const CVDraftGenerator = ({
 
             <Button
                 variant="contained"
-                onClick={onGenerate}
-                disabled={loading}
+                onClick={onGenerateClick}
+                disabled={loading || editing}
                 startIcon={
                     loading ? (
                         <CircularProgress size={16} color="inherit" />
@@ -396,6 +917,57 @@ const CVDraftGenerator = ({
             >
                 {result ? td('regenerate') : td('generate')}
             </Button>
+            {quota !== null ? (
+                <Typography
+                    variant="caption"
+                    color={quota <= 0 ? 'error' : 'text.secondary'}
+                    sx={{ display: 'block', mt: 0.5 }}
+                >
+                    {t('aiDraft.quotaInfo', { ns: 'cvmlrl', n: quota })}
+                </Typography>
+            ) : null}
+
+            {!result && !loading && readiness ? (
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                        {td('readinessTitle')} (
+                        {readiness.filter((r) => r.ok).length}/
+                        {readiness.length})
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {readiness.map((r) => (
+                            <Chip
+                                key={r.key}
+                                size="small"
+                                variant={r.ok ? 'filled' : 'outlined'}
+                                color={r.ok ? 'success' : 'default'}
+                                label={`${r.ok ? '\u2713' : '\u2013'} ${t(
+                                    `coverage.${r.key}`,
+                                    { ns: 'cvmlrl' }
+                                )}`}
+                                onClick={
+                                    !r.ok
+                                        ? () =>
+                                              onNavigateToCvDetails?.(
+                                                  cvAnchor(r.key)
+                                              )
+                                        : undefined
+                                }
+                                clickable={
+                                    !r.ok && Boolean(onNavigateToCvDetails)
+                                }
+                            />
+                        ))}
+                    </Box>
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mt: 0.5 }}
+                    >
+                        {td('readinessHint')}
+                    </Typography>
+                </Box>
+            ) : null}
 
             {error && (
                 <Alert severity="error" sx={{ mt: 2 }}>
@@ -405,52 +977,509 @@ const CVDraftGenerator = ({
 
             {result && (
                 <Box sx={{ mt: 2 }}>
-                    <Checklist items={result.validation.items} />
-                    <Divider sx={{ my: 2 }} />
-                    <DraftView draft={result.draft} />
-                    <Divider sx={{ my: 2 }} />
-                    <Stack direction="row" spacing={1}>
-                        <Button
-                            variant="contained"
-                            onClick={onCreateDocx}
-                            disabled={rendering}
-                            startIcon={
-                                rendering ? (
-                                    <CircularProgress
-                                        size={16}
-                                        color="inherit"
+                    {result.meta.parseError ? (
+                        <Alert severity="error">
+                            <AlertTitle>{td('parseFailedTitle')}</AlertTitle>
+                            {td('parseFailedBody')}
+                            <Box sx={{ mt: 1 }}>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={onGenerate}
+                                    disabled={loading}
+                                >
+                                    {td('retry')}
+                                </Button>
+                            </Box>
+                        </Alert>
+                    ) : (
+                        <Box>
+                            {result.inputsChanged ? (
+                                <Alert
+                                    severity="warning"
+                                    sx={{ mb: 1 }}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={onGenerate}
+                                            disabled={loading}
+                                        >
+                                            {td('regenerate')}
+                                        </Button>
+                                    }
+                                >
+                                    {td('inputsChanged')}
+                                </Alert>
+                            ) : null}
+                            <Checklist
+                                items={
+                                    editing && editValidation
+                                        ? editValidation.items
+                                        : result.validation.items
+                                }
+                                onNavigate={
+                                    editing ? undefined : onNavigateToCvDetails
+                                }
+                            />
+                            <Coverage
+                                draft={result.draft}
+                                hasPhoto={result.hasPhoto}
+                                onNavigate={
+                                    editing ? undefined : onNavigateToCvDetails
+                                }
+                            />
+                            {regenBanner ? (
+                                <Alert
+                                    severity="info"
+                                    sx={{ mb: 1 }}
+                                    action={
+                                        <>
+                                            <Button
+                                                color="inherit"
+                                                size="small"
+                                                onClick={() => {
+                                                    setHistoryExpand(0);
+                                                    setHistoryOpen(true);
+                                                }}
+                                            >
+                                                {td('historyView')}
+                                            </Button>
+                                            <IconButton
+                                                color="inherit"
+                                                size="small"
+                                                onClick={() =>
+                                                    setRegenBanner(null)
+                                                }
+                                            >
+                                                <CloseIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </>
+                                    }
+                                >
+                                    {td('regenChanged')}{' '}
+                                    {regenBanner
+                                        .map((k) =>
+                                            t(`draftView.${SECTION_LABEL[k]}`, {
+                                                ns: 'cvmlrl'
+                                            })
+                                        )
+                                        .join(', ')}
+                                </Alert>
+                            ) : null}
+                            {editing ? (
+                                <Box sx={{ mt: 1 }}>
+                                    {editError ? (
+                                        <Alert severity="error" sx={{ mb: 1 }}>
+                                            {editError}
+                                        </Alert>
+                                    ) : null}
+                                    <CVDraftEditForm
+                                        initial={result.draft}
+                                        saving={savingEdit}
+                                        onSave={onSaveEdits}
+                                        onChange={onEditDraftChange}
+                                        onCancel={() => {
+                                            setEditing(false);
+                                            setEditError(null);
+                                            setEditValidation(null);
+                                        }}
                                     />
-                                ) : undefined
-                            }
-                        >
-                            {td('createDocx')}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            onClick={onDownload}
-                            disabled={rendering}
-                        >
-                            {td('downloadDocx')}
-                        </Button>
-                    </Stack>
-                    {rendered ? (
-                        <Alert severity="success" sx={{ mt: 1.5 }}>
-                            {td('docxSaved')}: {rendered}
-                        </Alert>
-                    ) : null}
-                    {renderError ? (
-                        <Alert severity="error" sx={{ mt: 1.5 }}>
-                            {renderError}
-                        </Alert>
-                    ) : null}
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ display: 'block', mt: 1 }}
+                                </Box>
+                            ) : (
+                                <Box>
+                                    <Divider sx={{ my: 2 }} />
+                                    <DraftView draft={result.draft} />
+                                    <Divider sx={{ my: 2 }} />
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        flexWrap="wrap"
+                                    >
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => {
+                                                setEditing(true);
+                                                setEditError(null);
+                                                setEditValidation(null);
+                                            }}
+                                            disabled={rendering}
+                                        >
+                                            {td('editFields')}
+                                        </Button>
+                                        {result.history &&
+                                        result.history.length > 0 ? (
+                                            <Button
+                                                variant="text"
+                                                onClick={() => {
+                                                    setHistoryExpand(null);
+                                                    setHistoryOpen(true);
+                                                }}
+                                                disabled={rendering || editing}
+                                            >
+                                                {t('aiDraft.historyButton', {
+                                                    ns: 'cvmlrl',
+                                                    n: result.history.length
+                                                })}
+                                            </Button>
+                                        ) : null}
+                                        {result.validation.items.length > 0 ? (
+                                            <Button
+                                                variant="outlined"
+                                                onClick={openRequest}
+                                            >
+                                                {td('requestButton')}
+                                            </Button>
+                                        ) : null}
+                                        <Button
+                                            variant="contained"
+                                            onClick={onRenderDocx}
+                                            disabled={rendering}
+                                            startIcon={
+                                                rendering ? (
+                                                    <CircularProgress
+                                                        size={16}
+                                                        color="inherit"
+                                                    />
+                                                ) : undefined
+                                            }
+                                        >
+                                            {rendered
+                                                ? td('regenerateDocx')
+                                                : td('createDocx')}
+                                        </Button>
+                                        <Tooltip
+                                            title={
+                                                isFinalVersion
+                                                    ? td('attachThreadFinal')
+                                                    : ''
+                                            }
+                                        >
+                                            <span>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="secondary"
+                                                    onClick={openAttach}
+                                                    disabled={
+                                                        rendering ||
+                                                        editing ||
+                                                        Boolean(isFinalVersion)
+                                                    }
+                                                >
+                                                    {td('attachToThread')}
+                                                </Button>
+                                            </span>
+                                        </Tooltip>
+                                    </Stack>
+                                    {rendered ? (
+                                        <Alert
+                                            severity="success"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {reused
+                                                ? td('reusedBanner')
+                                                : `${td('docxReady')}: ${rendered.name}`}
+                                            <Link
+                                                component="button"
+                                                type="button"
+                                                variant="body2"
+                                                onClick={onDownload}
+                                                sx={{ ml: 1 }}
+                                            >
+                                                {td('downloadDocx')}
+                                            </Link>
+                                        </Alert>
+                                    ) : null}
+                                    {rendered &&
+                                    result.hasPhoto &&
+                                    rendered.photoEmbedded === false ? (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {td('photoNotEmbedded')}
+                                        </Alert>
+                                    ) : null}
+                                    {attached ? (
+                                        <Alert
+                                            severity="success"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {td('attachSuccess')}
+                                        </Alert>
+                                    ) : null}
+                                    {attachError ? (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {attachError}
+                                        </Alert>
+                                    ) : null}
+                                    {renderError ? (
+                                        <Alert
+                                            severity="error"
+                                            sx={{ mt: 1.5 }}
+                                        >
+                                            {renderError}
+                                        </Alert>
+                                    ) : null}
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 1 }}
+                                    >
+                                        {td('generatedBy')} {result.meta.model}{' '}
+                                        at{' '}
+                                        {new Date(
+                                            result.meta.generatedAt
+                                        ).toLocaleString()}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Box>
+                    )}
+
+                    <Dialog
+                        open={attachOpen}
+                        onClose={() => !attaching && setAttachOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
                     >
-                        {td('generatedBy')} {result.meta.model} at{' '}
-                        {new Date(result.meta.generatedAt).toLocaleString()}
-                    </Typography>
+                        <DialogTitle>{td('attachDialogTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1.5 }}
+                            >
+                                {td('attachDialogSubtitle')}
+                            </Typography>
+                            {result.validation.errorCount > 0 ? (
+                                <Alert severity="warning" sx={{ mb: 1.5 }}>
+                                    {t('aiDraft.attachHasMustFix', {
+                                        ns: 'cvmlrl',
+                                        n: result.validation.errorCount
+                                    })}
+                                </Alert>
+                            ) : null}
+                            <Box sx={{ mb: 1.5 }}>
+                                <Link
+                                    component="button"
+                                    type="button"
+                                    variant="body2"
+                                    onClick={onDownload}
+                                >
+                                    {td('downloadPreview')}
+                                </Link>
+                            </Box>
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                size="small"
+                                label={td('attachMessageLabel')}
+                                value={attachMessage}
+                                onChange={(e) =>
+                                    setAttachMessage(e.target.value)
+                                }
+                                disabled={attaching}
+                            />
+                            {attachError ? (
+                                <Alert severity="warning" sx={{ mt: 1.5 }}>
+                                    {attachError}
+                                </Alert>
+                            ) : null}
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onClick={() => setAttachOpen(false)}
+                                disabled={attaching}
+                            >
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={onAttach}
+                                disabled={attaching || !attachMessage.trim()}
+                                startIcon={
+                                    attaching ? (
+                                        <CircularProgress
+                                            size={16}
+                                            color="inherit"
+                                        />
+                                    ) : undefined
+                                }
+                            >
+                                {td('attachSend')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={confirmOpen}
+                        onClose={() => setConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('confirmErrorsTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1 }}
+                            >
+                                {td('confirmErrorsBody')}
+                            </Typography>
+                            <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                {result.validation.items
+                                    .filter((it) => it.level === 'error')
+                                    .map((it, i) => (
+                                        <li key={i}>
+                                            <b>[{it.section}]</b> {it.message}
+                                        </li>
+                                    ))}
+                            </ul>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setConfirmOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                onClick={onConfirmRender}
+                            >
+                                {td('confirmCreate')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={regenConfirmOpen}
+                        onClose={() => setRegenConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('regenConfirmTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography variant="body2" color="text.secondary">
+                                {td('regenConfirmBody')}
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setRegenConfirmOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="warning"
+                                onClick={onConfirmRegen}
+                            >
+                                {td('regenConfirmButton')}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    {result.history ? (
+                        <CVDraftHistoryDialog
+                            open={historyOpen}
+                            onClose={() => setHistoryOpen(false)}
+                            current={result.draft}
+                            history={result.history}
+                            currentSource={result.meta.source}
+                            initialExpanded={historyExpand}
+                        />
+                    ) : null}
+
+                    <Dialog
+                        open={requestOpen}
+                        onClose={() => setRequestOpen(false)}
+                        fullWidth
+                        maxWidth="sm"
+                    >
+                        <DialogTitle>{td('requestTitle')}</DialogTitle>
+                        <DialogContent>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1.5 }}
+                            >
+                                {td('requestSubtitle')}
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={6}
+                                size="small"
+                                value={requestMsg}
+                                onChange={(e) => setRequestMsg(e.target.value)}
+                            />
+                            {requestError ? (
+                                <Alert severity="error" sx={{ mt: 1 }}>
+                                    {requestError}
+                                </Alert>
+                            ) : null}
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setRequestOpen(false)}>
+                                {td('cancel')}
+                            </Button>
+                            <Button onClick={copyRequest}>
+                                {requestCopied
+                                    ? td('requestCopied')
+                                    : td('requestCopy')}
+                            </Button>
+                            {onPostToThread ? (
+                                <Button
+                                    variant="contained"
+                                    onClick={() =>
+                                        setRequestSendConfirmOpen(true)
+                                    }
+                                    disabled={
+                                        postingRequest || !requestMsg.trim()
+                                    }
+                                >
+                                    {td('requestSend')}
+                                </Button>
+                            ) : null}
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={requestSendConfirmOpen}
+                        onClose={() => setRequestSendConfirmOpen(false)}
+                        fullWidth
+                        maxWidth="xs"
+                    >
+                        <DialogTitle>
+                            {td('requestSendConfirmTitle')}
+                        </DialogTitle>
+                        <DialogContent>
+                            <Typography variant="body2" color="text.secondary">
+                                {td('requestSendConfirmBody')}
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onClick={() => setRequestSendConfirmOpen(false)}
+                                disabled={postingRequest}
+                            >
+                                {td('cancel')}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={sendRequestToThread}
+                                disabled={postingRequest}
+                            >
+                                {postingRequest ? (
+                                    <CircularProgress size={18} />
+                                ) : (
+                                    td('requestSendButton')
+                                )}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Box>
             )}
         </Card>

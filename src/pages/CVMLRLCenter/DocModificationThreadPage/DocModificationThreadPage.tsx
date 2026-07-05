@@ -51,6 +51,7 @@ import FilesList from './FilesList';
 import CVDraftGenerator from './CVDraftGenerator';
 import AdditionalInformationCard from './AdditionalInformationCard';
 import CVProfileForm from '@components/CVProfileForm';
+import PassportPhotoCard from './PassportPhotoCard';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
@@ -160,6 +161,13 @@ const DocModificationThreadPage = ({
     const { documentsthreadId } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
+    // Deep-link target for the CV Details tab: when the AI Draft checklist sends
+    // the editor here, scroll to the matching section. `nonce` forces a re-scroll
+    // even when the same anchor is requested twice in a row.
+    const [cvDetailsScroll, setCvDetailsScroll] = useState<{
+        anchor?: string;
+        nonce: number;
+    }>({ nonce: 0 });
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     // App-shell layout: fixed tabs + an independently scrolling message panel.
@@ -545,6 +553,41 @@ const DocModificationThreadPage = ({
         if (!resp?.success) {
             throw new Error(resp?.message ?? 'Submission failed.');
         }
+    };
+
+    // Post a plain-text message to the thread on behalf of the editor (used by
+    // the AI Draft "request missing info" flow). Wraps the text as an Editor.js
+    // document so it renders like any other discussion message.
+    const postPlainMessageToThread = async (text: string) => {
+        const esc = (line: string) =>
+            line
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        const editorState = {
+            time: Date.now(),
+            blocks: text
+                .split('\n')
+                .map((line) => ({
+                    type: 'paragraph',
+                    data: { text: esc(line) }
+                })),
+            version: '2.30.7'
+        };
+        const formData = new FormData();
+        formData.append('message', JSON.stringify(editorState));
+        const resp = await submitMessageMutation.mutateAsync({
+            threadId: documentsthreadId ?? '',
+            studentId: docModificationThreadPageState.thread.student_id
+                ?._id as Parameters<typeof SubmitMessageWithAttachment>[1],
+            formData
+        });
+        if (!resp?.success) {
+            throw new Error(resp?.message ?? 'Submission failed.');
+        }
+        setSeverity('success');
+        setMessage(t('aiDraft.requestSent', { ns: 'cvmlrl' }));
+        setOpenSnackbar(true);
     };
 
     // function generatePDF() {
@@ -1307,20 +1350,29 @@ const DocModificationThreadPage = ({
                                 p: 2
                             }}
                         >
-                            <AdditionalInformationCard
-                                threadId={thread?._id?.toString() ?? ''}
-                                initialValue={
-                                    (
-                                        thread as {
-                                            additional_information?: string;
-                                        }
-                                    ).additional_information ?? ''
+                            <PassportPhotoCard
+                                studentId={
+                                    thread?.student_id?._id?.toString() ?? ''
                                 }
                             />
+                            <Box id="cvsec-additional">
+                                <AdditionalInformationCard
+                                    threadId={thread?._id?.toString() ?? ''}
+                                    initialValue={
+                                        (
+                                            thread as {
+                                                additional_information?: string;
+                                            }
+                                        ).additional_information ?? ''
+                                    }
+                                />
+                            </Box>
                             <CVProfileForm
                                 studentId={
                                     thread?.student_id?._id?.toString() ?? ''
                                 }
+                                scrollTo={cvDetailsScroll.anchor}
+                                scrollSignal={cvDetailsScroll.nonce}
                             />
                         </Box>
                     </CustomTabPanel>
@@ -1344,8 +1396,25 @@ const DocModificationThreadPage = ({
                                     thread?.student_id?._id?.toString() ?? ''
                                 }
                                 fileType={fileType}
+                                programId={
+                                    thread?.program_id?._id
+                                        ? String(thread.program_id._id)
+                                        : undefined
+                                }
+                                degree={thread?.program_id?.degree}
                                 programFullName={docName}
                                 documentsthreadId={thread?._id?.toString()}
+                                isFinalVersion={Boolean(thread?.isFinalVersion)}
+                                onNavigateToCvDetails={(anchor) => {
+                                    setValue(cvDetailsTabIndex);
+                                    window.location.hash =
+                                        DOC_THREAD_TAB_KEYS.cvDetails;
+                                    setCvDetailsScroll((s) => ({
+                                        anchor,
+                                        nonce: s.nonce + 1
+                                    }));
+                                }}
+                                onPostToThread={postPlainMessageToThread}
                             />
                         </Box>
                     </CustomTabPanel>

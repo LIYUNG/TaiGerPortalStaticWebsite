@@ -53,10 +53,24 @@ request.interceptors.request.use(stripJsonContentTypeForFormData);
 
 const DEFAULT_ERROR_MESSAGE = 'An unknown error occurred';
 
-type ErrorResponseBody = { message?: string };
+type ErrorResponseBody = { message?: string; code?: string };
 
 function getErrorMessage(data: unknown): string {
     return (data as ErrorResponseBody)?.message ?? DEFAULT_ERROR_MESSAGE;
+}
+
+// Error carrying the optional machine-readable `code` from the API body, so
+// callers can branch on the error kind (e.g. 'CV_DRAFT_STALE') instead of
+// regex-matching the human-readable message.
+export class ApiError extends Error {
+    code?: string;
+    status?: number;
+    constructor(message: string, code?: string, status?: number) {
+        super(message);
+        this.name = 'ApiError';
+        this.code = code;
+        this.status = status;
+    }
 }
 
 async function executeRequest<T>(
@@ -65,7 +79,12 @@ async function executeRequest<T>(
     try {
         const response = await requestFn();
         if (response.status >= 400) {
-            throw new Error(getErrorMessage(response.data));
+            const body = response.data as ErrorResponseBody;
+            throw new ApiError(
+                getErrorMessage(response.data),
+                body?.code,
+                response.status
+            );
         }
         return response.data;
     } catch (error) {
