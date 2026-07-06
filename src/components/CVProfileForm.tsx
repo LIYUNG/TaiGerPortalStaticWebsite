@@ -21,6 +21,9 @@ import {
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
 import {
     getStudentCvProfile,
@@ -153,7 +156,6 @@ const CVProfileForm = ({
             cancelled = true;
             timers.forEach(clearTimeout);
         };
-         
     }, [scrollTo, scrollSignal]);
 
     const onSave = async () => {
@@ -227,20 +229,38 @@ const CVProfileForm = ({
             return { ...d, skills: { ...d.skills, computer: arr } };
         });
 
+    // `value`/`onChange` use the native month-input string format ("YYYY-MM")
+    // so the surrounding period/date logic stays unchanged; internally we bridge
+    // to MUI X DatePicker (month + year views) via dayjs for a consistent look.
     const month = (
         label: string,
         value: string,
         onChange: (v: string) => void
     ) => (
-        <TextField
-            fullWidth
-            size="small"
-            type="month"
-            label={label}
-            InputLabelProps={{ shrink: true }}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+                label={label}
+                views={['month', 'year']}
+                openTo="month"
+                format="MM/YYYY"
+                value={value ? dayjs(`${value}-01`) : null}
+                onChange={(newValue) =>
+                    onChange(
+                        newValue && newValue.isValid()
+                            ? newValue.format('YYYY-MM')
+                            : ''
+                    )
+                }
+                slotProps={{
+                    textField: {
+                        fullWidth: true,
+                        size: 'small',
+                        InputLabelProps: { shrink: true }
+                    },
+                    field: { clearable: true }
+                }}
+            />
+        </LocalizationProvider>
     );
 
     return (

@@ -3,7 +3,6 @@ import { Link as LinkDom } from 'react-router-dom';
 import {
     Typography,
     Card,
-    Link,
     Box,
     Grid,
     useTheme,
@@ -15,7 +14,6 @@ import {
     Tooltip
 } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import LaunchIcon from '@mui/icons-material/Launch';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -24,13 +22,11 @@ import type {
     IUserWithId,
     IDocumentthreadPopulated,
     ITemplateWithId,
-    IStudentResponse,
     IProgramWithId
 } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 
 import DEMO from '@store/constant';
-import { BASE_URL } from '@/api';
 import { TopBar } from '@components/TopBar/TopBar';
 import OriginAuthorStatementBar from './OriginAuthorStatementBar';
 import DeadlineCard from './DeadlineCard';
@@ -219,7 +215,6 @@ const InformationBlock = ({
     const deadlineGradient = getGradientColors(urgent ? 'urgent' : 'deadline');
     const teamGradient = getGradientColors('team');
     const programGradient = getGradientColors('program');
-    const profileGradient = getGradientColors('profile');
     const conflictGradient = getGradientColors(
         conflict_list.length > 0 ? 'conflict' : 'noConflict'
     );
@@ -285,82 +280,6 @@ const InformationBlock = ({
                 programGradient={programGradient}
                 thread={thread}
             />
-
-            {thread.file_type === 'CV' && (
-                <Card
-                    sx={{
-                        borderRadius: 2,
-                        boxShadow: theme.shadows[1],
-                        border: `1px solid ${theme.palette.divider}`,
-                        overflow: 'hidden'
-                    }}
-                >
-                    <Box
-                        sx={{
-                            background: `linear-gradient(135deg, ${profileGradient.start} 0%, ${profileGradient.end} 100%)`,
-                            color: 'white',
-                            p: 1.5,
-                            textAlign: 'center'
-                        }}
-                    >
-                        <Typography fontWeight="600" variant="body2">
-                            Profile Photo
-                        </Typography>
-                    </Box>
-                    <Box sx={{ p: 1.5 }}>
-                        <Box
-                            sx={{
-                                position: 'relative',
-                                width: '100%',
-                                paddingTop: '75%',
-                                bgcolor: 'grey.100',
-                                borderRadius: 1.5,
-                                overflow: 'hidden',
-                                border: `1px solid ${theme.palette.divider}`,
-                                boxShadow: theme.shadows[1]
-                            }}
-                        >
-                            <img
-                                alt="Profile"
-                                src={`${BASE_URL}/api/students/${(thread.student_id as IStudentResponse)._id}/files/Passport_Photo`}
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                }}
-                            />
-                        </Box>
-                        <Typography
-                            color="text.secondary"
-                            sx={{
-                                mt: 0.75,
-                                textAlign: 'center',
-                                fontSize: '0.65rem'
-                            }}
-                            variant="caption"
-                        >
-                            <Link
-                                component={LinkDom}
-                                sx={{ fontWeight: 600 }}
-                                to="/base-documents"
-                                underline="hover"
-                            >
-                                Upload
-                                <LaunchIcon
-                                    fontSize="inherit"
-                                    sx={{
-                                        ml: 0.2,
-                                        verticalAlign: 'middle'
-                                    }}
-                                />
-                            </Link>
-                        </Typography>
-                    </Box>
-                </Card>
-            )}
 
             {!is_TaiGer_Student(user) && (
                 <Card
