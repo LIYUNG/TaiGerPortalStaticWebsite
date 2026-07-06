@@ -8,7 +8,12 @@ import type {
 } from '@/api/types';
 
 export type SortOrder = 'asc' | 'desc';
-export type ThreadCategory = 'all' | 'in_progress' | 'no_input' | 'closed';
+export type ThreadCategory =
+    | 'all'
+    | 'in_progress'
+    | 'no_input'
+    | 'withdraw'
+    | 'closed';
 
 export interface UseActiveThreadsPaginatedParams {
     /** 0-based page index (matches MRT paginationModel.page). */

@@ -161,6 +161,7 @@ export interface GetActiveThreadsPaginatedResponse {
 export interface ActiveThreadsCounts {
     all: number;
     closed: number;
+    withdraw: number;
     in_progress: number;
     no_input: number;
     no_writer: number;

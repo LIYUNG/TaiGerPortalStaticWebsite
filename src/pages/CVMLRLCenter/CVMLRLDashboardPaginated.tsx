@@ -38,12 +38,19 @@ const FILTER_FIELD_MAP: Record<string, string> = {
 const TAB_CATEGORIES: ThreadCategory[] = [
     'in_progress',
     'no_input',
+    'withdraw',
     'closed',
     'all'
 ];
 
 // Tab index -> readable URL slug (aligned with TAB_CATEGORIES order).
-const TAB_SLUGS = ['in-progress', 'no-input', 'closed', 'all'] as const;
+const TAB_SLUGS = [
+    'in-progress',
+    'no-input',
+    'withdraw',
+    'closed',
+    'all'
+] as const;
 
 const URL_STATE_CONFIG: MrtUrlStateConfig = {
     filterIds: Object.keys(FILTER_FIELD_MAP),
@@ -160,6 +167,9 @@ const CVMLRLDashboardPaginated = () => {
         <Alert key="no_input" severity="info">
             No student inputs tasks. Agents should push students
         </Alert>,
+        <Alert key="withdraw" severity="warning">
+            {t('These applications have been withdrawn.', { ns: 'cvmlrl' })}
+        </Alert>,
         <Box key="closed">
             <Alert severity="success">These tasks are closed</Alert>
             <Typography sx={{ p: 2 }}>
@@ -193,12 +203,16 @@ const CVMLRLDashboardPaginated = () => {
                         {...a11yProps(tab, 1)}
                     />
                     <Tab
-                        label={`${t('Closed', { ns: 'common' })} (${counts.closed})`}
+                        label={`${t('Withdraw', { ns: 'common' })} (${counts.withdraw})`}
                         {...a11yProps(tab, 2)}
                     />
                     <Tab
-                        label={`${t('All', { ns: 'common' })} (${counts.all})`}
+                        label={`${t('Closed', { ns: 'common' })} (${counts.closed})`}
                         {...a11yProps(tab, 3)}
+                    />
+                    <Tab
+                        label={`${t('All', { ns: 'common' })} (${counts.all})`}
+                        {...a11yProps(tab, 4)}
                     />
                 </Tabs>
             </Box>
