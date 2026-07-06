@@ -1,9 +1,10 @@
-import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import SpeakerNotesOffOutlinedIcon from '@mui/icons-material/SpeakerNotesOffOutlined';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { HealthBadge } from './components/HealthBadge';
@@ -13,6 +14,7 @@ export type PortfolioSignal = {
         | 'deadline'
         | 'thread_waiting'
         | 'comm_gap'
+        | 'student_silence'
         | 'admitted_unconfirmed'
         | 'missing_docs'
         | 'comm_risk';
@@ -148,8 +150,10 @@ export const StudentHealthCard = ({
             </Stack>
 
             {/* Communication-risk: one borderless line under the header. Each
-                item shows the i18n category; hover reveals the LLM's specific
-                description (detail). */}
+                item shows the i18n category; hover (MUI Tooltip — works with
+                touch and long content, unlike the native title attribute)
+                reveals the LLM's specific description plus the verbatim
+                evidence quote. */}
             {commRiskSignals.length > 0 && (
                 <Typography
                     variant="caption"
@@ -160,14 +164,38 @@ export const StudentHealthCard = ({
                     }}
                 >
                     {commRiskSignals.map((s, i) => (
-                        <Box
-                            key={i}
-                            component="span"
-                            title={s.detail}
-                            sx={s.detail ? { cursor: 'help' } : undefined}
-                        >
+                        <Box component="span" key={i}>
                             {i > 0 ? '  ｜  ' : ''}
-                            {s.label}
+                            {s.detail ? (
+                                <Tooltip
+                                    placement="top"
+                                    title={
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                display: 'block',
+                                                whiteSpace: 'pre-line'
+                                            }}
+                                            variant="caption"
+                                        >
+                                            {s.detail}
+                                        </Typography>
+                                    }
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            cursor: 'help',
+                                            textDecoration: 'underline dotted',
+                                            textUnderlineOffset: '2px'
+                                        }}
+                                    >
+                                        {s.label}
+                                    </Box>
+                                </Tooltip>
+                            ) : (
+                                s.label
+                            )}
                         </Box>
                     ))}
                 </Typography>
@@ -257,12 +285,18 @@ export const StudentHealthCard = ({
                     });
                 }
 
-                [...get('comm_gap'), ...get('thread_waiting')].forEach((s, i) =>
+                [
+                    ...get('comm_gap'),
+                    ...get('student_silence'),
+                    ...get('thread_waiting')
+                ].forEach((s, i) =>
                     rows.push({
                         key: `wait-${i}`,
                         icon:
                             s.type === 'comm_gap' ? (
                                 <HourglassEmptyRoundedIcon sx={iconSx} />
+                            ) : s.type === 'student_silence' ? (
+                                <SpeakerNotesOffOutlinedIcon sx={iconSx} />
                             ) : (
                                 <ForumOutlinedIcon sx={iconSx} />
                             ),

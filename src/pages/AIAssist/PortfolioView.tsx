@@ -85,11 +85,20 @@ const buildPortfolioStudents = (
                     const programLabel = sig.program
                         ? `${sig.program.school ?? ''} ${sig.program.name ?? ''}`.trim()
                         : '';
-                    const base = t(
-                        'aiAssist.signalDeadline',
-                        'Deadline in {{count}} days',
-                        { count: days }
-                    );
+                    // Negative daysUntil = the deadline was missed while the
+                    // application is still in progress — the most urgent state.
+                    const base =
+                        sig.overdue || days < 0
+                            ? t(
+                                  'aiAssist.signalDeadlineOverdue',
+                                  'Deadline missed {{count}}d ago',
+                                  { count: Math.abs(days) }
+                              )
+                            : t(
+                                  'aiAssist.signalDeadline',
+                                  'Deadline in {{count}} days',
+                                  { count: days }
+                              );
                     signals.push({
                         type: 'deadline',
                         urgency: sig.urgency,
@@ -120,6 +129,19 @@ const buildPortfolioStudents = (
                         label: t(
                             'aiAssist.signalStudentWaiting',
                             'Student waiting {{count}}d for reply',
+                            { count: days }
+                        )
+                    });
+                    break;
+                }
+                case 'studentSilence': {
+                    const days = sig.silentDays ?? 0;
+                    signals.push({
+                        type: 'student_silence',
+                        urgency: sig.urgency,
+                        label: t(
+                            'aiAssist.signalStudentSilent',
+                            'Student silent for {{count}}d',
                             { count: days }
                         )
                     });
@@ -209,6 +231,13 @@ const buildPortfolioStudents = (
                             g.lines.push(
                                 meta ? `${summary}（${meta}）` : summary
                             );
+                            // The verbatim message quote the LLM based this
+                            // signal on — lets the user verify in one glance
+                            // instead of trusting a bare category label.
+                            const evidence = rs.evidence?.trim();
+                            if (evidence) {
+                                g.lines.push(`「${evidence}」`);
+                            }
                         }
                         byType.set(rs.type, g);
                     });
@@ -264,6 +293,7 @@ export const PortfolioView = ({
     const [overviewStudents, setOverviewStudents] = useState<
         AIAssistOverviewStudent[]
     >([]);
+    const [hasMoreStudents, setHasMoreStudents] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [chatInput, setChatInput] = useState('');
@@ -282,6 +312,7 @@ export const PortfolioView = ({
             .then((res) => {
                 if (!active) return;
                 setOverviewStudents(res?.data?.students ?? []);
+                setHasMoreStudents(Boolean(res?.data?.hasMoreStudents));
                 setHasError(false);
             })
             .catch(() => {
@@ -348,11 +379,13 @@ export const PortfolioView = ({
                                         label: isZh ? '緊急' : 'Critical',
                                         items: isZh
                                             ? [
+                                                  '截止日已過（申請仍進行中）',
                                                   '截止日不足 7 天',
                                                   '學生訊息等待回覆 ≥ 14 天',
                                                   '文件討論串未回覆 ≥ 14 天'
                                               ]
                                             : [
+                                                  'Deadline missed (application still in progress)',
                                                   'Deadline in < 7 days',
                                                   'Student waiting ≥ 14 days for reply',
                                                   'Document thread unanswered ≥ 14 days'
@@ -366,12 +399,14 @@ export const PortfolioView = ({
                                                   '截止日 7–30 天內',
                                                   '學生訊息等待回覆 7–13 天',
                                                   '文件討論串未回覆 7–13 天',
+                                                  '學生沉默 ≥ 21 天（無任何學生訊息）',
                                                   '訊息內容高度隱性風險（提及退費/競品、強烈不滿）'
                                               ]
                                             : [
                                                   'Deadline in 7–30 days',
                                                   'Student waiting 7–13 days for reply',
                                                   'Document thread unanswered 7–13 days',
+                                                  'Student silent ≥ 21 days (no message from the student)',
                                                   'High implicit content risk (refund/competitor mention, strong dissatisfaction)'
                                               ]
                                     },
@@ -380,16 +415,16 @@ export const PortfolioView = ({
                                         label: isZh ? '中風險' : 'Medium Risk',
                                         items: isZh
                                             ? [
-                                                  '學生訊息等待回覆 3–6 天',
                                                   '文件討論串未回覆 3–6 天',
+                                                  '學生沉默 10–20 天',
                                                   '已錄取但未確認入學',
                                                   '缺少必要基本文件',
                                                   '訊息內容隱性風險（困惑、互動轉冷、承諾未兌現）',
                                                   '已在其他學校確認入學的學生的所有信號'
                                               ]
                                             : [
-                                                  'Student waiting 3–6 days for reply',
                                                   'Document thread unanswered 3–6 days',
+                                                  'Student silent 10–20 days',
                                                   'Admitted but enrolment not confirmed',
                                                   'Missing required base documents',
                                                   'Implicit content risk (confusion, cooling engagement, broken promises)',
@@ -522,26 +557,42 @@ export const PortfolioView = ({
                     </Typography>
                 </Stack>
             ) : (
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gap: 2,
-                        gridTemplateColumns: {
-                            xs: '1fr',
-                            sm: 'repeat(2, 1fr)',
-                            md: 'repeat(3, 1fr)',
-                            lg: 'repeat(4, 1fr)'
-                        }
-                    }}
-                >
-                    {students.map((student) => (
-                        <StudentHealthCard
-                            key={student.id}
-                            onAnalyze={onAnalyzeStudent}
-                            student={student}
-                        />
-                    ))}
-                </Box>
+                <>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gap: 2,
+                            gridTemplateColumns: {
+                                xs: '1fr',
+                                sm: 'repeat(2, 1fr)',
+                                md: 'repeat(3, 1fr)',
+                                lg: 'repeat(4, 1fr)'
+                            }
+                        }}
+                    >
+                        {students.map((student) => (
+                            <StudentHealthCard
+                                key={student.id}
+                                onAnalyze={onAnalyzeStudent}
+                                student={student}
+                            />
+                        ))}
+                    </Box>
+                    {/* Truncation must be visible: without this, a capped list
+                        reads as "this is everyone at risk". */}
+                    {hasMoreStudents ? (
+                        <Typography
+                            color="text.secondary"
+                            sx={{ pb: 2, textAlign: 'center' }}
+                            variant="caption"
+                        >
+                            {t(
+                                'aiAssist.portfolioMoreStudents',
+                                'More at-risk students exist beyond this list — the display is capped. Ask in chat about a specific student, or clear items above to surface the rest.'
+                            )}
+                        </Typography>
+                    ) : null}
+                </>
             )}
         </Stack>
     );

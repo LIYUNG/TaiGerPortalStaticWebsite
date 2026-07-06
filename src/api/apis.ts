@@ -771,14 +771,19 @@ export interface AIAssistOverviewSignal {
     urgency: AIAssistUrgency;
     // upcomingDeadlines / admittedNotConfirmed
     program?: { school?: string; name?: string } | null;
-    // upcomingDeadlines
+    // upcomingDeadlines — daysUntil is negative when the deadline was missed
     daysUntil?: number;
     deadline?: string;
+    overdue?: boolean;
     // threadsWaitingOnTeam
     stalledDays?: number | null;
     fileType?: string | null;
-    // communicationGaps — null when never contacted
+    // communicationGaps — days the student's latest message has waited for a
+    // team reply
     lastContactDays?: number | null;
+    // studentSilence — days since the student's own last message (team may
+    // have written since; the student went quiet)
+    silentDays?: number;
     // missingBaseDocuments
     missingDocuments?: string[];
     // communicationRiskSignals: implicit risks mined from message content.
