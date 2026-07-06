@@ -761,6 +761,11 @@ const CVDraftGenerator = ({
                 // is reopened. Close it and surface the reason.
                 setAttachOpen(false);
                 setAttachError(td('attachThreadFinal'));
+            } else if (code === 'CV_DRAFT_DUPLICATE') {
+                // Identical content was already attached — retrying won't help
+                // until the editor edits/updates the draft. Close and explain.
+                setAttachOpen(false);
+                setAttachError(td('attachDuplicate'));
             } else {
                 setAttachError(msg);
             }

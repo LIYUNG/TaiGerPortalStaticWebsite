@@ -219,6 +219,7 @@
         "attachSuccess": "Attached to the thread.",
         "attachStale": "The draft changed since the .docx was generated. Please regenerate before attaching.",
         "attachThreadFinal": "This thread is marked as final. Reopen it before attaching a new CV draft.",
+        "attachDuplicate": "This draft is identical to the one already attached to this thread. Edit or update the CV before attaching it again.",
         "attachFailed": "Could not attach. Please try again.",
         "attachDefaultMessage": "Attached is a draft of your CV. Please review it and let us know if anything needs adjusting.",
         "attachDialogTitle": "Attach CV draft to thread",
