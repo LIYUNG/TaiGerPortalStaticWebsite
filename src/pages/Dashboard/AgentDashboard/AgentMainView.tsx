@@ -37,7 +37,7 @@ import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentChe
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
 import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
-import { useActiveStudentsApplicationsV3 } from '@hooks/useActiveStudentsApplicationsV3';
+import { useStudentsApplicationsPaginated } from '@hooks/useStudentsApplicationsPaginated';
 import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
@@ -72,13 +72,15 @@ const AgentMainView = () => {
         rows: myStudentsApplicationRows,
         rowCount: myStudentsApplicationsTotal,
         isLoading: isLoadingApplications
-    } = useActiveStudentsApplicationsV3({
+    } = useStudentsApplicationsPaginated({
         userId: user!._id,
         page: 0,
         pageSize: 50,
         sortBy: 'deadline',
         sortOrder: 'asc',
-        filters: { decided: 'O', closed: '-' }
+        filters: { decided: 'O', closed: '-' },
+        // Agent dashboard covers active students only.
+        archiv: false
     });
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =

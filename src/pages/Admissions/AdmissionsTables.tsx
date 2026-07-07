@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
 import AdmissionTable from './AdmissionTable';
+import { admissionsTableOwnedParamKeys } from './admissionsTableUrlState';
 import { getAdmissionsOverviewQuery } from '@/api/query';
 
 /** Reserved for future props */
@@ -35,6 +36,9 @@ const AdmissionsTables = () => {
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
         const params = new URLSearchParams(location.search);
+        // Each sub-tab is a distinct result set; drop the previous table's
+        // page/sort/search/filter params so the new sub-tab starts clean.
+        admissionsTableOwnedParamKeys().forEach((key) => params.delete(key));
         params.set('subtab', SUBTAB_KEYS[newValue]);
         // Ensure top-level tab reflects Application for clarity
         params.set('tab', 'application');
