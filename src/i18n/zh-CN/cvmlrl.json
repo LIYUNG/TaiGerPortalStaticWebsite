@@ -1,4 +1,5 @@
 {
+    "These applications have been withdrawn.": "这些申请已经撤回。",
     "Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.": "注意：如果文件尚未完成但出现于此，这是因为申请已送出，此文件可以安全地关掉。",
     "cv-instructions": "请填写我们的模板并上传至此处，方便我们获取完整的讯息进行履历的编修。",
     "cv-reminder-1": "请注意，若你决定不填写我们的模板，而上传你自己原有的英文履历，请务必确认上述 1. 2. 点。",
@@ -219,6 +220,7 @@
         "attachSuccess": "已传到 thread。",
         "attachStale": "草稿在生成 .docx 之后又有变更，请先重新生成再传送。",
         "attachThreadFinal": "此 thread 已标记为 final，请先重新开启再附加新的 CV 草稿。",
+        "attachDuplicate": "此草稿与已附加到此 thread 的版本完全相同。请先修改或更新 CV 再重新传送。",
         "attachFailed": "传送失败，请重试。",
         "attachDefaultMessage": "附上您的 CV 草稿，请查看，如需调整请告诉我们。",
         "attachDialogTitle": "将 CV 草稿传到 thread",

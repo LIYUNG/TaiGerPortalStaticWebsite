@@ -41,6 +41,7 @@ import {
 } from '@/api';
 import CVDraftEditForm from './CVDraftEditForm';
 import CVDraftHistoryDialog from './CVDraftHistoryDialog';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 interface CVDraftGeneratorProps {
     studentId: string;
@@ -464,6 +465,14 @@ const CVDraftGenerator = ({
 }: CVDraftGeneratorProps) => {
     const { t } = useTranslation();
     const td = (k: string) => t(`aiDraft.${k}`, { ns: 'cvmlrl' });
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+    // Prominent toast so an attach outcome is never missed (the inline alerts at
+    // the bottom of the panel are easy to overlook and can read like success).
+    const notify = (severity: 'success' | 'warning' | 'error', msg: string) => {
+        setSeverity(severity);
+        setMessage(msg);
+        setOpenSnackbar(true);
+    };
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<CVDraftResult | null>(null);
@@ -737,8 +746,10 @@ const CVDraftGenerator = ({
             if (resp?.success) {
                 setAttached(true);
                 setAttachOpen(false);
+                notify('success', td('attachSuccess'));
             } else {
                 setAttachError(td('attachFailed'));
+                notify('error', td('attachFailed'));
             }
         } catch (e) {
             // A 409 means the rendered file is stale (draft changed since it was
@@ -751,19 +762,33 @@ const CVDraftGenerator = ({
                 code === 'CV_DRAFT_STALE' ||
                 code === 'CV_DRAFT_NO_RENDER' ||
                 (!code && /change|regenerate|stale|409/i.test(msg));
+            const isKnown =
+                isStale ||
+                code === 'CV_DRAFT_THREAD_FINAL' ||
+                code === 'CV_DRAFT_DUPLICATE';
+            let attachErrText = msg;
             if (isStale) {
+                // Stale/missing render — the editor must regenerate, so drop the
+                // working copy and close the dialog.
                 setRendered(null);
                 setReused(false);
                 setAttachOpen(false);
-                setAttachError(td('attachStale'));
+                attachErrText = td('attachStale');
             } else if (code === 'CV_DRAFT_THREAD_FINAL') {
                 // Terminal for the dialog — retrying won't help until the thread
                 // is reopened. Close it and surface the reason.
                 setAttachOpen(false);
-                setAttachError(td('attachThreadFinal'));
-            } else {
-                setAttachError(msg);
+                attachErrText = td('attachThreadFinal');
+            } else if (code === 'CV_DRAFT_DUPLICATE') {
+                // Keep the dialog OPEN so the reason stays visible right where the
+                // editor clicked Attach — auto-closing it made a blocked (not
+                // sent) attach look like it had succeeded.
+                attachErrText = td('attachDuplicate');
             }
+            setAttachError(attachErrText);
+            // Always fire a prominent toast so a blocked/failed attach can't be
+            // mistaken for success.
+            notify(isKnown ? 'warning' : 'error', attachErrText);
         } finally {
             setAttaching(false);
         }
