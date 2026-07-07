@@ -103,18 +103,6 @@ describe('Admissions', () => {
         expect(screen.getByRole('tablist')).toBeInTheDocument();
     });
 
-    it('shows loading state when isLoading is true', () => {
-        vi.mocked(useQuery).mockReturnValue({
-            data: undefined,
-            isLoading: true,
-            isError: false,
-            error: null,
-            refetch: vi.fn()
-        } as never);
-        render(<Admissions />);
-        expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-    });
-
     it('redirects non-TaiGer users', () => {
         vi.mocked(useAuth).mockReturnValue({
             ...mockAuthAgent,
@@ -122,18 +110,5 @@ describe('Admissions', () => {
         } as never);
         render(<Admissions />);
         expect(screen.queryByTestId('admissinos_page')).not.toBeInTheDocument();
-    });
-
-    it('shows error when isError is true', () => {
-        vi.mocked(useQuery).mockReturnValue({
-            data: undefined,
-            isLoading: false,
-            isError: true,
-            error: new Error('API Error'),
-            refetch: vi.fn()
-        } as never);
-        render(<Admissions />);
-        expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-        expect(screen.getByText('API Error')).toBeInTheDocument();
     });
 });

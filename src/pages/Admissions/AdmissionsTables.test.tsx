@@ -12,10 +12,6 @@ vi.mock('@/api/query', () => ({
     getAdmissionsOverviewQuery: vi.fn(() => ({
         queryKey: ['admissionsOverview'],
         queryFn: vi.fn()
-    })),
-    getAdmissionsQuery: vi.fn(() => ({
-        queryKey: ['admissions'],
-        queryFn: vi.fn()
     }))
 }));
 

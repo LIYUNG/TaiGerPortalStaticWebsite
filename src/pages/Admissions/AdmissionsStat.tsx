@@ -1,18 +1,21 @@
 import { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
+import { getAdmissionsProgramCountsQuery } from '@/api/query';
 import type { AdmissionsStatRow } from '@/api/types';
 
-export interface AdmissionsStatProps {
-    result: AdmissionsStatRow[];
-}
-
-const AdmissionsStat = ({ result }: AdmissionsStatProps) => {
+const AdmissionsStat = () => {
     const { t } = useTranslation();
+    // Fetched here (not in the parent) so it only runs when the Program tab is
+    // actually mounted, avoiding a redundant fetch on the other tabs.
+    const { data, isLoading } = useQuery(getAdmissionsProgramCountsQuery());
+    const result =
+        (data as { result?: AdmissionsStatRow[] } | undefined)?.result ?? [];
 
     type RenderCellParams = {
         value: unknown;
@@ -95,6 +98,7 @@ const AdmissionsStat = ({ result }: AdmissionsStatProps) => {
     return (
         <MuiDataGrid
             columns={memoizedColumns}
+            isLoading={isLoading}
             rows={result as unknown as Record<string, unknown>[]}
         />
     );

@@ -394,11 +394,12 @@ export const getStudent = (studentId: string) =>
 export const getApplications = (queryString: QueryString) =>
     getData<GetApplicationsResponse>(`/api/applications?${queryString}`);
 
-// Paginated active students' applications. Pass `userId` in the query string to
-// scope to a TaiGer user's supervised students; omit it for all active students.
-export const getActiveStudentsApplicationsV3 = (queryString: QueryString) =>
+// Paginated students' applications. Query params: `userId` scopes to a TaiGer
+// user's supervised students; `archiv=false` limits to active students (omit for
+// all students, incl. archived — used by the admissions overview).
+export const getStudentsApplicationsPaginated = (queryString: QueryString) =>
     getData<GetActiveStudentsApplicationsPaginatedResponse>(
-        `/api/applications/all/active/applications/paginated?${queryString}`
+        `/api/applications/applications/paginated?${queryString}`
     );
 
 export const getApplicationsDeadlineDistribution = (userId?: UserId) =>
@@ -430,8 +431,9 @@ export const getApplicationProgramsUpdateStatus = ({
 export const getActiveStudents = (queryString: QueryString) =>
     getData<GetActiveStudentsResponse>(`/api/students/active?${queryString}`);
 
-export const getAdmissions = (queryString: QueryString) =>
-    getData<GetAdmissionsResponse>(`/api/admissions?${queryString}`);
+// Per-program application counts for the admissions "Program" stat tab.
+export const getAdmissionsProgramCounts = () =>
+    getData<GetAdmissionsResponse>(`/api/admissions/program-counts`);
 
 export const getAdmissionsOverview = () =>
     getData<GetAdmissionsOverviewResponse>(`/api/admissions/overview`);

@@ -1,13 +1,13 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getActiveStudentsApplicationsV3 } from '@/api';
+import { getStudentsApplicationsPaginated } from '@/api';
 import type { GetActiveStudentsApplicationsPaginatedResponse } from '@/api/types';
 import type { IApplicationPopulated } from '@taiger-common/model';
 
 export type SortOrder = 'asc' | 'desc';
 
-export interface UseActiveStudentsApplicationsV3Params {
+export interface UseStudentsApplicationsPaginatedParams {
     /** 0-based page index (matches MUI DataGrid paginationModel.page). */
     page: number;
     /** Page size. */
@@ -21,9 +21,15 @@ export interface UseActiveStudentsApplicationsV3Params {
     filters?: Record<string, string>;
     /**
      * When set, scope results to the applications of the students this TaiGer
-     * user supervises (as agent or editor) instead of all active students.
+     * user supervises (as agent or editor).
      */
     userId?: string;
+    /**
+     * Archive scoping: `false` -> active (non-archived) students only; `true` ->
+     * archived only; omitted -> all students (e.g. the admissions overview, which
+     * spans archived students too).
+     */
+    archiv?: boolean;
     enabled?: boolean;
 }
 
@@ -34,8 +40,9 @@ const buildQueryString = ({
     sortOrder,
     search,
     userId,
+    archiv,
     filters
-}: UseActiveStudentsApplicationsV3Params): string =>
+}: UseStudentsApplicationsPaginatedParams): string =>
     queryString.stringify(
         {
             // Backend pagination is 1-based; MUI DataGrid is 0-based.
@@ -44,19 +51,21 @@ const buildQueryString = ({
             sortBy,
             sortOrder,
             search,
-            // Scope to a TaiGer user's supervised students (omit for all active).
+            // Scope to a TaiGer user's supervised students (omit for all students).
             userId,
+            // Omitted -> all students; `false` -> active only.
+            archiv,
             ...filters
         },
         { skipNull: true, skipEmptyString: true }
     );
 
 /**
- * Server-side paginated/sorted/searchable active students' applications.
+ * Server-side paginated/sorted/searchable students' applications.
  * Returns one page plus the total match count for the grid's rowCount.
  */
-export function useActiveStudentsApplicationsV3(
-    params: UseActiveStudentsApplicationsV3Params
+export function useStudentsApplicationsPaginated(
+    params: UseStudentsApplicationsPaginatedParams
 ) {
     const queryStringValue = buildQueryString(params);
 
@@ -65,11 +74,8 @@ export function useActiveStudentsApplicationsV3(
         Error,
         { applications: IApplicationPopulated[]; total: number }
     >({
-        queryKey: [
-            'applications/all/active/applications/paginated',
-            queryStringValue
-        ],
-        queryFn: () => getActiveStudentsApplicationsV3(queryStringValue),
+        queryKey: ['students/applications/paginated', queryStringValue],
+        queryFn: () => getStudentsApplicationsPaginated(queryStringValue),
         staleTime: 1000 * 60 * 5, // 5 minutes
         // Keep the previous page visible while the next one loads (no flicker).
         placeholderData: keepPreviousData,

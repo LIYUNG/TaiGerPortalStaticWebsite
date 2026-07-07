@@ -7,13 +7,6 @@ vi.mock('@tanstack/react-query', async (orig) => ({
     useQuery: vi.fn(() => ({ data: undefined, isLoading: true }))
 }));
 
-vi.mock('@/api/query', () => ({
-    getAdmissionsQuery: vi.fn(() => ({
-        queryKey: ['admissions'],
-        queryFn: vi.fn()
-    }))
-}));
-
 vi.mock('@/api', () => ({
     BASE_URL: 'http://localhost:5000'
 }));

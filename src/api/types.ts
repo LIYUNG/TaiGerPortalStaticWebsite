@@ -58,7 +58,7 @@ export type QueryString = string;
 
 /**
  * Server-side paginated response for the active students' applications table.
- * Mirrors the `/api/applications/all/active/applications/paginated` contract:
+ * Mirrors the `/api/applications/applications/paginated` contract:
  * `data.applications` is one page, `total` is the unpaginated match count.
  */
 export interface GetActiveStudentsApplicationsPaginatedResponse {

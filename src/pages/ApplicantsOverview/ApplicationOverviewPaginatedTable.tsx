@@ -25,7 +25,7 @@ import {
     SUBMISSION_STATUS_E
 } from '@utils/contants';
 import { programs_refactor_v2 } from '../Utils/util_functions';
-import { useActiveStudentsApplicationsV3 } from '@hooks/useActiveStudentsApplicationsV3';
+import { useStudentsApplicationsPaginated } from '@hooks/useStudentsApplicationsPaginated';
 import type { Application } from '@/api/types';
 import {
     FILTER_FIELD_MAP,
@@ -145,14 +145,16 @@ export const ApplicationOverviewPaginatedTable = ({
     }, [columnFilters]);
 
     const { rows, rowCount, isLoading, isFetching } =
-        useActiveStudentsApplicationsV3({
+        useStudentsApplicationsPaginated({
             page: pagination.pageIndex,
             pageSize: pagination.pageSize,
             sortBy,
             sortOrder,
             search: globalFilter || undefined,
             filters,
-            userId
+            userId,
+            // Applicants overview covers active students only.
+            archiv: false
         });
 
     // Run the existing row transform on just this page of populated documents.
