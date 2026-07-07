@@ -356,9 +356,13 @@ export const downloadCvDraft = async (
 // --- CV Details: passport photo (profile doc "Passport_Photo") ---
 
 // Fetch the student's passport photo as a Blob for preview. Throws on 404 (none).
+// Uses the student-accessible profile-file download endpoint (same base as the
+// upload below) so the CV Details photo works for every role including the
+// student — the /api/ai-assist/* routes are TaiGer-only and were removed, so
+// the old cv-photo endpoint would 404.
 export const getCvPassportPhoto = async (studentId: string): Promise<Blob> => {
     const resp = await fetch(
-        `${BASE_URL}/api/ai-assist/students/${studentId}/cv-photo`,
+        `${BASE_URL}/api/students/${studentId}/files/Passport_Photo`,
         { credentials: 'include' }
     );
     if (!resp.ok) {
