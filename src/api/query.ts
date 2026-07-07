@@ -1,6 +1,6 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 import {
-    getAdmissions,
+    getAdmissionsProgramCounts,
     getAdmissionsOverview,
     getProgramTicketsV2,
     getStatisticsOverviewV2,
@@ -272,11 +272,9 @@ export const getStudentAndDocLinksQuery = ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getAdmissionsQuery = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['admissions', queryString],
-    queryFn: () => getAdmissions(queryString),
+export const getAdmissionsProgramCountsQuery = (): UseQueryOptions => ({
+    queryKey: ['admissions', 'program-counts'],
+    queryFn: () => getAdmissionsProgramCounts(),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

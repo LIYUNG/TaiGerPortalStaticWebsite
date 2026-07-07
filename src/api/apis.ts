@@ -431,8 +431,9 @@ export const getApplicationProgramsUpdateStatus = ({
 export const getActiveStudents = (queryString: QueryString) =>
     getData<GetActiveStudentsResponse>(`/api/students/active?${queryString}`);
 
-export const getAdmissions = (queryString: QueryString) =>
-    getData<GetAdmissionsResponse>(`/api/admissions?${queryString}`);
+// Per-program application counts for the admissions "Program" stat tab.
+export const getAdmissionsProgramCounts = () =>
+    getData<GetAdmissionsResponse>(`/api/admissions/program-counts`);
 
 export const getAdmissionsOverview = () =>
     getData<GetAdmissionsOverviewResponse>(`/api/admissions/overview`);
