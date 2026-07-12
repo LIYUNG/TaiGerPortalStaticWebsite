@@ -42,6 +42,13 @@ import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import type { IUser, IUserWithId } from '@taiger-common/model';
 
+/**
+ * slackId is a real User field on the backend — the account update endpoint
+ * accepts it and Slack @-mentions read it — but @taiger-common/model does not
+ * declare it yet, so it has to be layered on here.
+ */
+type WithSlackId<T> = T & { slackId?: string };
+
 interface PersonalData {
     firstname: string;
     firstname_chinese: string;
@@ -97,18 +104,17 @@ const Profile = () => {
                   slackId: ''
               }
             : {
-                  firstname: user.firstname ?? '',
-                  firstname_chinese: user.firstname_chinese ?? '',
-                  lastname: user.lastname ?? '',
-                  lastname_chinese: user.lastname_chinese ?? '',
-                  birthday: user.birthday ?? '',
-                  role: user.role ?? '',
-                  email: user.email ?? '',
-                  lineId: user.lineId ?? '',
-                  linkedIn: user.linkedIn ?? '',
+                  firstname: user?.firstname ?? '',
+                  firstname_chinese: user?.firstname_chinese ?? '',
+                  lastname: user?.lastname ?? '',
+                  lastname_chinese: user?.lastname_chinese ?? '',
+                  birthday: user?.birthday ?? '',
+                  role: user?.role ?? '',
+                  email: user?.email ?? '',
+                  lineId: user?.lineId ?? '',
+                  linkedIn: user?.linkedIn ?? '',
                   slackId:
-                      (user as (IUserWithId & { slackId?: string }) | null)
-                          ?.slackId ?? ''
+                      (user as WithSlackId<IUserWithId> | null)?.slackId ?? ''
               },
         updateconfirmed: false,
         res_status: 0,
@@ -143,7 +149,9 @@ const Profile = () => {
                                 email: data.email ?? '',
                                 linkedIn: data.linkedIn ?? '',
                                 lineId: data.lineId ?? '',
-                                slackId: data.slackId ?? ''
+                                slackId:
+                                    (data as WithSlackId<typeof data>)
+                                        .slackId ?? ''
                             },
                             user_id: user_id ?? user?._id?.toString() ?? '',
                             res_status: status ?? 0
@@ -299,7 +307,7 @@ const Profile = () => {
             sm: 12,
             inputLabelProps: { shrink: true }
         },
-        ...(!user_id && is_TaiGer_role(user)
+        ...(!user_id && user !== null && is_TaiGer_role(user)
             ? [
                   {
                       name: 'slackId',
@@ -360,7 +368,9 @@ const Profile = () => {
             <Box component="form" noValidate sx={{ mt: 3 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        {!is_personal_data_filled(profileState.personaldata as unknown as IStudentResponse) ? (
+                        {!is_personal_data_filled(
+                            profileState.personaldata as unknown as IStudentResponse
+                        ) ? (
                             <Accordion
                                 defaultExpanded
                                 disableGutters
@@ -449,13 +459,19 @@ const Profile = () => {
                     {t('Update', { ns: 'common' })}
                 </Button>
             </Box>
-            {!user_id && user && (is_TaiGer_Agent(user as IUser) || is_TaiGer_Editor(user as IUser)) ? (
+            {!user_id &&
+            user &&
+            (is_TaiGer_Agent(user as IUser) ||
+                is_TaiGer_Editor(user as IUser)) ? (
                 <Card sx={{ padding: 2, mb: 2 }}>
                     <Typography>{t('Profile', { ns: 'common' })}</Typography>
                     <Typography variant="h5">
                         {t('Introduction', { ns: 'common' })}
                     </Typography>
-                    <Typography>{(user as unknown as { selfIntroduction?: string }).selfIntroduction ?? ''}</Typography>
+                    <Typography>
+                        {(user as unknown as { selfIntroduction?: string })
+                            .selfIntroduction ?? ''}
+                    </Typography>
                 </Card>
             ) : null}
             <Dialog

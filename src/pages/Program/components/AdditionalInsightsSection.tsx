@@ -50,9 +50,9 @@ const AdditionalInsightsSection = ({
     const navigate = useNavigate();
 
     if (
-        !(bySubject?.length > 0) &&
-        !(bySchoolType?.length > 0) &&
-        !(topContributors?.length > 0)
+        !bySubject?.length &&
+        !bySchoolType?.length &&
+        !topContributors?.length
     ) {
         return null;
     }
@@ -64,7 +64,7 @@ const AdditionalInsightsSection = ({
             </Typography>
             <Grid container mb={4} spacing={3}>
                 {/* Programs by Subject */}
-                {bySubject?.length > 0 && (
+                {bySubject && bySubject.length > 0 && (
                     <Grid item md={6} xs={12}>
                         <Card
                             onClick={() =>
@@ -166,7 +166,7 @@ const AdditionalInsightsSection = ({
                 )}
 
                 {/* School Type Distribution */}
-                {bySchoolType?.length > 0 && (
+                {bySchoolType && bySchoolType.length > 0 && (
                     <Grid item md={6} xs={12}>
                         <Card sx={{ height: 450 }}>
                             <CardContent
@@ -299,9 +299,11 @@ const AdditionalInsightsSection = ({
                                                                             }
                                                                         )}
                                                                         :{' '}
-                                                                        {new Date(
-                                                                            contributor.lastUpdate
-                                                                        ).toLocaleDateString()}
+                                                                        {contributor.lastUpdate
+                                                                            ? new Date(
+                                                                                  contributor.lastUpdate
+                                                                              ).toLocaleDateString()
+                                                                            : '-'}
                                                                     </Typography>
                                                                 </Box>
                                                                 <Chip
@@ -318,13 +320,15 @@ const AdditionalInsightsSection = ({
                                                                     mt: 1
                                                                 }}
                                                                 value={
-                                                                    (contributor.updateCount /
+                                                                    ((contributor.updateCount ??
+                                                                        0) /
                                                                         Math.max(
                                                                             ...topContributors.map(
                                                                                 (
                                                                                     c
                                                                                 ) =>
-                                                                                    c.updateCount
+                                                                                    c.updateCount ??
+                                                                                    0
                                                                             )
                                                                         )) *
                                                                     100
