@@ -674,14 +674,12 @@ export const SingleStudentPageMainContent = ({
                             </Stack>
                         </Box>
                         {singleStudentPage.detailedView ? (
-                            <TableContainer style={{ overflowX: 'auto' }}>
-                                <ProgramDetailsComparisonTable
-                                    applications={
-                                        singleStudentPage.student
-                                            ?.applications ?? []
-                                    }
-                                />
-                            </TableContainer>
+                            <ProgramDetailsComparisonTable
+                                applications={
+                                    singleStudentPage.student?.applications ??
+                                    []
+                                }
+                            />
                         ) : isMobile ? (
                             <ApplicationProgressCards
                                 student={singleStudentPage.student}
