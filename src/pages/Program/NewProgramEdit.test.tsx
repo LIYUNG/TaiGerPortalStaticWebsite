@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import NewProgramEdit from './NewProgramEdit';
 
 vi.mock('@components/AuthProvider', () => ({
@@ -69,14 +70,22 @@ const defaultProps = {
 
 describe('NewProgramEdit', () => {
     it('renders without crashing', () => {
-        render(<NewProgramEdit {...defaultProps} />);
+        render(
+            <MemoryRouter>
+                <NewProgramEdit {...defaultProps} />
+            </MemoryRouter>
+        );
         expect(
             screen.getByRole('button', { name: /Back/i })
         ).toBeInTheDocument();
     });
 
     it('renders school name from program prop', () => {
-        render(<NewProgramEdit {...defaultProps} />);
+        render(
+            <MemoryRouter>
+                <NewProgramEdit {...defaultProps} />
+            </MemoryRouter>
+        );
         // School input should have TU Berlin value
         const inputs = screen.getAllByRole('combobox');
         expect(inputs.length).toBeGreaterThan(0);
@@ -84,7 +93,13 @@ describe('NewProgramEdit', () => {
 
     it('renders for create type without program', () => {
         render(
-            <NewProgramEdit {...defaultProps} program={undefined} type="new" />
+            <MemoryRouter>
+                <NewProgramEdit
+                    {...defaultProps}
+                    program={undefined}
+                    type="new"
+                />
+            </MemoryRouter>
         );
         expect(
             screen.getByRole('button', { name: /Back/i })
@@ -92,7 +107,11 @@ describe('NewProgramEdit', () => {
     });
 
     it('renders submit button', () => {
-        render(<NewProgramEdit {...defaultProps} />);
+        render(
+            <MemoryRouter>
+                <NewProgramEdit {...defaultProps} />
+            </MemoryRouter>
+        );
         const buttons = screen.getAllByRole('button');
         expect(buttons.length).toBeGreaterThan(0);
     });

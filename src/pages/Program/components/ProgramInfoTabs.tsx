@@ -36,6 +36,7 @@ import { HighlightTextDiff } from '../../Utils/diffChecker';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import type { IUser } from '@taiger-common/model';
 import type { SingleProgramViewProgram } from '../SingleProgramView';
+import SchoolAttributesReadOnly from './SchoolAttributesReadOnly';
 
 interface ProgramVersionChange {
     originalValues?: Record<string, string>;
@@ -120,9 +121,11 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program[
-                                            program_field.prop
-                                        ]?.toString() ?? ''}
+                                        text={
+                                            program[
+                                                program_field.prop
+                                            ]?.toString() ?? ''
+                                        }
                                     />
                                 </Grid>
                             </Fragment>
@@ -146,7 +149,11 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={8} xs={12}>
                                         <LinkableNewlineText
-                                            text={program[program_field.prop]?.toString() ?? ''}
+                                            text={
+                                                program[
+                                                    program_field.prop
+                                                ]?.toString() ?? ''
+                                            }
                                         />
                                     </Grid>
                                 </Fragment>
@@ -171,9 +178,11 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={8} xs={6}>
                                         <LinkableNewlineText
-                                            text={program[
-                                                program_field.prop
-                                            ]?.toString() ?? ''}
+                                            text={
+                                                program[
+                                                    program_field.prop
+                                                ]?.toString() ?? ''
+                                            }
                                         />
                                     </Grid>
                                 </Fragment>
@@ -191,7 +200,11 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={2} xs={6}>
                                         <LinkableNewlineText
-                                            text={program[program_field.prop]?.toString() ?? ''}
+                                            text={
+                                                program[
+                                                    program_field.prop
+                                                ]?.toString() ?? ''
+                                            }
                                         />
                                     </Grid>
                                     <Grid item md={2} xs={3}>
@@ -276,9 +289,11 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program[
-                                            program_field.prop
-                                        ]?.toString() ?? ''}
+                                        text={
+                                            program[
+                                                program_field.prop
+                                            ]?.toString() ?? ''
+                                        }
                                     />
                                 </Grid>
                             </Fragment>
@@ -302,9 +317,18 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={8} xs={12}>
                                         <LinkableNewlineText
-                                            text={convertToText(
-                                                program[program_field.prop] as string | boolean | string[] | undefined | null
-                                            ) ?? ''}
+                                            text={
+                                                convertToText(
+                                                    program[
+                                                        program_field.prop
+                                                    ] as
+                                                        | string
+                                                        | boolean
+                                                        | string[]
+                                                        | undefined
+                                                        | null
+                                                ) ?? ''
+                                            }
                                         />
                                     </Grid>
                                 </Fragment>
@@ -328,7 +352,11 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program[program_field.prop]?.toString() ?? ''}
+                                        text={
+                                            program[
+                                                program_field.prop
+                                            ]?.toString() ?? ''
+                                        }
                                     />
                                 </Grid>
                             </Fragment>
@@ -347,10 +375,53 @@ const ProgramInfoTabs = ({
                                         maxWidth: '32px',
                                         maxHeight: '32px'
                                     }}
-                                    title={COUNTRIES_MAPPING[program.country as keyof typeof COUNTRIES_MAPPING]}
+                                    title={
+                                        COUNTRIES_MAPPING[
+                                            program.country as keyof typeof COUNTRIES_MAPPING
+                                        ]
+                                    }
                                 />
                             </span>
                         </Grid>
+                        <Grid item md={4} xs={12}>
+                            <Typography fontWeight="bold">
+                                {t('NC (restricted admission)', {
+                                    ns: 'common',
+                                    defaultValue: 'NC (restricted admission)'
+                                })}
+                            </Typography>
+                        </Grid>
+                        <Grid item md={8} xs={12}>
+                            <Typography>
+                                {program.isNC
+                                    ? t('Yes', {
+                                          ns: 'common',
+                                          defaultValue: 'Yes'
+                                      })
+                                    : t('No', {
+                                          ns: 'common',
+                                          defaultValue: 'No'
+                                      })}
+                            </Typography>
+                        </Grid>
+
+                        {/* School-level flags: owned by School Configuration,
+                            not editable per program. */}
+                        <Grid item xs={12}>
+                            {/* SingleProgramViewProgram is an index-signature
+                                view, so these widen to string|number|boolean.
+                                Absent means "not flagged" — the same semantics
+                                the backend uses for legacy programs. */}
+                            <SchoolAttributesReadOnly
+                                isPartnerSchool={Boolean(
+                                    program.isPartnerSchool
+                                )}
+                                isPrivateSchool={Boolean(
+                                    program.isPrivateSchool
+                                )}
+                            />
+                        </Grid>
+
                         {program.application_portal_a ? (
                             <>
                                 <Grid item md={4} xs={12}>
@@ -360,7 +431,10 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program.application_portal_a?.toString() ?? ''}
+                                        text={
+                                            program.application_portal_a?.toString() ??
+                                            ''
+                                        }
                                     />
                                 </Grid>
                                 <Grid item md={4} xs={12}>
@@ -371,7 +445,8 @@ const ProgramInfoTabs = ({
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
                                         text={
-                                            program.application_portal_a_instructions?.toString() ?? ''
+                                            program.application_portal_a_instructions?.toString() ??
+                                            ''
                                         }
                                     />
                                 </Grid>
@@ -386,7 +461,10 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program.application_portal_b?.toString() ?? ''}
+                                        text={
+                                            program.application_portal_b?.toString() ??
+                                            ''
+                                        }
                                     />
                                 </Grid>
                                 <Grid item md={4} xs={12}>
@@ -397,7 +475,8 @@ const ProgramInfoTabs = ({
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
                                         text={
-                                            program.application_portal_b_instructions?.toString() ?? ''
+                                            program.application_portal_b_instructions?.toString() ??
+                                            ''
                                         }
                                     />
                                 </Grid>
@@ -472,11 +551,12 @@ const ProgramInfoTabs = ({
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {versions.changes!
-                                .slice()
+                            {versions
+                                .changes!.slice()
                                 .reverse()
                                 .map((change, index) => {
-                                    const reverseIndex = versions.changes?.length
+                                    const reverseIndex = versions.changes
+                                        ?.length
                                         ? versions.changes.length - index
                                         : index;
                                     const keys = Object.keys({
@@ -513,7 +593,8 @@ const ProgramInfoTabs = ({
                                                     </div>
                                                     <div>
                                                         {convertDate(
-                                                            change.changedAt ?? ''
+                                                            change.changedAt ??
+                                                                ''
                                                         )}
                                                     </div>
                                                 </TableCell>

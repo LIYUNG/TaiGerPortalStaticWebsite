@@ -13,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 import DEMO from '@store/constant';
+import { SchoolAvatar } from '@components/SchoolAvatar';
 import { calculateProgramLockStatus } from '../../Utils/util_functions';
 import type { ProgramsTableProgramRow } from '../ProgramsTable';
 
@@ -84,16 +85,29 @@ export const ProgramCard = ({
                                 justifyContent: 'space-between'
                             }}
                         >
-                            <Link
-                                component={LinkDom}
-                                sx={{ fontWeight: 600 }}
-                                target="_blank"
-                                to={singleLink}
-                                underline="hover"
-                                variant="subtitle2"
+                            <Box
+                                sx={{
+                                    alignItems: 'center',
+                                    display: 'flex',
+                                    gap: 1,
+                                    minWidth: 0
+                                }}
                             >
-                                {program.school}
-                            </Link>
+                                <SchoolAvatar
+                                    school={program.school}
+                                    size={24}
+                                />
+                                <Link
+                                    component={LinkDom}
+                                    sx={{ fontWeight: 600 }}
+                                    target="_blank"
+                                    to={singleLink}
+                                    underline="hover"
+                                    variant="subtitle2"
+                                >
+                                    {program.school}
+                                </Link>
+                            </Box>
                             {lockStatus.isLocked ? (
                                 <Chip
                                     color="warning"
