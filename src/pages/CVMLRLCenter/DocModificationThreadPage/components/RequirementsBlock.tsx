@@ -15,6 +15,11 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
     const { t } = useTranslation();
 
     if (thread.program_id) {
+        // getRequirement reads the populated program as a flat string map and
+        // returns `false` only when file_type / program_id are missing.
+        const requirement = getRequirement(
+            thread as unknown as Parameters<typeof getRequirement>[0]
+        );
         return (
             <Box
                 sx={{
@@ -24,7 +29,9 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
                     }
                 }}
             >
-                <LinkableNewlineText text={getRequirement(thread)} />
+                <LinkableNewlineText
+                    text={typeof requirement === 'string' ? requirement : ''}
+                />
             </Box>
         );
     }
@@ -35,7 +42,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
                 <Box
                     sx={{
                         p: 1.5,
-                        bgcolor: theme.palette.warning.lighter || 'warning.50',
+                        bgcolor: 'warning.50',
                         borderLeft: `3px solid ${theme.palette.warning.main}`
                     }}
                 >
@@ -80,7 +87,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
             <Box
                 sx={{
                     p: 1.5,
-                    bgcolor: theme.palette.warning.lighter || 'warning.50',
+                    bgcolor: 'warning.50',
                     borderRadius: 1,
                     borderLeft: `3px solid ${theme.palette.warning.main}`
                 }}

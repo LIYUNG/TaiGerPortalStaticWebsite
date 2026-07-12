@@ -31,7 +31,9 @@ const ProgramReportModal = ({
     const [programReportModalState, setProgramReportModalState] = useState({
         description: ''
     });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         setProgramReportModalState((prevState) => ({
             ...prevState,
             description: e.target.value

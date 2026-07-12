@@ -23,7 +23,7 @@ export default function CourseWidget() {
     const { data } = useQuery(getProgramRequirementsQuery());
 
     if (!student_id) {
-        if (!is_TaiGer_role(user)) {
+        if (!user || !is_TaiGer_role(user)) {
             return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
         }
     }

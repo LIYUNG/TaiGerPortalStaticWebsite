@@ -14,11 +14,17 @@ import {
     Tabs,
     Typography
 } from '@mui/material';
-import { isProgramWithdraw } from '@taiger-common/core';
-import { isApplicationOpen } from '../../Utils/util_functions';
+import { isProgramSubmitted, isProgramWithdraw } from '@taiger-common/core';
 import DEMO from '@store/constant';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import type { SingleProgramViewStudent } from '../SingleProgramView';
+
+/**
+ * `isApplicationOpen` is typed for a fully populated `Application`; these rows
+ * only carry the decision fields, so use the same underlying predicates here.
+ */
+const isStudentApplicationOpen = (student: SingleProgramViewStudent): boolean =>
+    !isProgramSubmitted(student) && !isProgramWithdraw(student);
 
 export interface SameProgramStudentsCardProps {
     students: SingleProgramViewStudent[];
@@ -84,7 +90,7 @@ const SameProgramStudentsCard = ({
                             ) : (
                                 students
                                     ?.filter((student) =>
-                                        isApplicationOpen(student)
+                                        isStudentApplicationOpen(student)
                                     )
                                     .map((student, i) => (
                                         <TableRow key={i}>
@@ -92,7 +98,8 @@ const SameProgramStudentsCard = ({
                                                 <Link
                                                     component={LinkDom}
                                                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                        student._id?.toString(),
+                                                        student._id?.toString() ??
+                                                            '',
                                                         DEMO.PROFILE_HASH
                                                     )}`}
                                                 >
@@ -108,7 +115,8 @@ const SameProgramStudentsCard = ({
                                                             key={agent._id}
                                                             sx={{ mr: 1 }}
                                                             to={`${DEMO.TEAM_AGENT_LINK(
-                                                                agent._id?.toString()
+                                                                agent._id?.toString() ??
+                                                                    ''
                                                             )}`}
                                                         >
                                                             {agent.firstname}
@@ -124,7 +132,8 @@ const SameProgramStudentsCard = ({
                                                             key={editor._id}
                                                             sx={{ mr: 1 }}
                                                             to={`${DEMO.TEAM_EDITOR_LINK(
-                                                                editor._id?.toString()
+                                                                editor._id?.toString() ??
+                                                                    ''
                                                             )}`}
                                                         >
                                                             {editor.firstname}
@@ -167,7 +176,8 @@ const SameProgramStudentsCard = ({
                             ) : (
                                 students
                                     ?.filter(
-                                        (student) => !isApplicationOpen(student)
+                                        (student) =>
+                                            !isStudentApplicationOpen(student)
                                     )
                                     .map((student, i) => (
                                         <TableRow key={i}>
@@ -175,7 +185,8 @@ const SameProgramStudentsCard = ({
                                                 <Link
                                                     component={LinkDom}
                                                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                        student._id?.toString(),
+                                                        student._id?.toString() ??
+                                                            '',
                                                         DEMO.PROFILE_HASH
                                                     )}`}
                                                 >
@@ -198,7 +209,11 @@ const SameProgramStudentsCard = ({
                             )}
                         </TableBody>
                     </Table>
-                    <Typography sx={{ mt: 2 }} variant="string">
+                    <Typography
+                        component="span"
+                        sx={{ mt: 2 }}
+                        variant="inherit"
+                    >
                         O: admitted, X: rejected, -: not confirmed{' '}
                     </Typography>
                 </CustomTabPanel>

@@ -6,7 +6,18 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import i18next from 'i18next';
 
 import DocThreadEditor from '@components/Message/DocThreadEditor';
+import type { CheckResultItem } from '@components/Message/DocThreadEditor';
 import { OutputData } from '@editorjs/editorjs';
+
+// The naming-check results arrive as `unknown[]` from the page state: keep only
+// the entries that are actually check-result objects before handing them over.
+const toCheckResultRecords = (
+    items: unknown[]
+): Record<string, CheckResultItem>[] =>
+    items.filter(
+        (item): item is Record<string, CheckResultItem> =>
+            typeof item === 'object' && item !== null && !Array.isArray(item)
+    );
 
 export interface DiscussionEditorCardThread {
     isFinalVersion?: boolean;
@@ -107,9 +118,9 @@ const DiscussionEditorCard = ({
                     <Box sx={{ mt: 1 }}>
                         <DocThreadEditor
                             buttonDisabled={buttonDisabled}
-                            checkResult={checkResult}
+                            checkResult={toCheckResultRecords(checkResult)}
                             editorState={editorState}
-                            file={file}
+                            file={file ?? undefined}
                             handleClickSave={handleClickSave}
                             onFileChange={onFileChange}
                             readOnly={isReadOnlyThread}

@@ -27,11 +27,13 @@ import { useCustomTheme } from '@components/ThemeProvider';
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 
-interface Credentials {
+// A type alias (not an interface) so it keeps an implicit index signature and
+// stays assignable to the `ApiPayload` (Record<string, unknown>) request body.
+type Credentials = {
     current_password: string;
     new_password: string;
     new_password_again: string;
-}
+};
 
 interface SettingsState {
     error: unknown;

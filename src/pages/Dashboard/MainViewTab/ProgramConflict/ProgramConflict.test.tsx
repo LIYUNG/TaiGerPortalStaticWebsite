@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Table } from '@mui/material';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { IStudentResponse } from '@taiger-common/model';
 import ProgramConflict from './ProgramConflict';
 
 vi.mock('@store/constant', () => ({
@@ -21,6 +22,7 @@ const mockProgram = {
     degree: 'Master'
 };
 
+// Partial fixtures: only the fields ProgramConflict actually renders.
 const mockStudents = [
     {
         studentId: 'student1',
@@ -34,7 +36,7 @@ const mockStudents = [
         lastname: 'Smith',
         application_preference: { expected_application_date: '2025' }
     }
-];
+] as unknown as IStudentResponse[];
 
 describe('ProgramConflict', () => {
     beforeEach(() => {

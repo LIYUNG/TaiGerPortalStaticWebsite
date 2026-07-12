@@ -19,9 +19,10 @@ import type {
 const BaseDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const role = user && is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const isTaiGerRole = !!user && is_TaiGer_role(user);
     const { students, base_docs_link, isLoading, isError, error } =
-        useStudentsAndDocLinks({ [role]: user._id, archiv: false });
+        useStudentsAndDocLinks({ [role]: user?._id, archiv: false });
 
     TabTitle('Base Documents');
 
@@ -52,12 +53,12 @@ const BaseDocuments = () => {
                 >
                     {appConfig.companyName}
                 </Link>
-                {is_TaiGer_role(user) ? (
+                {isTaiGerRole ? (
                     <Typography color="text.primary">
                         {t('My Students', { ns: 'common' })}
                     </Typography>
                 ) : null}
-                {is_TaiGer_role(user) ? (
+                {isTaiGerRole ? (
                     <Typography color="text.primary">
                         {t('Base Documents', { ns: 'common' })}
                     </Typography>
@@ -70,7 +71,7 @@ const BaseDocuments = () => {
             {isLoading ? <Loading /> : null}
             {isError ? error?.message : null}
             {!isLoading && !isError ? (
-                is_TaiGer_role(user) ? (
+                isTaiGerRole ? (
                     <BaseDocumentsTable students={students ?? []} />
                 ) : (
                     <StudentDocoumentsView />

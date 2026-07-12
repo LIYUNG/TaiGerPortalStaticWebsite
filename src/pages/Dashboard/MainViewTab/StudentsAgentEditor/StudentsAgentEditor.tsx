@@ -36,17 +36,17 @@ import { is_User_Archived } from '../../../Utils/util_functions';
 export interface StudentsAgentEditorProps {
     student: IStudentResponse;
     submitUpdateAgentlist: (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateAgentList: unknown,
         student_id: string
     ) => void;
     submitUpdateEditorlist: (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateEditorList: unknown,
         student_id: string
     ) => void;
     submitUpdateAttributeslist: (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.MouseEvent<HTMLElement>,
         updateAttributesList: unknown,
         student_id: string
     ) => void;
@@ -55,6 +55,7 @@ export interface StudentsAgentEditorProps {
         archiv: boolean,
         shouldInform: boolean
     ) => void;
+    isArchivPage?: boolean;
 }
 
 const StudentsAgentEditor = ({
@@ -62,7 +63,8 @@ const StudentsAgentEditor = ({
     submitUpdateAgentlist,
     submitUpdateEditorlist,
     submitUpdateAttributeslist,
-    updateStudentArchivStatus
+    updateStudentArchivStatus,
+    isArchivPage
 }: StudentsAgentEditorProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -180,7 +182,7 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateAttributeslistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.MouseEvent<HTMLElement>,
         updateAttributesList: unknown,
         student_id: string
     ) => {
@@ -245,7 +247,7 @@ const StudentsAgentEditor = ({
                 title={student.archiv === true ? 'Closed' : 'Open'}
             >
                 <TableCell>
-                    {is_TaiGer_role(user) && !props.isArchivPage ? (
+                    {user !== null && is_TaiGer_role(user) && !isArchivPage ? (
                         <>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -324,12 +326,12 @@ const StudentsAgentEditor = ({
                         {is_TaiGer_role(user as IUser)
                             ? student.attributes?.map((attribute) => (
                                   <Chip
-                                      color={
-                                          COLORS[
-                                              attribute.value as keyof typeof COLORS
-                                          ]
-                                      }
-                                      key={String(attribute?._id)}
+                                      color={COLORS[attribute.value]}
+                                      key={String(
+                                          '_id' in attribute
+                                              ? attribute._id
+                                              : undefined
+                                      )}
                                       label={attribute.name}
                                       size="small"
                                   />

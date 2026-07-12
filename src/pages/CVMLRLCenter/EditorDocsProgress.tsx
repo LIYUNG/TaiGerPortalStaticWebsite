@@ -509,7 +509,8 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
     const handleAsFinalFile = (
         doc_thread_id: string,
         student_id: string,
-        application_id: string,
+        // undefined for general file threads, which have no application
+        application_id: string | undefined,
         isFinal: boolean,
         docName: string
     ) => {

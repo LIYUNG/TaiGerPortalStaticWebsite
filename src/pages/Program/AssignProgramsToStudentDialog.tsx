@@ -29,10 +29,13 @@ import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { IProgram } from '@taiger-common/model';
 import type { IStudentResponse } from '@taiger-common/model';
 
+/** A program as returned by the API: the model fields plus the serialized id. */
+type ProgramWithId = IProgram & { _id?: string };
+
 export interface AssignProgramsToStudentDialogProps {
     open: boolean;
     onClose: () => void;
-    programs: IProgram[];
+    programs: ProgramWithId[];
     handleOnSuccess: () => void;
     student?: IStudentResponse;
 }
@@ -51,11 +54,12 @@ export const AssignProgramsToStudentDialog = ({
     const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(true);
 
     const baseFilter = { archiv: false };
-    const roleFilter = is_TaiGer_Editor(user)
-        ? { ...baseFilter, editors: user._id }
-        : is_TaiGer_Agent(user)
-          ? { ...baseFilter, agents: user._id }
-          : baseFilter;
+    const roleFilter =
+        user !== null && is_TaiGer_Editor(user)
+            ? { ...baseFilter, editors: user._id }
+            : user !== null && is_TaiGer_Agent(user)
+              ? { ...baseFilter, agents: user._id }
+              : baseFilter;
 
     // Determine which filter to use based on toggle state
     const currentFilter = showMyStudentsOnly ? roleFilter : baseFilter;

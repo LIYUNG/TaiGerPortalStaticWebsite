@@ -13,7 +13,7 @@ const EssayDashboard = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle('Essay Dashboard');

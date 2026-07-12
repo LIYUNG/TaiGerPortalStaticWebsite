@@ -35,7 +35,10 @@ const AllCourses = () => {
             </Breadcrumbs>
             {isLoading ? <Loading /> : null}
             {!isLoading ? (
-                <AllCoursesTable courses={courses} isLoading={isLoading} />
+                <AllCoursesTable
+                    courses={courses ?? []}
+                    isLoading={isLoading}
+                />
             ) : null}
         </>
     );

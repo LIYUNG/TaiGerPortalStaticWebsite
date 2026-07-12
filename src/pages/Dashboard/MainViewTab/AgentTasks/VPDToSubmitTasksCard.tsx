@@ -30,7 +30,7 @@ const VPDToSubmitTasks = ({
     return (
         <>
             {/* check uni-assist */}
-            {isUniAssistVPDNeeded(application) && (
+            {isUniAssistVPDNeeded(application) && application.studentId && (
                 <TableRow>
                     <TableCell>
                         <Link

@@ -27,6 +27,11 @@ const cat = [
 
 interface EditorDataItem {
     firstname: string;
+    // The overview endpoint sends `key` (the editor's firstname) and
+    // `student_num` alongside the task counts, but the OverviewData type on the
+    // dashboard page does not declare them, so they arrive as optional here.
+    key?: string;
+    student_num?: number;
     task_counts?: { active?: number; potentials?: number };
 }
 
@@ -53,7 +58,7 @@ const OverviewDashboardTab = ({
     const { t } = useTranslation();
 
     // Process documents data
-    const documents_data = [];
+    const documents_data: { name: string; uv: number }[] = [];
     cat.forEach((ca) => {
         documents_data.push({
             name: `${ca}`,
@@ -230,7 +235,10 @@ const OverviewDashboardTab = ({
                             students per editor
                         </Typography>
                         <VerticalSingleBarChart
-                            data={editorData}
+                            data={editorData.map((editor) => ({
+                                key: editor.key ?? '',
+                                student_num: editor.student_num ?? 0
+                            }))}
                             xLabel="Student"
                         />
                     </Card>

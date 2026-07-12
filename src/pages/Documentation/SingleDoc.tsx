@@ -48,6 +48,9 @@ const SingleDoc = (props: SingleDocProps) => {
         category: ''
     });
     useEffect(() => {
+        if (!documentation_id) {
+            return;
+        }
         getDocumentation(documentation_id).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -110,6 +113,9 @@ const SingleDoc = (props: SingleDocProps) => {
         editorState: unknown
     ) => {
         e.preventDefault();
+        if (!documentation_id) {
+            return;
+        }
         const message = JSON.stringify(editorState);
         const msg = {
             title: doc_title,
@@ -125,10 +131,10 @@ const SingleDoc = (props: SingleDocProps) => {
                     setSingleDocState((prevState) => ({
                         ...prevState,
                         success,
-                        document_title: data.title ?? '',
+                        document_title: data?.title ?? '',
                         editorState: editorState as OutputData | null,
                         isEdit: !prevState.isEdit,
-                        author: data.author ?? '',
+                        author: data?.author ?? '',
                         isLoaded: true,
                         res_modal_status: status
                     }));
@@ -137,7 +143,7 @@ const SingleDoc = (props: SingleDocProps) => {
                     setSingleDocState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
@@ -204,7 +210,11 @@ const SingleDoc = (props: SingleDocProps) => {
                         to={`${DEMO.DOCS_ROOT_LINK(singleDocState.category)}`}
                         underline="hover"
                     >
-                        {documentation_categories[singleDocState.category as keyof typeof documentation_categories]}
+                        {
+                            documentation_categories[
+                                singleDocState.category as keyof typeof documentation_categories
+                            ]
+                        }
                     </Link>
                     <Typography color="text.primary">
                         {singleDocState.document_title}

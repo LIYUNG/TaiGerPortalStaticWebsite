@@ -31,7 +31,10 @@
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "erasableSyntaxOnly": true,
+        // erasableSyntaxOnly is off: @editorjs/editorjs (through 2.31.6) ships raw
+        // .ts files with real `enum`s in its types/ folder, which the flag rejects.
+        // skipLibCheck cannot suppress them (they are .ts, not .d.ts), so leaving it
+        // on makes `tsc` permanently exit non-zero on a vendor bug we cannot patch.
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
     },

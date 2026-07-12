@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import type { TFunction } from 'i18next';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
 import SurveyMissingFieldsAlerts from './SurveyMissingFieldsAlerts';
 
 vi.mock('../../Utils/checking-functions', () => ({
@@ -14,7 +16,7 @@ vi.mock('../../Utils/util_functions', () => ({
     check_languages_filled: vi.fn(() => false)
 }));
 
-const t = (k: string) => k;
+const t = ((k: string) => k) as unknown as TFunction;
 
 const incompleteSurvey = {
     academic_background: {
@@ -26,7 +28,7 @@ const incompleteSurvey = {
         }
     },
     application_preference: {}
-} as any;
+} as unknown as SurveyStateValue;
 
 describe('SurveyMissingFieldsAlerts', () => {
     it('shows missing fields card when background incomplete', () => {

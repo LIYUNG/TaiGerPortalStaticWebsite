@@ -17,26 +17,40 @@ import { createCourse, updateCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { getCoursessQuery } from '@/api/query';
+import type { GetAllCourseResponse } from '@taiger-common/model';
 
 interface CourseFormProps {
     mode: 'create' | 'edit';
 }
 
+interface CoursePayload extends Record<string, unknown> {
+    all_course_chinese: string;
+    all_course_english: string;
+}
+
 const CourseForm = ({ mode }: CourseFormProps) => {
     const { courseId } = useParams<{ courseId?: string }>();
     const { data } = useQuery({
-        ...getCoursessQuery(courseId),
+        ...getCoursessQuery(courseId ?? ''),
         enabled: mode === 'edit' && !!courseId
     });
-    const [course, setCourse] = useState({
-        all_course_chinese: data?.data?.all_course_chinese || '',
-        all_course_english: data?.data?.all_course_english || ''
+    const course_data = (data as GetAllCourseResponse | undefined)?.data;
+    const [course, setCourse] = useState<CoursePayload>({
+        all_course_chinese: course_data?.all_course_chinese || '',
+        all_course_english: course_data?.all_course_english || ''
     });
     const navigate = useNavigate();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const { mutate, isPending } = useMutation({
-        mutationFn: mode === 'create' ? createCourse : updateCourse,
+        mutationFn: (
+            variables:
+                | { payload: CoursePayload }
+                | { courseId: string; payload: CoursePayload }
+        ) =>
+            'courseId' in variables
+                ? updateCourse(variables)
+                : createCourse(variables),
         onSuccess: () => {
             setSeverity('success');
             setMessage('Updated program successfully!');
@@ -63,7 +77,7 @@ const CourseForm = ({ mode }: CourseFormProps) => {
         e.preventDefault();
         if (mode === 'create') {
             mutate({ payload: course });
-        } else {
+        } else if (courseId) {
             mutate({ courseId, payload: course });
         }
     };

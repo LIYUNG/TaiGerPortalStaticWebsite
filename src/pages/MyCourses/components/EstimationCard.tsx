@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, type ReactNode } from 'react';
 import {
     Box,
     Card,
@@ -30,6 +30,23 @@ import type { IStudentResponse } from '@taiger-common/model';
 
 import type { CategorySummaryRow, ScoreEntry } from './utils';
 import { satisfiedRequirement, getMaxScoreECTS } from './utils';
+
+const ESTIMATION_VALUE_KEYS = [
+    'value25',
+    'value50',
+    'value75',
+    'value100'
+] as const;
+
+interface EstimationRow {
+    name: string | undefined;
+    value25: number;
+    value50: number;
+    value75: number;
+    value100: number;
+    expandable?: boolean;
+    description?: ReactNode;
+}
 
 interface EstimationCardProps {
     round: string[];
@@ -99,7 +116,7 @@ export const EstimationCard = ({
         return scoreSum;
     };
 
-    const data = [];
+    const data: EstimationRow[] = [];
 
     if (
         round.findIndex(
@@ -175,8 +192,8 @@ export const EstimationCard = ({
             )
         });
     }
-    const columnSums = ['value25', 'value50', 'value75', 'value100'].map(
-        (key) => data.reduce((sum, row) => sum + row[key], 0)
+    const columnSums = ESTIMATION_VALUE_KEYS.map((key) =>
+        data.reduce((sum, row) => sum + row[key], 0)
     );
 
     return (

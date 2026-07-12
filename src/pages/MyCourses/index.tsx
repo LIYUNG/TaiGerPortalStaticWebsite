@@ -51,12 +51,14 @@ import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { IUserWithId } from '@taiger-common/model';
 
-interface CourseRow {
+// Declared as a type alias (not an interface) so it keeps the implicit index
+// signature DataSheetGrid's `Record<string, unknown>` row type requires.
+type CourseRow = {
     course_chinese: string;
     course_english: string;
     credits: string;
     grades: string;
-}
+};
 
 interface AnalysisData {
     updatedAt?: Date;
@@ -276,9 +278,7 @@ export default function MyCourses() {
             setStatedata((prevState) => ({
                 ...prevState,
                 isLoaded: true,
-                updatedAt: data.updatedAt
-                    ? String(data.updatedAt)
-                    : undefined,
+                updatedAt: data.updatedAt ? String(data.updatedAt) : undefined,
                 coursesdata: course_from_database,
                 success: success,
                 res_modal_status: status
@@ -552,10 +552,9 @@ export default function MyCourses() {
                                 theme.palette.text.primary,
                             '--dsg-header-active-text-color':
                                 theme.palette.text.primary
-                        } as React.CSSProperties &
-                            Record<string, string>
+                        } as React.CSSProperties & Record<string, string>
                     }
-                    value={statedata.coursesdata as Record<string, unknown>[]}
+                    value={statedata.coursesdata}
                 />
             </TableContainer>
             <Card
@@ -597,10 +596,9 @@ export default function MyCourses() {
                                     theme.palette.text.primary,
                                 '--dsg-header-active-text-color':
                                     theme.palette.text.primary
-                            } as React.CSSProperties &
-                                Record<string, string>
+                            } as React.CSSProperties & Record<string, string>
                         }
-                        value={statedata.coursesdata_taiger_guided as Record<string, unknown>[]}
+                        value={statedata.coursesdata_taiger_guided}
                     />
                 </TableContainer>
             </Card>

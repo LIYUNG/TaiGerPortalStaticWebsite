@@ -4,7 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { createTheme } from '@mui/material/styles';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import InterviewMetadataSidebar from './InterviewMetadataSidebar';
+import InterviewMetadataSidebar, {
+    type IInterviewPopulated
+} from './InterviewMetadataSidebar';
 
 vi.mock('@taiger-common/core', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@taiger-common/core')>();
@@ -94,7 +96,7 @@ const baseInterview = {
     interview_date: null,
     interviewer: '',
     interview_description: null
-};
+} as unknown as IInterviewPopulated;
 
 const baseProps = {
     interview: baseInterview,
@@ -159,7 +161,7 @@ describe('InterviewMetadataSidebar', () => {
                     pictureUrl: ''
                 }
             ]
-        };
+        } as unknown as IInterviewPopulated;
         renderSidebar({ ...baseProps, interview: interviewWithTrainer });
         expect(screen.getByText('Bob')).toBeInTheDocument();
     });
@@ -191,7 +193,7 @@ describe('InterviewMetadataSidebar', () => {
                 meetingLink: 'https://meet.example.com/test',
                 start: '2024-01-15T10:00:00Z'
             }
-        };
+        } as unknown as IInterviewPopulated;
         renderSidebar({ ...baseProps, interview: interviewWithMeeting });
         expect(screen.getByText('Join Meeting')).toBeInTheDocument();
     });

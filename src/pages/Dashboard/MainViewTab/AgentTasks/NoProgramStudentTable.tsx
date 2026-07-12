@@ -25,24 +25,19 @@ const NoProgramStudentTable = (props: NoProgramStudentTableProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const no_programs_student_tasks = props.students
-        .filter((student: IStudentResponse) =>
-            student.agents.some(
-                (agent: IAgentWithId) => agent._id === user._id.toString()
-            )
-        )
-        .map((student: IStudentResponse, i: number) => (
+    const userId = user?._id?.toString();
+    const myStudents = props.students.filter((student: IStudentResponse) =>
+        student.agents?.some((agent: IAgentWithId) => agent._id === userId)
+    );
+
+    const no_programs_student_tasks = myStudents.map(
+        (student: IStudentResponse, i: number) => (
             <NoProgramStudentTask key={i} student={student} />
-        ));
+        )
+    );
 
     return (
-        anyStudentWithoutApplicationSelection(
-            props.students.filter((student: IStudentResponse) =>
-                student.agents.some(
-                    (agent: IAgentWithId) => agent._id === user._id.toString()
-                )
-            )
-        ) && (
+        anyStudentWithoutApplicationSelection(myStudents) && (
             <Grid item md={4} sm={6} xs={12}>
                 <Card sx={{ mb: 2 }}>
                     <Alert severity="error">

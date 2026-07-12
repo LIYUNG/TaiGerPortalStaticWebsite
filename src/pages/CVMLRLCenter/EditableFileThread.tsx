@@ -34,7 +34,15 @@ import type {
     IStudentResponse
 } from '@taiger-common/model';
 
-interface EditableFileThreadThread {
+/**
+ * Thread entries embedded in a student (`generaldocs_threads`) or an application
+ * (`doc_modification_thread`) come back from the API with `doc_thread_id`
+ * populated and with their own sub-document `_id`. The shared model types only
+ * describe the *unpopulated* shape (`doc_thread_id?: string`, no `_id`), so the
+ * populated shape is declared here and validated at the call site before the
+ * thread is handed to this component.
+ */
+export interface EditableFileThreadThread {
     _id: string;
     isFinalVersion?: boolean;
     doc_thread_id: IDocumentthreadWithId;
@@ -68,6 +76,7 @@ interface EditableFileThreadProps {
 
 const EditableFileThread = (props: EditableFileThreadProps) => {
     const { user } = useAuth();
+    const isTaiGerRole = user !== null && is_TaiGer_role(user);
     const { t } = useTranslation();
     // Always use calculateApplicationLockStatus for consistency
     // It correctly handles approval countries by checking program staleness
@@ -208,7 +217,7 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
             <Grid container spacing={2}>
                 <Grid item md={8} xs={8}>
                     <Stack alignItems="center" direction="row" spacing={1}>
-                        {!is_TaiGer_role(user)
+                        {!isTaiGerRole
                             ? props.thread.isFinalVersion && FILE_OK_SYMBOL
                             : props.thread.isFinalVersion
                               ? FILE_OK_SYMBOL
@@ -216,8 +225,10 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
                         {documentLink}
                     </Stack>
                     <Typography color="textSecondary" variant="body2">
-                        {convertDate(props.thread.doc_thread_id?.updatedAt)} by{' '}
-                        {latestReplyInfo(props.thread.doc_thread_id)}
+                        {convertDate(
+                            props.thread.doc_thread_id?.updatedAt ?? ''
+                        )}{' '}
+                        by {latestReplyInfo(props.thread.doc_thread_id)}
                     </Typography>
                 </Grid>
                 <Grid item sm={4} xs={4}>
@@ -227,8 +238,7 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
                         justifyContent="flex-end"
                         spacing={1}
                     >
-                        {is_TaiGer_role(user) &&
-                        !props.thread.isFinalVersion ? (
+                        {isTaiGerRole && !props.thread.isFinalVersion ? (
                             <Tooltip
                                 title={
                                     isLocked
@@ -248,13 +258,13 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
                                             )
                                         }
                                     >
-                                        <CheckIcon color="success" size={24} />
+                                        <CheckIcon color="success" />
                                     </IconButton>
                                 </span>
                             </Tooltip>
                         ) : null}
                         {props.thread.isFinalVersion ? (
-                            is_TaiGer_role(user) ? (
+                            isTaiGerRole ? (
                                 <Tooltip
                                     title={
                                         isLocked
@@ -282,7 +292,7 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
                                 </Typography>
                             )
                         ) : null}
-                        {is_TaiGer_role(user) ? (
+                        {isTaiGerRole ? (
                             <Tooltip
                                 title={
                                     isLocked

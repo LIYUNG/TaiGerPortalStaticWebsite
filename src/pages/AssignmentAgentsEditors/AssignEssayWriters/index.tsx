@@ -21,7 +21,7 @@ const AssignEssayWriters = () => {
         file_type: file_category_const.essay_required
     });
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

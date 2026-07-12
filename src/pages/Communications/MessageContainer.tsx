@@ -10,6 +10,21 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 import type { ThreadMessage } from '@components/Message/MessageCard';
 import { OutputData } from '@editorjs/editorjs';
 
+interface MessageContainerState {
+    error: string;
+    isEdit: boolean;
+    message: ThreadMessage;
+    buttonDisabled: boolean;
+    /** `null` until the message body has been parsed (MessageEdit shows a spinner). */
+    editorState: OutputData | null;
+    expand: boolean;
+    deadline: string;
+    accordionKeys: number[];
+    res_status: number;
+    res_modal_status: number;
+    res_modal_message: string;
+}
+
 export interface MessageContainerProps {
     message: ThreadMessage;
     student_id: string;
@@ -24,19 +39,20 @@ const MessageContainer = (props: MessageContainerProps) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const [messageContainerState, setMessageContainerState] = useState({
-        error: '',
-        isEdit: false,
-        message: props.message,
-        buttonDisabled: false,
-        editorState: {},
-        expand: true,
-        deadline: '',
-        accordionKeys: [0], // to expand all]
-        res_status: 0,
-        res_modal_status: 0,
-        res_modal_message: ''
-    });
+    const [messageContainerState, setMessageContainerState] =
+        useState<MessageContainerState>({
+            error: '',
+            isEdit: false,
+            message: props.message,
+            buttonDisabled: false,
+            editorState: null,
+            expand: true,
+            deadline: '',
+            accordionKeys: [0], // to expand all]
+            res_status: 0,
+            res_modal_status: 0,
+            res_modal_message: ''
+        });
 
     const { mutate, isPending } = useMutation({
         mutationFn: updateAMessageInCommunicationThreadV2,
@@ -52,8 +68,13 @@ const MessageContainer = (props: MessageContainerProps) => {
             });
             setMessageContainerState((prevState) => ({
                 ...prevState,
-                editorState: JSON.parse(message),
-                message: data.data,
+                editorState: JSON.parse(message) as OutputData,
+                // The endpoint populates user_id (communication.dao POPULATE),
+                // but UpdateCommunicationMessageResponse still types it as a
+                // bare id string — the server itself casts to satisfy it.
+                message:
+                    (data.data as unknown as ThreadMessage | undefined) ??
+                    prevState.message,
                 isEdit: false,
                 buttonDisabled: false,
                 accordionKeys: [
@@ -65,15 +86,17 @@ const MessageContainer = (props: MessageContainerProps) => {
     });
 
     useEffect(() => {
-        let initialEditorState = null;
+        let initialEditorState: OutputData;
         if (props.message.message && props.message.message !== '{}') {
             try {
-                initialEditorState = JSON.parse(props.message.message);
+                initialEditorState = JSON.parse(
+                    props.message.message
+                ) as OutputData;
             } catch {
-                initialEditorState = { time: new Date(), blocks: [] };
+                initialEditorState = { time: Date.now(), blocks: [] };
             }
         } else {
-            initialEditorState = { time: new Date(), blocks: [] };
+            initialEditorState = { time: Date.now(), blocks: [] };
         }
         queueMicrotask(() => {
             setMessageContainerState((prevState) => ({
@@ -84,7 +107,7 @@ const MessageContainer = (props: MessageContainerProps) => {
     }, [props.message.message]);
 
     const updateMessage = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.MouseEvent<HTMLElement>,
         editorState: OutputData,
         messageId: string
     ) => {
@@ -116,7 +139,7 @@ const MessageContainer = (props: MessageContainerProps) => {
         ? props.message.user_id.lastname
         : 'TaiGer';
     const editable = props.message.user_id
-        ? props.message.user_id._id.toString() === user._id.toString()
+        ? props.message.user_id._id.toString() === user?._id?.toString()
             ? true
             : false
         : false;
@@ -132,7 +155,16 @@ const MessageContainer = (props: MessageContainerProps) => {
             idx={props.idx}
             isDeleting={props.isDeleting}
             isTaiGerView={props.isTaiGerView}
-            message={props.message}
+            message={{
+                _id: props.message._id,
+                // MessageEdit only formats this for display; normalise the
+                // Date form of createdAt to the ISO string it expects.
+                createdAt:
+                    props.message.createdAt instanceof Date
+                        ? props.message.createdAt.toISOString()
+                        : props.message.createdAt,
+                user_id: props.message.user_id
+            }}
             onDeleteSingleMessage={props.onDeleteSingleMessage}
         />
     ) : (
@@ -140,10 +172,12 @@ const MessageContainer = (props: MessageContainerProps) => {
             accordionKeys={props.accordionKeys}
             idx={props.idx}
             isDeleting={props.isDeleting}
+            isLoaded={false}
             isTaiGerView={props.isTaiGerView}
             message={messageContainerState.message}
             onDeleteSingleMessage={props.onDeleteSingleMessage}
             onEditMode={onEditMode}
+            path=""
         />
     );
 };

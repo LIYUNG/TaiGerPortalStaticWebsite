@@ -26,6 +26,14 @@ import { application_deadline_V2_calculator } from '../../../Utils/util_function
 import DEMO from '@store/constant';
 import { Application } from '@/api/types';
 
+// The shared query helper is typed as an untyped UseQueryOptions, so the axios
+// envelope has to be described locally at the call site.
+type StudentDocLinksAxiosLikeResponse = {
+    data?: {
+        data?: { applications?: Application[] };
+    };
+};
+
 interface RLRow {
     key: string;
     school: string;
@@ -53,7 +61,9 @@ export const GeneralRLRequirementsTab = ({
         getStudentAndDocLinksQuery({ studentId })
     );
 
-    const student = response?.data?.data || null;
+    const student =
+        (response as StudentDocLinksAxiosLikeResponse | undefined)?.data
+            ?.data || null;
     const apps: Application[] = useMemo(
         () => student?.applications ?? [],
         [student?.applications]
@@ -76,22 +86,18 @@ export const GeneralRLRequirementsTab = ({
     const rlRows = useMemo(() => {
         const rowsWithMeta: RLRow[] = relevantApplications.map(
             (app: Application) => {
-                const program = app.programId || {};
-                const school = program.school || '';
-                const programName = program.program_name || '';
-                const rlRequiredRaw = program.rl_required; // "0","1","2"
+                const program = app.programId;
+                const school = program?.school || '';
+                const programName = program?.program_name || '';
+                const rlRequiredRaw = program?.rl_required; // "0","1","2"
                 const rlRequired = normalizeCount(rlRequiredRaw);
                 const rlText =
-                    (program.rl_requirements as string | undefined)?.trim() ||
+                    (program?.rl_requirements as string | undefined)?.trim() ||
                     '';
                 const decided = (app.decided || '-').toUpperCase();
                 const deadlineDisplay = application_deadline_V2_calculator(app);
                 const programLinkTarget = program?._id
-                    ? DEMO.SINGLE_PROGRAM_LINK(
-                          typeof program._id === 'string'
-                              ? program._id
-                              : program._id?.toString?.() || ''
-                      )
+                    ? DEMO.SINGLE_PROGRAM_LINK(String(program._id))
                     : null;
 
                 return {
@@ -113,7 +119,9 @@ export const GeneralRLRequirementsTab = ({
             const decidedCompare = compareDecidedStatus(a.decided, b.decided);
             if (decidedCompare !== 0) return decidedCompare;
 
-            const deadlineCompare = a.deadlineSortValue - b.deadlineSortValue;
+            const deadlineCompare =
+                (a.deadlineSortValue ?? DEADLINE_FALLBACK_SORT_VALUE) -
+                (b.deadlineSortValue ?? DEADLINE_FALLBACK_SORT_VALUE);
             if (deadlineCompare !== 0) return deadlineCompare;
 
             return a.program_name.localeCompare(b.program_name);

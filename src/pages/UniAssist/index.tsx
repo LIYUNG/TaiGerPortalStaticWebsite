@@ -13,14 +13,15 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { getStudentUniAssistQuery } from '@/api/query';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const UniAssistList = () => {
     const { user } = useAuth();
     const { data, isLoading } = useQuery(
-        getStudentUniAssistQuery({ studentId: user._id?.toString() ?? '' })
+        getStudentUniAssistQuery({ studentId: user?._id?.toString() ?? '' })
     );
 
-    if (!is_TaiGer_Student(user)) {
+    if (!user || !is_TaiGer_Student(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle('Uni-Assist & VPD');
@@ -29,7 +30,7 @@ const UniAssistList = () => {
         return <Loading />;
     }
 
-    const studentData = (data as { data?: unknown })?.data;
+    const studentData = (data as { data?: IStudentResponse } | undefined)?.data;
 
     return (
         <>
@@ -46,7 +47,7 @@ const UniAssistList = () => {
                     Uni-Assist Tasks & VPD
                 </Typography>
             </Breadcrumbs>
-            {check_student_needs_uni_assist(studentData) ? (
+            {studentData && check_student_needs_uni_assist(studentData) ? (
                 <>
                     <Typography sx={{ my: 2 }}>
                         {i18next.t(

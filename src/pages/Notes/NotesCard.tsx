@@ -19,9 +19,18 @@ interface NotesCardProps {
     student_id: string;
 }
 
+// `notes` arrives from the Notes page as either the parsed EditorJS payload or
+// the '{}' placeholder used before anything has been saved.
+const isOutputData = (value: unknown): value is OutputData =>
+    typeof value === 'object' &&
+    value !== null &&
+    Array.isArray((value as { blocks?: unknown }).blocks);
+
 const NotesCard = (props: NotesCardProps) => {
     const [notesCardState, setNotesCardState] = useState<NotesCardState>({
-        editorState: props.notes,
+        editorState: isOutputData(props.notes)
+            ? props.notes
+            : { blocks: [] as OutputData['blocks'] },
         isLoaded: false,
         buttonDisabled: true
     });
@@ -36,7 +45,7 @@ const NotesCard = (props: NotesCardProps) => {
         });
     }, [props.isLoaded]);
 
-    const handleEditorChange = (content: unknown) => {
+    const handleEditorChange = (content: OutputData) => {
         setNotesCardState((state) => ({
             ...state,
             editorState: content,
@@ -44,7 +53,10 @@ const NotesCard = (props: NotesCardProps) => {
         }));
     };
 
-    const handleClickSave = (e: React.MouseEvent, editorState: unknown) => {
+    const handleClickSave = (
+        e: React.MouseEvent<HTMLButtonElement>,
+        editorState: OutputData
+    ) => {
         e.preventDefault();
         setNotesCardState((prevState) => ({
             ...prevState,

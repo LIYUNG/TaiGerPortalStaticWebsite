@@ -44,6 +44,7 @@ import {
 } from '@utils/contants';
 import { getMyStudentThreadMetrics, getThreadsByStudent } from '@/api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
+import ErrorPage from '../../../Utils/ErrorPage';
 import Loading from '@components/Loading/Loading';
 import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';
 import { useTranslation } from 'react-i18next';
@@ -109,21 +110,40 @@ const getCategory = (fileType: string) => {
     return 'Others'; // Default category if not found
 };
 
+/**
+ * The shared response schemas leave these payloads untyped (`data: unknown` for
+ * the metrics endpoint) or describe them incorrectly (`data` as a bare thread
+ * array rather than `{ threads }`). Both endpoints really answer with
+ * `{ success, data: { students } }` / `{ success, data: { threads } }`, so read
+ * the payload back through `unknown` here.
+ */
+interface StudentMetricsPayload {
+    students?: StudentMetricItem[];
+}
+
+interface ThreadsByStudentPayload {
+    threads?: IDocumentthreadPopulated[];
+}
+
 const getStudentMetricsQuery = () => ({
     queryKey: ['myStudentThreadMetrics'],
-    queryFn: async () => {
+    queryFn: async (): Promise<StudentMetricsPayload> => {
         // await new Promise((resolve) => setTimeout(resolve, 10000));
-        return await getMyStudentThreadMetrics();
+        const resp = await getMyStudentThreadMetrics();
+        return (resp.data?.data ?? {}) as StudentMetricsPayload;
     },
     staleTime: 1000 * 60, // 1 minutes
     cacheTime: 10 * 60 * 1000 // 10 minutes
 });
 
-const getThreadByStudentQuery = (studentId: string) => ({
+const getThreadByStudentQuery = (studentId: string | null) => ({
     queryKey: ['threadsByStudent', studentId],
-    queryFn: async () => {
+    queryFn: async (): Promise<ThreadsByStudentPayload> => {
         // await new Promise((resolve) => setTimeout(resolve, 10000));
-        return await getThreadsByStudent(studentId);
+        const resp: { data?: unknown } = await getThreadsByStudent(
+            studentId ?? ''
+        );
+        return (resp.data ?? {}) as ThreadsByStudentPayload;
     },
     enabled: !!studentId,
     staleTime: 1000 * 60, // 1 minutes
@@ -212,9 +232,15 @@ const ThreadItem = ({ thread, onClick }: ThreadItemProps) => {
     const programName = thread?.program_id
         ? `${(thread?.program_id as IProgramWithId)?.school} - ${(thread?.program_id as IProgramWithId)?.program_name}`
         : '';
+    // The API populates `user_id`, although the shared schema types it as an id.
+    const firstMessageUser = thread.messages?.[0]?.user_id as
+        | string
+        | IUserWithId
+        | undefined;
     const notRepliedByUser =
-        (thread.messages?.[0]?.user_id as IUserWithId)?._id ===
-        thread?.student_id;
+        (typeof firstMessageUser === 'object'
+            ? firstMessageUser?._id
+            : undefined) === thread?.student_id;
     const highlightItem = !isFinal && notRepliedByUser;
 
     // Check if program is from non-approval country
@@ -387,7 +413,7 @@ const StudentsList = ({
                                     behavior: 'smooth'
                                 });
                             }}
-                            selectedStudentId={studentId}
+                            selectedStudentId={studentId ?? undefined}
                             student={student}
                         />
                     ))}
@@ -498,11 +524,11 @@ const DocumentCommunicationExpandPage = () => {
         error: studentMetricsError
     } = useQuery(getStudentMetricsQuery());
 
-    const { students = [] } = studentMetricsData?.data?.data || {};
+    const { students = [] } = studentMetricsData ?? {};
 
     const { data: studentThreadsData, isLoading: studentThreadIsLoading } =
         useQuery(getThreadByStudentQuery(studentId));
-    const studentThreads = studentThreadsData?.data?.threads || [];
+    const studentThreads = studentThreadsData?.threads || [];
     useEffect(() => {
         if (!threadId) {
             return;
@@ -558,7 +584,7 @@ const DocumentCommunicationExpandPage = () => {
             if (categoryA === categoryB) {
                 if (a.file_type === b.file_type) {
                     // Sort by isFinalVersion, false first then true
-                    return a.isFinalVersion - b.isFinalVersion;
+                    return Number(a.isFinalVersion) - Number(b.isFinalVersion);
                 }
                 return a.file_type.localeCompare(b.file_type);
             }
@@ -570,12 +596,12 @@ const DocumentCommunicationExpandPage = () => {
 
     const currentCategory = '';
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
     if (studentMetricsIsError) {
-        return studentMetricsError;
+        return <ErrorPage error={studentMetricsError} />;
     }
 
     return (

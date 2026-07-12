@@ -1,4 +1,7 @@
 import { render, screen } from '@testing-library/react';
+import type { TFunction } from 'i18next';
+import type { IUser } from '@taiger-common/model';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
 
 import SurveyApplicationPreferenceCard from './components/SurveyApplicationPreferenceCard';
 
@@ -6,7 +9,7 @@ vi.mock('@taiger-common/core', () => ({
     is_TaiGer_Student: () => false
 }));
 
-const t = (key: string) => key;
+const t = ((key: string) => key) as unknown as TFunction;
 const survey = {
     student_id: 's1',
     survey_link: '',
@@ -15,11 +18,11 @@ const survey = {
         expected_application_date: '2025',
         expected_application_semester: 'WS'
     }
-};
+} as unknown as SurveyStateValue;
 
 const defaultProps = {
     survey,
-    user: { archiv: false },
+    user: { archiv: false } as unknown as IUser,
     t,
     handleChangeApplicationPreference: vi.fn(),
     setApplicationPreferenceByField: () => vi.fn(),

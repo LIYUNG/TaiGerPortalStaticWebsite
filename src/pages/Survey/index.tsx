@@ -8,11 +8,12 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
 
 interface LoaderData {
     data: {
-        academic_background?: unknown;
-        application_preference?: unknown;
+        academic_background?: SurveyStateValue['academic_background'];
+        application_preference?: SurveyStateValue['application_preference'];
     };
     survey_link?: string;
 }
@@ -28,13 +29,13 @@ const Survey = () => {
 
     TabTitle('Academic Background Survey');
 
-    if (is_TaiGer_role(user)) {
+    if (user && is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
     return (
         <Box data-testid="student_survey">
-            {is_TaiGer_Student(user) ? (
+            {user && is_TaiGer_Student(user) ? (
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link
                         color="inherit"
@@ -65,7 +66,7 @@ const Survey = () => {
                     academic_background: data?.academic_background,
                     application_preference: data?.application_preference,
                     survey_link: survey_link ?? '',
-                    student_id: user._id?.toString() ?? ''
+                    student_id: user?._id?.toString() ?? ''
                 }}
             />
         </Box>

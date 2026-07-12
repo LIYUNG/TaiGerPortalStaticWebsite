@@ -9,6 +9,10 @@ import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
 const LearningResources = () => {
     const { user } = useAuth();
 
+    if (!user) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
+
     if (!is_TaiGer_role(user) && !is_TaiGer_Student(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }

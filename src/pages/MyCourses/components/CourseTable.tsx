@@ -41,7 +41,9 @@ const CourseTable = ({ data = [], tableKey }: CourseTableProps) => {
                 <TableBody>
                     {data.map((course, index) => (
                         <TableRow key={index}>
-                            <TableCell>{course[tableKey]}</TableCell>
+                            <TableCell>
+                                {tableKey ? course[tableKey] : null}
+                            </TableCell>
                             <TableCell>{course.credits}</TableCell>
                             <TableCell>{course.grades}</TableCell>
                         </TableRow>

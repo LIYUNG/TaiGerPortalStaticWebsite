@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { DIFFICULTY } from '@taiger-common/model';
 
-type NormalizedDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+type NormalizedDifficulty = 'EASY' | 'HARD';
 
 function normalizeEssayDifficulty(
     raw: string | undefined
@@ -48,10 +48,7 @@ export function EssayDifficultyIndicator({
     switch (level) {
         case 'EASY':
             icon = (
-                <SentimentSatisfiedAltIcon
-                    aria-hidden
-                    sx={{ fontSize: 22 }}
-                />
+                <SentimentSatisfiedAltIcon aria-hidden sx={{ fontSize: 22 }} />
             );
             gradient = `linear-gradient(135deg, ${theme.palette.success.light} 0%, ${theme.palette.success.main} 100%)`;
             tooltip = t('essayDifficultyTooltipEasy', {
@@ -63,10 +60,7 @@ export function EssayDifficultyIndicator({
             break;
         case 'HARD':
             icon = (
-                <LocalFireDepartmentIcon
-                    aria-hidden
-                    sx={{ fontSize: 22 }}
-                />
+                <LocalFireDepartmentIcon aria-hidden sx={{ fontSize: 22 }} />
             );
             gradient = `linear-gradient(135deg, ${theme.palette.error.light} 0%, ${theme.palette.error.main} 100%)`;
             tooltip = t('essayDifficultyTooltipHard', {

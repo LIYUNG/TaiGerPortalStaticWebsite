@@ -155,7 +155,8 @@ import {
     type UpdatePersonalDataResponse,
     type UpdateCredentialsResponse,
     type UpdateOfficehoursResponse,
-    // Documentations    type GetAllDocumentationsResponse,
+    // Documentations
+    type GetAllDocumentationsResponse,
     type GetDocumentationResponse,
     type CreateDocumentationResponse,
     type UpdateDocumentationResponse,
@@ -1616,7 +1617,8 @@ export const updateAMessageInCommunicationThreadV2 = ({
 }: {
     communication_id: string;
     communication_messageId: string;
-    message: ApiPayload;
+    /** Serialized editor state — the endpoint stores req.body.message verbatim. */
+    message: string;
 }) =>
     putData<UpdateCommunicationMessageResponse>(
         `/api/communications/${communication_id}/${communication_messageId}`,
@@ -1851,7 +1853,7 @@ export const getMyAcademicBackground = () =>
 
 export const getStudentNotes = (student_id: string) =>
     request.get<GetStudentNotesResponse>(`/api/notes/${student_id}`);
-export const updateStudentNotes = (student_id: string, notes: ApiPayload) =>
+export const updateStudentNotes = (student_id: string, notes: string) =>
     request.put<UpdateStudentNotesResponse>(`/api/notes/${student_id}`, {
         notes
     });

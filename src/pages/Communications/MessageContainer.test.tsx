@@ -40,6 +40,7 @@ vi.mock('./MessageEdit', () => ({
 }));
 
 import MessageContainer from './MessageContainer';
+import type { ThreadMessage } from '@components/Message/MessageCard';
 
 const makeMessage = (id: string) => ({
     _id: id,
@@ -62,6 +63,7 @@ describe('MessageContainer', () => {
                 isDeleting={false}
                 isTaiGerView={false}
                 message={makeMessage('msg1')}
+                onDeleteSingleMessage={vi.fn()}
                 student_id="stu1"
             />
         );
@@ -69,7 +71,12 @@ describe('MessageContainer', () => {
     });
 
     test('renders with no user_id on message', () => {
-        const msg = { ...makeMessage('msg2'), user_id: null };
+        // The API can send back a message whose sender was removed, so keep the
+        // literal null here instead of dropping the key.
+        const msg = {
+            ...makeMessage('msg2'),
+            user_id: null
+        } as unknown as ThreadMessage;
         render(
             <MessageContainer
                 accordionKeys={[0]}
@@ -77,6 +84,7 @@ describe('MessageContainer', () => {
                 isDeleting={false}
                 isTaiGerView={false}
                 message={msg}
+                onDeleteSingleMessage={vi.fn()}
                 student_id="stu1"
             />
         );

@@ -26,31 +26,55 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import type { IAgent } from '@taiger-common/model';
 
+/** The model types office-hour slots as `unknown[]`; they are react-select options. */
+type TimeSlotOption = { value: string; label: string };
+type OfficeHoursState = Record<
+    string,
+    { active?: boolean; time_slots?: TimeSlotOption[] } | undefined
+>;
+
+interface AgentProfileState {
+    error: string;
+    role: string;
+    isLoaded: boolean;
+    data: null;
+    success: boolean;
+    agent: IAgent;
+    selectedTimezone: string;
+    updateconfirmed: boolean;
+    updatecredentialconfirmed: boolean;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+}
+
 const AgentProfile = () => {
     const { user } = useAuth();
     const { user_id } = useParams();
-    const [agentProfileState, setAgentProfileState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        agent: {} as IAgent,
-        selectedTimezone:
-            user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        updateconfirmed: false,
-        updatecredentialconfirmed: false,
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
+    const [agentProfileState, setAgentProfileState] =
+        useState<AgentProfileState>({
+            error: '',
+            role: '',
+            isLoaded: false,
+            data: null,
+            success: false,
+            agent: {} as IAgent,
+            selectedTimezone:
+                user?.timezone ||
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+            updateconfirmed: false,
+            updatecredentialconfirmed: false,
+            res_status: 0,
+            res_modal_message: '',
+            res_modal_status: 0
+        });
 
     useEffect(() => {
-        getAgentProfile(user_id).then(
+        getAgentProfile(user_id ?? '').then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     setAgentProfileState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
@@ -87,6 +111,9 @@ const AgentProfile = () => {
 
     const { res_status, isLoaded, res_modal_status, res_modal_message } =
         agentProfileState;
+    const officehours: OfficeHoursState =
+        (agentProfileState.agent.officehours as OfficeHoursState | undefined) ??
+        {};
 
     if (!isLoaded) {
         return <Loading />;
@@ -146,9 +173,7 @@ const AgentProfile = () => {
                                             control={
                                                 <Checkbox
                                                     checked={
-                                                        agentProfileState.agent
-                                                            .officehours[day]
-                                                            ?.active
+                                                        officehours[day]?.active
                                                     }
                                                     name="useProgramRequirementData"
                                                     sx={{
@@ -156,24 +181,20 @@ const AgentProfile = () => {
                                                             fontSize: '1.5rem'
                                                         }
                                                     }}
-                                                    type="checkbox"
                                                 />
                                             }
                                             label={`${day}`}
                                         />
                                     </FormControl>
-                                    {agentProfileState.agent.officehours &&
-                                    agentProfileState.agent.officehours[day]
-                                        ?.active ? (
+                                    {officehours[day]?.active ? (
                                         <Select
                                             id={`${day}`}
                                             isDisabled={true}
                                             isMulti
-                                            label={i18next.t('Timeslots')}
                                             options={time_slots}
                                             value={
-                                                agentProfileState.agent
-                                                    .officehours[day].time_slots
+                                                officehours[day]?.time_slots ??
+                                                []
                                             }
                                         />
                                     ) : (
@@ -186,7 +207,7 @@ const AgentProfile = () => {
                                 </Grid>
                             ))}
                         </Grid>
-                        {is_TaiGer_Student(user) ? (
+                        {user != null && is_TaiGer_Student(user) ? (
                             <>
                                 <Typography sx={{ my: 2 }} variant="body1">
                                     想要與顧問討論？

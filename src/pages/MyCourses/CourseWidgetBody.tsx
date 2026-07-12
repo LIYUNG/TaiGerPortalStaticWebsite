@@ -41,14 +41,16 @@ interface PopulatedProgram {
     country: string;
 }
 
+type CourseRow = {
+    course_chinese: string;
+    course_english: string;
+    credits: string;
+    grades: string;
+};
+
 interface StateData {
     error: string;
-    coursesdata: {
-        course_chinese: string;
-        course_english: string;
-        credits: string;
-        grades: string;
-    }[];
+    coursesdata: CourseRow[];
     analysis: { isAnalysedV2?: boolean } & Record<string, unknown>;
     success: boolean;
     student: null;
@@ -109,19 +111,16 @@ export default function CourseWidgetBody({
     };
 
     const onChange = (
-        new_data: {
-            course_chinese: string;
-            course_english: string;
-            credits: string;
-            grades: string;
-        }[],
+        // DataSheetGrid hands rows back as untyped records; the column set above
+        // guarantees they carry exactly the CourseRow keys.
+        new_data: Record<string, unknown>[],
         _operations: unknown[]
     ) => {
         // The widget callback includes `_operations`, but this component doesn't use it.
         void _operations;
         setStatedata((state) => ({
             ...state,
-            coursesdata: new_data
+            coursesdata: new_data as CourseRow[]
         }));
     };
 
@@ -139,7 +138,9 @@ export default function CourseWidgetBody({
                 | PopulatedProgram[]
                 | undefined;
             return {
-                id: row._id,
+                // ProgramRequirementsTable reads `row.original._id` when the user
+                // selects requirements to analyse.
+                _id: row._id,
                 program_name: `${programs?.[0]?.school} ${programs?.[0]?.program_name} ${programs?.[0]?.degree}`,
                 lang: `${programs?.[0]?.lang}`,
                 country: `${programs?.[0]?.country}`,
@@ -175,7 +176,7 @@ export default function CourseWidgetBody({
                 setOpenSnackbar(true);
                 setStatedata((state) => ({
                     ...state,
-                    analysis: data,
+                    analysis: data ?? {},
                     success: success,
                     isAnalysing: false,
                     res_modal_status: status

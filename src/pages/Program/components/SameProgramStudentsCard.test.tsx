@@ -49,11 +49,9 @@ vi.mock('@store/constant', () => ({
     }
 }));
 
-vi.mock('../../Utils/util_functions', () => ({
-    isApplicationOpen: (student: { closed?: boolean }) => !student.closed
-}));
-
 vi.mock('@taiger-common/core', () => ({
+    isProgramSubmitted: (student: { closed?: boolean }) =>
+        Boolean(student.closed),
     isProgramWithdraw: () => false
 }));
 

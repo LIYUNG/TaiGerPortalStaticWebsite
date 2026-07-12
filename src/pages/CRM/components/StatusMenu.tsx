@@ -29,9 +29,9 @@ const StatusMenu = ({
     const { t } = useTranslation();
 
     const open = Boolean(anchorEl);
-    const isTerminal = isTerminalStatus(currentStatus);
+    const isTerminal = currentStatus ? isTerminalStatus(currentStatus) : false;
 
-    let nextOptions = [];
+    let nextOptions: string[] = [];
     if (currentStatus && !isTerminal) {
         const idx = STATUS_FLOW.indexOf(currentStatus);
         nextOptions = idx >= 0 ? STATUS_FLOW.slice(idx + 1) : [];

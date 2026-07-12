@@ -11,7 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 const ProgramRequirements = () => {
     const { t } = useTranslation();
-    const { programRequirements } = useLoaderData();
+    const { programRequirements } = useLoaderData() as {
+        programRequirements: Promise<unknown[]>;
+    };
 
     TabTitle('Program Requirement Edit');
 

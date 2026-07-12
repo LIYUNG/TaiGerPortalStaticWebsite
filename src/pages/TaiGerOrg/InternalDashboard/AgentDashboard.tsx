@@ -26,8 +26,8 @@ const AgentBarCharts = ({ agentDistr }: AgentBarChartsProps) => {
             ]?.sort()
         )
     );
-    const admissionDataset = [];
-    const noAdmissionDataset = [];
+    const admissionDataset: number[] = [];
+    const noAdmissionDataset: number[] = [];
 
     // Populate datasets
     combinedKeys.forEach((key) => {

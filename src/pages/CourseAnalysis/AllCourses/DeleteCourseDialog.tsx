@@ -57,7 +57,10 @@ export const DeleteCourseDialog = ({
     });
 
     const handleSubmit = () => {
-        const courseId = courses?.map(({ _id }) => _id);
+        // deleteCourse takes a single course id; the selected ids are joined the
+        // same way the template literal in the API layer used to stringify the
+        // array, so the request stays byte-for-byte identical.
+        const courseId = (courses ?? []).map(({ _id }) => _id).join(',');
         mutate({ courseId });
     };
 
@@ -94,7 +97,7 @@ export const DeleteCourseDialog = ({
                 <Button
                     color="primary"
                     disabled={isPending}
-                    onClick={(e) => handleSubmit(e)}
+                    onClick={() => handleSubmit()}
                     variant="contained"
                 >
                     {isPending ? (

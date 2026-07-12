@@ -22,6 +22,15 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * The meetings endpoint populates `agent`, which the shared MeetingSchema only
+ * models through its unknown-typed catch-all.
+ */
+interface MeetingAgent {
+    firstname?: string;
+    lastname?: string;
+}
+
 export interface MeetingCardProps {
     meeting: IMeeting;
     isPast: boolean;
@@ -47,7 +56,11 @@ export const MeetingCard = ({
         showActions &&
         !meeting.isConfirmedReceiver;
 
-    const formatDateTime = (dateTime: string | null | undefined): string => {
+    const agent = meeting.agent as MeetingAgent | undefined;
+
+    const formatDateTime = (
+        dateTime: string | Date | null | undefined
+    ): string => {
         if (!dateTime) return t('Not set', { ns: 'common' });
         try {
             const date = new Date(dateTime);
@@ -60,7 +73,7 @@ export const MeetingCard = ({
                 minute: '2-digit'
             });
         } catch {
-            return dateTime;
+            return String(dateTime);
         }
     };
 
@@ -192,7 +205,7 @@ export const MeetingCard = ({
                         </Box>
                     )}
 
-                    {meeting.agent && (
+                    {agent && (
                         <Box
                             sx={{
                                 display: 'flex',
@@ -203,8 +216,7 @@ export const MeetingCard = ({
                             <PersonIcon color="action" fontSize="small" />
                             <Typography color="text.secondary" variant="body2">
                                 {t('Agent', { ns: 'common' })}:{' '}
-                                {meeting.agent.firstname}{' '}
-                                {meeting.agent.lastname}
+                                {agent.firstname} {agent.lastname}
                             </Typography>
                         </Box>
                     )}

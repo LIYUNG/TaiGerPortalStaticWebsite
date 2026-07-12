@@ -152,8 +152,10 @@ export const getLeadCardConfigurations = (t: TFunction) => [
                 type: 'custom',
                 render: (lead: Record<string, unknown>) => (
                     <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
-                        {lead.workExperience ||
-                            t('cards.work.noWorkExperience', { ns: 'crm' })}
+                        {typeof lead.workExperience === 'string' &&
+                        lead.workExperience
+                            ? lead.workExperience
+                            : t('cards.work.noWorkExperience', { ns: 'crm' })}
                     </Typography>
                 ),
                 editField: {

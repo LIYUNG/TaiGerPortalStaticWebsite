@@ -12,7 +12,9 @@ import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 const ProgramCreatePage = () => {
-    const { distinctSchools } = useLoaderData();
+    const { distinctSchools } = useLoaderData() as {
+        distinctSchools: Promise<unknown[]>;
+    };
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const navigate = useNavigate();
 
@@ -50,7 +52,7 @@ const ProgramCreatePage = () => {
                             handleSubmit_Program={handleSubmitProgram}
                             isSubmitting={isPending}
                             programs={loadedData}
-                            type="create"
+                            type="new"
                         />
                     )}
                 </Await>

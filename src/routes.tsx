@@ -962,6 +962,7 @@ if (appConfig.messengerEnable) {
     });
     routes.push({
         path: '/doc-communications/:documentsthreadId?',
+        exact: true,
         name: 'All Chat',
         Component: DocumentCommunicatiomExpandPage
     });

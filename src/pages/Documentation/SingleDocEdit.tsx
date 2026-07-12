@@ -5,13 +5,23 @@ import {
     FormControl,
     Select,
     MenuItem,
-    TextField
+    TextField,
+    type SelectChangeEvent
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { OutputData } from '@editorjs/editorjs';
 
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
 import { valid_categories, valid_internal_categories } from '@utils/contants';
+
+/**
+ * The editor types its save handler with the default `React.MouseEvent<Element>`
+ * while this component's `handleClickSave` prop expects an `HTMLElement` target.
+ * The click always originates from a button, so verify it rather than assert it.
+ */
+const isHtmlMouseEvent = (
+    e: React.MouseEvent
+): e is React.MouseEvent<HTMLElement> => e.currentTarget instanceof HTMLElement;
 
 interface SingleDocEditProps {
     editorState: OutputData | null;
@@ -50,31 +60,31 @@ const SingleDocEdit = ({
         });
     }, [document_title]);
 
-    const handleChange_category = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_category = (e: SelectChangeEvent<string>) => {
         e.preventDefault();
-        let category_temp = { ...singleDocEditState.category };
-        category_temp = e.target.value;
+        const category_temp = e.target.value;
         setSingleDocEdit((prevState) => ({
             ...prevState,
             category: category_temp
         }));
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         e.preventDefault();
-        let doc_title_temp = { ...singleDocEditState.doc_title };
-        doc_title_temp = e.target.value;
+        const doc_title_temp = e.target.value;
         setSingleDocEdit((prevState) => ({
             ...prevState,
             doc_title: doc_title_temp
         }));
     };
 
-    const handleClickSave2 = (
-        e: React.MouseEvent<HTMLElement>,
-        editorState: unknown
-    ) => {
+    const handleClickSave2 = (e: React.MouseEvent, editorState: OutputData) => {
         e.preventDefault();
+        if (!isHtmlMouseEvent(e)) {
+            return;
+        }
         handleClickSave(
             e,
             singleDocEditState.category,
@@ -146,6 +156,7 @@ const SingleDocEdit = ({
                 type="text"
             />
             <DocumentsListItemsEditor
+                category={singleDocEditState.category}
                 doc_title={singleDocEditState.doc_title}
                 editorState={editorState}
                 handleClickEditToggle={handleClickEditToggle}

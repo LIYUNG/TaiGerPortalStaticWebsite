@@ -63,7 +63,7 @@ export interface BaseDocumentAgent {
 /** Student row with profile documents and agents */
 export interface BaseDocumentStudentRow {
     _id: { toString(): string };
-    profile: BaseDocumentProfileItem[];
+    profile?: BaseDocumentProfileItem[];
     firstname?: string;
     lastname?: string;
     firstname_chinese?: string;
@@ -159,9 +159,12 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
                                   p.name === baseDocumentsTableState.category
                           )
                         : -1;
-                    if (profile_idx === -1) return;
-                    students_temp[student_index].profile[profile_idx] =
-                        data as BaseDocumentProfileItem;
+                    if (!profile || profile_idx === -1) return;
+                    // The endpoint responds with the updated *profile document*,
+                    // not the student, even though the shared
+                    // UpdateProfileDocStatusResponse type says otherwise.
+                    profile[profile_idx] =
+                        data as unknown as BaseDocumentProfileItem;
                     setBaseDocumentsTableState((prevState) => ({
                         ...prevState,
                         students: students_temp,

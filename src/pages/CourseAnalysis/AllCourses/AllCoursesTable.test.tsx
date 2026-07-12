@@ -25,12 +25,12 @@ vi.mock('./DeleteCourseDialog', () => ({
 
 describe('AllCoursesTable', () => {
     it('renders MaterialReactTable', () => {
-        render(<AllCoursesTable data={[]} isLoading={false} />);
+        render(<AllCoursesTable courses={[]} isLoading={false} />);
         expect(screen.getByTestId('mrt')).toBeInTheDocument();
     });
 
     it('renders DeleteCourseDialog', () => {
-        render(<AllCoursesTable data={[]} isLoading={false} />);
+        render(<AllCoursesTable courses={[]} isLoading={false} />);
         expect(screen.getByTestId('delete-course-dialog')).toBeInTheDocument();
     });
 });

@@ -3,8 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import SurveyLanguagesCard from './components/SurveyLanguagesCard';
 import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
 import type { IUser } from '@taiger-common/model';
+import type { TFunction } from 'i18next';
 
-const t = (key: string) => key;
+const t = ((key: string) => key) as unknown as TFunction;
 
 const baseSurvey: SurveyStateValue = {
     student_id: 'test-1',

@@ -14,7 +14,7 @@ vi.mock('@components/EditorJs/EditorNew', () => ({
 }));
 
 vi.mock('@utils/contants', () => ({
-    convertDate: (_ts: number) => '2024-01-01'
+    convertDate: () => '2024-01-01'
 }));
 
 import DocPageView from './DocPageView';
@@ -25,6 +25,7 @@ describe('DocPageView', () => {
     it('renders the editor', () => {
         render(
             <DocPageView
+                category="general"
                 editorState={{ blocks: [], time: Date.now(), version: '2' }}
                 handleClickEditToggle={noop}
                 handleClickSave={noop}
@@ -37,6 +38,7 @@ describe('DocPageView', () => {
     it('renders Edit button for admin agent', () => {
         render(
             <DocPageView
+                category="general"
                 editorState={{ blocks: [], time: Date.now(), version: '2' }}
                 handleClickEditToggle={noop}
                 handleClickSave={noop}
@@ -51,6 +53,7 @@ describe('DocPageView', () => {
     it('renders author info', () => {
         render(
             <DocPageView
+                category="general"
                 editorState={{ blocks: [], time: Date.now(), version: '2' }}
                 handleClickEditToggle={noop}
                 handleClickSave={noop}

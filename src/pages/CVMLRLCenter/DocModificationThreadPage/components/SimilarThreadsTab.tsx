@@ -127,7 +127,7 @@ const SimilarThreadsTab = ({ similarThreads, t }: SimilarThreadsTabProps) => {
     }
 
     return (
-        <Typography sx={{ m: 2 }} variant="text.secondary">
+        <Typography color="text.secondary" sx={{ m: 2 }}>
             {t('No similar threads found', { ns: 'common' })}
         </Typography>
     );

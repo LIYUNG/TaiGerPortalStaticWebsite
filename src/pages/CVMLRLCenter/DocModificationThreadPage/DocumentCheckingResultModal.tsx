@@ -16,6 +16,16 @@ import { getCheckDocumentPatternIsPassed } from '@/api';
 import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * GET /api/document-threads/pattern/check/:threadId/:fileType returns the
+ * verdict at the top level; the shared response type only models the envelope.
+ */
+interface DocumentPatternCheckResult {
+    success: boolean;
+    isPassed?: boolean;
+    reason?: string;
+}
+
 interface DocumentCheckingResultModalProps {
     open: boolean;
     onClose: () => void;
@@ -46,7 +56,7 @@ const DocumentCheckingResultModal = ({
     const [reason, setReason] = useState('');
     const [acknowledge, setAcknowledge] = useState(false);
     const [canProceed, setCanProceed] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -55,20 +65,21 @@ const DocumentCheckingResultModal = ({
                     thread_id,
                     file_type
                 );
-                const { isPassed, success, reason } = data;
+                const { isPassed, success, reason } =
+                    data as DocumentPatternCheckResult;
                 if (!success) {
                     throw new Error(`Error: ${status}`); // Handle HTTP errors
                 }
                 if (!isPassed) {
                     setCanProceed(false);
-                    setReason(reason);
+                    setReason(reason ?? '');
                     return;
                 }
                 setCanProceed(true);
                 setAcknowledge(true);
             } catch (err) {
                 setCanProceed(false);
-                setError(err.message); // Handle errors
+                setError(err instanceof Error ? err.message : String(err)); // Handle errors
             } finally {
                 setLoading(false); // End loading
             }

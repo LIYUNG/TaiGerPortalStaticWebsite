@@ -7,7 +7,11 @@ vi.mock('@mui/x-charts/BarChart', () => ({
 
 import AgentDashboard from './AgentDashboard';
 
-const mockDistribution = [
+const mockDistribution: {
+    name: string;
+    admission: Record<string, number>;
+    noAdmission: Record<string, number>;
+}[] = [
     {
         name: 'Agent Alice',
         admission: { '2024': 3, '2025': 2 },

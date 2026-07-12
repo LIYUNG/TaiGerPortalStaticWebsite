@@ -25,7 +25,8 @@ import type { MouseEvent } from 'react';
 import { OutputData } from '@editorjs/editorjs';
 
 export interface MessageEditProps {
-    editorState: OutputData;
+    /** `null` while the message body has not been loaded yet (renders a spinner). */
+    editorState: OutputData | null;
     onDeleteSingleMessage: (message_id: string) => void;
     isTaiGerView?: boolean;
     idx: string | number;
@@ -49,7 +50,8 @@ export interface MessageEditProps {
 const MessageEdit = (props: MessageEditProps) => {
     const { t } = useTranslation();
     const [messageEditState, setMessageEditState] = useState<{
-        editorState: OutputData;
+        /** `null` until the user edits the message in the editor. */
+        editorState: OutputData | null;
         message_id: string;
         deleteMessageModalShow: boolean;
         createdAt?: string;
@@ -99,6 +101,9 @@ const MessageEdit = (props: MessageEditProps) => {
     if (!props.editorState) {
         return <Loading />;
     }
+
+    // Local const so the non-null narrowing below survives into the onClick closure.
+    const draftEditorState = messageEditState.editorState;
 
     return (
         <>
@@ -169,11 +174,7 @@ const MessageEdit = (props: MessageEditProps) => {
                     />
                 </AccordionDetails>
 
-                {!(messageEditState.editorState as { blocks?: unknown[] })
-                    ?.blocks ||
-                (messageEditState.editorState as { blocks?: unknown[] })?.blocks
-                    ?.length === 0 ||
-                props.buttonDisabled ? (
+                {!draftEditorState?.blocks?.length || props.buttonDisabled ? (
                     <Tooltip
                         placement="top"
                         title={t(
@@ -194,7 +195,7 @@ const MessageEdit = (props: MessageEditProps) => {
                         onClick={(e) =>
                             props.handleClickSave(
                                 e,
-                                messageEditState.editorState,
+                                draftEditorState,
                                 String(props.message._id ?? '')
                             )
                         }

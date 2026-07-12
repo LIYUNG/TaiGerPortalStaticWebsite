@@ -35,15 +35,36 @@ interface FinishedDoc {
 }
 
 interface OverviewData {
-    agents_data: unknown[];
-    documents: unknown[];
-    editors_data: unknown[];
-    students_creation_dates: unknown[];
-    students_years_pair: unknown[];
+    agents_data: {
+        key: string;
+        student_num_no_offer: number;
+        student_num_with_offer: number;
+    }[];
+    documents: Record<string, { count?: number }>;
+    editors_data: {
+        firstname: string;
+        task_counts?: { active?: number; potentials?: number };
+    }[];
+    students_creation_dates: { createdAt: string }[];
+    students_years_pair: { name: string; uv: number }[];
+}
+
+interface AgentStudentDistribution {
+    name: string;
+    admission: Record<string, number>;
+    noAdmission: Record<string, number>;
 }
 
 interface AgentsData {
-    agentStudentDistribution: unknown[];
+    agentStudentDistribution: AgentStudentDistribution[];
+}
+
+interface UserAvgResponseTime {
+    _id: string;
+    name: string;
+    avgByType: Record<string, number>;
+    agents?: string[];
+    editors?: string[];
 }
 
 interface KPIData {
@@ -61,14 +82,16 @@ interface ResponseTimeData {
         firstname: string;
         lastname: string;
     }>;
-    studentAvgResponseTime: unknown;
+    studentAvgResponseTime: UserAvgResponseTime[];
 }
 
 const InternalDashboard = () => {
     const { user } = useAuth();
     const { hash } = useLocation();
     const [value, setValue] = useState(
-        INTERNAL_DASHBOARD_TABS[hash.replace('#', '')] || 0
+        INTERNAL_DASHBOARD_TABS[
+            hash.replace('#', '') as keyof typeof INTERNAL_DASHBOARD_TABS
+        ] || 0
     );
 
     // Lazy load data based on active tab
@@ -212,7 +235,7 @@ const InternalDashboard = () => {
         return { CVdataWithDuration, MLdataWithDuration, RLdataWithDuration };
     }, [kpiData]);
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -225,7 +248,10 @@ const InternalDashboard = () => {
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        window.location.hash = INTERNAL_DASHBOARD_REVERSED_TABS[newValue];
+        window.location.hash =
+            INTERNAL_DASHBOARD_REVERSED_TABS[
+                newValue as keyof typeof INTERNAL_DASHBOARD_REVERSED_TABS
+            ];
         // Trigger refetch for the newly active tab if data hasn't been loaded
         if (newValue === 0 && !overviewData) {
             refetchOverview();

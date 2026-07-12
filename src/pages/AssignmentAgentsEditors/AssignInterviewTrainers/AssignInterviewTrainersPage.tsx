@@ -25,6 +25,23 @@ interface AssignInterviewTrainersPageProps {
     interviews: IInterviewWithId[];
 }
 
+interface AssignInterviewTrainersPageState {
+    error: string;
+    isLoaded: boolean;
+    success: boolean;
+    res_modal_message: string;
+    res_modal_status: number;
+    interviews: IInterviewWithId[];
+}
+
+// The trainer selection is threaded through the card / modal chain as `unknown`;
+// EditInterviewTrainersSubpage produces a { trainerId: isSelected } map.
+const isTrainerSelection = (value: unknown): value is Record<string, boolean> =>
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((selected) => typeof selected === 'boolean');
+
 const InterviewsTable = ({ noTrainerInterviews }: InterviewsTableProps) => (
     <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
@@ -52,7 +69,7 @@ const AssignInterviewTrainersPage = ({
 }: AssignInterviewTrainersPageProps) => {
     const { t } = useTranslation();
 
-    const [state, setState] = useState({
+    const [state, setState] = useState<AssignInterviewTrainersPageState>({
         error: '',
         isLoaded: false,
         success: false,
@@ -86,7 +103,7 @@ const AssignInterviewTrainersPage = ({
                         const updatedInterviews = prevState.interviews.map(
                             (interview: IInterviewWithId) =>
                                 interview._id === interview_id
-                                    ? data
+                                    ? (data ?? interview)
                                     : interview
                         );
                         return {
@@ -100,18 +117,19 @@ const AssignInterviewTrainersPage = ({
                         return {
                             ...prevState,
                             isLoaded: true,
-                            res_modal_message: resp.data.message,
+                            res_modal_message: resp.data.message ?? '',
                             res_modal_status: status
                         };
                     }
                 });
             } catch (error) {
+                const message = error instanceof Error ? error.message : '';
                 setState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: message,
                     res_modal_status: 500,
-                    res_modal_message: error.message || ''
+                    res_modal_message: message
                 }));
             }
         },
@@ -125,6 +143,9 @@ const AssignInterviewTrainersPage = ({
             interview_id: string
         ) => {
             e.preventDefault();
+            if (!isTrainerSelection(updateTrainerList)) {
+                return;
+            }
             updateInterviewTrainerList(updateTrainerList, interview_id);
         },
         [updateInterviewTrainerList]

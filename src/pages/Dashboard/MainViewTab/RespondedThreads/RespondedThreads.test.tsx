@@ -1,8 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Table, TableBody } from '@mui/material';
+import type { ComponentProps } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import RespondedThreads from './RespondedThreads';
+
+type RespondedThreadsStudent = ComponentProps<
+    typeof RespondedThreads
+>['student'];
 
 vi.mock('@store/constant', () => ({
     default: {
@@ -69,7 +74,7 @@ const mockStudentWithThreads = {
             }
         }
     ]
-};
+} as unknown as RespondedThreadsStudent;
 
 const mockStudentNoApps = {
     _id: 'student2',
@@ -77,7 +82,7 @@ const mockStudentNoApps = {
     lastname: 'Smith',
     applications: [],
     generaldocs_threads: []
-};
+} as unknown as RespondedThreadsStudent;
 
 describe('RespondedThreads', () => {
     it('renders general doc thread link when student responded', () => {

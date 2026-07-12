@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent, useState } from 'react';
+import { FormEvent, MouseEvent, SyntheticEvent, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Button,
@@ -56,21 +56,28 @@ const NoAgentsStudentsCard = ({
         });
     };
 
+    // EditUserListSubpage fires this from a Button onClick, so the event is a
+    // MouseEvent; the parent page nevertheless types the callback it hands us
+    // as FormEvent<HTMLFormElement>. preventDefault() is all either side uses.
     const submitUpdateAgentlistHandler = (
-        e: FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        e: SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => {
         e.preventDefault();
         setAgentModalhide();
-        submitUpdateAgentlist(e, updateAgentList, student_id);
+        submitUpdateAgentlist(
+            e as FormEvent<HTMLFormElement>,
+            updateAgentList,
+            student_id
+        );
     };
 
     if (student.agents === undefined || student.agents.length === 0) {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_Admin(user) && !isArchivPage ? (
+                    {user && is_TaiGer_Admin(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -121,11 +128,11 @@ const NoAgentsStudentsCard = ({
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_Admin(user) &&
+                {user &&
+                is_TaiGer_Admin(user) &&
                 noAgentsStudentsCardState.showAgentPage ? (
                     <EditUserListSubpage
                         onHide={setAgentModalhide}
-                        setmodalhide={setAgentModalhide}
                         show={noAgentsStudentsCardState.showAgentPage}
                         student={student}
                         submitUpdateList={submitUpdateAgentlistHandler}

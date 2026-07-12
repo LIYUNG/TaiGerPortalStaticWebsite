@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type SyntheticEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Tabs,
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 
 import UsersList from './UsersList';
-import AddUserModal from './AddUserModal';
+import AddUserModal, { type NewUserInformation } from './AddUserModal';
 import DEMO from '@store/constant';
 import { addUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -29,11 +29,27 @@ import { getUsersCountQuery } from '@/api/query';
 /** Reserved for future props */
 export type UsersTableProps = object;
 
+/** Per-role user counts returned by the `users/count` endpoint. */
+interface UsersCount {
+    studentCount?: number;
+    agentCount?: number;
+    editorCount?: number;
+    externalCount?: number;
+    adminCount?: number;
+}
+
+const isUsersCount = (value: unknown): value is UsersCount =>
+    typeof value === 'object' && value !== null;
+
 const UsersTable = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const [userTableState, setUserTableState] = useState({
+    const [userTableState, setUserTableState] = useState<{
+        addUserModalState: boolean;
+        users: null;
+        selected_user_id?: string;
+    }>({
         addUserModalState: false,
         users: null
     });
@@ -43,7 +59,10 @@ const UsersTable = () => {
         setValue(newValue);
     };
 
-    const { data: usersCount } = useQuery(getUsersCountQuery());
+    const { data: usersCountData } = useQuery(getUsersCountQuery());
+    const usersCount: UsersCount = isUsersCount(usersCountData)
+        ? usersCountData
+        : {};
 
     const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
         mutationFn: (user_information: Parameters<typeof addUser>[0]) =>
@@ -80,18 +99,13 @@ const UsersTable = () => {
     };
 
     const AddUserSubmit = (
-        _e: FormEvent<HTMLFormElement>,
-        user_information: {
-            firstname: string;
-            lastname: string;
-            email: string;
-            role?: string;
-        }
+        _e: SyntheticEvent,
+        user_information: NewUserInformation
     ) => {
         addUserMutation(user_information);
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (user === null || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(t('User List', { ns: 'common' }));

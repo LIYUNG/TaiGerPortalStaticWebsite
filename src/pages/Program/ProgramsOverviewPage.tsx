@@ -41,6 +41,10 @@ import TopPerformersSection from './components/TopPerformersSection';
 import AdditionalInsightsSection from './components/AdditionalInsightsSection';
 import type { IUser } from '@taiger-common/model';
 
+type RecentlyUpdatedProgram = NonNullable<
+    ProgramsOverviewData['recentlyUpdated']
+>[number] & { _id?: string };
+
 const ProgramsOverviewPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -119,6 +123,11 @@ const ProgramsOverviewPage = () => {
     if (!overview) {
         return null;
     }
+
+    // The API schema for `recentlyUpdated` omits `_id`, which the backend does
+    // return and which this page needs for the program link.
+    const recentlyUpdated: RecentlyUpdatedProgram[] =
+        overview.recentlyUpdated ?? [];
 
     // Calculate summary statistics
     const byCountry = overview.byCountry ?? [];
@@ -262,20 +271,56 @@ const ProgramsOverviewPage = () => {
             />
 
             <TopPerformersSection
-                topSchools={overview.topSchools ?? []}
-                topApplicationPrograms={topApplicationPrograms}
+                topSchools={(overview.topSchools ?? []).map((item) => ({
+                    ...item,
+                    school: item.school ?? '',
+                    country: item.country ?? '',
+                    city: item.city ?? '',
+                    programCount: item.programCount ?? 0
+                }))}
+                topApplicationPrograms={topApplicationPrograms.map((item) => ({
+                    ...item,
+                    programId: item.programId ?? '',
+                    program_name: item.program_name ?? '',
+                    degree: item.degree ?? '',
+                    semester: item.semester ?? '',
+                    school: item.school ?? '',
+                    country: item.country ?? '',
+                    totalApplications: item.totalApplications ?? 0,
+                    submittedCount: item.submittedCount ?? 0,
+                    admittedCount: item.admittedCount ?? 0,
+                    rejectedCount: item.rejectedCount ?? 0,
+                    pendingCount: item.pendingCount ?? 0,
+                    admissionRate: item.admissionRate ?? 0
+                }))}
                 t={t}
             />
 
             <AdditionalInsightsSection
-                bySubject={overview.bySubject}
-                bySchoolType={overview.bySchoolType}
-                topContributors={overview.topContributors}
+                bySubject={(overview.bySubject ?? []).map((item) => ({
+                    ...item,
+                    subject: item.subject ?? '',
+                    count: item.count ?? 0
+                }))}
+                bySchoolType={(overview.bySchoolType ?? []).map((item) => ({
+                    ...item,
+                    schoolType: item.schoolType ?? '',
+                    count: item.count ?? 0
+                }))}
+                topContributors={(overview.topContributors ?? []).map(
+                    (item) => ({
+                        ...item,
+                        lastUpdate:
+                            item.lastUpdate instanceof Date
+                                ? item.lastUpdate.toISOString()
+                                : item.lastUpdate
+                    })
+                )}
                 t={t}
             />
 
             {/* Recent Activity Section */}
-            {(overview.recentlyUpdated ?? []).length > 0 && (
+            {recentlyUpdated.length > 0 && (
                 <>
                     <Typography gutterBottom sx={{ mt: 4, mb: 3 }} variant="h5">
                         {t('Recent Activity', { ns: 'common' })}
@@ -335,7 +380,7 @@ const ProgramsOverviewPage = () => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {(overview.recentlyUpdated ?? []).map(
+                                                {recentlyUpdated.map(
                                                     (program) => (
                                                         <TableRow
                                                             key={program._id}
@@ -348,7 +393,7 @@ const ProgramsOverviewPage = () => {
                                                                     component={
                                                                         LinkDom
                                                                     }
-                                                                    to={`${DEMO.SINGLE_PROGRAM_LINK(program._id)}`}
+                                                                    to={`${DEMO.SINGLE_PROGRAM_LINK(program._id ?? '')}`}
                                                                     underline="hover"
                                                                 >
                                                                     {
@@ -371,7 +416,8 @@ const ProgramsOverviewPage = () => {
                                                             </TableCell>
                                                             <TableCell>
                                                                 {new Date(
-                                                                    program.updatedAt
+                                                                    program.updatedAt ??
+                                                                        ''
                                                                 ).toLocaleDateString()}
                                                             </TableCell>
                                                         </TableRow>

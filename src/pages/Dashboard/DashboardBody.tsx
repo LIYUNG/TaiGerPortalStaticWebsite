@@ -58,14 +58,21 @@ const DashboardBody = () => {
                     </Link>
                 </span>
             </Alert>
-            {is_TaiGer_Admin(user) ? <AdminMainView /> : null}
-            {is_TaiGer_Agent(user) ? <AgentMainView /> : null}
-            {is_TaiGer_Editor(user) ? <EditorMainView /> : null}
-            {is_TaiGer_External(user) ? (
+            {user !== null && is_TaiGer_Admin(user) ? <AdminMainView /> : null}
+            {user !== null && is_TaiGer_Agent(user) ? <AgentMainView /> : null}
+            {user !== null && is_TaiGer_Editor(user) ? (
+                <EditorMainView />
+            ) : null}
+            {user !== null && is_TaiGer_External(user) ? (
                 <ExternalMainView students={[]} />
             ) : null}
-            {is_TaiGer_Student(user) ? <StudentDashboard /> : null}
-            {is_TaiGer_Guest(user) ? <GuestDashboard /> : null}
+            {user !== null && is_TaiGer_Student(user) ? (
+                // StudentDashboard re-fetches the signed-in student itself; the
+                // `student` prop only seeds unread state and `isCoursesFilled`
+                // was previously undefined (falsy) on this path.
+                <StudentDashboard isCoursesFilled={false} student={user} />
+            ) : null}
+            {user !== null && is_TaiGer_Guest(user) ? <GuestDashboard /> : null}
         </Box>
     );
 };

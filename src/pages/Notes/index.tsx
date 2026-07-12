@@ -82,7 +82,7 @@ const Notes = (props: NotesProps) => {
         );
     }, [props.student_id]);
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle('Academic Background Survey');
@@ -101,7 +101,6 @@ const Notes = (props: NotesProps) => {
                 isLoaded={notesState.isLoaded}
                 notes={notesState.notes}
                 student_id={props.student_id}
-                user={user}
             />
         </Box>
     );

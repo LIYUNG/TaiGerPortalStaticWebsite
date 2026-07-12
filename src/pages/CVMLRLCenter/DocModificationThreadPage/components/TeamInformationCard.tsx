@@ -27,7 +27,7 @@ import {
     FILE_TYPE_E
 } from '../../../Utils/util_functions';
 
-const getInitials = (firstname: string, lastname: string) => {
+const getInitials = (firstname?: string, lastname?: string) => {
     return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
 };
 
@@ -201,104 +201,98 @@ const TeamInformationCard = ({
                         ...AGENT_SUPPORT_DOCUMENTS_A,
                         FILE_TYPE_E.essay_required
                     ].includes(thread.file_type) ? (
-                        thread?.outsourced_user_id?.length > 0 ? (
+                        thread.outsourced_user_id &&
+                        thread.outsourced_user_id.length > 0 ? (
                             <Stack direction="row" flexWrap="wrap" gap={0.75}>
-                                {thread?.outsourced_user_id?.map(
-                                    (outsourcer) => (
-                                        <Tooltip
-                                            key={outsourcer._id}
-                                            title={`${outsourcer.firstname} ${outsourcer.lastname}`}
-                                        >
-                                            {is_TaiGer_role(user) ? (
-                                                <Chip
-                                                    avatar={
-                                                        <Avatar
-                                                            src={
-                                                                outsourcer.pictureUrl
-                                                            }
-                                                            {...stringAvatar(
-                                                                `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                            )}
-                                                            sx={{
-                                                                bgcolor:
-                                                                    theme
-                                                                        .palette
-                                                                        .secondary
-                                                                        .main,
-                                                                color: 'white',
-                                                                fontSize:
-                                                                    '0.65rem',
-                                                                width: 24,
-                                                                height: 24
-                                                            }}
-                                                        >
-                                                            {getInitials(
-                                                                outsourcer.firstname,
-                                                                outsourcer.lastname
-                                                            )}
-                                                        </Avatar>
-                                                    }
-                                                    clickable
-                                                    component={LinkDom}
-                                                    label={`${outsourcer.firstname}`}
-                                                    size="small"
-                                                    sx={{
-                                                        fontWeight: 500,
-                                                        fontSize: '0.8rem',
-                                                        height: 28,
-                                                        '&:hover': {
-                                                            bgcolor:
-                                                                'secondary.50'
+                                {thread.outsourced_user_id.map((outsourcer) => (
+                                    <Tooltip
+                                        key={outsourcer._id}
+                                        title={`${outsourcer.firstname} ${outsourcer.lastname}`}
+                                    >
+                                        {is_TaiGer_role(user) ? (
+                                            <Chip
+                                                avatar={
+                                                    <Avatar
+                                                        src={
+                                                            outsourcer.pictureUrl
                                                         }
-                                                    }}
-                                                    target="_blank"
-                                                    to={`${DEMO.TEAM_EDITOR_LINK(
-                                                        outsourcer._id.toString()
-                                                    )}`}
-                                                    variant="outlined"
-                                                />
-                                            ) : (
-                                                <Chip
-                                                    avatar={
-                                                        <Avatar
-                                                            src={
-                                                                outsourcer.pictureUrl
-                                                            }
-                                                            {...stringAvatar(
-                                                                `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                            )}
-                                                            sx={{
-                                                                bgcolor:
-                                                                    theme
-                                                                        .palette
-                                                                        .secondary
-                                                                        .main,
-                                                                color: 'white',
-                                                                fontSize:
-                                                                    '0.65rem',
-                                                                width: 24,
-                                                                height: 24
-                                                            }}
-                                                        >
-                                                            {getInitials(
-                                                                outsourcer.firstname,
-                                                                outsourcer.lastname
-                                                            )}
-                                                        </Avatar>
+                                                        {...stringAvatar(
+                                                            `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                        )}
+                                                        sx={{
+                                                            bgcolor:
+                                                                theme.palette
+                                                                    .secondary
+                                                                    .main,
+                                                            color: 'white',
+                                                            fontSize: '0.65rem',
+                                                            width: 24,
+                                                            height: 24
+                                                        }}
+                                                    >
+                                                        {getInitials(
+                                                            outsourcer.firstname,
+                                                            outsourcer.lastname
+                                                        )}
+                                                    </Avatar>
+                                                }
+                                                clickable
+                                                component={LinkDom}
+                                                label={`${outsourcer.firstname}`}
+                                                size="small"
+                                                sx={{
+                                                    fontWeight: 500,
+                                                    fontSize: '0.8rem',
+                                                    height: 28,
+                                                    '&:hover': {
+                                                        bgcolor: 'secondary.50'
                                                     }
-                                                    label={`${outsourcer.firstname}`}
-                                                    size="small"
-                                                    sx={{
-                                                        fontWeight: 500,
-                                                        fontSize: '0.8rem',
-                                                        height: 28
-                                                    }}
-                                                    variant="outlined"
-                                                />
-                                            )}
-                                        </Tooltip>
-                                    )
-                                )}
+                                                }}
+                                                target="_blank"
+                                                to={`${DEMO.TEAM_EDITOR_LINK(
+                                                    outsourcer._id.toString()
+                                                )}`}
+                                                variant="outlined"
+                                            />
+                                        ) : (
+                                            <Chip
+                                                avatar={
+                                                    <Avatar
+                                                        src={
+                                                            outsourcer.pictureUrl
+                                                        }
+                                                        {...stringAvatar(
+                                                            `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                        )}
+                                                        sx={{
+                                                            bgcolor:
+                                                                theme.palette
+                                                                    .secondary
+                                                                    .main,
+                                                            color: 'white',
+                                                            fontSize: '0.65rem',
+                                                            width: 24,
+                                                            height: 24
+                                                        }}
+                                                    >
+                                                        {getInitials(
+                                                            outsourcer.firstname,
+                                                            outsourcer.lastname
+                                                        )}
+                                                    </Avatar>
+                                                }
+                                                label={`${outsourcer.firstname}`}
+                                                size="small"
+                                                sx={{
+                                                    fontWeight: 500,
+                                                    fontSize: '0.8rem',
+                                                    height: 28
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    </Tooltip>
+                                ))}
                             </Stack>
                         ) : (
                             <Typography

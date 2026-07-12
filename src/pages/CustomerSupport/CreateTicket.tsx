@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import {
     TextField,
@@ -10,6 +10,7 @@ import {
     FormControl,
     InputLabel,
     Select,
+    type SelectChangeEvent,
     MenuItem
 } from '@mui/material';
 import { appConfig } from '../../config';
@@ -43,7 +44,7 @@ const CreateComplaintTicket = () => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: SelectChangeEvent<string>) => {
         e.preventDefault();
         const { value } = e.target;
         setCategory(value);

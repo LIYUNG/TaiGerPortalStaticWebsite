@@ -138,10 +138,7 @@ const AddInterview = () => {
         }));
     };
 
-    const handleClickSave = (
-        e: MouseEvent,
-        editorState: OutputData
-    ) => {
+    const handleClickSave = (e: MouseEvent, editorState: OutputData) => {
         e.preventDefault();
         if (
             !interviewTrainingState.interviewData.program_id ||
@@ -173,7 +170,7 @@ const AddInterview = () => {
                         ...prevState,
                         isLoaded: true,
                         isSubmitting: false,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
@@ -197,7 +194,7 @@ const AddInterview = () => {
         if (e.target.name === 'student') {
             setAddInterviewState((prevState) => ({
                 ...prevState,
-                student: interviewTrainingState.students.find(
+                student: interviewTrainingState.students?.find(
                     (std: IStudentResponse) => e.target.value === std._id
                 )
             }));
@@ -237,31 +234,29 @@ const AddInterview = () => {
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
-    let available_interview_request_programs = [];
-    available_interview_request_programs = student?.applications
-        .filter(
-            (application: IApplicationPopulated) =>
-                isProgramDecided(application) &&
-                isProgramSubmitted(application) &&
-                !isProgramAdmitted(application) &&
-                !isProgramRejected(application) &&
-                !interviewslist.find(
-                    (interview: IInterviewWithId) =>
-                        (
-                            interview.program_id as unknown as IProgramWithId
-                        )._id.toString() ===
-                            application.programId!._id.toString() &&
-                        (
-                            interview.student_id as unknown as IStudentResponse
-                        )._id.toString() === student._id.toString()
-                )
-        )
-        .map((application: IApplicationPopulated) => {
-            return {
-                key: application.programId!._id.toString(),
-                value: `${application.programId!.school} ${application.programId!.program_name} ${application.programId!.degree} ${application.programId!.semester}`
-            };
-        });
+    const available_interview_request_programs =
+        student?.applications
+            ?.filter(
+                (application: IApplicationPopulated) =>
+                    isProgramDecided(application) &&
+                    isProgramSubmitted(application) &&
+                    !isProgramAdmitted(application) &&
+                    !isProgramRejected(application) &&
+                    !interviewslist?.find(
+                        (interview: IInterviewWithId) =>
+                            (
+                                interview.program_id as unknown as IProgramWithId
+                            )._id.toString() ===
+                                application.programId?._id.toString() &&
+                            (
+                                interview.student_id as unknown as IStudentResponse
+                            )._id.toString() === student._id.toString()
+                    )
+            )
+            .map((application: IApplicationPopulated) => ({
+                key: application.programId?._id.toString() ?? '',
+                value: `${application.programId?.school} ${application.programId?.program_name} ${application.programId?.degree} ${application.programId?.semester}`
+            })) ?? [];
 
     return (
         <Box>

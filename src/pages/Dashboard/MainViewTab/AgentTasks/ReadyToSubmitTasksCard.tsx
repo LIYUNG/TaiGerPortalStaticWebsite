@@ -35,14 +35,14 @@ const ReadyToSubmitTasks = ({
     application: IApplicationPopulated;
     students: IStudentResponse[];
 }) => {
+    const student = students.find(
+        (std: IStudentResponse) =>
+            std._id.toString() === application.studentId?._id
+    );
     return (
         isProgramDecided(application) &&
-        isCVFinished(
-            students.find(
-                (std: IStudentResponse) =>
-                    std._id.toString() === application.studentId?._id
-            )
-        ) &&
+        !!student &&
+        isCVFinished(student) &&
         is_program_ml_rl_essay_ready(application) &&
         is_the_uni_assist_vpd_uploaded(application) &&
         !is_program_closed(application) && (
@@ -51,13 +51,13 @@ const ReadyToSubmitTasks = ({
                     <Link
                         component={LinkDom}
                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                            application.studentId?._id,
+                            application.studentId?._id ?? '',
                             DEMO.CVMLRL_HASH
                         )}`}
                     >
                         <b>
-                            {application.studentId.firstname}{' '}
-                            {application.studentId.lastname}
+                            {application.studentId?.firstname}{' '}
+                            {application.studentId?.lastname}
                         </b>
                     </Link>
                 </TableCell>
@@ -92,16 +92,16 @@ const ReadyToSubmitTasks = ({
                 </TableCell>
                 <TableCell>
                     <b className="text-warning">
-                        {application.programId.degree}
+                        {application.programId?.degree}
                     </b>
                     {' - '}
                     <b className="text-warning">
-                        {application.programId.semester}
+                        {application.programId?.semester}
                     </b>
                     {' - '}
                     <b className="text-warning">
-                        {application.programId.school}{' '}
-                        {application.programId.program_name}
+                        {application.programId?.school}{' '}
+                        {application.programId?.program_name}
                     </b>
                 </TableCell>
             </TableRow>

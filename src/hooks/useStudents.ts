@@ -70,7 +70,7 @@ function useStudents(props: UseStudentsProps) {
         updateAgentList: unknown,
         student_id: string
     ): void => {
-        updateAgents(updateAgentList as string[], student_id)
+        updateAgents(updateAgentList as Record<string, boolean>, student_id)
             .then((resp: unknown) => {
                 const r = resp as {
                     data: {
@@ -116,10 +116,10 @@ function useStudents(props: UseStudentsProps) {
 
     const UpdateEditorlist = (
         _e: React.FormEvent,
-        updateEditorList: Record<string, boolean>,
+        updateEditorList: unknown,
         student_id: string
     ): void => {
-        updateEditors(updateEditorList, student_id)
+        updateEditors(updateEditorList as Record<string, boolean>, student_id)
             .then((resp: unknown) => {
                 const r = resp as {
                     data: {

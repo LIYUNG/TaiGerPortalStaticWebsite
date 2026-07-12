@@ -12,7 +12,11 @@ import Underline from '@editorjs/underline';
 import ColorPlugin from 'editorjs-text-color-plugin';
 import TextAlign from '@canburaks/text-align-editorjs';
 
-import { type ToolConfig, type OutputData } from '@editorjs/editorjs';
+import {
+    type LogLevels,
+    type ToolConfig,
+    type OutputData
+} from '@editorjs/editorjs';
 import { uploadImage, uploadDocumentThreadImage } from '@/api';
 
 /**
@@ -156,7 +160,10 @@ const EditorSimple = (props: EditorSimpleProps) => {
     const initEditor = (holderEl: HTMLElement) => {
         const editor = new EditorJS({
             holder: holderEl,
-            logLevel: 'ERROR',
+            // `LogLevels` is a string enum that Editor.js only ships as a type
+            // (the bundle has a single default export), so it cannot be
+            // referenced as a value here.
+            logLevel: 'ERROR' as LogLevels,
             data: props.editorState,
             onChange: async (api: {
                 saver: { save: () => Promise<OutputData> };

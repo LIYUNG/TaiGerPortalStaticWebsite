@@ -19,7 +19,7 @@ import GaugeCard from '@components/GaugeCard';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import type { IStudentResponse } from '@taiger-common/model';
 
-import type { ProgramSheet } from './utils';
+import type { CourseTableRow, ProgramSheet } from './utils';
 import {
     settings,
     allRequiredECTSCrossPrograms,
@@ -35,6 +35,12 @@ interface GeneralCourseAnalysisComponentProps {
     student: IStudentResponse;
     onProgramSelect: (index: number) => void;
 }
+
+/**
+ * The `General` entry of `sheets` does not follow the ProgramSheet shape: it is
+ * keyed by course-group name and holds the rows rendered by CourseTable.
+ */
+type GeneralSheet = Record<string, CourseTableRow[]>;
 
 export const GeneralCourseAnalysisComponent = ({
     sheets,
@@ -59,20 +65,22 @@ export const GeneralCourseAnalysisComponent = ({
         [sheets]
     );
 
+    const generalSheet = sheets?.General as unknown as GeneralSheet | undefined;
+
     const generalSheetKeysArray = useMemo(
-        () => Object.keys(sheets?.General || {}),
-        [sheets?.General]
+        () => Object.keys(generalSheet || {}),
+        [generalSheet]
     );
 
-    const myGermanGPA = useMemo(
-        () =>
-            Bayerische_Formel(
-                student?.academic_background?.university?.Highest_GPA_Uni,
-                student?.academic_background?.university?.Passing_GPA_Uni,
-                student?.academic_background?.university?.My_GPA_Uni
-            ),
-        [student?.academic_background?.university]
-    );
+    const myGermanGPA = useMemo(() => {
+        const university = student?.academic_background?.university;
+        // Missing GPAs keep the previous behaviour: the formula yields 'NaN'.
+        return Bayerische_Formel(
+            university?.Highest_GPA_Uni ?? NaN,
+            university?.Passing_GPA_Uni ?? NaN,
+            university?.My_GPA_Uni ?? NaN
+        );
+    }, [student?.academic_background?.university]);
 
     const matchingOverallECTSPercentage = useMemo(() => {
         const required = allRequiredECTSCrossPrograms(programSheetsArray);
@@ -192,8 +200,8 @@ export const GeneralCourseAnalysisComponent = ({
                                 }
                             }}
                             score={Number(
-                                matchingOverallECTSPercentage
-                            ).toFixed(0)}
+                                matchingOverallECTSPercentage.toFixed(0)
+                            )}
                             settings={settings}
                             subtitle="Average course requirement coverage across all programs"
                             sx={{ height: 280 }}
@@ -280,10 +288,10 @@ export const GeneralCourseAnalysisComponent = ({
                                     gutterBottom
                                     variant="h6"
                                 >
-                                    {sheets.General?.[keyName][0][keyName]}
+                                    {generalSheet?.[keyName][0][keyName]}
                                 </Typography>
                                 <CourseTable
-                                    data={sheets.General?.[keyName] || []}
+                                    data={generalSheet?.[keyName] || []}
                                     tableKey="courses"
                                 />
                             </Card>

@@ -261,7 +261,7 @@ const InterviewMetadataSidebar = ({
     const documentationGradient = getGradientColors('documentation');
 
     // Helper function to get initials for avatar
-    const getInitials = (firstname: string, lastname: string) => {
+    const getInitials = (firstname?: string, lastname?: string) => {
         return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
     };
 
@@ -307,7 +307,7 @@ const InterviewMetadataSidebar = ({
             const { message } = resp.data;
             setModalError({
                 show: true,
-                message: message,
+                message: message ?? '',
                 status: resp.status
             });
         }
@@ -377,7 +377,7 @@ const InterviewMetadataSidebar = ({
                 const { message } = resp.data;
                 setModalError({
                     show: true,
-                    message: message,
+                    message: message ?? '',
                     status: resp.status
                 });
             }
@@ -428,23 +428,29 @@ const InterviewMetadataSidebar = ({
             }
         );
         const { data: interview_updated, success } = data;
-        if (success) {
-            const parsed = {
-                ...interview_updated,
+        if (success && interview_updated) {
+            // Only the editable fields are mirrored back into local state; the
+            // response carries the *unpopulated* interview, so spreading it
+            // would clobber the populated student/program/trainer references.
+            setLocalInterview((prevState) => ({
+                ...prevState,
+                interviewer: interview_updated.interviewer,
+                interview_date: interview_updated.interview_date,
                 interview_description:
                     interview_updated.interview_description &&
                     interview_updated.interview_description !== '{}'
-                        ? JSON.parse(interview_updated.interview_description)
-                        : { time: new Date(), blocks: [] }
-            };
-            setLocalInterview(parsed as typeof localInterview);
+                        ? (JSON.parse(
+                              interview_updated.interview_description
+                          ) as OutputData)
+                        : { time: Date.now(), blocks: [] }
+            }));
             setButtonDisabled(true);
             onInterviewUpdate();
         } else {
             const { message } = data;
             setModalError({
                 show: true,
-                message: message,
+                message: message ?? '',
                 status: status
             });
         }

@@ -31,7 +31,7 @@ interface PendingItem {
     id: string;
     label: string;
     to: string;
-    updatedAt?: string;
+    updatedAt?: Date;
     locked: boolean;
 }
 

@@ -49,12 +49,17 @@ const ProgramReportUpdateModal = ({
         });
     }, [ticket]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const temp_ticket = { ...programReportUpdateModalState.ticket };
-        temp_ticket[e.target.name] = e.target.value;
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        // The dialog only edits these two ticket fields.
+        if (name !== 'description' && name !== 'feedback') {
+            return;
+        }
         ProgramReportUpdateModalState((prevState) => ({
             ...prevState,
-            ticket: temp_ticket
+            ticket: { ...prevState.ticket, [name]: value }
         }));
     };
 
@@ -88,7 +93,7 @@ const ProgramReportUpdateModal = ({
             <DialogActions>
                 <Button
                     color="primary"
-                    disabled={!is_TaiGer_role(user)}
+                    disabled={!user || !is_TaiGer_role(user)}
                     onClick={() =>
                         submitProgramUpdateReport(ticket._id.toString(), {
                             ...programReportUpdateModalState.ticket,

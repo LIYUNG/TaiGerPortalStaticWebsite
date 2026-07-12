@@ -1,7 +1,10 @@
+import type { ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import EditableFileThread from './EditableFileThread';
+
+type EditableFileThreadProps = ComponentProps<typeof EditableFileThread>;
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (k: string) => k })
@@ -35,7 +38,7 @@ vi.mock('@store/constant', () => ({
 
 const mockStudent = {
     _id: 'student1'
-} as any;
+} as unknown as EditableFileThreadProps['student'];
 
 const mockThread = {
     _id: 'thread1',
@@ -45,7 +48,7 @@ const mockThread = {
         file_type: 'ML',
         updatedAt: '2025-01-01'
     }
-};
+} as unknown as EditableFileThreadProps['thread'];
 
 const mockApplication = {
     _id: 'app1',
@@ -56,7 +59,7 @@ const mockApplication = {
         is_rl_specific: false,
         country: 'germany'
     }
-} as any;
+} as unknown as EditableFileThreadProps['application'];
 
 describe('EditableFileThread', () => {
     const defaultProps = {

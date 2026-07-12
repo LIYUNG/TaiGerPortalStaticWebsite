@@ -13,19 +13,19 @@ interface PortalCredentialPageProps {
 export default function PortalCredentialPage(props: PortalCredentialPageProps) {
     const { student_id } = useParams();
     const { user } = useAuth();
-    if (!is_TaiGer_Student(user) && !student_id && !props.student_id) {
+    const isStudent = user !== null && is_TaiGer_Student(user);
+    if (!isStudent && !student_id && !props.student_id) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     const studentId = student_id
         ? student_id
-        : is_TaiGer_Student(user)
-          ? user._id.toString()
-          : props.student_id;
+        : isStudent
+          ? (user?._id.toString() ?? '')
+          : (props.student_id ?? '');
     return (
         <PortalCredentialsCard
-            showTitle={props.showTitle | false}
+            showTitle={props.showTitle ?? false}
             student_id={studentId}
-            user={user}
         />
     );
 }

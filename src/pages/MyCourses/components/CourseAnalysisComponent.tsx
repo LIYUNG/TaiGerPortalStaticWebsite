@@ -409,8 +409,8 @@ export const CourseAnalysisComponent = ({
                                         }
                                     }}
                                     text={({ value }) => `${value}%`}
-                                    value={matchingOverallECTSPercentage.toFixed(
-                                        0
+                                    value={Number(
+                                        matchingOverallECTSPercentage.toFixed(0)
                                     )}
                                 />
                             </Stack>

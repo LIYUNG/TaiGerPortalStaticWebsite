@@ -97,7 +97,7 @@ const ProgramDistributionDetailPage = () => {
 
     TabTitle(t(config?.title || 'Program Distribution', { ns: 'common' }));
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -122,6 +122,8 @@ const ProgramDistributionDetailPage = () => {
     const maxCount = Math.max(
         ...distributionData.map((item: DistributionItem) => item.count)
     );
+    // The overview query is typed as a bag of unknowns; totalPrograms is a count.
+    const totalPrograms = Number(overview.totalPrograms);
 
     return (
         <Box sx={{ pb: 4 }}>
@@ -191,11 +193,12 @@ const ProgramDistributionDetailPage = () => {
                     <List>
                         {distributionData.map((item, index) => {
                             const percentage = (
-                                (item.count / overview.totalPrograms) *
+                                (item.count / totalPrograms) *
                                 100
                             ).toFixed(1);
                             const relativePercentage =
                                 (item.count / maxCount) * 100;
+                            const itemLabel = item[config.itemKey];
 
                             return (
                                 <ListItem disablePadding key={index}>
@@ -219,12 +222,12 @@ const ProgramDistributionDetailPage = () => {
                                                 >
                                                     <Box>
                                                         <Typography variant="h6">
-                                                            {
-                                                                item[
-                                                                    config
-                                                                        .itemKey
-                                                                ]
-                                                            }
+                                                            {typeof itemLabel ===
+                                                                'string' ||
+                                                            typeof itemLabel ===
+                                                                'number'
+                                                                ? itemLabel
+                                                                : ''}
                                                         </Typography>
                                                         <Typography
                                                             color="textSecondary"

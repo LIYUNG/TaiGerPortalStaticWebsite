@@ -79,7 +79,10 @@ vi.mock('i18next', () => ({
 vi.mock('react-datasheet-grid', () => ({
     DataSheetGrid: () => <div data-testid="data-sheet-grid">DataSheetGrid</div>,
     textColumn: {},
-    keyColumn: (_key: string, col: unknown) => ({ ...col, id: _key })
+    keyColumn: (_key: string, col: Record<string, unknown>) => ({
+        ...col,
+        id: _key
+    })
 }));
 
 vi.mock('./react-datasheet-customize.css', () => ({}));

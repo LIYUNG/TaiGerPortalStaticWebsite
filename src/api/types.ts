@@ -123,15 +123,19 @@ export interface GetMyInterviewsPaginatedResponse
     existingInterviewProgramIds?: string[];
 }
 
-/** One bucket of the open-applications deadline distribution chart. */
-export interface ApplicationsDeadlineDistributionBucket {
+/**
+ * One bucket of the open-applications deadline distribution chart.
+ * Declared as a type alias (not an interface) so it keeps an implicit index
+ * signature and stays assignable to the chart's `Record<string, string | number>[]`.
+ */
+export type ApplicationsDeadlineDistributionBucket = {
     /** Deadline label, e.g. "2025/01/15" or "2025-Rolling". */
     name: string;
     /** Count of decided applications with this deadline. */
     active: number;
     /** Count of undecided applications with this deadline. */
     potentials: number;
-}
+};
 
 /**
  * Deadline distribution for the "Open Applications Distribution" chart,
@@ -388,6 +392,11 @@ export interface AIAssistPickerStudent {
     chineseName?: string;
     email?: string;
     applyingProgramCount?: number;
+    /** Raw name fields the picker endpoint may also return (used as fallbacks). */
+    firstname?: string;
+    lastname?: string;
+    firstname_chinese?: string;
+    lastname_chinese?: string;
 }
 
 export type AIAssistQuickSkill =

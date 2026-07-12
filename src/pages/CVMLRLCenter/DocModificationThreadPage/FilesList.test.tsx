@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 import FilesList from './FilesList';
+import type { DocumentThreadResponse } from '@/api/types';
 
 vi.mock('./FileItem', () => ({
     default: ({ message }: { message: { file: { name: string }[] } }) => (
@@ -23,9 +24,12 @@ const threadWithFiles = {
             user_id: { _id: 'u2', firstname: 'Bob', lastname: 'Alice' }
         }
     ]
-};
+} as unknown as DocumentThreadResponse;
 
-const threadWithNoMessages = { _id: 'thread2', messages: [] };
+const threadWithNoMessages = {
+    _id: 'thread2',
+    messages: []
+} as unknown as DocumentThreadResponse;
 
 describe('FilesList', () => {
     it('renders FileItem for messages with files', () => {
@@ -51,7 +55,7 @@ describe('FilesList', () => {
         const threadNoFiles = {
             _id: 'thread3',
             messages: [{ _id: 'msg3', file: [], user_id: null }]
-        };
+        } as unknown as DocumentThreadResponse;
         render(
             <MemoryRouter>
                 <FilesList thread={threadNoFiles} />

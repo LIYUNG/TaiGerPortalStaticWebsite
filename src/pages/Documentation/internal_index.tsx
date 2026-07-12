@@ -18,39 +18,56 @@ import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { OutputData } from '@editorjs/editorjs';
 
+interface InternalDocsPageState {
+    error: string;
+    isLoaded: boolean;
+    success: boolean;
+    editorState: OutputData | null;
+    isEdit: boolean;
+    author: string;
+    document_title?: string;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+}
+
 const InternaldocsPage = (props: { item: string }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [internalDocsPageState, setInternalDocsPageState] = useState({
-        error: '',
-        isLoaded: false,
-        success: false,
-        editorState: { time: 0, blocks: [] },
-        isEdit: false,
-        author: '',
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
+    const [internalDocsPageState, setInternalDocsPageState] =
+        useState<InternalDocsPageState>({
+            error: '',
+            isLoaded: false,
+            success: false,
+            editorState: null,
+            isEdit: false,
+            author: '',
+            res_status: 0,
+            res_modal_message: '',
+            res_modal_status: 0
+        });
     useEffect(() => {
         getInternalDocumentationPage().then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
-                    let initialEditorState = null;
+                if (success && data) {
+                    let initialEditorState: OutputData;
                     const author = data.author;
                     if (data.text) {
                         initialEditorState = JSON.parse(data.text);
                     } else {
-                        initialEditorState = { time: new Date(), blocks: [] };
+                        initialEditorState = {
+                            time: new Date().getTime(),
+                            blocks: []
+                        };
                     }
 
                     setInternalDocsPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         editorState: initialEditorState,
-                        author,
+                        author: author ?? '',
                         success: success,
                         res_status: status
                     }));
@@ -96,14 +113,14 @@ const InternaldocsPage = (props: { item: string }) => {
             (resp) => {
                 const { success, data } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     setInternalDocsPageState((prevState) => ({
                         ...prevState,
                         success,
-                        document_title: data.title,
+                        document_title: data.title ?? '',
                         editorState,
                         isEdit: !internalDocsPageState.isEdit,
-                        author: data.author,
+                        author: data.author ?? '',
                         isLoaded: true,
                         res_modal_status: status
                     }));
@@ -112,7 +129,7 @@ const InternaldocsPage = (props: { item: string }) => {
                     setInternalDocsPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
@@ -141,7 +158,7 @@ const InternaldocsPage = (props: { item: string }) => {
         }));
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -176,16 +193,18 @@ const InternaldocsPage = (props: { item: string }) => {
             {internalDocsPageState.isEdit ? (
                 <DocPageEdit
                     category="category"
-                    document_title={internalDocsPageState.document_title}
-                    editorState={internalDocsPageState.editorState}
+                    document_title={internalDocsPageState.document_title ?? ''}
+                    editorState={editorState}
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={handleClickSave}
                 />
             ) : (
                 <DocPageView
                     author={internalDocsPageState.author}
-                    editorState={internalDocsPageState.editorState}
+                    category="category"
+                    editorState={editorState}
                     handleClickEditToggle={handleClickEditToggle}
+                    handleClickSave={() => {}}
                 />
             )}
         </>

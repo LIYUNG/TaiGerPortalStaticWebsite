@@ -5,7 +5,10 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useTranslation } from 'react-i18next';
 import type { IStudentResponse, IUserAttribute } from '@taiger-common/model';
 import { ATTRIBUTES } from '@utils/contants';
-import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
+import {
+    ConfirmationModal,
+    type ConfirmationModalProps
+} from '@components/Modal/ConfirmationModal';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -77,13 +80,23 @@ const EditAttributesSubpage = (props: Props) => {
 
     const onAttributesChange = (
         _e: React.SyntheticEvent,
-        newValues: unknown
+        newValues: IUserAttribute[]
     ) => {
         setCheckboxState((prevState) => ({
             ...prevState,
             updateAttributesList: newValues
         }));
     };
+
+    // ConfirmationModal types onConfirm as `() => void`, but it wires it
+    // straight into a MUI Button onClick, so the click event is passed through
+    // at runtime and submitUpdateAttributeslist relies on it (preventDefault).
+    const onConfirm = ((e: React.MouseEvent<HTMLElement>) =>
+        props.submitUpdateAttributeslist(
+            e,
+            checkboxState.updateAttributesList,
+            props.student._id
+        )) as ConfirmationModalProps['onConfirm'];
 
     return (
         <ConfirmationModal
@@ -92,18 +105,14 @@ const EditAttributesSubpage = (props: Props) => {
             content={
                 <AttributeInputSelection
                     onAttributesChange={onAttributesChange}
-                    updateAttributesList={checkboxState.updateAttributesList}
+                    updateAttributesList={
+                        checkboxState.updateAttributesList ?? []
+                    }
                 />
             }
             isLoading={props.isLoading}
             onClose={props.onHide}
-            onConfirm={(e: React.MouseEvent<HTMLElement>) =>
-                props.submitUpdateAttributeslist(
-                    e,
-                    checkboxState.updateAttributesList,
-                    props.student._id
-                )
-            }
+            onConfirm={onConfirm}
             open={props.show}
             title={`Attributes for ${props.student.firstname} - ${props.student.lastname} to`}
         />

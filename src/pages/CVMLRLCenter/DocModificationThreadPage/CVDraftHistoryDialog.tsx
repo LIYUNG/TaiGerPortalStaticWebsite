@@ -96,6 +96,23 @@ const CVDraftHistoryDialog = ({
             )
         );
 
+        // Compare two lists of records item-by-item on the given fields.
+        const cmpList = <T,>(
+            aa: T[] | undefined,
+            bb: T[] | undefined,
+            lk: string,
+            fields: readonly (keyof T & string)[]
+        ) => {
+            const max = Math.max(aa?.length ?? 0, bb?.length ?? 0);
+            for (let i = 0; i < max; i++) {
+                const av = aa?.[i];
+                const bv = bb?.[i];
+                fields.forEach((f) =>
+                    cmp(`${dv(lk)} #${i + 1} · ${dv(f)}`, av?.[f], bv?.[f])
+                );
+            }
+        };
+
         const eduFields = [
             'period',
             'institution',
@@ -108,22 +125,16 @@ const CVDraftHistoryDialog = ({
             'courses',
             'specialActivities'
         ] as const;
-        const eduGroups: [keyof CVDraft, string][] = [
+        const eduGroups: [
+            'universities' | 'seniorHighSchools' | 'juniorHighSchools',
+            string
+        ][] = [
             ['universities', 'university'],
             ['seniorHighSchools', 'seniorHighSchool'],
             ['juniorHighSchools', 'juniorHighSchool']
         ];
         eduGroups.forEach(([group, lk]) => {
-            const aa = (a[group] as Record<string, unknown>[]) || [];
-            const bb = (b[group] as Record<string, unknown>[]) || [];
-            const max = Math.max(aa.length, bb.length);
-            for (let i = 0; i < max; i++) {
-                const av = aa[i] || {};
-                const bv = bb[i] || {};
-                eduFields.forEach((f) =>
-                    cmp(`${dv(lk)} #${i + 1} · ${dv(f)}`, av[f], bv[f])
-                );
-            }
+            cmpList(a[group], b[group], lk, eduFields);
         });
 
         const aExp = a.experience || [];
@@ -153,23 +164,17 @@ const CVDraftHistoryDialog = ({
             }
         }
 
-        const listGroups: [keyof CVDraft, string, string[]][] = [
-            ['awards', 'awards', ['date', 'title', 'description']],
-            ['languages', 'languages', ['name', 'level', 'testScore']],
-            ['computer', 'computer', ['name', 'level']]
-        ];
-        listGroups.forEach(([group, lk, fields]) => {
-            const aa = (a[group] as Record<string, unknown>[]) || [];
-            const bb = (b[group] as Record<string, unknown>[]) || [];
-            const max = Math.max(aa.length, bb.length);
-            for (let i = 0; i < max; i++) {
-                const av = aa[i] || {};
-                const bv = bb[i] || {};
-                fields.forEach((f) =>
-                    cmp(`${dv(lk)} #${i + 1} · ${dv(f)}`, av[f], bv[f])
-                );
-            }
-        });
+        cmpList(a.awards, b.awards, 'awards', [
+            'date',
+            'title',
+            'description'
+        ] as const);
+        cmpList(a.languages, b.languages, 'languages', [
+            'name',
+            'level',
+            'testScore'
+        ] as const);
+        cmpList(a.computer, b.computer, 'computer', ['name', 'level'] as const);
 
         (
             [

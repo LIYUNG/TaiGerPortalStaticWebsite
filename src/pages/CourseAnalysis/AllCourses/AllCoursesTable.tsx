@@ -8,21 +8,25 @@ import { getTableConfig, useTableStyles } from '@components/table';
 import { TopToolbar } from '@components/table/all-courses-table/TopToolbar';
 import { DeleteCourseDialog } from './DeleteCourseDialog';
 import { MRT_ColumnDef } from 'material-react-table';
-import type { IAllCourse } from '@taiger-common/model';
+import type { AllCourseItem } from '@hooks/useAllCourses';
+
+type AllCourseRow = AllCourseItem;
 
 export const AllCoursesTable = ({
     courses,
     isLoading
 }: {
-    courses: IAllCourse[];
+    courses: AllCourseRow[];
     isLoading: boolean;
 }) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
+    // `useTableStyles()` exposes none of the keys `getTableConfig` reads
+    // (tableHeadStyle, tableBodyRowStyle, ...), so it contributes no styles here.
+    const tableConfig = getTableConfig({}, isLoading);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-    const columns: Array<MRT_ColumnDef<IAllCourse>> = [
+    const columns: Array<MRT_ColumnDef<AllCourseRow>> = [
         {
             accessorKey: 'all_course_chinese',
             header: t('Course Name (ZH)', { ns: 'common' }),
@@ -53,8 +57,22 @@ export const AllCoursesTable = ({
         setOpenDeleteDialog(false);
     };
 
-    const table = useMaterialReactTable({
+    const table = useMaterialReactTable<AllCourseRow>({
         ...tableConfig,
+        // getTableConfig widens these `variant` / `size` literals to `string`.
+        muiSearchTextFieldProps: {
+            ...tableConfig.muiSearchTextFieldProps,
+            variant: 'outlined'
+        },
+        muiFilterTextFieldProps: {
+            ...tableConfig.muiFilterTextFieldProps,
+            variant: 'outlined',
+            size: 'small'
+        },
+        muiPaginationProps: {
+            ...tableConfig.muiPaginationProps,
+            variant: 'outlined'
+        },
         columns,
         state: { isLoading },
         data: courses || [],
@@ -78,19 +96,16 @@ export const AllCoursesTable = ({
             <DeleteCourseDialog
                 courses={table
                     .getSelectedRowModel()
-                    .rows?.map(
-                        ({
-                            original: {
-                                _id,
-                                all_course_chinese,
-                                all_course_english
-                            }
-                        }) => ({
-                            _id,
-                            all_course_chinese,
-                            all_course_english
-                        })
-                    )}
+                    .rows?.map(({ original }) => original)
+                    .filter(
+                        (course): course is AllCourseRow & { _id: string } =>
+                            course._id !== undefined
+                    )
+                    .map(({ _id, all_course_chinese, all_course_english }) => ({
+                        _id,
+                        all_course_chinese,
+                        all_course_english
+                    }))}
                 handleOnSuccess={handleOnSuccessWithReset}
                 onClose={() => setOpenDeleteDialog(false)}
                 open={openDeleteDialog}

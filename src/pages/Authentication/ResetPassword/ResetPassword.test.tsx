@@ -26,7 +26,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
         (await importOriginal()) as typeof import('react-router-dom');
     const NavLinkMock = React.forwardRef<
         HTMLAnchorElement,
-        { children?: React.ReactNode; to: string; [key: string]: unknown }
+        React.AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }
     >(function NavLinkMock(props, ref) {
         const { children, to, ...rest } = props;
         return (

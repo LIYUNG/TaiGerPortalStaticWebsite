@@ -47,7 +47,21 @@ import type {
     IApplicationPopulated,
     IDocumentthreadPopulated
 } from '@taiger-common/model';
-import type { Application } from '@/api/types';
+import type { Application, OpenTaskRow } from '@/api/types';
+import type { IDocumentthread } from '@taiger-common/model';
+
+/**
+ * The message-status helpers only read isFinalVersion / flag_by_user_id /
+ * latest_message_left_by_id, but declare the full IDocumentthread (whose
+ * student_id and file_type are required). The rows produced by open_tasks_v2
+ * carry those fields optionally, hence the widening.
+ */
+const asThread = (
+    row: OpenTaskRow
+): IDocumentthread & { latest_message_left_by_id?: string } =>
+    row as unknown as IDocumentthread & {
+        latest_message_left_by_id?: string;
+    };
 
 /** Shape returned by programs_refactor_v2 */
 type RefactoredApplication = {
@@ -148,12 +162,12 @@ const AgentMainView = () => {
     );
 
     const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_new_message_status(user as IUserWithId, open_task)
+        is_new_message_status(user as IUserWithId, asThread(open_task))
     );
 
     const follow_up_task = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(user as IUserWithId, open_task) &&
+            is_pending_status(user as IUserWithId, asThread(open_task)) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
@@ -353,8 +367,6 @@ const AgentMainView = () => {
                             applications={
                                 applications_arr as unknown as IApplicationPopulated[]
                             }
-                            students={myStudents}
-                            user={user}
                         />
                     </Grid>
                 ) : null}
@@ -368,7 +380,7 @@ const AgentMainView = () => {
                 ) : null}
                 {isAnyCVNotAssigned(myStudents) ? (
                     <Grid item md={4} sm={6} xs={12}>
-                        <CVAssignTasksCard students={myStudents} user={user} />
+                        <CVAssignTasksCard students={myStudents} />
                     </Grid>
                 ) : null}
                 {/* TODO: Add NoProgramStudentTable — <NoProgramStudentTable students={myStudents} /> */}
