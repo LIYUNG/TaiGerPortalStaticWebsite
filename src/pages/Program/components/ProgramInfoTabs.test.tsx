@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import ProgramInfoTabs from './ProgramInfoTabs';
 
 vi.mock('react-i18next', () => ({
@@ -58,7 +59,11 @@ const defaultProps = {
 
 describe('ProgramInfoTabs', () => {
     beforeEach(() => {
-        render(<ProgramInfoTabs {...defaultProps} />);
+        render(
+            <MemoryRouter>
+                <ProgramInfoTabs {...defaultProps} />
+            </MemoryRouter>
+        );
     });
 
     it('renders overview tab content', () => {
@@ -88,12 +93,20 @@ describe('ProgramInfoTabs', () => {
                     ]
                 }
             };
-            render(<ProgramInfoTabs {...props} />);
+            render(
+                <MemoryRouter>
+                    <ProgramInfoTabs {...props} />
+                </MemoryRouter>
+            );
             expect(screen.getByText('Edit History')).toBeInTheDocument();
         });
 
         it('renders Others tab when value is 4', () => {
-            render(<ProgramInfoTabs {...defaultProps} value={4} />);
+            render(
+                <MemoryRouter>
+                    <ProgramInfoTabs {...defaultProps} value={4} />
+                </MemoryRouter>
+            );
             expect(screen.getByText('Country')).toBeInTheDocument();
         });
     });
