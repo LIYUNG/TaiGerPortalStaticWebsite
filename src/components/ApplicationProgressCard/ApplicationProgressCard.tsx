@@ -43,10 +43,8 @@ import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockCon
 import { updateStudentApplicationResult } from '@/api';
 import type { Application } from '@/api/types';
 import DEMO from '@store/constant';
-import {
-    application_deadline_V2_calculator,
-    progressBarCounter
-} from '@pages/Utils/util_functions';
+import { application_deadline_V2_calculator } from '@pages/Utils/util_functions';
+import { progressBarCounter } from '@pages/Utils/applicationChecklist';
 import { BASE_URL } from '@/api';
 import {
     FILE_NOT_OK_SYMBOL,

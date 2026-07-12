@@ -30,7 +30,8 @@ import {
     isUniAssistVPDNeeded,
     is_all_uni_assist_vpd_uploaded,
     englishScoreRequirementIssues,
-    hasEnglishScoreRequirementIssue
+    hasEnglishScoreRequirementIssue,
+    getNextProgramStatus
 } from './util_functions';
 
 import {
@@ -1632,5 +1633,30 @@ describe('englishScoreRequirementIssues', () => {
     test('ignores programs without an English requirement for the certificate', () => {
         const student = buildStudent(fullIelts, { ielts_reading: 0 });
         expect(englishScoreRequirementIssues(student)).toEqual([]);
+    });
+});
+
+// progressBarCounter lives in applicationChecklist.ts but is still called from
+// inside this module. Component tests all mock util_functions, so nothing else
+// would notice if that import broke — this exercises the real call path.
+describe('progressBarCounter usage inside util_functions', () => {
+    test('getNextProgramStatus resolves progressBarCounter', () => {
+        const student = {
+            _id: 's1',
+            applications: [
+                {
+                    decided: 'O',
+                    closed: '-',
+                    programId: {
+                        _id: 'p1',
+                        school: 'TU',
+                        program_name: 'CS',
+                        application_deadline: '2030-01-01'
+                    }
+                }
+            ]
+        } as unknown as IStudentResponse;
+
+        expect(getNextProgramStatus(student)).toMatch(/^\d+ %$/);
     });
 });

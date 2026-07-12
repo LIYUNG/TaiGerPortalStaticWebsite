@@ -31,7 +31,10 @@ vi.mock('@/api', () => ({
 }));
 
 vi.mock('@pages/Utils/util_functions', () => ({
-    application_deadline_V2_calculator: vi.fn(() => '30 days'),
+    application_deadline_V2_calculator: vi.fn(() => '30 days')
+}));
+
+vi.mock('@pages/Utils/applicationChecklist', () => ({
     progressBarCounter: vi.fn(() => 50)
 }));
 
