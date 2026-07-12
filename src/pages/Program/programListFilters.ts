@@ -19,7 +19,22 @@ export type ProgramListFilters = {
     gre?: string;
     gmat?: string;
     application_deadline?: string;
+    // Boolean school flags. Sent as 'true'/'false' strings; absent = no filter.
+    isPrivateSchool?: string;
+    isPartnerSchool?: string;
+    isNC?: string;
 };
+
+/**
+ * Tri-state school flags. The rail offers Yes / No / (unset), so the value is
+ * carried as the literal string 'true' or 'false' — an empty value clears the
+ * filter rather than meaning "false".
+ */
+export const BOOLEAN_FILTER_IDS = new Set([
+    'isPrivateSchool',
+    'isPartnerSchool',
+    'isNC'
+]);
 
 const TEXT_FILTER_IDS = new Set([
     'school',
@@ -66,6 +81,13 @@ export const columnFiltersToProgramListFilters = (
             return;
         }
 
+        if (BOOLEAN_FILTER_IDS.has(id)) {
+            if (value === 'true' || value === 'false') {
+                filters[id as keyof ProgramListFilters] = value as never;
+            }
+            return;
+        }
+
         if (TEXT_FILTER_IDS.has(id)) {
             filters[id as keyof ProgramListFilters] = String(value) as never;
         }
@@ -87,7 +109,7 @@ export type ProgramListTableState = {
     pagination: { pageIndex: number; pageSize: number };
 };
 
-export const DEFAULT_PROGRAM_PAGE_SIZE = 20;
+export const DEFAULT_PROGRAM_PAGE_SIZE = 10;
 
 const SEARCH_PARAM = 'search';
 const PAGE_PARAM = 'page';
@@ -115,11 +137,12 @@ export const PROGRAM_SORTABLE_IDS = new Set([
 ]);
 
 // Column-filter ids we know how to serialize. `status` is the lock-status
-// select; the rest come from the text/array sets above.
+// select; the rest come from the text/array/boolean sets above.
 const FILTER_IDS: string[] = [
     'status',
     ...ARRAY_FILTER_IDS,
-    ...TEXT_FILTER_IDS
+    ...TEXT_FILTER_IDS,
+    ...BOOLEAN_FILTER_IDS
 ];
 
 export const programTableStateToSearchParams = (

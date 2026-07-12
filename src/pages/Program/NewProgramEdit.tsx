@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
+    Box,
     Button,
     Card,
     FormControl,
@@ -39,6 +40,7 @@ import {
 } from '@utils/contants';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
+import SchoolAttributesReadOnly from './components/SchoolAttributesReadOnly';
 
 export interface NewProgramEditProps {
     program?: Record<string, unknown> & { is_rl_specific?: boolean };
@@ -54,7 +56,16 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
     const { user } = useAuth();
     const [isChanged, setIsChanged] = useState(false);
     const initProgram = props.program || { is_rl_specific: false };
-    const [programChanges, setProgramChanges] = useState<Partial<IProgram>>({});
+    const isCreate = !props.program;
+    // Most German programs are NC (restricted admission), so a new program
+    // starts checked and the user unchecks the exceptions.
+    //
+    // The default is seeded into programChanges, NOT initProgram: handleSubmit
+    // posts `{_id, ...programChanges}` — only the diff — so a default sitting in
+    // initProgram would render as checked and then never actually be saved.
+    const [programChanges, setProgramChanges] = useState<Partial<IProgram>>(
+        isCreate ? { isNC: true } : {}
+    );
     const program = { ...initProgram, ...programChanges } as IProgram;
     const [searchTerm, setSearchTerm] = useState('');
     const schoolName2Set = Array.from(
@@ -328,6 +339,65 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             />
                         </FormGroup>
                     </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Box
+                            sx={{
+                                alignItems: 'center',
+                                display: 'flex',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography variant="body1">
+                                {t('NC (restricted admission)', {
+                                    ns: 'common',
+                                    defaultValue: 'NC (restricted admission)'
+                                })}
+                            </Typography>
+                            <Tooltip
+                                title={t('NC help', {
+                                    ns: 'common',
+                                    defaultValue:
+                                        'Numerus Clausus: the program limits places and admits by GPA/ranking. New programs default to NC — uncheck it only when the program page explicitly states that admission is unrestricted (zulassungsfrei). Keep this current: if a school later drops the restriction, uncheck it here.'
+                                })}
+                            >
+                                <InfoOutlinedIcon
+                                    color="action"
+                                    fontSize="small"
+                                    // Tooltips are hover-only by default; make it
+                                    // reachable by keyboard too.
+                                    tabIndex={0}
+                                />
+                            </Tooltip>
+                        </Box>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={program.isNC ?? false}
+                                        name="isNC"
+                                        onChange={(e) => handleChange(e)}
+                                    />
+                                }
+                                label=""
+                            />
+                        </FormGroup>
+                    </Grid>
+
+                    {/* isPrivateSchool / isPartnerSchool are SCHOOL-level: the
+                        School Configuration page batch-writes them to every
+                        program of the school (updateBatchSchoolAttributes).
+                        Editing them per-program would create a second source of
+                        truth that the next School Config save silently
+                        overwrites, so they are read-only here. */}
+                    <Grid item xs={12}>
+                        <SchoolAttributesReadOnly
+                            isPartnerSchool={program.isPartnerSchool}
+                            isPrivateSchool={program.isPrivateSchool}
+                        />
+                    </Grid>
+
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1">
                             {t('GPA Requirement (German system)', {

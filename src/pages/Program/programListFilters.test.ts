@@ -3,6 +3,7 @@ import {
     columnFiltersToProgramListFilters,
     programTableStateToSearchParams,
     searchParamsToProgramTableState,
+    DEFAULT_PROGRAM_PAGE_SIZE,
     type ProgramListTableState
 } from './programListFilters';
 
@@ -22,9 +23,54 @@ describe('columnFiltersToProgramListFilters', () => {
             country: ['DE', 'NL']
         });
     });
+
+    it('maps the boolean school flags, keeping false distinct from unset', () => {
+        expect(
+            columnFiltersToProgramListFilters([
+                { id: 'isPrivateSchool', value: 'true' },
+                // 'false' is a real query ("public only"), NOT an empty filter —
+                // it must survive rather than being dropped as falsy.
+                { id: 'isPartnerSchool', value: 'false' },
+                { id: 'isNC', value: '' }
+            ])
+        ).toEqual({
+            isPrivateSchool: 'true',
+            isPartnerSchool: 'false'
+        });
+    });
+
+    it('ignores a boolean flag that is not literally true/false', () => {
+        expect(
+            columnFiltersToProgramListFilters([
+                { id: 'isPrivateSchool', value: 'maybe' }
+            ])
+        ).toEqual({});
+    });
 });
 
 describe('program table URL state round-trip', () => {
+    it('round-trips the boolean school flags through a shared link', () => {
+        const params = programTableStateToSearchParams({
+            globalFilter: '',
+            columnFilters: [
+                { id: 'isPrivateSchool', value: 'true' },
+                { id: 'isNC', value: 'false' }
+            ],
+            sorting: [],
+            pagination: { pageIndex: 0, pageSize: DEFAULT_PROGRAM_PAGE_SIZE }
+        });
+        expect(params.get('isPrivateSchool')).toBe('true');
+        expect(params.get('isNC')).toBe('false');
+
+        const restored = searchParamsToProgramTableState(params);
+        expect(restored.columnFilters).toEqual(
+            expect.arrayContaining([
+                { id: 'isPrivateSchool', value: 'true' },
+                { id: 'isNC', value: 'false' }
+            ])
+        );
+    });
+
     it('serializes search, filters and non-default pagination', () => {
         const state: ProgramListTableState = {
             globalFilter: '  machine learning  ',
@@ -52,7 +98,7 @@ describe('program table URL state round-trip', () => {
             globalFilter: '   ',
             columnFilters: [{ id: 'tags', value: [] }],
             sorting: [],
-            pagination: { pageIndex: 0, pageSize: 20 }
+            pagination: { pageIndex: 0, pageSize: DEFAULT_PROGRAM_PAGE_SIZE }
         });
 
         expect(params.toString()).toBe('');
@@ -63,7 +109,7 @@ describe('program table URL state round-trip', () => {
             globalFilter: '',
             columnFilters: [],
             sorting: [{ id: 'program_name', desc: true }],
-            pagination: { pageIndex: 0, pageSize: 20 }
+            pagination: { pageIndex: 0, pageSize: DEFAULT_PROGRAM_PAGE_SIZE }
         });
         expect(params.get('sort')).toBe('program_name');
         expect(params.get('sortDir')).toBe('desc');
@@ -80,7 +126,10 @@ describe('program table URL state round-trip', () => {
                 globalFilter: '',
                 columnFilters: [],
                 sorting: [{ id: 'tags', desc: false }],
-                pagination: { pageIndex: 0, pageSize: 20 }
+                pagination: {
+                    pageIndex: 0,
+                    pageSize: DEFAULT_PROGRAM_PAGE_SIZE
+                }
             }).get('sort')
         ).toBeNull();
         expect(
@@ -110,13 +159,13 @@ describe('program table URL state round-trip', () => {
     it('falls back to defaults for missing/invalid pagination', () => {
         expect(
             searchParamsToProgramTableState(new URLSearchParams()).pagination
-        ).toEqual({ pageIndex: 0, pageSize: 20 });
+        ).toEqual({ pageIndex: 0, pageSize: DEFAULT_PROGRAM_PAGE_SIZE });
 
         expect(
             searchParamsToProgramTableState(
                 new URLSearchParams('page=0&pageSize=-5')
             ).pagination
-        ).toEqual({ pageIndex: 0, pageSize: 20 });
+        ).toEqual({ pageIndex: 0, pageSize: DEFAULT_PROGRAM_PAGE_SIZE });
     });
 
     it('round-trips state -> params -> state', () => {
