@@ -1,5 +1,6 @@
-import { describe, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../AuthProvider', () => ({
@@ -110,7 +111,61 @@ describe('ApplicationProgressCard', () => {
         expect(screen.getByText(/Computer Science/)).toBeDefined();
     });
 
+    it('renders the semester on the same row as the deadline', () => {
+        const semester = screen.getByText('WS');
+        // '30 days' is the mocked application_deadline_V2_calculator output.
+        expect(semester.parentElement).toHaveTextContent('30 days');
+    });
+
+    it('links the school name to the program and keeps the lock chip on its row', () => {
+        const schoolLink = screen.getByRole('link', { name: /TU Munich/ });
+        expect(schoolLink).toHaveAttribute('href', '/programs/prog1');
+        // The flag, school and lock chip share one row; the chip reads as an
+        // attribute of the program rather than owning a line of its own.
+        const schoolRow = schoolLink.parentElement;
+        expect(schoolRow).toContainElement(screen.getByTestId('lock-control'));
+        expect(schoolRow).toContainElement(screen.getByAltText('Logo'));
+    });
+
+    it('gives the degree and program name a full-width row of their own', () => {
+        const schoolRow = screen.getByRole('link', {
+            name: /TU Munich/
+        }).parentElement;
+        // Not nested in the flag row — otherwise it would be indented by the
+        // flag's column instead of spanning the card.
+        expect(schoolRow).not.toContainElement(
+            screen.getByText(/MSc · Computer Science/)
+        );
+    });
+
     it('renders confirmation modal', () => {
         expect(screen.getByTestId('confirmation-modal')).toBeDefined();
+    });
+
+    it('offers a labelled expand control that starts collapsed', () => {
+        const toggle = screen.getByRole('button', { name: /Show checklist/ });
+        expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('expands the checklist when the control is activated', async () => {
+        const user = userEvent.setup();
+        await user.click(
+            screen.getByRole('button', { name: /Show checklist/ })
+        );
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('button', { name: /Hide checklist/ })
+            ).toHaveAttribute('aria-expanded', 'true');
+        });
+    });
+
+    it('points the expand control at the region it opens', () => {
+        const toggle = screen.getByRole('button', { name: /Show checklist/ });
+        const region = document.getElementById(
+            toggle.getAttribute('aria-controls') ?? ''
+        );
+        expect(region).not.toBeNull();
+        expect(region).toContainElement(screen.getByTestId('card-body'));
     });
 });
