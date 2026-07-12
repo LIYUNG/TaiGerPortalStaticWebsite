@@ -2,18 +2,25 @@ import { Navigate, useLoaderData } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IInterviewWithId } from '@taiger-common/model';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import AssignInterviewTrainersPage from './AssignInterviewTrainersPage';
+
+/** Shape returned by getAllOpenInterviewsLoader (an axios response). */
+interface OpenInterviewsLoaderData {
+    data: { data: IInterviewWithId[] };
+}
+
 const AssignInterviewTrainers = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const {
         data: { data: interviews }
-    } = useLoaderData();
-    if (!is_TaiGer_role(user)) {
+    } = useLoaderData() as OpenInterviewsLoaderData;
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     return (

@@ -25,7 +25,12 @@ import { convertDateUXFriendly } from '@utils/contants';
 import type { IComplaintWithId, IUser } from '@taiger-common/model';
 
 interface CustomerSupportBodyProps {
-    complaintTickets: IComplaintWithId[];
+    /**
+     * Tickets as returned by the API. `updatedAt` is a Mongoose timestamp that
+     * the shared `IComplaintWithId` schema does not model, so it is declared
+     * here as an optional extension.
+     */
+    complaintTickets: (IComplaintWithId & { updatedAt?: Date | string })[];
 }
 
 const CustomerSupportBody = ({

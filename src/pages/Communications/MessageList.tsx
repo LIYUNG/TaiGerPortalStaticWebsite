@@ -19,6 +19,9 @@ interface MessageListProps {
     user?: IUserWithId;
 }
 
+/** Used when the (optional) delete handler is not supplied by the parent. */
+const noopDeleteSingleMessage = (): void => {};
+
 const isSameDay = (a?: string | Date, b?: string | Date): boolean => {
     if (!a || !b) return false;
     return new Date(a).toDateString() === new Date(b).toDateString();
@@ -78,7 +81,9 @@ const MessageList = (props: MessageListProps) => {
                     }
                     isTaiGerView={props.isTaiGerView}
                     message={message}
-                    onDeleteSingleMessage={props.onDeleteSingleMessage}
+                    onDeleteSingleMessage={
+                        props.onDeleteSingleMessage ?? noopDeleteSingleMessage
+                    }
                     student_id={props.student_id}
                 />
             </Fragment>

@@ -38,9 +38,13 @@ describe('CardConfigurations', () => {
         expect(workCard).toBeDefined();
         const workField = workCard?.fields?.[0];
         expect(workField?.type).toBe('custom');
-        expect(typeof workField?.render).toBe('function');
+        // Narrow to the field variant that carries a custom renderer.
+        if (!workField || !('render' in workField)) {
+            throw new Error('work card field is missing its custom render');
+        }
+        expect(typeof workField.render).toBe('function');
         // Verify the render function returns a React element
-        const element = workField?.render({
+        const element = workField.render({
             workExperience: 'Some experience'
         });
         expect(element).toBeTruthy();

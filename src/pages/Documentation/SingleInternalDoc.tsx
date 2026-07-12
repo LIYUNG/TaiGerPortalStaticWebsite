@@ -47,6 +47,9 @@ const SingleDoc = () => {
         });
 
     useEffect(() => {
+        if (!documentation_id) {
+            return;
+        }
         getInternalDocumentation(documentation_id).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -104,6 +107,7 @@ const SingleDoc = () => {
     };
 
     type UpdateInternalDocPayload = {
+        documentationId: string;
         msg: {
             title: string;
             category: string;
@@ -114,7 +118,7 @@ const SingleDoc = () => {
 
     const { mutate: updateInternalDocMutation } = useMutation({
         mutationFn: (payload: UpdateInternalDocPayload) =>
-            updateInternalDocumentation(documentation_id, payload.msg),
+            updateInternalDocumentation(payload.documentationId, payload.msg),
         onSuccess: (resp, payload) => {
             const { success, data } = resp.data;
             const { status } = resp;
@@ -122,10 +126,10 @@ const SingleDoc = () => {
                 setSingleInternalDocState((prevState) => ({
                     ...prevState,
                     success,
-                    document_title: data.title ?? '',
+                    document_title: data?.title ?? '',
                     editorState: payload.editorState as OutputData | null,
                     isEdit: !prevState.isEdit,
-                    author: data.author ?? '',
+                    author: data?.author ?? '',
                     isLoaded: true,
                     res_status: status
                 }));
@@ -152,6 +156,9 @@ const SingleDoc = () => {
         editorState: unknown
     ) => {
         e.preventDefault();
+        if (!documentation_id) {
+            return;
+        }
         const message = JSON.stringify(editorState);
         const msg = {
             title: doc_title,
@@ -159,7 +166,11 @@ const SingleDoc = () => {
             text: message
         };
 
-        updateInternalDocMutation({ msg, editorState });
+        updateInternalDocMutation({
+            documentationId: documentation_id,
+            msg,
+            editorState
+        });
 
         setSingleInternalDocState((prevState) => ({
             ...prevState,
@@ -167,7 +178,7 @@ const SingleDoc = () => {
         }));
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -197,7 +208,9 @@ const SingleDoc = () => {
             <DocPageView
                 category={singleInternalDocState.category}
                 author={singleInternalDocState.author}
-                editorState={singleInternalDocState.editorState ?? ({} as OutputData)}
+                editorState={
+                    singleInternalDocState.editorState ?? ({} as OutputData)
+                }
                 handleClickEditToggle={handleClickEditToggle}
                 handleClickSave={() => {}}
             />

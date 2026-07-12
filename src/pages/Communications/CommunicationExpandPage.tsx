@@ -25,6 +25,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { is_TaiGer_role } from '@taiger-common/core';
 import type {
+    ICommunicationWithId,
     IStudentResponse,
     IAgentWithId,
     IEditorWithId
@@ -46,6 +47,12 @@ import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
 import { getCommunicationQuery } from '@/api/query';
+
+/** Body of GET /api/communications/:studentId (getCommunicationQuery is untyped). */
+interface CommunicationThreadData {
+    data: ICommunicationWithId[];
+    student: IStudentResponse;
+}
 
 interface StudentDetailModalProps {
     open: boolean;
@@ -73,10 +80,11 @@ interface TopBarProps {
     isExportingMessageDisabled: boolean;
     ismobile: boolean;
     handleDrawerClose: () => void;
-    student: IStudentResponse;
+    student: IStudentResponse | undefined;
     student_name_english: string;
     student_id: string;
     agentsEditorsDropdownId: string;
+    anchorAgentsEditorsEl: HTMLElement | null;
     handleAgentsEditorsModalOpen: (
         event: React.MouseEvent<HTMLElement>
     ) => void;
@@ -190,6 +198,7 @@ const TopBar = ({
     student_name_english,
     student_id,
     agentsEditorsDropdownId,
+    anchorAgentsEditorsEl,
     handleAgentsEditorsModalOpen,
     handleExportMessages,
     dropdownId,
@@ -218,7 +227,7 @@ const TopBar = ({
                             aria-label="open drawer"
                             color="inherit"
                             edge="start"
-                            onClick={(e) => handleDrawerClose(e)}
+                            onClick={() => handleDrawerClose()}
                             style={{ marginLeft: '4px' }}
                         >
                             <ArrowBackIcon />
@@ -244,7 +253,7 @@ const TopBar = ({
                                 {truncateText(student_name_english, 24)}
                             </Typography>
                         </Link>
-                        <LastLoginTime date={student.lastLoginAt as Date} />
+                        <LastLoginTime date={student?.lastLoginAt ?? ''} />
                     </Box>
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
@@ -304,7 +313,7 @@ const TopBar = ({
                 </Box>
                 <AgentsEditorsModal
                     agentsEditorsDropdownId={agentsEditorsDropdownId}
-                    anchorAgentsEditorsEl={isAgentsEditorsModalOpen}
+                    anchorAgentsEditorsEl={anchorAgentsEditorsEl}
                     handleAgentsEditorsStudentDetailModalClose={
                         handleAgentsEditorsModalClose
                     }
@@ -321,9 +330,12 @@ const CommunicationExpandPage = () => {
     const { user } = useAuth();
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
-    const { data, isLoading } = useQuery(getCommunicationQuery(studentId));
-    const student = data?.student;
-    const thread = data?.data;
+    const { data, isLoading } = useQuery(
+        getCommunicationQuery(studentId ?? '')
+    );
+    const threadData = data as CommunicationThreadData | undefined;
+    const student = threadData?.student;
+    const thread = threadData?.data;
     const APP_BAR_HEIGHT = 64;
 
     const [open, setOpen] = useState(ismobile);
@@ -411,14 +423,15 @@ const CommunicationExpandPage = () => {
 
     const student_name =
         !isLoading &&
-        `${student.firstname} ${student.lastname} ${
-            student.firstname_chinese ? student.firstname_chinese : ''
-        } ${student.lastname_chinese ? student.lastname_chinese : ''}`;
-    const student_name_english =
-        !isLoading && `${student.firstname} ${student.lastname}`;
+        `${student?.firstname} ${student?.lastname} ${
+            student?.firstname_chinese ? student.firstname_chinese : ''
+        } ${student?.lastname_chinese ? student.lastname_chinese : ''}`;
+    const student_name_english = isLoading
+        ? ''
+        : `${student?.firstname} ${student?.lastname}`;
 
     TabTitle(`${student_name}`);
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -475,6 +488,8 @@ const CommunicationExpandPage = () => {
                                 agentsEditorsDropdownId={
                                     agentsEditorsDropdownId
                                 }
+                                anchorAgentsEditorsEl={anchorAgentsEditorsEl}
+                                dropdownId={dropdownId}
                                 handleAgentsEditorsModalClose={
                                     handleAgentsEditorsModalClose
                                 }
@@ -496,11 +511,11 @@ const CommunicationExpandPage = () => {
                                 ismobile={ismobile}
                                 onSearchResultClick={handleSearchResultClick}
                                 student={student}
-                                student_id={studentId}
+                                student_id={studentId ?? ''}
                                 student_name_english={student_name_english}
                             />
                             {studentId ? (
-                                isLoading ? (
+                                isLoading || !student ? (
                                     <Loading />
                                 ) : (
                                     <Box
@@ -512,7 +527,7 @@ const CommunicationExpandPage = () => {
                                         }}
                                     >
                                         <CommunicationExpandPageMessagesComponent
-                                            data={thread}
+                                            data={thread ?? []}
                                             searchJumpRef={searchJumpRef}
                                             student={student}
                                         />
@@ -522,7 +537,7 @@ const CommunicationExpandPage = () => {
                         </Drawer>
                     ) : null}
                     {!ismobile && studentId ? (
-                        isLoading ? (
+                        isLoading || !student ? (
                             <Loading variant="child" />
                         ) : (
                             <Box>
@@ -530,6 +545,10 @@ const CommunicationExpandPage = () => {
                                     agentsEditorsDropdownId={
                                         agentsEditorsDropdownId
                                     }
+                                    anchorAgentsEditorsEl={
+                                        anchorAgentsEditorsEl
+                                    }
+                                    dropdownId={dropdownId}
                                     handleAgentsEditorsModalClose={
                                         handleAgentsEditorsModalClose
                                     }
@@ -553,7 +572,7 @@ const CommunicationExpandPage = () => {
                                         handleSearchResultClick
                                     }
                                     student={student}
-                                    student_id={studentId}
+                                    student_id={studentId ?? ''}
                                     student_name_english={student_name_english}
                                 />
                                 <Box
@@ -565,7 +584,7 @@ const CommunicationExpandPage = () => {
                                     }}
                                 >
                                     <CommunicationExpandPageMessagesComponent
-                                        data={thread}
+                                        data={thread ?? []}
                                         searchJumpRef={searchJumpRef}
                                         student={student}
                                     />

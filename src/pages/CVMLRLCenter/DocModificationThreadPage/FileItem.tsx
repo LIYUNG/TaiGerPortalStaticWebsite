@@ -3,10 +3,15 @@ import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 import { BASE_URL } from '@/api';
-import type { DocumentThreadMessage } from '@/api/types';
+import type { DocumentThreadResponse } from '@/api/types';
+
+/** A single message of a document thread, as returned by the API. */
+export type FileItemMessage = NonNullable<
+    DocumentThreadResponse['messages']
+>[number];
 
 export interface FileItemProps {
-    message: DocumentThreadMessage;
+    message: FileItemMessage;
 }
 
 const FileItem = ({ message }: FileItemProps) => {
@@ -14,8 +19,12 @@ const FileItem = ({ message }: FileItemProps) => {
         return null;
     }
 
+    // user_id is only populated with the author's details on some endpoints.
+    const author =
+        typeof message.user_id === 'object' ? message.user_id : undefined;
+
     const filesInfo = message.file.map((file) => {
-        const fileExtension = file.name.split('.').pop();
+        const fileExtension = file.name.split('.').pop() ?? '';
         const normalizedPath = file.path.replace(/\\/g, '/');
         const fileUrl = `${BASE_URL}/api/document-threads/${normalizedPath}`;
 
@@ -52,14 +61,13 @@ const FileItem = ({ message }: FileItemProps) => {
                         >
                             {file.name}
                         </Link>
-                        {message.user_id && (
+                        {author && (
                             <Typography
                                 color="text.secondary"
                                 sx={{ display: 'block', mt: 0.5 }}
                                 variant="caption"
                             >
-                                by {message.user_id.firstname}{' '}
-                                {message.user_id.lastname}
+                                by {author.firstname} {author.lastname}
                             </Typography>
                         )}
                     </Box>

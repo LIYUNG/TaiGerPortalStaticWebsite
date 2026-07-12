@@ -15,7 +15,7 @@ import { InterviewsMobileView } from './mobile/InterviewsMobileView';
 import { getUsers, updateInterview, ESSAY_WRITERS_QUERY_STRING } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
-import type { IUser } from '@taiger-common/model';
+import type { IUser, IUserWithId } from '@taiger-common/model';
 import type {
     MRT_ColumnDef,
     MRT_ColumnFiltersState,
@@ -64,10 +64,12 @@ export const InterviewsTable = ({
     // Below md the wide interview table forces horizontal scroll; show cards.
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const customTableStyles = useTableStyles();
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
+    // useTableStyles() exposes none of the keys getTableConfig reads, so the
+    // resulting `sx` values were already undefined at runtime.
+    const tableConfig = getTableConfig({}, isLoading);
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
-    const [trainers, setTrainers] = useState([]);
-    const [trainerId, setTrainerId] = useState(new Set());
+    const [trainers, setTrainers] = useState<IUserWithId[]>([]);
+    const [trainerId, setTrainerId] = useState<Set<string>>(new Set());
     // The interview currently being assigned a trainer — set from the MRT row
     // selection (desktop) or a card action (mobile).
     const [targetInterview, setTargetInterview] = useState<InterviewRow | null>(
@@ -79,6 +81,21 @@ export const InterviewsTable = ({
 
     const table = useMaterialReactTable({
         ...tableConfig,
+        // getTableConfig widens these MUI variant/size literals to `string`;
+        // restate them so they keep their literal types (same values).
+        muiSearchTextFieldProps: {
+            ...tableConfig.muiSearchTextFieldProps,
+            variant: 'outlined'
+        },
+        muiFilterTextFieldProps: {
+            ...tableConfig.muiFilterTextFieldProps,
+            variant: 'outlined',
+            size: 'small'
+        },
+        muiPaginationProps: {
+            ...tableConfig.muiPaginationProps,
+            variant: 'outlined'
+        },
         columns,
         state: {
             isLoading,

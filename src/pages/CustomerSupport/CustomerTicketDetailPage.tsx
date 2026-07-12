@@ -8,6 +8,12 @@ import { useTranslation } from 'react-i18next';
 import Loading from '@components/Loading/Loading';
 import CustomerTicketDetailPageBody from './CustomerTicketDetailPageBody';
 import DEMO from '@store/constant';
+import type { ComplaintTicketLoader } from '@/api/dataLoader';
+
+/** Shape deferred by getComplaintTicketLoader. */
+interface ComplaintTicketLoaderData {
+    complaintTicket: Promise<Awaited<ReturnType<typeof ComplaintTicketLoader>>>;
+}
 
 const NotFound = () => {
     const { t } = useTranslation();
@@ -49,7 +55,7 @@ const NotFound = () => {
 
 const CustomerTicketDetailPage = () => {
     const { t } = useTranslation();
-    const { complaintTicket } = useLoaderData();
+    const { complaintTicket } = useLoaderData() as ComplaintTicketLoaderData;
 
     TabTitle(t('Customer Center', { ns: 'common' }));
 

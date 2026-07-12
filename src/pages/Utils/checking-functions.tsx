@@ -36,7 +36,7 @@ export const LinkableNewlineText = ({
     const textStyle = {
         wordBreak: 'break-all',
         whiteSpace: 'pre-line' // Preserve newlines and wrap text
-    };
+    } as const;
     return (
         <div style={textStyle}>
             <Linkify
@@ -117,18 +117,29 @@ export const MissingSurveyFieldsListArray = ({
             ) {
                 missingFields.push('Full-Time Job Experience ?');
             }
-            if (['Yes', 'pending'].includes(uni.isGraduated)) {
-                if (!uni.Highest_GPA_Uni || uni.Highest_GPA_Uni === '-') {
+            if (
+                uni.isGraduated &&
+                ['Yes', 'pending'].includes(uni.isGraduated)
+            ) {
+                // GPA fields are typed as numbers, but legacy records can still
+                // carry the placeholder '-', so compare on the string form.
+                if (
+                    !uni.Highest_GPA_Uni ||
+                    String(uni.Highest_GPA_Uni) === '-'
+                ) {
                     missingFields.push(
                         'Highest Score GPA of your university program'
                     );
                 }
-                if (!uni.Passing_GPA_Uni || uni.Passing_GPA_Uni === '-') {
+                if (
+                    !uni.Passing_GPA_Uni ||
+                    String(uni.Passing_GPA_Uni) === '-'
+                ) {
                     missingFields.push(
                         'Passing Score GPA of your university program'
                     );
                 }
-                if (!uni.My_GPA_Uni || uni.My_GPA_Uni === '-') {
+                if (!uni.My_GPA_Uni || String(uni.My_GPA_Uni) === '-') {
                     missingFields.push('My GPA');
                 }
             }
@@ -137,7 +148,16 @@ export const MissingSurveyFieldsListArray = ({
 
     // Check application preference fields
     if (application_preference) {
-        const fieldMappings = [
+        // Every mapped key below points at a string / string[] field.
+        type PreferenceField = Exclude<
+            keyof IUserApplicationPreference,
+            'updatedAt'
+        >;
+        const fieldMappings: {
+            key: PreferenceField;
+            label: string;
+            check?: (value: string | string[] | undefined) => boolean;
+        }[] = [
             {
                 key: 'expected_application_date',
                 label: 'Expected Application Year'

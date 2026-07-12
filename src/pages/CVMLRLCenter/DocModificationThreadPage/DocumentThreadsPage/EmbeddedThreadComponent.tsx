@@ -29,6 +29,20 @@ import Loading from '@components/Loading/Loading';
 import { useRef, useState } from 'react';
 import { useAuth } from '@components/AuthProvider';
 
+/** Body of GET /api/document-threads/:id (getMessagThreadQuery is untyped). */
+interface ThreadQueryResponse {
+    data: {
+        success: boolean;
+        data?: Record<string, unknown>;
+        agents?: unknown[];
+        conflict_list?: unknown[];
+        editors?: unknown[];
+        deadline?: unknown;
+        threadAuditLog?: unknown[];
+        similarThreads?: unknown[];
+    };
+}
+
 export const EmbeddedThreadComponent = ({
     setThreadId
 }: {
@@ -53,20 +67,24 @@ export const EmbeddedThreadComponent = ({
     if (error) {
         return <ErrorPage />;
     }
-    const thread = data?.data?.data;
-    const deadline = data?.data?.deadline;
-    const agents = data?.data?.agents;
-    const conflict_list = data?.data?.conflict_list;
-    const editors = data?.data?.editors;
-    const threadAuditLog = data?.data?.threadAuditLog;
-    const similarThreads = data?.data?.similarThreads;
-    const studentName = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    const schoolName = thread.program_id?.school;
-    const programName = thread.program_id?.program_name;
-    const file_type = thread.file_type;
-    const programDbId = thread.program_id?._id
-        ? String(thread.program_id._id)
+    const responseData = data as ThreadQueryResponse | undefined;
+    const thread = (responseData?.data?.data ?? {}) as Record<string, unknown>;
+    const deadline = responseData?.data?.deadline;
+    const agents = responseData?.data?.agents;
+    const conflict_list = responseData?.data?.conflict_list;
+    const editors = responseData?.data?.editors;
+    const threadAuditLog = responseData?.data?.threadAuditLog;
+    const similarThreads = responseData?.data?.similarThreads;
+    const studentId = thread.student_id as Record<string, unknown> | undefined;
+    const programId = thread.program_id as Record<string, unknown> | undefined;
+    const studentDbId = studentId?._id ? String(studentId._id) : '';
+    const studentName = `${studentId?.firstname} ${studentId?.lastname}`;
+    const schoolName = programId?.school ? String(programId.school) : '';
+    const programName = programId?.program_name
+        ? String(programId.program_name)
         : '';
+    const file_type = thread.file_type ? String(thread.file_type) : '';
+    const programDbId = programId?._id ? String(programId._id) : '';
     return (
         <Box
             sx={{
@@ -107,18 +125,22 @@ export const EmbeddedThreadComponent = ({
                         <Link
                             component={LinkDom}
                             to={DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                thread.student_id._id,
+                                studentDbId,
                                 DEMO.PROFILE_HASH
                             )}
                             underline="none"
                         >
                             <Avatar
                                 {...stringAvatar(studentName)}
-                                src={thread.student_id?.pictureUrl}
+                                src={
+                                    studentId?.pictureUrl
+                                        ? String(studentId.pictureUrl)
+                                        : undefined
+                                }
                             />
                         </Link>
                     </Tooltip>
-                    {thread.program_id ? (
+                    {programId ? (
                         <Box
                             onClick={
                                 ismobile && programDbId
@@ -153,9 +175,7 @@ export const EmbeddedThreadComponent = ({
                                 <Link
                                     component={LinkDom}
                                     title={schoolName}
-                                    to={DEMO.SINGLE_PROGRAM_LINK(
-                                        thread.program_id._id
-                                    )}
+                                    to={DEMO.SINGLE_PROGRAM_LINK(programDbId)}
                                 >
                                     <Typography
                                         fontWeight="bold"
@@ -215,12 +235,12 @@ export const EmbeddedThreadComponent = ({
                             </IconButton>
                         </Tooltip>
                     ) : null}
-                    {is_TaiGer_AdminAgent(user) ? (
+                    {user != null && is_TaiGer_AdminAgent(user) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}
                             to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
-                                thread.student_id._id
+                                studentDbId
                             )}`}
                             underline="hover"
                         >

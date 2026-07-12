@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SurveyDocLinkEditDialog from './SurveyDocLinkEditDialog';
+import type { TFunction } from 'i18next';
 
-const tFn = (k: string) => k;
+const tFn = ((k: string) => k) as unknown as TFunction;
 
 const defaultProps = {
     open: true,

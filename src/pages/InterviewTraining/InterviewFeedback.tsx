@@ -21,7 +21,27 @@ import {
 import Loading from '@components/Loading/Loading';
 
 interface InterviewFeedbackProps {
-    interview: Record<string, any>;
+    /** Only the populated fields this card reads. */
+    interview: {
+        _id: string;
+        student_id: { _id: string; firstname?: string; lastname?: string };
+        program_id: { _id: string };
+    };
+}
+
+/** Shape actually returned by the interviews endpoints (populated refs). */
+interface PopulatedInterviewRecord {
+    _id: string;
+    isClosed?: boolean;
+    interview_date?: string | Date;
+    surveyResponses?: { isFinal?: boolean }[];
+    student_id?: { firstname?: string; lastname?: string };
+    program_id?: { school?: string; program_name?: string; degree?: string };
+}
+
+interface InterviewListResponse {
+    success?: boolean;
+    data?: PopulatedInterviewRecord[];
 }
 
 export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
@@ -31,6 +51,12 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
         useQuery(getInterviewsByStudentIdQuery(interview.student_id._id));
     const { data: programInterviews, isLoading: isProgramInterviewsLoading } =
         useQuery(getInterviewsByProgramIdQuery(interview.program_id._id));
+    const studentInterviewList = (
+        studentInterviews as InterviewListResponse | undefined
+    )?.data;
+    const programInterviewList = (
+        programInterviews as InterviewListResponse | undefined
+    )?.data;
     const [isStudentInterviewsOpen, setIsStudentInterviewsOpen] =
         useState(true);
 
@@ -44,7 +70,7 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
     }
     return (
         <div>
-            {is_TaiGer_role(user) && (
+            {user && is_TaiGer_role(user) && (
                 <>
                     <Box>
                         <Box
@@ -76,12 +102,9 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                         <Collapse in={isPreviousInterviewQuestionnaireOpen}>
                             <Box>
                                 <Box pl={2}>
-                                    {programInterviews?.data?.map(
+                                    {programInterviewList?.map(
                                         (
-                                            programInterview: Record<
-                                                string,
-                                                any
-                                            >
+                                            programInterview: PopulatedInterviewRecord
                                         ) =>
                                             programInterview._id !==
                                                 interview._id && (
@@ -101,17 +124,13 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                                                     )}`}
                                                     underline="hover"
                                                 >
-                                                    {`${convertDate(programInterview.interview_date)} - ${programInterview.student_id.firstname} ${programInterview.student_id.lastname}`}
-                                                    {programInterview
-                                                        .surveyResponses
-                                                        ?.length > 0 &&
+                                                    {`${convertDate(programInterview.interview_date ?? '')} - ${programInterview.student_id?.firstname} ${programInterview.student_id?.lastname}`}
+                                                    {programInterview.surveyResponses &&
+                                                        programInterview
+                                                            .surveyResponses
+                                                            .length > 0 &&
                                                         (programInterview.surveyResponses.some(
-                                                            (
-                                                                response: Record<
-                                                                    string,
-                                                                    any
-                                                                >
-                                                            ) =>
+                                                            (response) =>
                                                                 response.isFinal
                                                         ) ? (
                                                             <CheckCircleIcon
@@ -139,8 +158,8 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                                         variant="body2"
                                     >
                                         {t('Total interview records:')}{' '}
-                                        {programInterviews?.data?.filter(
-                                            (i: Record<string, any>) =>
+                                        {programInterviewList?.filter(
+                                            (i: PopulatedInterviewRecord) =>
                                                 i.isClosed === true &&
                                                 i._id !== interview._id
                                         )?.length || 0}
@@ -180,12 +199,9 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                         <Collapse in={isStudentInterviewsOpen}>
                             <Box>
                                 <Box pl={2}>
-                                    {studentInterviews?.data?.map(
+                                    {studentInterviewList?.map(
                                         (
-                                            studentInterview: Record<
-                                                string,
-                                                any
-                                            >
+                                            studentInterview: PopulatedInterviewRecord
                                         ) =>
                                             studentInterview._id !==
                                                 interview._id && (
@@ -200,7 +216,7 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                                                     )}`}
                                                     underline="hover"
                                                 >
-                                                    {`${convertDate(studentInterview.interview_date)} - ${studentInterview.program_id.school} - ${studentInterview.program_id.program_name} ${studentInterview.program_id.degree}`}
+                                                    {`${convertDate(studentInterview.interview_date ?? '')} - ${studentInterview.program_id?.school} - ${studentInterview.program_id?.program_name} ${studentInterview.program_id?.degree}`}
                                                 </Link>
                                             )
                                     )}
@@ -210,8 +226,8 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
                                         variant="body2"
                                     >
                                         {t('Total interview records:')}{' '}
-                                        {studentInterviews?.data?.filter(
-                                            (inv: Record<string, any>) =>
+                                        {studentInterviewList?.filter(
+                                            (inv: PopulatedInterviewRecord) =>
                                                 inv.isClosed === true &&
                                                 inv._id !== interview._id
                                         )?.length || 0}

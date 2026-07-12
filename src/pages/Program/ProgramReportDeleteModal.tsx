@@ -14,7 +14,12 @@ import { useTranslation } from 'react-i18next';
 export interface ProgramReportDeleteModalProps {
     program_name: string;
     uni_name: string;
-    ticket: Record<string, unknown>;
+    /** Empty object while no ticket is selected. */
+    ticket: {
+        _id?: string;
+        description?: string;
+        feedback?: string;
+    };
     isReportDelete: boolean;
     setReportDeleteModalHide: () => void;
     submitProgramDeleteReport: (ticket_id: string) => void;
@@ -29,12 +34,14 @@ const ProgramReportDeleteModal = ({
     submitProgramDeleteReport
 }: ProgramReportDeleteModalProps) => {
     const [programReportDeleteModal, setProgramReportDeleteModalState] =
-        useState({
+        useState<{ ticket: Record<string, string>; delete: string }>({
             ticket: {},
             delete: ''
         });
     const { t } = useTranslation();
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const temp_ticket = { ...programReportDeleteModal.ticket };
         temp_ticket[e.target.id] = e.target.value;
         setProgramReportDeleteModalState((prevState) => ({
@@ -43,7 +50,9 @@ const ProgramReportDeleteModal = ({
         }));
     };
 
-    const handleDeleteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDeleteChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         setProgramReportDeleteModalState((prevState) => ({
             ...prevState,
             delete: e.target.value
@@ -107,9 +116,7 @@ const ProgramReportDeleteModal = ({
                 <Button
                     color="primary"
                     disabled={programReportDeleteModal.delete !== 'delete'}
-                    onClick={() =>
-                        submitProgramDeleteReport(ticket._id.toString())
-                    }
+                    onClick={() => submitProgramDeleteReport(ticket._id ?? '')}
                     variant="contained"
                 >
                     {t('Delete ticket', { ns: 'programList' })}

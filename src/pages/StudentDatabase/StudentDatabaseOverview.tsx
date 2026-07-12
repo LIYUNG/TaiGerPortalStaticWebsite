@@ -48,11 +48,13 @@ const StudentDatabaseOverview = () => {
     const { data, isLoading, isError, error } = useQuery(
         getUsersOverviewQuery()
     );
-    const overview = data?.data as StudentDatabaseOverviewData | undefined;
+    const overview = (
+        data as { data?: StudentDatabaseOverviewData } | undefined
+    )?.data;
 
     TabTitle(t('Student Database Overview', { ns: 'common' }));
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

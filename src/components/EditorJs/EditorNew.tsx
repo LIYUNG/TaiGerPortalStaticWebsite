@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button } from '@mui/material';
 import EditorJS, {
     type BlockToolConstructable,
+    type LogLevels,
     type OutputData
 } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -43,7 +44,10 @@ const EditorNew = (props: EditorNewProps) => {
     const initEditor = (holderEl: HTMLElement) => {
         const editor = new EditorJS({
             holder: holderEl,
-            logLevel: 'ERROR',
+            // `LogLevels` is a string enum that Editor.js only ships as a type
+            // (the bundle has a single default export), so it cannot be
+            // referenced as a value here.
+            logLevel: 'ERROR' as LogLevels,
             data: props.editorState ?? undefined,
             onChange: async (api: {
                 saver: { save: () => Promise<OutputData> };

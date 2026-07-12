@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
+import type { IUser } from '@taiger-common/model';
+import type { TFunction } from 'i18next';
 import SurveyAcademicBackgroundCard from './SurveyAcademicBackgroundCard';
 
 vi.mock('@taiger-common/core', () => ({
@@ -22,7 +25,7 @@ vi.mock('@mui/material/colors', () => ({
     grey: { 500: '#9e9e9e' }
 }));
 
-const tFn = (k: string) => k;
+const tFn = ((k: string) => k) as unknown as TFunction;
 
 const mockSurvey = {
     academic_background: {
@@ -43,11 +46,11 @@ const mockSurvey = {
         }
     },
     changed_academic: false
-};
+} as unknown as SurveyStateValue;
 
 const defaultProps = {
-    survey: mockSurvey as any,
-    user: { role: 'Agent', _id: 'a1', archiv: false },
+    survey: mockSurvey,
+    user: { role: 'Agent', _id: 'a1', archiv: false } as unknown as IUser,
     t: tFn,
     handleChangeAcademic: vi.fn(),
     handleAcademicBackgroundSubmit: vi.fn(),

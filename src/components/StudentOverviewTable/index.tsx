@@ -44,16 +44,20 @@ import {
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import type {
-    IApplicationDocModificationThreadItem,
     IApplicationPopulated,
     IStudentResponse,
     IUserAcademicBackground,
     IUserWithId
 } from '@taiger-common/model';
 
+/** The embedded thread entries carried by a populated application. */
+type DocModificationThreadItem = NonNullable<
+    IApplicationPopulated['doc_modification_thread']
+>[number];
+
 /** Narrow doc_thread_id for thread row (may be populated or ObjectId) */
 function getDocThread(
-    thread: IApplicationDocModificationThreadItem
+    thread: DocModificationThreadItem
 ): { isFinalVersion?: boolean; file_type?: string } | undefined {
     return thread.doc_thread_id as unknown as
         | { isFinalVersion?: boolean; file_type?: string }
@@ -227,91 +231,75 @@ const transform = (
             ML: `${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    doc?.isFinalVersion &&
-                                    doc?.file_type === 'ML'
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                doc?.isFinalVersion &&
+                                doc?.file_type === 'ML'
+                            );
+                        })
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    doc?.file_type === 'ML'
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                doc?.file_type === 'ML'
+                            );
+                        })
                 ).length
             }`,
             RL: `${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    doc?.isFinalVersion &&
-                                    (doc?.file_type?.includes('RL') ||
-                                        doc?.file_type?.includes(
-                                            'Recommendation'
-                                        ))
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                doc?.isFinalVersion &&
+                                (doc?.file_type?.includes('RL') ||
+                                    doc?.file_type?.includes('Recommendation'))
+                            );
+                        })
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    (doc?.file_type?.includes('RL') ||
-                                        doc?.file_type?.includes(
-                                            'Recommendation'
-                                        ))
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                (doc?.file_type?.includes('RL') ||
+                                    doc?.file_type?.includes('Recommendation'))
+                            );
+                        })
                 ).length
             }`,
             Essay: `${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    doc?.isFinalVersion &&
-                                    doc?.file_type?.includes('Essay')
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                doc?.isFinalVersion &&
+                                doc?.file_type?.includes('Essay')
+                            );
+                        })
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
-                        application.doc_modification_thread?.some(
-                            (thread: IApplicationDocModificationThreadItem) => {
-                                const doc = getDocThread(thread);
-                                return (
-                                    isProgramDecided(application) &&
-                                    doc?.file_type?.includes('Essay')
-                                );
-                            }
-                        )
+                        application.doc_modification_thread?.some((thread) => {
+                            const doc = getDocThread(thread);
+                            return (
+                                isProgramDecided(application) &&
+                                doc?.file_type?.includes('Essay')
+                            );
+                        })
                 ).length
             }`,
             Portals: `${

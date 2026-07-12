@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ProgramConflictProps } from './ProgramConflict';
 import TabProgramConflict from './TabProgramConflict';
 
 vi.mock('./ProgramConflict', () => ({
@@ -40,7 +41,7 @@ const mockStudents = [
         },
         students: [
             {
-                studentId: 's1',
+                _id: 's1',
                 firstname: 'John',
                 lastname: 'Doe',
                 application_preference: {}
@@ -57,7 +58,7 @@ const mockStudents = [
         },
         students: [
             {
-                studentId: 's2',
+                _id: 's2',
                 firstname: 'Jane',
                 lastname: 'Smith',
                 application_preference: {}
@@ -71,8 +72,7 @@ describe('TabProgramConflict', () => {
         render(
             <MemoryRouter>
                 <TabProgramConflict
-                    program={mockStudents[0].program}
-                    students={mockStudents}
+                    students={mockStudents as unknown as ProgramConflictProps[]}
                 />
             </MemoryRouter>
         );

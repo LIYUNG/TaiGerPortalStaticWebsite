@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
 import type { Application } from '@/api/types';
-import type { EditorDocsProgressStudent } from './EditorDocsProgress';
 
 import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
@@ -31,15 +30,33 @@ import {
 import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 
+/**
+ * The student's embedded general-doc threads come back populated: the shared
+ * EditorDocsProgress type only models `_id`, but this page also reads
+ * `file_type` off the populated thread.
+ */
+interface ManualFilesDocThread {
+    _id?: string;
+    doc_thread_id?: { _id?: { toString(): string }; file_type?: string };
+}
+
+interface ManualFilesStudent {
+    _id?: string;
+    firstname?: string;
+    applications?: Application[];
+    generaldocs_threads?: ManualFilesDocThread[];
+}
+
 interface ManualFilesProps {
     application: Application | null;
     applications?: Application[];
     filetype: 'General' | 'ProgramSpecific';
-    student: EditorDocsProgressStudent;
+    student: ManualFilesStudent;
     handleAsFinalFile: (
         doc_thread_id: string,
         student_id: string,
-        application_id: string,
+        // undefined for general file threads, which have no application
+        application_id: string | undefined,
         isFinal: boolean,
         docName: string
     ) => void;
@@ -87,15 +104,16 @@ const ManualFiles = (props: ManualFilesProps) => {
     type RLApp = { programId: string; programLabel: string; required: number };
 
     // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
-    let lockStatus = null;
     let isLocked = false;
-    if (props.application && props.application.programId) {
-        lockStatus = calculateApplicationLockStatus(props.application);
-        isLocked = lockStatus.isLocked === true;
+    const program = props.application?.programId;
+    if (props.application && program) {
+        isLocked =
+            calculateApplicationLockStatus(props.application).isLocked === true;
     } else {
         // Fallback: if no application, use program lock status
-        lockStatus = calculateProgramLockStatus(props.application?.programId);
-        isLocked = lockStatus.isLocked === true;
+        isLocked = program
+            ? calculateProgramLockStatus(program).isLocked === true
+            : true;
     }
 
     const lockTooltip = isLocked
@@ -199,7 +217,9 @@ const ManualFiles = (props: ManualFilesProps) => {
         rlApplications: RLApp[];
     } = { missing: [], extra: [], rlApplications: [] };
     if (props.filetype !== 'General') {
-        programDocumentStatus = getProgramDocumentStatus(props.application);
+        programDocumentStatus = getProgramDocumentStatus(
+            props.application ? { ...props.application } : null
+        );
     } else {
         generalDocumentStatus = getGeneralDocumentStatus(
             props?.student?.generaldocs_threads,
@@ -379,7 +399,8 @@ const ManualFiles = (props: ManualFilesProps) => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        {is_TaiGer_role(user) &&
+                        {user != null &&
+                        is_TaiGer_role(user) &&
                         (!props.application ||
                             (props.application &&
                                 props.application.closed !== 'O')) ? (

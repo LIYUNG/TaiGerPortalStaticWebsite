@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -24,6 +24,8 @@ import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
 
 import MessageList from './MessageList';
 import CommunicationThreadEditor from './CommunicationThreadEditor';
+import type { CheckResultItem } from './CommunicationThreadEditor';
+import type { ThreadMessage } from '@components/Message/MessageCard';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -59,7 +61,7 @@ const InformationBlockChat = ({ user, student }: InformationBlockChatProps) => {
                             sx={{ display: 'flex' }}
                             target="_blank"
                             to={
-                                is_TaiGer_Student(user)
+                                user != null && is_TaiGer_Student(user)
                                     ? `${DEMO.SURVEY_LINK}`
                                     : `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                                           student._id?.toString(),
@@ -77,7 +79,7 @@ const InformationBlockChat = ({ user, student }: InformationBlockChatProps) => {
                             sx={{ display: 'flex' }}
                             target="_blank"
                             to={
-                                is_TaiGer_Student(user)
+                                user != null && is_TaiGer_Student(user)
                                     ? `${DEMO.BASE_DOCUMENTS_LINK}`
                                     : `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                                           student._id?.toString(),
@@ -134,6 +136,11 @@ const CommunicationSinglePageBody = ({
     const { data, student } = loadedData;
     const { user } = useAuth();
     const { t } = useTranslation();
+
+    // useCommunications takes a loosely-typed student record; spread into a
+    // plain object (memoized, since the hook keys an effect off its identity).
+    const studentRecord = useMemo(() => ({ ...student }), [student]);
+
     const {
         buttonDisabled,
         loadButtonDisabled,
@@ -151,7 +158,15 @@ const CommunicationSinglePageBody = ({
         onDeleteSingleMessage,
         onFileChange,
         handleClickSave
-    } = useCommunications({ data, student });
+    } = useCommunications({ data, student: studentRecord });
+
+    // useCommunications exposes its collections as `unknown[]`; narrow them to
+    // the shapes the child components declare.
+    const liveThread = thread as ThreadMessage[];
+    const upperLiveThread = upperThread as ThreadMessage[];
+    const fileCheckResult = checkResult as Array<
+        Record<string, CheckResultItem>
+    >;
 
     // The messages live in their own scrollable pane (`messagesRef`) so the chat
     // opens pinned to the newest message and loads older messages as the reader
@@ -196,7 +211,7 @@ const CommunicationSinglePageBody = ({
                     >
                         {appConfig.companyName}
                     </Link>
-                    {is_TaiGer_role(user) ? (
+                    {user != null && is_TaiGer_role(user) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}
@@ -332,22 +347,24 @@ const CommunicationSinglePageBody = ({
                         accordionKeys={uppderaccordionKeys}
                         isDeleting={isDeleting}
                         deletingMessageId={deletingMessageId}
+                        isTaiGerView={false}
                         isUpperMessagList={true}
                         onDeleteSingleMessage={onDeleteSingleMessage}
                         student_id={student._id.toString()}
-                        thread={upperThread}
-                        user={user}
+                        thread={upperLiveThread}
+                        user={user ?? undefined}
                     />
                 ) : null}
                 <MessageList
                     accordionKeys={accordionKeys}
                     isDeleting={isDeleting}
                     deletingMessageId={deletingMessageId}
+                    isTaiGerView={false}
                     isUpperMessagList={false}
                     onDeleteSingleMessage={onDeleteSingleMessage}
                     student_id={student._id.toString()}
-                    thread={thread}
-                    user={user}
+                    thread={liveThread}
+                    user={user ?? undefined}
                 />
             </Box>
 
@@ -369,7 +386,7 @@ const CommunicationSinglePageBody = ({
                 >
                     <CommunicationThreadEditor
                         buttonDisabled={buttonDisabled}
-                        checkResult={checkResult}
+                        checkResult={fileCheckResult}
                         editorState={editorState}
                         files={files}
                         handleClickSave={handleClickSave}

@@ -40,8 +40,6 @@ vi.mock('i18next', () => ({
     }
 }));
 
-const t = (key: string) => key;
-
 const baseUser = {
     firstname: 'Jane',
     lastname: 'Doe',
@@ -64,14 +62,10 @@ const baseProps: DiscussionEditorCardProps = {
     thread: baseThread,
     buttonDisabled: false,
     checkResult: [],
-    editorState: {},
+    editorState: { blocks: [] },
     file: null,
-    isSubmissionLoaded: true,
-    isTaiGerUser: true,
-    handleAsFinalFile: vi.fn(),
     handleClickSave: vi.fn(),
-    onFileChange: vi.fn(),
-    t
+    onFileChange: vi.fn()
 };
 
 describe('DiscussionEditorCard', () => {

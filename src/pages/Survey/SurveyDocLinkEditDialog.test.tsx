@@ -1,5 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { TFunction } from 'i18next';
 import SurveyDocLinkEditDialog from './components/SurveyDocLinkEditDialog';
+
+const t = ((key: string) => key) as unknown as TFunction;
 
 const defaultProps = {
     open: true,
@@ -9,7 +12,7 @@ const defaultProps = {
     onChangeURL: vi.fn(),
     docName: 'Grading System',
     saving: false,
-    t: (key: string) => key
+    t
 };
 
 describe('SurveyDocLinkEditDialog', () => {

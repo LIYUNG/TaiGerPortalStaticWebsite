@@ -29,7 +29,6 @@ import {
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import type {
     IKeywordsetWithId,
-    ProgramRequirementProgramCategory,
     ProgramsAndKeywordsData
 } from '@taiger-common/model';
 
@@ -46,7 +45,8 @@ export interface ProgramRequirementRequirement {
         program_category?: string;
         category_description?: string;
         requiredECTS?: number;
-        keywordSets?: string[];
+        // The API returns the keyword sets populated, not as plain ids.
+        keywordSets?: IKeywordsetWithId[];
         maxScore?: number;
     }>;
     fpso?: string;
@@ -138,7 +138,10 @@ const ProgramRequirementsNew = ({
     };
 
     // Function to add a keyword set to a program category
-    const handleAddKeywordSet = (newKeywordSet: string[], index: number) => {
+    const handleAddKeywordSet = (
+        newKeywordSet: IKeywordsetWithId[],
+        index: number
+    ) => {
         setProgramCategories((prev) =>
             prev.map((programCategory, i) =>
                 i === index
@@ -426,20 +429,18 @@ const ProgramRequirementsNew = ({
                                             label="Required ECTS"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map(
-                                                        (
-                                                            pc: ProgramRequirementProgramCategory,
-                                                            i
-                                                        ) =>
-                                                            i === index
-                                                                ? {
-                                                                      ...pc,
-                                                                      requiredECTS:
+                                                    prev.map((pc, i) =>
+                                                        i === index
+                                                            ? {
+                                                                  ...pc,
+                                                                  requiredECTS:
+                                                                      Number(
                                                                           e
                                                                               .target
                                                                               .value
-                                                                  }
-                                                                : pc
+                                                                      )
+                                                              }
+                                                            : pc
                                                     )
                                                 )
                                             }
@@ -457,20 +458,18 @@ const ProgramRequirementsNew = ({
                                             label="Points (if applicable)"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map(
-                                                        (
-                                                            pc: ProgramRequirementProgramCategory,
-                                                            i
-                                                        ) =>
-                                                            i === index
-                                                                ? {
-                                                                      ...pc,
-                                                                      maxScore:
+                                                    prev.map((pc, i) =>
+                                                        i === index
+                                                            ? {
+                                                                  ...pc,
+                                                                  maxScore:
+                                                                      Number(
                                                                           e
                                                                               .target
                                                                               .value
-                                                                  }
-                                                                : pc
+                                                                      )
+                                                              }
+                                                            : pc
                                                     )
                                                 )
                                             }
@@ -542,16 +541,18 @@ const ProgramRequirementsNew = ({
                                                     <TextField
                                                         {...params}
                                                         error={
-                                                            programCategories[
-                                                                index
-                                                            ]?.keywordSets
-                                                                ?.length <= 0
+                                                            programCategory.keywordSets !==
+                                                                undefined &&
+                                                            programCategory
+                                                                .keywordSets
+                                                                .length <= 0
                                                         }
                                                         helperText={
-                                                            programCategories[
-                                                                index
-                                                            ]?.keywordSets
-                                                                ?.length <= 0
+                                                            programCategory.keywordSets !==
+                                                                undefined &&
+                                                            programCategory
+                                                                .keywordSets
+                                                                .length <= 0
                                                                 ? 'Please provide at least 1 keyword set'
                                                                 : null
                                                         }
@@ -568,14 +569,14 @@ const ProgramRequirementsNew = ({
                                                             optionIndex
                                                         ) => {
                                                             const {
-                                                                _id,
+                                                                key,
                                                                 ...tagProps
                                                             } = getTagProps({
                                                                 index: optionIndex
                                                             });
                                                             return (
                                                                 <Chip
-                                                                    key={_id}
+                                                                    key={key}
                                                                     label={
                                                                         option.categoryName
                                                                     }
@@ -588,9 +589,9 @@ const ProgramRequirementsNew = ({
                                                 }
                                                 size="small"
                                                 value={
-                                                    programCategory.keywordSets
+                                                    programCategory.keywordSets ??
+                                                    []
                                                 }
-                                                variant="outlined"
                                             />
                                         </Box>
                                     </Grid>

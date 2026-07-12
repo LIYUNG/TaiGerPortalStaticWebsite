@@ -23,13 +23,12 @@ vi.mock('@store/constant', () => ({
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual =
         (await importOriginal()) as typeof import('react-router-dom');
-    const React = require('react');
-    const NavLinkMock = React.forwardRef<
+    const { forwardRef } = await import('react');
+    const NavLinkMock = forwardRef<
         HTMLAnchorElement,
-        { children?: React.ReactNode; to: string; [key: string]: unknown }
+        { children?: React.ReactNode; to: string }
     >(function NavLinkMock(props, ref) {
-        const { children, to, focusRipple, focusVisibleClassName, ...rest } =
-            props;
+        const { children, to, ...rest } = props;
         return (
             <a ref={ref} href={to} {...rest}>
                 {children}

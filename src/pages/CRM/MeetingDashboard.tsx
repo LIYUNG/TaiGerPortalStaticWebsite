@@ -44,11 +44,7 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
-import type {
-    CRMLeadItem,
-    CRMMeetingItem,
-    ApiResponse
-} from '@taiger-common/model';
+import type { CRMLeadItem, ApiResponse } from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -60,6 +56,32 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 
 import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
 
+/** Anchor shape accepted by MUI's `Popover` for a virtual (non-DOM) anchor. */
+interface VirtualAnchor {
+    getBoundingClientRect: () => DOMRect;
+    nodeType: Node['ELEMENT_NODE'];
+}
+
+/**
+ * The shared `CRMMeetingItem` schema only declares a handful of fields (with an
+ * `unknown` catch-all) and types `summary` as a plain string. Describe the
+ * fields this dashboard actually reads, matching /crm/meetings/:id (MeetingPage).
+ */
+interface CRMMeeting {
+    id: string;
+    title?: string;
+    isArchived?: boolean;
+    leadId?: string | null;
+    leadFullName?: string;
+    date?: string | number | Date;
+    summary?: {
+        gist?: string;
+        keywords?: string[];
+        overview?: string;
+        action_items?: string;
+    };
+}
+
 const MeetingPage = () => {
     const { t } = useTranslation();
     TabTitle(
@@ -67,7 +89,8 @@ const MeetingPage = () => {
     );
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
+    const [assignMenuAnchor, setAssignMenuAnchor] =
+        useState<VirtualAnchor | null>(null);
     const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(
         null
     );
@@ -127,7 +150,7 @@ const MeetingPage = () => {
     const { data, isLoading } = useQuery(getCRMMeetingsQuery());
     const { data: leadsData } = useQuery(getCRMLeadsQuery());
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -139,11 +162,7 @@ const MeetingPage = () => {
             // Optimistic update - immediately update the cache
             queryClient.setQueryData(
                 ['crm/meetings'],
-                (
-                    oldData:
-                        | { data?: ApiResponse<CRMMeetingItem[]> }
-                        | undefined
-                ) => {
+                (oldData: { data?: ApiResponse<CRMMeeting[]> } | undefined) => {
                     if (!oldData?.data?.data) return oldData;
 
                     return {
@@ -151,7 +170,7 @@ const MeetingPage = () => {
                         data: {
                             ...oldData.data,
                             data: oldData.data.data.map(
-                                (meeting: CRMMeetingItem) =>
+                                (meeting: CRMMeeting) =>
                                     meeting.id === meetingId
                                         ? { ...meeting, ...payload }
                                         : meeting
@@ -192,7 +211,7 @@ const MeetingPage = () => {
 
         // Store the current button position
         const buttonRect = event.currentTarget.getBoundingClientRect();
-        const virtualAnchor = {
+        const virtualAnchor: VirtualAnchor = {
             getBoundingClientRect: () => buttonRect,
             nodeType: 1
         };
@@ -202,16 +221,12 @@ const MeetingPage = () => {
         setSearchTerm(''); // Reset search when opening
     };
 
-    const handleLeadSelect = async (leadId: string | null) => {
+    const handleLeadSelect = async (leadId?: string | null) => {
         if (selectedMeetingId) {
             // Optimistic update for lead assignment
             queryClient.setQueryData(
                 ['crm/meetings'],
-                (
-                    oldData:
-                        | { data?: ApiResponse<CRMMeetingItem[]> }
-                        | undefined
-                ) => {
+                (oldData: { data?: ApiResponse<CRMMeeting[]> } | undefined) => {
                     if (!oldData?.data?.data) return oldData;
 
                     const leadName = leadId
@@ -224,7 +239,7 @@ const MeetingPage = () => {
                         data: {
                             ...oldData.data,
                             data: oldData.data.data.map(
-                                (meeting: CRMMeetingItem) =>
+                                (meeting: CRMMeeting) =>
                                     meeting.id === selectedMeetingId
                                         ? {
                                               ...meeting,
@@ -279,7 +294,9 @@ const MeetingPage = () => {
     };
 
     // Separate meetings into active and archived
-    const allMeetings: CRMMeetingItem[] = data?.data?.data || [];
+    const allMeetings: CRMMeeting[] =
+        (data as { data?: ApiResponse<CRMMeeting[]> } | undefined)?.data
+            ?.data || [];
     const nonArchivedMeetings = allMeetings.filter(
         (meeting) => !meeting.isArchived
     );
@@ -289,7 +306,9 @@ const MeetingPage = () => {
     const unassignedMeetings = allMeetings.filter(
         (meeting) => !meeting.isArchived && !meeting.leadId
     );
-    const leads: CRMLeadItem[] = leadsData?.data?.data || [];
+    const leads: CRMLeadItem[] =
+        (leadsData as { data?: ApiResponse<CRMLeadItem[]> } | undefined)?.data
+            ?.data || [];
 
     // Select current meetings based on active tab
     const currentMeetings =
@@ -308,15 +327,13 @@ const MeetingPage = () => {
             (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const getColumns = (
-        isArchived = false
-    ): MRT_ColumnDef<CRMMeetingItem>[] => [
+    const getColumns = (isArchived = false): MRT_ColumnDef<CRMMeeting>[] => [
         {
             accessorKey: 'date',
             header: t('common.datetime', { ns: 'crm' }),
             size: 80,
             Cell: ({ cell }) => {
-                const date = new Date(cell.getValue());
+                const date = new Date(cell.getValue<string>());
                 return (
                     <Box>
                         <Typography fontWeight={500} variant="body2">

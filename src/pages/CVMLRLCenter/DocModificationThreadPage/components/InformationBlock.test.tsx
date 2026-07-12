@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import type {
+    IDocumentthreadPopulated,
+    IUserWithId
+} from '@taiger-common/model';
 
 import InformationBlock from './InformationBlock';
 
@@ -70,14 +74,14 @@ const baseThread = {
     },
     outsourced_user_id: [],
     isOriginAuthorDeclarationConfirmedByStudent: false
-} as any;
+} as unknown as IDocumentthreadPopulated;
 
 const baseUser = {
     _id: 'user-1',
     role: 'Student',
     firstname: 'Jane',
     lastname: 'Doe'
-} as any;
+} as unknown as IUserWithId;
 
 const defaultProps = {
     agents: [],
@@ -87,6 +91,7 @@ const defaultProps = {
     documentsthreadId: 'thread-1',
     isFavorite: false,
     isGeneralRL: false,
+    isWithdraw: false,
     template_obj: null,
     startEditingEditor: vi.fn(),
     handleFavoriteToggle: vi.fn(),

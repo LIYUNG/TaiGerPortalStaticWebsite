@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SurveyLanguagesCard from './SurveyLanguagesCard';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
+import type { IUser } from '@taiger-common/model';
+import type { TFunction } from 'i18next';
 
 vi.mock('@utils/contants', () => ({
     ENGLISH_CERTIFICATE_ARRAY_OPTIONS: [{ value: 'IELTS', label: 'IELTS' }],
@@ -37,7 +40,7 @@ vi.mock('dayjs', () => ({
     default: () => ({ isValid: () => false, toDate: () => new Date() })
 }));
 
-const tFn = (k: string) => k;
+const tFn = ((k: string) => k) as unknown as TFunction;
 
 const mockSurvey = {
     academic_background: {
@@ -49,11 +52,11 @@ const mockSurvey = {
         }
     },
     changed_language: false
-};
+} as unknown as SurveyStateValue;
 
 const defaultProps = {
-    survey: mockSurvey as any,
-    user: { role: 'Agent', _id: 'a1', archiv: false },
+    survey: mockSurvey,
+    user: { role: 'Agent', _id: 'a1', archiv: false } as unknown as IUser,
     t: tFn,
     handleChangeLanguage: vi.fn(),
     handleTestDate: vi.fn(),

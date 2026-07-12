@@ -7,11 +7,12 @@ import {
 } from '@mui/material';
 
 import ProgramConflict from './ProgramConflict';
-import type { IProgramWithId, IStudentResponse } from '@taiger-common/model';
+import type { ProgramConflictProps } from './ProgramConflict';
 
 export interface TabProgramConflictProps {
-    students: IStudentResponse[];
-    program: IProgramWithId;
+    // One entry per conflicting program: the program plus the students that
+    // applied to it (GET /api/teams/application-conflicts).
+    students: ProgramConflictProps[];
 }
 
 const TabProgramConflict = ({ students }: TabProgramConflictProps) => {

@@ -1,10 +1,7 @@
 import { useState, useMemo, type MouseEvent } from 'react';
 import type { AxiosResponse, AxiosError } from 'axios';
 import type { OutputData } from '@editorjs/editorjs';
-import type {
-    GetInterviewResponse,
-    IUser
-} from '@taiger-common/model';
+import type { GetInterviewResponse, IUser } from '@taiger-common/model';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import {
     Card,
@@ -413,7 +410,14 @@ const SingleInterview = () => {
                             {/* Left Sidebar: Interview Metadata */}
                             <Grid item lg={3} md={4} xs={12}>
                                 <InterviewMetadataSidebar
-                                    interview={interview}
+                                    // The sidebar types `thread_id` as the raw id
+                                    // string, while the API populates it into a
+                                    // thread object. Normalize it here.
+                                    interview={{
+                                        ...interview,
+                                        thread_id:
+                                            interview.thread_id?._id.toString()
+                                    }}
                                     onInterviewUpdate={handleInterviewUpdate}
                                     openDeleteDocModalWindow={
                                         openDeleteDocModalWindow

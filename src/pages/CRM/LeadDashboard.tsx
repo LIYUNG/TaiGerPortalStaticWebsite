@@ -18,7 +18,6 @@ import {
     Tab,
     Tooltip
 } from '@mui/material';
-import type { ChipOwnProps } from '@mui/material/Chip';
 import {
     Schedule as ScheduleIcon,
     FiberManualRecord as StatusIcon,
@@ -303,9 +302,7 @@ const LeadDashboard = () => {
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <ScheduleIcon color="action" fontSize="small" />
                     <Typography variant="body2">
-                        {new Date(
-                            cell.getValue<string>()
-                        ).toLocaleDateString()}
+                        {new Date(cell.getValue<string>()).toLocaleDateString()}
                     </Typography>
                 </Stack>
             )

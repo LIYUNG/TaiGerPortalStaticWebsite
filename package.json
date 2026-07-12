@@ -82,7 +82,7 @@
         "test": "vitest",
         "test:ci": "vitest run",
         "test:ci:batch": "node scripts/run-ci-test-batch.mjs",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "tsc -b --noEmit",
         "test:coverage": "vitest run --coverage",
         "test:coverage:html": "vitest run --coverage --reporter=html",
         "test:coverage:json": "vitest run --coverage --reporter=json --outputFile=test-results.json",
@@ -94,8 +94,7 @@
     "lint-staged": {
         "**/*.{ts,tsx}": [
             "prettier --write",
-            "eslint --fix --cache",
-            "git add"
+            "eslint --fix --cache"
         ]
     },
     "browserslist": [

@@ -2,6 +2,7 @@ import {
     useCallback,
     useEffect,
     useLayoutEffect,
+    useMemo,
     useRef,
     useState
 } from 'react';
@@ -19,10 +20,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import { useTranslation } from 'react-i18next';
 
-import type { RefObject } from 'react';
+import type { MutableRefObject } from 'react';
 
 import MessageList from './MessageList';
 import CommunicationThreadEditor from './CommunicationThreadEditor';
+import type { CheckResultItem } from './CommunicationThreadEditor';
 import { useAuth } from '@components/AuthProvider';
 import useCommunications from '@hooks/useCommunications';
 import useChatScroll from '@hooks/useChatScroll';
@@ -51,7 +53,7 @@ interface CommunicationExpandPageMessagesComponentProps {
     student: IStudentResponse;
     // The search lives in the page TopBar; it triggers the jump-to-message
     // (context mode) by calling the handler this component registers here.
-    searchJumpRef?: RefObject<((messageId: string) => void) | null>;
+    searchJumpRef?: MutableRefObject<((messageId: string) => void) | null>;
 }
 
 const CommunicationExpandPageMessagesComponent = ({
@@ -61,6 +63,10 @@ const CommunicationExpandPageMessagesComponent = ({
 }: CommunicationExpandPageMessagesComponentProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+
+    // useCommunications takes a loosely-typed student record; spread into a
+    // plain object (memoized, since the hook keys an effect off its identity).
+    const studentRecord = useMemo(() => ({ ...student }), [student]);
 
     const {
         buttonDisabled,
@@ -80,7 +86,15 @@ const CommunicationExpandPageMessagesComponent = ({
         onDeleteSingleMessage,
         onFileChange,
         handleClickSave
-    } = useCommunications({ data, student });
+    } = useCommunications({ data, student: studentRecord });
+
+    // useCommunications exposes its collections as `unknown[]`; narrow them to
+    // the shapes the child components declare.
+    const liveThread = thread as ThreadMessage[];
+    const upperLiveThread = upperThread as ThreadMessage[];
+    const fileCheckResult = checkResult as Array<
+        Record<string, CheckResultItem>
+    >;
 
     // The chat is a flex column: a scrollable message pane (messagesRef) in the
     // middle and a fixed compose footer below it. Because the footer sits
@@ -323,7 +337,7 @@ const CommunicationExpandPageMessagesComponent = ({
                             onDeleteSingleMessage={onDeleteSingleMessage}
                             student_id={studentId}
                             thread={contextMessages as ThreadMessage[]}
-                            user={user}
+                            user={user ?? undefined}
                         />
                         {contextHasNewer ? (
                             <Button
@@ -435,8 +449,8 @@ const CommunicationExpandPageMessagesComponent = ({
                                 isUpperMessagList={true}
                                 onDeleteSingleMessage={onDeleteSingleMessage}
                                 student_id={student._id.toString()}
-                                thread={upperThread}
-                                user={user}
+                                thread={upperLiveThread}
+                                user={user ?? undefined}
                             />
                         ) : null}
                         <MessageList
@@ -447,8 +461,8 @@ const CommunicationExpandPageMessagesComponent = ({
                             isUpperMessagList={false}
                             onDeleteSingleMessage={onDeleteSingleMessage}
                             student_id={student._id.toString()}
-                            thread={thread}
-                            user={user}
+                            thread={liveThread}
+                            user={user ?? undefined}
                         />
                         {/* Scroll anchor: keeps the newest message in view. */}
                         <div ref={bottomRef} />
@@ -481,7 +495,7 @@ const CommunicationExpandPageMessagesComponent = ({
                         >
                             <CommunicationThreadEditor
                                 buttonDisabled={buttonDisabled}
-                                checkResult={checkResult}
+                                checkResult={fileCheckResult}
                                 count={count}
                                 editorState={editorState}
                                 files={files}

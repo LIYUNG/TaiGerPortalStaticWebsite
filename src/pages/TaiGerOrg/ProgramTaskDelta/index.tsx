@@ -13,11 +13,22 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import Loading from '@components/Loading/Loading';
+import type { ProgramTaskDeltaProps } from '@pages/Dashboard/MainViewTab/ProgramTaskDelta/ProgramTaskDelta';
+
+interface ProgramTaskDeltaDashboardState {
+    error: string;
+    isLoaded: boolean;
+    data: ProgramTaskDeltaProps[];
+    success: boolean;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+}
 
 const ProgramTaskDeltaDashboard = () => {
     const { user } = useAuth();
     const [ProgramTaskDeltaDashboardState, setProgramTaskDeltaDashboardState] =
-        useState({
+        useState<ProgramTaskDeltaDashboardState>({
             error: '',
             isLoaded: false,
             data: [],
@@ -36,7 +47,9 @@ const ProgramTaskDeltaDashboard = () => {
                     setProgramTaskDeltaDashboardState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        data: data,
+                        // The response schema types `students` as unknown[];
+                        // the endpoint returns populated student responses.
+                        data: (data ?? []) as ProgramTaskDeltaProps[],
                         success: success,
                         res_status: status
                     }));
@@ -48,18 +61,26 @@ const ProgramTaskDeltaDashboard = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setProgramTaskDeltaDashboardState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: error instanceof Error ? error.message : '',
                     res_status: 500
                 }));
             }
         );
     }, []);
 
-    if (!is_TaiGer_role(user)) {
+    const ConfirmError = () => {
+        setProgramTaskDeltaDashboardState((prevState) => ({
+            ...prevState,
+            res_modal_status: 0,
+            res_modal_message: ''
+        }));
+    };
+
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     const { res_modal_status, res_modal_message, isLoaded, res_status } =
@@ -76,7 +97,7 @@ const ProgramTaskDeltaDashboard = () => {
         <Box>
             {res_modal_status >= 400 ? (
                 <ModalMain
-                    ConfirmError={this.ConfirmError}
+                    ConfirmError={ConfirmError}
                     res_modal_message={res_modal_message}
                     res_modal_status={res_modal_status}
                 />

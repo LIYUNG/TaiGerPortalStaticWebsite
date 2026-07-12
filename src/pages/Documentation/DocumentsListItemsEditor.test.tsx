@@ -26,6 +26,7 @@ describe('DocumentsListItemsEditor', () => {
     it('renders without crashing with minimal props', () => {
         render(
             <DocumentsListItemsEditor
+                category="general"
                 doc_title="Another Doc"
                 handleClickEditToggle={noop}
                 handleClickSave={noop}

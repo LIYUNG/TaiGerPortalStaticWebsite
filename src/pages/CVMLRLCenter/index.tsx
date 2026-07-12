@@ -10,8 +10,24 @@ import {
     Typography
 } from '@mui/material';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
-import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type {
+    IDocumentthread,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 import type { OpenTaskRow } from '@/api/types';
+
+/**
+ * The message-status helpers only read isFinalVersion / flag_by_user_id /
+ * latest_message_left_by_id, but declare the full IDocumentthread (whose
+ * student_id and file_type are required). The rows produced by open_tasks_v2
+ * carry those fields optionally, hence the widening.
+ */
+const asThread = (
+    row: OpenTaskRow
+): IDocumentthread & { latest_message_left_by_id?: string } =>
+    row as unknown as IDocumentthread & {
+        latest_message_left_by_id?: string;
+    };
 
 import CVMLRLOverview from './CVMLRLOverview';
 import CVMLRLOverviewPaginated from './CVMLRLOverviewPaginated';
@@ -89,14 +105,19 @@ const CVMLRLCenter = () => {
         apiCall.then(
             (resp) => {
                 const { success } = resp;
+                // The endpoint answers either with a bare array or with a
+                // { threads } envelope, so both shapes are handled here.
+                const payload: unknown = resp.data;
                 const threads: IDocumentthreadPopulated[] =
-                    'threads' in (resp.data ?? {})
+                    typeof payload === 'object' &&
+                    payload !== null &&
+                    'threads' in payload
                         ? ((
-                              resp.data as {
-                                  threads: IDocumentthreadPopulated[];
+                              payload as {
+                                  threads?: IDocumentthreadPopulated[];
                               }
                           ).threads ?? [])
-                        : ((resp.data as
+                        : ((payload as
                               | IDocumentthreadPopulated[]
                               | undefined) ?? []);
                 const tasksData = open_tasks_v2(threads);
@@ -264,22 +285,24 @@ const CVMLRLCenter = () => {
         (open_task: OpenTaskRow) => open_task.show && !open_task.isFinalVersion
     );
     const new_message_tasks = open_tasks_withMyEssay_arr.filter(
-        (open_task: OpenTaskRow) => is_new_message_status(user, open_task)
+        (open_task: OpenTaskRow) =>
+            is_new_message_status(user, asThread(open_task))
     );
 
     const fav_message_tasks = open_tasks_withMyEssay_arr.filter(
-        (open_task: OpenTaskRow) => is_my_fav_message_status(user, open_task)
+        (open_task: OpenTaskRow) =>
+            is_my_fav_message_status(user, asThread(open_task))
     );
 
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task: OpenTaskRow) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user, asThread(open_task)) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task: OpenTaskRow) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user, asThread(open_task)) &&
             open_task.latest_message_left_by_id === '- None - '
     );
 

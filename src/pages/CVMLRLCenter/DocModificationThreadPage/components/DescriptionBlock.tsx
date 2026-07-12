@@ -14,9 +14,19 @@ import DEMO from '@store/constant';
 import { BASE_URL } from '@/api';
 import { appConfig } from '../../../../config';
 
+// What DocModificationThreadPage actually threads down here is an entry of the
+// static `templatelist` (name/prop/alias), not a persisted ITemplateWithId. The
+// intermediate components still declare the prop as ITemplateWithId, so accept
+// both shapes and narrow on the fields we read.
+interface TemplateListEntry {
+    name: string;
+    prop: string;
+    alias: string;
+}
+
 interface DescriptionBlockProps {
     thread: IDocumentthreadPopulated;
-    template_obj: ITemplateWithId | null;
+    template_obj: ITemplateWithId | TemplateListEntry | null;
     documentsthreadId: string;
 }
 
@@ -28,6 +38,11 @@ const DescriptionBlock = ({
     const { user } = useAuth();
     const theme = useTheme();
     const { t } = useTranslation();
+
+    const templateProp =
+        template_obj && 'prop' in template_obj ? template_obj.prop : '';
+    const templateAlias =
+        template_obj && 'alias' in template_obj ? template_obj.alias : '';
 
     return (
         <Stack spacing={2}>
@@ -76,8 +91,8 @@ const DescriptionBlock = ({
                             {t('Download template')}
                         </Typography>
                         <Stack spacing={1}>
-                            {template_obj.prop.includes('RL') ||
-                            template_obj.alias.includes('Recommendation') ? (
+                            {templateProp.includes('RL') ||
+                            templateAlias.includes('Recommendation') ? (
                                 <>
                                     <Button
                                         color="secondary"
@@ -112,7 +127,7 @@ const DescriptionBlock = ({
                                         color="secondary"
                                         component="a"
                                         fullWidth
-                                        href={`${BASE_URL}/api/account/files/template/${template_obj.prop}`}
+                                        href={`${BASE_URL}/api/account/files/template/${templateProp}`}
                                         rel="noopener noreferrer"
                                         size="small"
                                         startIcon={<DownloadIcon />}
@@ -121,7 +136,7 @@ const DescriptionBlock = ({
                                     >
                                         Download Template
                                     </Button>
-                                    {is_TaiGer_role(user) && (
+                                    {user != null && is_TaiGer_role(user) && (
                                         <Button
                                             color="info"
                                             component={LinkDom}

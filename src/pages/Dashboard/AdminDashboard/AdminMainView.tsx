@@ -14,7 +14,8 @@ import AdminTasks from '../MainViewTab/AdminTasks/index';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTablePaginated } from '../../StudentDatabase/StudentsTablePaginated';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import type { GetAuditLogResponse } from '@taiger-common/model';
 import { getAuditLogQuery } from '@/api/query';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import queryString from 'query-string';
@@ -24,13 +25,15 @@ const AdminMainView = () => {
 
     const { data: tasksOverview } = useTasksOverview();
 
+    // getAuditLogQuery is declared as a non-generic UseQueryOptions, which
+    // erases the response type of its queryFn (getAuditLog<GetAuditLogResponse>).
     const { data: auditLog } = useQuery(
         getAuditLogQuery(
             queryString.stringify({
                 page: 1,
                 limit: 20
             })
-        )
+        ) as UseQueryOptions<GetAuditLogResponse>
     );
 
     const admin_tasks = <AdminTasks tasksOverview={tasksOverview} />;

@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { TFunction } from 'i18next';
+import type { IStudentResponse } from '@taiger-common/model';
 
 vi.mock('@taiger-common/core', () => ({
     isProgramDecided: vi.fn(() => false)
@@ -41,7 +43,7 @@ vi.mock('../../../Utils/util_functions', () => mocks);
 
 import { buildStudentTasks } from './studentTasks';
 
-const t = ((key: string) => key) as never;
+const t = ((key: string) => key) as unknown as TFunction;
 
 const baseStudent = {
     _id: 'u1',
@@ -49,7 +51,7 @@ const baseStudent = {
     academic_background: { university: { isGraduated: 'Yes' } },
     generaldocs_threads: [],
     applications: []
-} as never;
+} as unknown as IStudentResponse;
 
 beforeEach(() => {
     Object.values(mocks).forEach((m) => m.mockClear());
@@ -93,7 +95,7 @@ describe('buildStudentTasks', () => {
                     doc_thread_id: { _id: 'th1', file_type: 'CV' }
                 }
             ]
-        } as never;
+        } as unknown as IStudentResponse;
         const { tasks } = buildStudentTasks(student, true, t);
         expect(tasks[0].category).toBe('feedback');
         expect(tasks[0].to).toBe('/doc/th1');
@@ -110,7 +112,7 @@ describe('buildStudentTasks', () => {
                     doc_thread_id: { _id: 'th1', file_type: 'CV' }
                 }
             ]
-        } as never;
+        } as unknown as IStudentResponse;
         const { tasks } = buildStudentTasks(student, true, t);
         expect(tasks.some((task) => task.category === 'feedback')).toBe(false);
     });
@@ -120,7 +122,7 @@ describe('buildStudentTasks', () => {
         const notGraduated = {
             ...baseStudent,
             academic_background: { university: { isGraduated: 'No' } }
-        } as never;
+        } as unknown as IStudentResponse;
         const { progress } = buildStudentTasks(notGraduated, false, t);
         expect(progress.total).toBe(4);
     });

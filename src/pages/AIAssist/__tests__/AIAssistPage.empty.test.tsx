@@ -148,16 +148,18 @@ describe('AIAssistPage — empty state', () => {
 
     it('keeps a local draft when the initial conversation load resolves late', async () => {
         const user = userEvent.setup();
-        let resolveConversations:
-            | ((value: {
-                  success: boolean;
-                  data: typeof conversations;
-              }) => void)
-            | null = null;
+        // Held on an object so TypeScript does not narrow the deferred resolver
+        // away: it is only assigned inside the Promise executor callback.
+        const deferred: {
+            resolve?: (value: {
+                success: boolean;
+                data: typeof conversations;
+            }) => void;
+        } = {};
 
         apiMocks.getAIAssistConversations.mockReturnValueOnce(
             new Promise((resolve) => {
-                resolveConversations = resolve;
+                deferred.resolve = resolve;
             })
         );
 
@@ -173,7 +175,7 @@ describe('AIAssistPage — empty state', () => {
         const input = screen.getByLabelText('Ask TaiGer AI');
         await user.type(input, 'Need help');
 
-        resolveConversations?.({ success: true, data: conversations });
+        deferred.resolve?.({ success: true, data: conversations });
 
         await waitFor(() => {
             expect(input).toHaveValue('Need help');

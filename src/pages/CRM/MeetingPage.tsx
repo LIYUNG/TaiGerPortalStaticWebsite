@@ -48,23 +48,72 @@ import { getCRMMeetingQuery, getCRMLeadsQuery } from '@/api/query';
 import { updateCRMMeeting } from '@/api';
 import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
 
+/** Anchor shape accepted by MUI's `Popover` for a virtual (non-DOM) anchor. */
+interface VirtualAnchor {
+    getBoundingClientRect: () => DOMRect;
+    nodeType: Node['ELEMENT_NODE'];
+}
+
+interface CRMMeeting {
+    title?: string;
+    isArchived?: boolean;
+    leadId?: string | null;
+    leadFullName?: string;
+    leadEmail?: string;
+    date?: string | number | Date;
+    duration?: number;
+    transcriptUrl?: string;
+    summary?: {
+        gist?: string;
+        keywords?: string[];
+        overview?: string;
+        action_items?: string;
+    };
+    speakers?: { id: string; name: string }[];
+    meetingAttendees?: {
+        displayName?: string;
+        name?: string;
+        email?: string;
+    }[];
+}
+
+interface CRMLead {
+    id?: string;
+    fullName?: string;
+    email?: string;
+}
+
+/** Axios response envelope used by the CRM endpoints. */
+interface CRMResponse<T> {
+    data?: { data?: T };
+}
+
+const isCRMResponse = <T,>(value: unknown): value is CRMResponse<T> =>
+    typeof value === 'object' && value !== null;
+
 const MeetingPage = () => {
-    const { meetingId } = useParams();
+    const { meetingId: meetingIdParam } = useParams();
+    const meetingId = meetingIdParam ?? '';
     const { t } = useTranslation();
     const queryClient = useQueryClient();
-    const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
+    const [assignMenuAnchor, setAssignMenuAnchor] =
+        useState<VirtualAnchor | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const { user } = useAuth();
     const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
     const { data: leadsData } = useQuery(getCRMLeadsQuery());
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const meeting = data?.data?.data || {};
+    const meeting: CRMMeeting = isCRMResponse<CRMMeeting>(data)
+        ? (data.data?.data ?? {})
+        : {};
     const meetingTitle = sanitizeMeetingTitle(meeting.title || 'N/A');
-    const leads = leadsData?.data?.data || [];
+    const leads: CRMLead[] = isCRMResponse<CRMLead[]>(leadsData)
+        ? (leadsData.data?.data ?? [])
+        : [];
 
     TabTitle(
         `${t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meetingTitle}` : ''}`
@@ -87,7 +136,7 @@ const MeetingPage = () => {
         event.preventDefault();
 
         const buttonRect = event.currentTarget.getBoundingClientRect();
-        const virtualAnchor = {
+        const virtualAnchor: VirtualAnchor = {
             getBoundingClientRect: () => buttonRect,
             nodeType: 1
         };
@@ -115,14 +164,16 @@ const MeetingPage = () => {
             (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const formatDuration = (minutes: number) => {
-        const hours = Math.floor(minutes / 60);
-        const mins = Math.floor(minutes % 60);
+    const formatDuration = (minutes: number | undefined) => {
+        // NaN reproduces the previous behaviour for a missing duration.
+        const total = minutes ?? NaN;
+        const hours = Math.floor(total / 60);
+        const mins = Math.floor(total % 60);
         return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
     };
 
-    const formatDate = (timestamp: string | number | Date) => {
-        return new Date(timestamp).toLocaleDateString('en-US', {
+    const formatDate = (timestamp: string | number | Date | undefined) => {
+        return new Date(timestamp ?? NaN).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -338,7 +389,9 @@ const MeetingPage = () => {
                                     <ListItem disablePadding key={lead.id}>
                                         <ListItemButton
                                             onClick={() =>
-                                                handleLeadSelect(lead.id)
+                                                handleLeadSelect(
+                                                    lead.id ?? null
+                                                )
                                             }
                                             sx={{ borderRadius: 1 }}
                                         >

@@ -66,7 +66,7 @@ const AssignEssayWritersPage = ({
     const { t } = useTranslation();
 
     const [state, setState] = useState({
-        error: '',
+        error: '' as unknown,
         isLoaded: false,
         success: false,
         res_modal_message: '',
@@ -86,14 +86,20 @@ const AssignEssayWritersPage = ({
                 );
                 const { data, success } = resp.data;
                 const { status } = resp;
+                // The endpoint responds with the *populated* thread, even though
+                // the shared response type describes the unpopulated one.
+                const updatedThread = data as unknown as
+                    | IDocumentthreadPopulated
+                    | undefined;
 
                 setState((prevState) => {
                     if (success) {
                         const updatedThreads =
                             prevState.essayDocumentThreads.map(
                                 (thread: IDocumentthreadPopulated) =>
-                                    thread._id === essayDocumentThread_id
-                                        ? data
+                                    thread._id === essayDocumentThread_id &&
+                                    updatedThread
+                                        ? updatedThread
                                         : thread
                             );
                         return {
@@ -107,7 +113,7 @@ const AssignEssayWritersPage = ({
                         return {
                             ...prevState,
                             isLoaded: true,
-                            res_modal_message: resp.data.message,
+                            res_modal_message: resp.data.message ?? '',
                             res_modal_status: status
                         };
                     }

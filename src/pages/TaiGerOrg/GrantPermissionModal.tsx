@@ -68,7 +68,7 @@ const GrantPermissionModal = (props: GrantPermissionModalProps) => {
     };
 
     const onChangePermissions_Quota = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { value, id } = e.target;
         setGrantPermissionModalState((prevState) => ({
@@ -148,6 +148,7 @@ const GrantPermissionModal = (props: GrantPermissionModalProps) => {
                                                     value={permission[0]}
                                                 />
                                             }
+                                            label=""
                                         />
                                     </FormControl>
                                 </TableCell>

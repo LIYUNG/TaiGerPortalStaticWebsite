@@ -25,6 +25,8 @@ describe('MessageList', () => {
         render(
             <MessageList
                 accordionKeys={[0, 1]}
+                isDeleting={false}
+                isTaiGerView={false}
                 isUpperMessagList={false}
                 student_id="stu1"
                 thread={thread}
@@ -42,6 +44,8 @@ describe('MessageList', () => {
         const { container } = render(
             <MessageList
                 accordionKeys={[]}
+                isDeleting={false}
+                isTaiGerView={false}
                 isUpperMessagList={false}
                 student_id="stu1"
                 thread={[]}

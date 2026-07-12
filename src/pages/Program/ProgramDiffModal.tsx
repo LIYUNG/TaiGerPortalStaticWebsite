@@ -22,28 +22,36 @@ export interface ProgramDiffModalProps {
     originalProgram: { _id: string; [key: string]: unknown };
 }
 
+/** A pending change request returned by `/programs/:id/change-requests`. */
+interface ProgramChangeRequest {
+    updatedAt?: string | Date;
+    requestedBy?: { firstname?: string; lastname?: string };
+    [key: string]: unknown;
+}
+
+const isProgramChangeRequest = (
+    value: unknown
+): value is ProgramChangeRequest => typeof value === 'object' && value !== null;
+
 const ProgramDiffModal = (props: ProgramDiffModalProps) => {
     const { t } = useTranslation();
     const { originalProgram } = props;
     const programId = originalProgram._id;
 
-    const [incomingChanges, setIncomingChanges] = useState([]);
+    const [incomingChanges, setIncomingChanges] = useState<
+        ProgramChangeRequest[]
+    >([]);
     const [changeIndex, setChangeIndex] = useState(0);
 
     useEffect(() => {
         getProgramChangeRequests(programId).then((res) => {
             const { data } = res.data;
-            setIncomingChanges(data);
+            setIncomingChanges((data ?? []).filter(isProgramChangeRequest));
         });
     }, [programId]);
 
     return (
-        <ModalNew
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-            open={props.open}
-            size="lg"
-        >
+        <ModalNew onClose={props.setModalHide} open={props.open}>
             <Button color="secondary" onClick={props.setModalHide}>
                 <CloseIcon />
             </Button>
@@ -61,7 +69,7 @@ const ProgramDiffModal = (props: ProgramDiffModalProps) => {
                         incomingChanges.map((change, index) => {
                             return (
                                 <MenuItem key={index} value={index}>
-                                    {convertDate(change?.updatedAt)} -{' '}
+                                    {convertDate(change?.updatedAt ?? '')} -{' '}
                                     {change.requestedBy
                                         ? `${change.requestedBy.firstname} ${change.requestedBy.lastname} `
                                         : 'External Source'}

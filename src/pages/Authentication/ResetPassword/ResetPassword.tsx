@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type MouseEvent } from 'react';
 import {
     Button,
     CircularProgress,
@@ -37,7 +37,7 @@ export default function ResetPassword() {
         return true;
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (passwordValidation()) {
             try {

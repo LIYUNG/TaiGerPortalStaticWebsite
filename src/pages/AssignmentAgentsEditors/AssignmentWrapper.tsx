@@ -45,7 +45,7 @@ const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
         ConfirmError
     } = useStudents({ students: rows as IStudentResponse[] });
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

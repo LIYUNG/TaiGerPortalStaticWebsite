@@ -1,4 +1,4 @@
-import React, { FormEvent, MouseEvent, useState } from 'react';
+import React, { MouseEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -13,6 +13,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
+import type { EssayDocumentThreadForWriters } from '../StudDocsOverview/EditUserListSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import type {
@@ -25,11 +26,14 @@ import type {
 interface NoWritersEssaysCardProps {
     essayDocumentThread: IDocumentthreadPopulated;
     isArchivPage: boolean;
-    submitUpdateEssayWriterlist: (
-        e: FormEvent<HTMLFormElement>,
+    // The writers subpage fires this from a Button click, so the event is a
+    // generic SyntheticEvent, not a form-submit event. Declared method-style so
+    // callers that still type their handler as a FormEvent keep type-checking.
+    submitUpdateEssayWriterlist(
+        e: React.SyntheticEvent,
         updateEssayWriterList: Record<string, boolean>,
         essayDocumentThread_id: string
-    ) => void;
+    ): void;
 }
 
 const NoWritersEssaysCard = ({
@@ -69,7 +73,7 @@ const NoWritersEssaysCard = ({
     };
 
     const submitUpdateEssayWriterlistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateEssayWriterList: Record<string, boolean>,
         essayDocumentThread_id: string
     ) => {
@@ -80,6 +84,21 @@ const NoWritersEssaysCard = ({
             updateEssayWriterList,
             essayDocumentThread_id
         );
+    };
+
+    // The thread comes back from the API with `student_id` / `program_id`
+    // either populated or left as raw ids; the writers subpage only ever reads
+    // the populated shape, so pass the object form and drop the id-only form.
+    const essayThreadForWriters: EssayDocumentThreadForWriters = {
+        ...essayDocumentThread,
+        program_id:
+            typeof essayDocumentThread.program_id === 'object'
+                ? essayDocumentThread.program_id
+                : undefined,
+        student_id:
+            typeof essayDocumentThread.student_id === 'object'
+                ? essayDocumentThread.student_id
+                : undefined
     };
 
     if (
@@ -234,9 +253,8 @@ const NoWritersEssaysCard = ({
                 noEditorsStudentsCardState.showEditorPage ? (
                     <EditEssayWritersSubpage
                         actor="Essay Writer"
-                        essayDocumentThread={essayDocumentThread}
+                        essayDocumentThread={essayThreadForWriters}
                         onHide={setEditorModalhide}
-                        setmodalhide={setEditorModalhide}
                         show={noEditorsStudentsCardState.showEditorPage}
                         submitUpdateEssayWriterlist={
                             submitUpdateEssayWriterlistHandler

@@ -41,7 +41,6 @@ const RequirementsSection = ({
     thread,
     user,
     isGeneralRL,
-    template_obj,
     requirementsDialogOpen,
     setRequirementsDialogOpen
 }: RequirementsSectionProps) => {
@@ -158,7 +157,7 @@ const RequirementsSection = ({
                 </DialogTitle>
                 <DialogContent dividers>
                     <RequirementsBlock
-                        template_obj={template_obj}
+                        isGeneralRL={isGeneralRL}
                         thread={thread}
                     />
                 </DialogContent>

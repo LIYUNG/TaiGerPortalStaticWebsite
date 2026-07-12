@@ -12,20 +12,38 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
+import type { ProgramConflictProps } from '@pages/Dashboard/MainViewTab/ProgramConflict/ProgramConflict';
+
+/** Axios response shape of GET /api/student-applications/conflicts */
+interface ApplicationConflictsResult {
+    status?: number;
+    data?: {
+        success?: boolean;
+        data?: ProgramConflictProps[];
+    };
+}
+
+const isApplicationConflictsResult = (
+    value: unknown
+): value is ApplicationConflictsResult =>
+    typeof value === 'object' && value !== null;
 
 const ProgramConflictDashboard = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
     // Fetch application conflicts using React Query
-    const {
-        data: response,
-        isLoading,
-        error,
-        isError
-    } = useQuery(getApplicationConflictsQuery());
+    const { data, isLoading, error, isError } = useQuery(
+        getApplicationConflictsQuery()
+    );
 
-    if (!is_TaiGer_role(user)) {
+    const response: ApplicationConflictsResult = isApplicationConflictsResult(
+        data
+    )
+        ? data
+        : {};
+
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -35,12 +53,16 @@ const ProgramConflictDashboard = () => {
         return <Loading />;
     }
 
-    if (isError || !response?.data?.success) {
-        const res_status = response?.status || (error?.response?.status ?? 500);
+    if (isError || !response.data?.success) {
+        const res_status =
+            response.status ||
+            ((error as { response?: { status?: number } } | null)?.response
+                ?.status ??
+                500);
         return <ErrorPage res_status={res_status} />;
     }
 
-    const students = response.data.data || [];
+    const students = response.data?.data ?? [];
 
     return (
         <Box>

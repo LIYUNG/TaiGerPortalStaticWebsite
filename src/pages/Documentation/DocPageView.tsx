@@ -18,6 +18,8 @@ export interface DocPageViewProps {
 const DocPageView = (props: DocPageViewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const isAdminAgent = user != null && is_TaiGer_AdminAgent(user);
+    const updatedAt = props.editorState.time;
     return (
         <Card sx={{ p: 2 }}>
             <EditorNew
@@ -27,17 +29,18 @@ const DocPageView = (props: DocPageViewProps) => {
                 handleClickSave={props.handleClickSave}
                 readOnly={true}
             />
-            {is_TaiGer_AdminAgent(user) ? (
+            {isAdminAgent ? (
                 <>
                     <Typography>
-                        {t('Updated at')} {convertDate(props.editorState.time)}
+                        {t('Updated at')}{' '}
+                        {updatedAt !== undefined ? convertDate(updatedAt) : '-'}
                     </Typography>
                     <Typography>
                         {t('Updated by')} {props.author ? props.author : '-'}
                     </Typography>
                 </>
             ) : null}
-            {is_TaiGer_AdminAgent(user) ? (
+            {isAdminAgent ? (
                 <Button
                     color="secondary"
                     onClick={() => props.handleClickEditToggle()}

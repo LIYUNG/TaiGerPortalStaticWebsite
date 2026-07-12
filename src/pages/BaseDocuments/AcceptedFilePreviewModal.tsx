@@ -83,7 +83,8 @@ const AcceptProfileFileModel = ({
                 ) : null}
             </DialogContent>
             <DialogActions>
-                {!(is_TaiGer_Editor(user) || is_TaiGer_Student(user)) ? (
+                {user &&
+                !(is_TaiGer_Editor(user) || is_TaiGer_Student(user)) ? (
                     <Button
                         color="secondary"
                         disabled={!isLoaded}

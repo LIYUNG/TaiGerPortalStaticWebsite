@@ -197,7 +197,7 @@ const MessageCard = (props: MessageCardProps) => {
     const editable = useMemo(
         () =>
             message.user_id?._id?.toString() === user?._id?.toString() ||
-            is_TaiGer_Admin(user),
+            (!!user && is_TaiGer_Admin(user)),
         [message.user_id?._id, user]
     );
 

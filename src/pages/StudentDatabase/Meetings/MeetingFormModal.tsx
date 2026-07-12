@@ -143,9 +143,11 @@ export const MeetingFormModal = ({
         if (validate()) {
             onSave({
                 ...formData,
+                // `validate()` guarantees `dateTime` is set, so the fallback is
+                // unreachable; `onSave` does not accept a null `dateTime`.
                 dateTime: formData.dateTime
                     ? new Date(formData.dateTime).toISOString()
-                    : null
+                    : undefined
             });
         }
     };

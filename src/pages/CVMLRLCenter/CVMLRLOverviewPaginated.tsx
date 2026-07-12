@@ -480,7 +480,7 @@ const CVMLRLOverviewPaginated = ({
                             }}
                             columns={columns}
                             isLoading={isLoading || isFetching}
-                            rows={data as Record<string, unknown>[]}
+                            rows={data}
                             serverMode={serverMode}
                         />
                     ) : null}

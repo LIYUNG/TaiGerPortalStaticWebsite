@@ -113,7 +113,7 @@ const EditCard = () => {
     };
 
     const handleCategoryNameAndDescription = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         setSelectedCategory((prevCategory) => ({
             ...prevCategory,

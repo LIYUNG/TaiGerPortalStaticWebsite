@@ -23,7 +23,11 @@ import {
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
 import { useState, useMemo, useCallback } from 'react';
-import type { MRT_Row, MRT_TableInstance } from 'material-react-table';
+import type {
+    MRT_ColumnDef,
+    MRT_Row,
+    MRT_TableInstance
+} from 'material-react-table';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { deleteProgramRequirement } from '@/api';
@@ -53,6 +57,48 @@ interface ProgramRequirementItem {
 interface ProgramRequirementsOverviewProps {
     programRequirements: ProgramRequirementItem[];
 }
+
+const PROGRAM_CATEGORY_COLUMNS: MRT_ColumnDef<ProgramCategory>[] = [
+    {
+        accessorKey: 'program_category',
+        header: 'Category Name',
+        size: 150
+    },
+    {
+        accessorKey: 'requiredECTS',
+        header: 'Required ECTS',
+        size: 120
+    },
+    {
+        accessorFn: (row) =>
+            row.keywordSets?.[0]?.keywords?.en?.join(', ') || '',
+        header: 'Keywords (EN)',
+        size: 200
+    },
+    {
+        accessorFn: (row) =>
+            row.keywordSets?.[0]?.keywords?.zh?.join(', ') || '',
+        header: 'Keywords (ZH)',
+        size: 200
+    },
+    {
+        accessorFn: (row) =>
+            row.keywordSets?.[0]?.antiKeywords?.en?.join(', ') || '',
+        header: 'Anti-Keywords (EN)',
+        size: 200
+    },
+    {
+        accessorFn: (row) =>
+            row.keywordSets?.[0]?.antiKeywords?.zh?.join(', ') || '',
+        header: 'Anti-Keywords (ZH)',
+        size: 200
+    },
+    {
+        accessorFn: (row) => row.keywordSets?.[0]?.description || '',
+        header: 'Description',
+        size: 200
+    }
+];
 
 const ProgramRequirementsOverview = ({
     programRequirements
@@ -103,7 +149,7 @@ const ProgramRequirementsOverview = ({
         }
     };
 
-    const columns = useMemo(
+    const columns = useMemo<MRT_ColumnDef<ProgramRequirementItem>[]>(
         () => [
             {
                 accessorFn: (row: ProgramRequirementItem) =>
@@ -184,57 +230,8 @@ const ProgramRequirementsOverview = ({
                     Program Categories
                 </Typography>
                 <MaterialReactTable
-                    columns={[
-                        {
-                            accessorKey: 'program_category',
-                            header: 'Category Name',
-                            size: 150
-                        },
-                        {
-                            accessorKey: 'requiredECTS',
-                            header: 'Required ECTS',
-                            size: 120
-                        },
-                        {
-                            accessorFn: (row) =>
-                                row.keywordSets?.[0]?.keywords?.en?.join(
-                                    ', '
-                                ) || '',
-                            header: 'Keywords (EN)',
-                            size: 200
-                        },
-                        {
-                            accessorFn: (row) =>
-                                row.keywordSets?.[0]?.keywords?.zh?.join(
-                                    ', '
-                                ) || '',
-                            header: 'Keywords (ZH)',
-                            size: 200
-                        },
-                        {
-                            accessorFn: (row) =>
-                                row.keywordSets?.[0]?.antiKeywords?.en?.join(
-                                    ', '
-                                ) || '',
-                            header: 'Anti-Keywords (EN)',
-                            size: 200
-                        },
-                        {
-                            accessorFn: (row) =>
-                                row.keywordSets?.[0]?.antiKeywords?.zh?.join(
-                                    ', '
-                                ) || '',
-                            header: 'Anti-Keywords (ZH)',
-                            size: 200
-                        },
-                        {
-                            accessorFn: (row) =>
-                                row.keywordSets?.[0]?.description || '',
-                            header: 'Description',
-                            size: 200
-                        }
-                    ]}
-                    data={categories}
+                    columns={PROGRAM_CATEGORY_COLUMNS}
+                    data={categories ?? []}
                     enableBottomToolbar={false}
                     enableColumnActions={false}
                     enableColumnFilters={false}
@@ -328,7 +325,6 @@ const ProgramRequirementsOverview = ({
             <Dialog
                 onClose={() => setDeleteModalOpen(false)}
                 open={deleteModalOpen}
-                size="small"
             >
                 <DialogTitle>{t('Attention', { ns: 'common' })}</DialogTitle>
                 <DialogContent>

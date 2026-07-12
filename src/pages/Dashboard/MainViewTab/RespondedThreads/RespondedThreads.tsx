@@ -7,10 +7,36 @@ import { useTranslation } from 'react-i18next';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
-import type {
-    IStudentResponse,
-    IDocumentthreadWithId
-} from '@taiger-common/model';
+import type { IStudentResponse } from '@taiger-common/model';
+
+interface PopulatedDocThread {
+    _id: string;
+    file_type?: string;
+}
+
+/**
+ * The shared model types describe the embedded `doc_thread_id` as a plain id
+ * string, but the API populates it. Read it back defensively rather than
+ * trusting either shape.
+ */
+const getDocThread = (
+    doc_thread_id: unknown
+): PopulatedDocThread | undefined => {
+    if (
+        typeof doc_thread_id !== 'object' ||
+        doc_thread_id === null ||
+        !('_id' in doc_thread_id) ||
+        typeof doc_thread_id._id !== 'string'
+    ) {
+        return undefined;
+    }
+    const file_type =
+        'file_type' in doc_thread_id &&
+        typeof doc_thread_id.file_type === 'string'
+            ? doc_thread_id.file_type
+            : undefined;
+    return { _id: doc_thread_id._id, file_type };
+};
 
 export interface RespondedThreadsProps {
     student: IStudentResponse;
@@ -65,70 +91,76 @@ const RespondedThreads = ({ student }: RespondedThreadsProps) => {
         unread_applications_docthread = null;
     } else {
         unread_general_generaldocs = student.generaldocs_threads?.map(
-            (generaldocs_threads, i) => (
-                <TableRow key={i}>
-                    {!generaldocs_threads.isFinalVersion &&
-                    generaldocs_threads.latest_message_left_by_id ===
-                        student._id.toString() ? (
-                        <>
-                            <TableCell>
-                                <Link
-                                    component={LinkDom}
-                                    to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                        (
-                                            generaldocs_threads.doc_thread_id as IDocumentthreadWithId
-                                        )._id
+            (generaldocs_threads, i) => {
+                const docThread = getDocThread(
+                    generaldocs_threads.doc_thread_id
+                );
+                return (
+                    <TableRow key={i}>
+                        {!generaldocs_threads.isFinalVersion &&
+                        generaldocs_threads.latest_message_left_by_id ===
+                            student._id.toString() ? (
+                            <>
+                                <TableCell>
+                                    <Link
+                                        component={LinkDom}
+                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                            docThread?._id ?? ''
+                                        )}
+                                        underline="hover"
+                                    >
+                                        {docThread?.file_type}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    {' '}
+                                    {convertDate(
+                                        generaldocs_threads.updatedAt ?? ''
                                     )}
-                                    underline="hover"
-                                >
-                                    {
-                                        (
-                                            generaldocs_threads.doc_thread_id as IDocumentthreadWithId
-                                        ).file_type
-                                    }
-                                </Link>
-                            </TableCell>
-                            <TableCell>
-                                {' '}
-                                {convertDate(generaldocs_threads.updatedAt)}
-                            </TableCell>
-                        </>
-                    ) : null}
-                </TableRow>
-            )
+                                </TableCell>
+                            </>
+                        ) : null}
+                    </TableRow>
+                );
+            }
         );
 
         unread_applications_docthread = student.applications.map(
             (application) =>
                 application.doc_modification_thread?.map(
-                    (application_doc_thread, idx) => (
-                        <TableRow key={idx}>
-                            {!application_doc_thread.isFinalVersion &&
-                            application_doc_thread.latest_message_left_by_id ===
-                                student._id.toString() &&
-                            isProgramDecided(application) ? (
-                                <>
-                                    <TableCell>
-                                        {renderThreadLink(
-                                            `${application_doc_thread.doc_thread_id?.file_type} - ${application.programId?.school} - ${application.programId?.program_name}`,
-                                            DEMO.DOCUMENT_MODIFICATION_LINK(
-                                                application_doc_thread
-                                                    .doc_thread_id?._id
-                                            ),
-                                            calculateApplicationLockStatus(
-                                                application
-                                            ).isLocked
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {convertDate(
-                                            application_doc_thread.updatedAt
-                                        )}
-                                    </TableCell>
-                                </>
-                            ) : null}
-                        </TableRow>
-                    )
+                    (application_doc_thread, idx) => {
+                        const docThread = getDocThread(
+                            application_doc_thread.doc_thread_id
+                        );
+                        return (
+                            <TableRow key={idx}>
+                                {!application_doc_thread.isFinalVersion &&
+                                application_doc_thread.latest_message_left_by_id ===
+                                    student._id.toString() &&
+                                isProgramDecided(application) ? (
+                                    <>
+                                        <TableCell>
+                                            {renderThreadLink(
+                                                `${docThread?.file_type} - ${application.programId?.school} - ${application.programId?.program_name}`,
+                                                DEMO.DOCUMENT_MODIFICATION_LINK(
+                                                    docThread?._id ?? ''
+                                                ),
+                                                calculateApplicationLockStatus(
+                                                    application
+                                                ).isLocked
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {convertDate(
+                                                application_doc_thread.updatedAt ??
+                                                    ''
+                                            )}
+                                        </TableCell>
+                                    </>
+                                ) : null}
+                            </TableRow>
+                        );
+                    }
                 )
         );
     }

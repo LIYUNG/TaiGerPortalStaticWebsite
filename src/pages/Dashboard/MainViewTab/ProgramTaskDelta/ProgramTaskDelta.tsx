@@ -3,11 +3,22 @@ import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
 import DEMO from '@store/constant';
 import type { IProgramWithId } from '@taiger-common/model';
-import type { IStudentResponse } from '@taiger-common/model';
+
+// GET /api/teams/application-deltas returns, per program, the students that
+// still have a task delta: only identity fields plus the computed deltas.
+export interface ProgramTaskDeltaStudent {
+    _id: string;
+    firstname: string;
+    lastname: string;
+    deltas: {
+        add: { fileType: string }[];
+        remove: { fileThread: { file_type: string } }[];
+    };
+}
 
 export interface ProgramTaskDeltaProps {
     program: IProgramWithId;
-    students: IStudentResponse[];
+    students: ProgramTaskDeltaStudent[];
 }
 
 const ProgramTaskDelta = ({ program, students }: ProgramTaskDeltaProps) => {

@@ -19,7 +19,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import TableViewIcon from '@mui/icons-material/TableView';
 import { DataGrid } from '@mui/x-data-grid';
 import GaugeCard from '@components/GaugeCard';
-import type { GridRenderCellParams } from '@mui/x-data-grid';
+import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import type { CategorySummaryRow, ProgramSheetEntry } from './utils';
 import {
@@ -34,11 +34,19 @@ interface ProgramMatchingScoresProps {
     onProgramSelect: (index: number) => void;
 }
 
+interface ProgramMatchingRow {
+    id: number;
+    index: number;
+    programName: string;
+    matchingScore: string;
+    requiredECTS: number;
+    acquiredECTS: number;
+}
+
 const ProgramMatchingScores = memo(
     ({ programSheetsArray, onProgramSelect }: ProgramMatchingScoresProps) => {
         const theme = useTheme();
         const [viewMode, setViewMode] = useState('cards');
-        const [pageSize, setPageSize] = useState(10);
         const [searchText, setSearchText] = useState('');
 
         const handleViewChange = (
@@ -104,7 +112,7 @@ const ProgramMatchingScores = memo(
             return theme.palette.error.main;
         };
 
-        const columns = [
+        const columns: GridColDef<ProgramMatchingRow>[] = [
             {
                 field: 'programName',
                 headerName: 'Program Name',
@@ -330,8 +338,12 @@ const ProgramMatchingScores = memo(
                         <Grid container spacing={3}>
                             {programSheetsArray.map(({ key, value }, index) => {
                                 const score = Number(
-                                    calculateProgramMatchingScore(value.sorted)
-                                ).toFixed(0);
+                                    Number(
+                                        calculateProgramMatchingScore(
+                                            value.sorted
+                                        )
+                                    ).toFixed(0)
+                                );
                                 return (
                                     <Grid
                                         item
@@ -359,7 +371,6 @@ const ProgramMatchingScores = memo(
                             <DataGrid
                                 columns={columns}
                                 density="comfortable"
-                                disableSelectionOnClick
                                 initialState={{
                                     sorting: {
                                         sortModel: [
@@ -370,15 +381,10 @@ const ProgramMatchingScores = memo(
                                         ]
                                     }
                                 }}
-                                onPageSizeChange={(newPageSize: number) =>
-                                    setPageSize(newPageSize)
-                                }
                                 onRowClick={(params) =>
                                     onProgramSelect(params.row.index)
                                 }
-                                pageSize={pageSize}
                                 rows={filteredRows}
-                                rowsPerPageOptions={[5, 10, 25, 50]}
                                 sx={{
                                     '& .MuiDataGrid-cell:focus': {
                                         outline: 'none'

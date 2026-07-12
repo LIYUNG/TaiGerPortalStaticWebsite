@@ -17,7 +17,6 @@ describe('AdditionalInsightsSection', () => {
                     bySubject={[]}
                     bySchoolType={[]}
                     topContributors={[]}
-                    totalPrograms={1000}
                     t={t}
                 />
             </MemoryRouter>
@@ -35,7 +34,6 @@ describe('AdditionalInsightsSection', () => {
                     ]}
                     bySchoolType={[]}
                     topContributors={[]}
-                    totalPrograms={1000}
                     t={t}
                 />
             </MemoryRouter>
@@ -59,7 +57,6 @@ describe('AdditionalInsightsSection', () => {
                         }
                     ]}
                     topContributors={[]}
-                    totalPrograms={1000}
                     t={t}
                 />
             </MemoryRouter>
@@ -78,7 +75,6 @@ describe('AdditionalInsightsSection', () => {
                         { subject: 'Physics', count: 100 },
                         { subject: 'Chemistry', count: 80 }
                     ]}
-                    totalPrograms={1000}
                     t={t}
                 />
             </MemoryRouter>
@@ -93,7 +89,6 @@ describe('AdditionalInsightsSection', () => {
             <MemoryRouter>
                 <AdditionalInsightsSection
                     bySubject={[{ subject: 'Math', count: 50 }]}
-                    totalPrograms={500}
                     t={t}
                 />
             </MemoryRouter>
@@ -114,7 +109,6 @@ describe('AdditionalInsightsSection', () => {
                             updateCount: 10
                         }
                     ]}
-                    totalPrograms={1000}
                     t={t}
                 />
             </MemoryRouter>

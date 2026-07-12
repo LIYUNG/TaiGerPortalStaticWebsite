@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent } from 'react';
+import type { ChangeEvent, MouseEvent, SyntheticEvent } from 'react';
 import {
     Table,
     Button,
@@ -23,20 +23,21 @@ interface EditDownloadFilesProps {
     user: IUserWithId | null;
     templates: { category_name: string }[];
     areLoaded: Record<string, boolean>;
-    submitFile: (e: FormEvent<HTMLFormElement>, prop: unknown) => void;
-    onDeleteTemplateFile: (e: MouseEvent<HTMLElement>, prop: string) => void;
-    onFileChange: (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => void;
+    // Declared as methods (not function properties) so the upload button's
+    // MouseEvent and the parent's form-oriented handlers stay compatible: both
+    // handlers only use the SyntheticEvent base (preventDefault).
+    submitFile(e: SyntheticEvent, prop: unknown): void;
+    onDeleteTemplateFile(e: MouseEvent<HTMLElement>, prop: string): void;
+    onFileChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void;
 }
 
 const EditDownloadFiles = (props: EditDownloadFilesProps) => {
-    const submitFile = (e: FormEvent<HTMLFormElement>, prop: unknown) => {
+    const submitFile = (e: SyntheticEvent, prop: unknown) => {
         e.preventDefault();
         props.submitFile(e, prop);
     };
 
-    const object_init = {};
+    const object_init: Record<string, string> = {};
     for (let i = 0; i < templatelist.length; i++) {
         object_init[templatelist[i].prop] = DocumentStatusType.Missing;
     }
@@ -48,7 +49,7 @@ const EditDownloadFiles = (props: EditDownloadFilesProps) => {
             <TableRow key={i + 1}>
                 <TableCell>{template.name}</TableCell>
                 <TableCell>
-                    {is_TaiGer_Admin(props.user) ? (
+                    {props.user != null && is_TaiGer_Admin(props.user) ? (
                         <Box>
                             {object_init[template.prop] === 'uploaded' ? (
                                 <Button
@@ -100,7 +101,7 @@ const EditDownloadFiles = (props: EditDownloadFilesProps) => {
                                 </Button>
                             </a>
                         </Box>
-                    ) : is_TaiGer_Admin(props.user) ? (
+                    ) : props.user != null && is_TaiGer_Admin(props.user) ? (
                         <Button
                             disabled={!props.areLoaded[template.prop]}
                             onClick={(e) => submitFile(e, template.prop)}

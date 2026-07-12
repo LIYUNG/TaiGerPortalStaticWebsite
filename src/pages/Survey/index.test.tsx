@@ -18,7 +18,10 @@ const mockLoaderData = {
 
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
-    Link: forwardRef((props, ref) =>
+    Link: forwardRef<
+        HTMLAnchorElement,
+        { children?: React.ReactNode; to: string }
+    >((props, ref) =>
         createElement(
             'a',
             {

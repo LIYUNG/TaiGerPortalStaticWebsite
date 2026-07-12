@@ -32,7 +32,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useTranslation } from 'react-i18next';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { is_TaiGer_AdminAgent, is_TaiGer_Student } from '@taiger-common/core';
-import type { IUser } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 import type { OutputData } from '@editorjs/editorjs';
 
@@ -108,8 +108,7 @@ const Message = ({
     isDeleting,
     path,
     isLoaded,
-    onDeleteSingleMessage,
-    handleClickSave
+    onDeleteSingleMessage
 }: MessageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -394,7 +393,6 @@ const Message = ({
                         <EditorSimple
                             defaultHeight={0}
                             editorState={messageState.editorState ?? undefined}
-                            handleClickSave={handleClickSave}
                             holder={`${message._id.toString()}`}
                             imageEnable={false}
                             readOnly={true}

@@ -52,7 +52,9 @@ const BaseDocumentCheckingTasks = ({
                                         variant="subtitle2"
                                         color="text.secondary"
                                     >
-                                        {convertDate(file.updatedAt)}
+                                        {file.updatedAt
+                                            ? convertDate(file.updatedAt)
+                                            : '-'}
                                     </Typography>
                                 </Box>
                             </TableCell>

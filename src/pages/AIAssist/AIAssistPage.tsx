@@ -1848,14 +1848,16 @@ const AIAssistPage = (): JSX.Element => {
                                                 '& .MuiInputBase-root': {
                                                     pr: 0.5
                                                 },
-                                                '& .MuiInputBase-inputMultiline':
-                                                    selectedMentionedStudent
-                                                        ? {
-                                                              caretColor:
-                                                                  'text.primary',
-                                                              color: 'transparent'
-                                                          }
-                                                        : undefined
+                                                ...(selectedMentionedStudent
+                                                    ? {
+                                                          '& .MuiInputBase-inputMultiline':
+                                                              {
+                                                                  caretColor:
+                                                                      'text.primary',
+                                                                  color: 'transparent'
+                                                              }
+                                                      }
+                                                    : {})
                                             }}
                                             value={input}
                                         />

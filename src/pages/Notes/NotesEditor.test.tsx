@@ -16,7 +16,7 @@ vi.mock('@components/EditorJs/EditorSimple', () => ({
 
 describe('NotesEditor', () => {
     const defaultProps = {
-        editorState: null,
+        editorState: { blocks: [] },
         handleEditorChange: vi.fn(),
         notes_id: 'notes-student1',
         buttonDisabled: true,

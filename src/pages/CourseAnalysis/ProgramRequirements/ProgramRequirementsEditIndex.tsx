@@ -10,7 +10,9 @@ import { appConfig } from '../../../config';
 import ProgramRequirementsNew from './ProgramRequirementsNew';
 
 const ProgramRequirementsEditIndex = () => {
-    const { programRequirement } = useLoaderData();
+    const { programRequirement } = useLoaderData() as {
+        programRequirement: Promise<unknown>;
+    };
     TabTitle(i18next.t('Program Requirement Edit'));
 
     return (

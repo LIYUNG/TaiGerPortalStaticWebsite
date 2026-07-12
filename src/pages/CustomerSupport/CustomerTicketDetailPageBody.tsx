@@ -690,13 +690,7 @@ const CustomerTicketDetailPageBody = ({
                 content={
                     <>
                         Do you want to set the ticket as{' '}
-                        <b>
-                            {customerTicketDetailPageBodyState.thread
-                                .isFinalVersion
-                                ? 'open'
-                                : 'resolved'}
-                        </b>
-                        ?
+                        <b>{customerTicketDetailPageBodyState.newStatus}</b>?
                     </>
                 }
                 variant="confirm"

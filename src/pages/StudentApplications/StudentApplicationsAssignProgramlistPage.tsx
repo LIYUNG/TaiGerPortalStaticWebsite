@@ -105,7 +105,7 @@ const StudentApplicationsAssignProgramlistPage = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            {is_TaiGer_Student(user) ? (
+            {user !== null && is_TaiGer_Student(user) ? (
                 <Dialog open={showProgramCorrectnessReminderModal}>
                     <DialogTitle>{t('Warning', { ns: 'common' })}</DialogTitle>
                     <DialogContent>
@@ -139,7 +139,7 @@ const StudentApplicationsAssignProgramlistPage = (
                 >
                     {appConfig.companyName}
                 </Link>
-                {is_TaiGer_role(user) ? (
+                {user !== null && is_TaiGer_role(user) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
@@ -157,20 +157,23 @@ const StudentApplicationsAssignProgramlistPage = (
                 </Typography>
             </Breadcrumbs>
             <Grid container spacing={2}>
-                <Grid item md={is_TaiGer_role(user) ? 6 : 12} xs={12}>
+                <Grid
+                    item
+                    md={user !== null && is_TaiGer_role(user) ? 6 : 12}
+                    xs={12}
+                >
                     <StudentPreferenceCard student={props.student} />
                 </Grid>
-                {is_TaiGer_role(user) ? (
+                {user !== null && is_TaiGer_role(user) ? (
                     <Grid item md={6} xs={12}>
-                        <ImportStudentProgramsCard student={props.student} />
+                        <ImportStudentProgramsCard
+                            student={{ ...props.student }}
+                        />
                     </Grid>
                 ) : null}
             </Grid>
             <>
-                <ProgramList
-                    isStudentApplicationPage={true}
-                    student={props.student}
-                />
+                <ProgramList student={props.student} />
                 <Button
                     color="secondary"
                     onClick={onClickBackToApplicationOverviewnHandler}

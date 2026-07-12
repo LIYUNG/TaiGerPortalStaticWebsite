@@ -192,7 +192,7 @@ export const getGeneralDocumentStatus = (
         | null
         | undefined,
     applications:
-        | Array<{ programId?: Record<string, unknown> }>
+        | Array<{ programId?: Record<string, unknown>; decided?: string }>
         | null
         | undefined
 ): {

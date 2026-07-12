@@ -20,7 +20,7 @@ import Loading from '@components/Loading/Loading';
 const MyStudentsOverview = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const role = user && is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const { data, isLoading } = useActiveStudents({
         [role]: user?._id,
         archiv: false
@@ -31,10 +31,10 @@ const MyStudentsOverview = () => {
         () =>
             students?.filter(
                 (student: IStudentResponse) =>
-                    student.editors.some(
+                    student.editors?.some(
                         (editor: IEditorWithId) => editor._id === userId
                     ) ||
-                    student.agents.some(
+                    student.agents?.some(
                         (agent: IAgentWithId) => agent._id === userId
                     )
             ) || [],
@@ -42,7 +42,7 @@ const MyStudentsOverview = () => {
     );
 
     // Early exits AFTER declaring all hooks to keep hook order stable
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     if (isLoading) {

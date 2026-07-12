@@ -6,9 +6,9 @@ import type {
 
 export const getStudentStringField = (
     student: AIAssistPickerStudent,
-    key: string
+    key: keyof AIAssistPickerStudent
 ): string => {
-    const rawValue = (student as Record<string, unknown>)[key];
+    const rawValue = student[key];
     return typeof rawValue === 'string' ? rawValue : '';
 };
 

@@ -36,8 +36,10 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getSameProgramStudentsQuery } from '@/api/query';
-import type { IUser } from '@taiger-common/model';
-import ProgramInfoTabs, { type ProgramInfoTabsProps } from './components/ProgramInfoTabs';
+import type { IProgramWithId, IUser } from '@taiger-common/model';
+import ProgramInfoTabs, {
+    type ProgramInfoTabsProps
+} from './components/ProgramInfoTabs';
 import SameProgramStudentsCard from './components/SameProgramStudentsCard';
 import ProgramUnlockDialog from './components/ProgramUnlockDialog';
 
@@ -84,8 +86,10 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
     const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
     const program = props.program || ({} as SingleProgramViewProgram);
     const versions = props?.versions || {};
+    // `SingleProgramViewProgram` is a lossy, index-signature view of the program
+    // used for generic field rendering; the value at runtime is a real program.
     const lockStatus = calculateProgramLockStatus(
-        program as Parameters<typeof calculateProgramLockStatus>[0]
+        program as unknown as IProgramWithId
     );
     const isProgramLocked = lockStatus.isLocked;
     const canViewUnlockedChip =
@@ -207,7 +211,9 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                         color="primary"
                                         fullWidth
                                         onClick={() =>
-                                            props.setModalShowAssignWindow?.(true)
+                                            props.setModalShowAssignWindow?.(
+                                                true
+                                            )
                                         }
                                         variant="outlined"
                                     >
@@ -312,7 +318,11 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                     <Button
                                         color="primary"
                                         disabled={isProgramLocked}
-                                        onClick={props.programListAssistant as React.MouseEventHandler<HTMLButtonElement> | undefined}
+                                        onClick={
+                                            props.programListAssistant as
+                                                | React.MouseEventHandler<HTMLButtonElement>
+                                                | undefined
+                                        }
                                         size="small"
                                         variant="contained"
                                     >
@@ -328,7 +338,9 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                 {t('Provide Feedback', { ns: 'programList' })}
                             </Typography>
                             <ProgramReport
-                                program_id={props.program?._id?.toString() ?? ''}
+                                program_id={
+                                    props.program?._id?.toString() ?? ''
+                                }
                                 program_name={props.program?.program_name ?? ''}
                                 uni_name={props.program?.school ?? ''}
                             />

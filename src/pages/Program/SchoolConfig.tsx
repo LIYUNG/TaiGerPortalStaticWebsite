@@ -19,9 +19,11 @@ import SchoolConfigContent from './SchoolConfigContent';
 const SchoolConfig = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { distinctSchools } = useLoaderData();
+    const { distinctSchools } = useLoaderData() as {
+        distinctSchools: Promise<unknown[]>;
+    };
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

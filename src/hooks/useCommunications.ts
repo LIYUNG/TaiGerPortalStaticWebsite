@@ -346,7 +346,9 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                 editorState: {},
                 count: prev.count + 1,
                 thread: [
-                    ...prev.thread.filter((m) => m._id !== tempId),
+                    ...prev.thread.filter(
+                        (m) => (m as { _id?: unknown })._id !== tempId
+                    ),
                     ...data
                 ],
                 files: []
@@ -356,7 +358,9 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             // Remove the pending row; the composer rolls back text + attachments.
             setCommunicationsState((prev) => ({
                 ...prev,
-                thread: prev.thread.filter((m) => m._id !== tempId)
+                thread: prev.thread.filter(
+                    (m) => (m as { _id?: unknown })._id !== tempId
+                )
             }));
             throw error;
         }

@@ -47,7 +47,10 @@ const ProgramReportCard = () => {
             </Card>
         );
     }
-    const tickets = data?.data || [];
+    // `getProgramTicketsQuery` is declared as a bare `UseQueryOptions`, so the
+    // query data is untyped here. The endpoint returns the response body.
+    const tickets =
+        (data as { data?: ITicketPopulated[] } | undefined)?.data ?? [];
 
     const renderTicketRows = () =>
         tickets.map((ticket: ITicketPopulated, i: number) => (

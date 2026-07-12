@@ -1,10 +1,19 @@
 import { render, screen } from '@testing-library/react';
+import type { IStudentResponse } from '@taiger-common/model';
 
 vi.mock('react-router-dom', () => ({
     useParams: () => ({ student_id: 'stu1' })
 }));
 
-const mockUseApplicationStudent = vi.fn(() => ({
+interface UseApplicationStudentResult {
+    data: IStudentResponse | null;
+    isLoading: boolean;
+    isError: boolean;
+}
+
+const mockUseApplicationStudent = vi.fn<
+    (...args: unknown[]) => UseApplicationStudentResult
+>(() => ({
     data: null,
     isLoading: true,
     isError: false
@@ -56,7 +65,7 @@ describe('StudentApplicationsIndividual', () => {
                 firstname: 'John',
                 lastname: 'Doe',
                 applications: []
-            },
+            } as unknown as IStudentResponse,
             isLoading: false,
             isError: false
         });

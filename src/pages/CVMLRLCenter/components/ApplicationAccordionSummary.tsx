@@ -20,8 +20,7 @@ import type { Application } from '@/api/types';
 import ApplicationLockControl from '@components/ApplicationLockControl/ApplicationLockControl';
 import {
     application_deadline_V2_calculator,
-    calculateApplicationLockStatus,
-    calculateProgramLockStatus
+    calculateApplicationLockStatus
 } from '../../Utils/util_functions';
 import { FILE_OK_SYMBOL } from '@utils/contants';
 import DEMO from '@store/constant';
@@ -36,14 +35,9 @@ export interface ApplicationAccordionSummaryProps {
 const ApplicationAccordionSummary = ({
     application
 }: ApplicationAccordionSummaryProps) => {
-    let lockStatus = null;
-    if (application && application.programId) {
-        lockStatus = calculateApplicationLockStatus(application);
-    } else {
-        lockStatus = application?.programId
-            ? calculateProgramLockStatus(application.programId)
-            : calculateProgramLockStatus({});
-    }
+    // calculateApplicationLockStatus already locks when the application or its
+    // program is missing, so it covers both branches.
+    const lockStatus = calculateApplicationLockStatus(application);
     const isLocked = lockStatus.isLocked;
 
     const getStatusText = () => {

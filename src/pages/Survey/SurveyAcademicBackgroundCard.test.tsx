@@ -4,14 +4,16 @@ import { MemoryRouter } from 'react-router-dom';
 import SurveyAcademicBackgroundCard from './components/SurveyAcademicBackgroundCard';
 import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
 import type { IUser } from '@taiger-common/model';
+import type { TFunction } from 'i18next';
 import { is_TaiGer_Admin } from '@taiger-common/core';
+import type { SurveyAcademicBackgroundCardProps } from './types';
 
 vi.mock('@taiger-common/core', () => ({
     Bayerische_Formel: vi.fn(() => '2.5'),
     is_TaiGer_Admin: vi.fn(() => false)
 }));
 
-const t = (key: string) => key;
+const t = ((key: string) => key) as unknown as TFunction;
 
 const baseSurvey: SurveyStateValue = {
     student_id: 'test-1',
@@ -32,7 +34,7 @@ const baseSurvey: SurveyStateValue = {
 
 const baseUser = { archiv: false, role: 'Agent' } as unknown as IUser;
 
-const baseProps = {
+const baseProps: SurveyAcademicBackgroundCardProps = {
     survey: baseSurvey,
     user: baseUser,
     t,
@@ -45,7 +47,7 @@ const baseProps = {
     onOpenPopover: vi.fn()
 };
 
-const renderCard = (props = baseProps) =>
+const renderCard = (props: SurveyAcademicBackgroundCardProps = baseProps) =>
     render(
         <MemoryRouter>
             <SurveyAcademicBackgroundCard {...props} />

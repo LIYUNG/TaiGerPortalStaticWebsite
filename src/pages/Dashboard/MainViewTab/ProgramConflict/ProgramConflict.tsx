@@ -39,7 +39,7 @@ const ProgramConflict = ({ students, program }: ProgramConflictProps) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                student.studentId,
+                                student._id,
                                 DEMO.PROFILE_HASH
                             )}`}
                         >

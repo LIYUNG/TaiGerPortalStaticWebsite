@@ -13,7 +13,12 @@ export type ThreadCategory =
     | 'in_progress'
     | 'no_input'
     | 'withdraw'
-    | 'closed';
+    | 'closed'
+    | 'no_writer'
+    | 'new_message'
+    | 'fav'
+    | 'followup'
+    | 'pending_progress';
 
 export interface UseActiveThreadsPaginatedParams {
     /** 0-based page index (matches MRT paginationModel.page). */

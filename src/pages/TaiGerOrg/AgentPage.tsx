@@ -291,7 +291,9 @@ const AgentPage = () => {
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    {formatDate(agentUser?.lastLoginAt)}
+                                    {agentUser?.lastLoginAt
+                                        ? formatDate(agentUser.lastLoginAt)
+                                        : '-'}
                                 </Typography>
                             </Box>
                         </Box>

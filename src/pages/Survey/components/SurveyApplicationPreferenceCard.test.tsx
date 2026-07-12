@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { SurveyStateValue } from '@components/SurveyProvider/useSurveyState';
+import type { IUser } from '@taiger-common/model';
+import type { TFunction } from 'i18next';
 import SurveyApplicationPreferenceCard from './SurveyApplicationPreferenceCard';
 
 vi.mock('@taiger-common/core', () => ({
@@ -27,7 +30,7 @@ vi.mock('@components/Input/searchableMuliselect', () => ({
     default: () => <div>SearchableMultiSelect</div>
 }));
 
-const tFn = (k: string) => k;
+const tFn = ((k: string) => k) as unknown as TFunction;
 
 const mockSurvey = {
     application_preference: {
@@ -43,11 +46,11 @@ const mockSurvey = {
         updatedAt: '2025-01-01'
     },
     changed_application_preference: false
-};
+} as unknown as SurveyStateValue;
 
 const defaultProps = {
-    survey: mockSurvey as any,
-    user: { role: 'Agent', _id: 'a1', archiv: false },
+    survey: mockSurvey,
+    user: { role: 'Agent', _id: 'a1', archiv: false } as unknown as IUser,
     t: tFn,
     handleChangeApplicationPreference: vi.fn(),
     setApplicationPreferenceByField: vi.fn(() => vi.fn()),

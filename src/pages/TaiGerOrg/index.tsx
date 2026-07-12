@@ -155,7 +155,10 @@ const createTeamConfig = ({
     getMemberLink
 });
 
-const TEAM_CONFIG: Partial<Record<Role, TeamConfig>> = {
+/** `Role` is a plain constant object, so its members are values, not types. */
+type RoleValue = (typeof Role)[keyof typeof Role];
+
+const TEAM_CONFIG: Partial<Record<RoleValue, TeamConfig>> = {
     [Role.Agent]: createTeamConfig({
         icon: SupervisorAccountIcon,
         paletteColor: 'secondary',
@@ -168,7 +171,7 @@ const TEAM_CONFIG: Partial<Record<Role, TeamConfig>> = {
     })
 };
 
-const TEAM_SECTIONS: { role: Role; titleKey: string }[] = [
+const TEAM_SECTIONS: { role: RoleValue; titleKey: string }[] = [
     {
         role: Role.Agent,
         titleKey: 'Agent'
@@ -203,14 +206,12 @@ interface TeamMemberRowProps {
         user_id: string,
         permissions: UserPermissions[] | undefined
     ) => void;
-    user: ReturnType<typeof useAuth>['user'];
 }
 
 const TeamMemberRow = ({
     member,
     config,
-    setModalShow,
-    user
+    setModalShow
 }: TeamMemberRowProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -229,7 +230,9 @@ const TeamMemberRow = ({
     const initials =
         `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
     const avatarColors =
-        firstName && lastName ? stringAvatar(`${firstName} ${lastName}`) : {};
+        firstName && lastName
+            ? stringAvatar(`${firstName} ${lastName}`)
+            : undefined;
 
     return (
         <TableRow
@@ -305,7 +308,6 @@ const TeamMemberRow = ({
                         'aria-labelledby': 'basic-button'
                     }}
                     anchorEl={anchorEl}
-                    disabled={!user || !is_TaiGer_Admin(user)}
                     id="basic-menu"
                     onClose={handleClose}
                     open={open}
@@ -338,7 +340,6 @@ interface TeamSectionProps {
         user_id: string,
         permissions: UserPermissions[] | undefined
     ) => void;
-    user: ReturnType<typeof useAuth>['user'];
     title: string;
     memberCount: number;
 }
@@ -347,7 +348,6 @@ const TeamSection = ({
     config,
     members,
     setModalShow,
-    user,
     title,
     memberCount
 }: TeamSectionProps) => {
@@ -436,7 +436,6 @@ const TeamSection = ({
                                 key={member._id.toString()}
                                 member={member}
                                 setModalShow={setModalShow}
-                                user={user}
                             />
                         ))}
                     </TableBody>
@@ -477,7 +476,7 @@ const TaiGerOrg = () => {
         }: {
             userId: string;
             permissions: UserPermissions;
-        }) => updateUserPermission(userId, permissions),
+        }) => updateUserPermission(userId, { ...permissions }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey });
             setModalState({
@@ -681,7 +680,6 @@ const TaiGerOrg = () => {
                         members={members}
                         setModalShow={setModalShow}
                         title={`${i18next.t(titleKey, { ns: 'common' })}s`}
-                        user={user}
                     />
                 );
             })}
@@ -703,7 +701,6 @@ const TaiGerOrg = () => {
                     managerModalShow={modalState.managerModalShow}
                     onUpdatePermissions={onUpdatePermissions}
                     setManagerModalHide={setManagerModalHide}
-                    user_permissions={modalState.user_permissions}
                 />
             )}
         </Box>

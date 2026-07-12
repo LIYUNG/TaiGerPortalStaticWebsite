@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type SyntheticEvent } from 'react';
 import {
     Button,
     Dialog,
@@ -15,38 +15,65 @@ import {
 import i18next from 'i18next';
 import { Role } from '@taiger-common/core';
 
+/** Every editable field of the "add user" form. All values are plain strings. */
+const NEW_USER_FIELDS = [
+    'firstname',
+    'lastname',
+    'firstname_chinese',
+    'lastname_chinese',
+    'email',
+    'role',
+    'applying_program_count'
+] as const;
+
+type NewUserField = (typeof NEW_USER_FIELDS)[number];
+
+export type NewUserInformation = {
+    [K in NewUserField]?: string;
+} & { role: string };
+
+const isNewUserField = (name: string): name is NewUserField =>
+    (NEW_USER_FIELDS as readonly string[]).includes(name);
+
 export interface AddUserModalProps {
     addUserModalState: boolean;
     cloaseAddUserModal: () => void;
     AddUserSubmit: (
-        e: FormEvent<HTMLFormElement>,
-        user_information: {
-            firstname: string;
-            lastname: string;
-            email: string;
-            role?: string;
-        }
+        e: SyntheticEvent,
+        user_information: NewUserInformation
     ) => void;
     isloading?: boolean;
     selected_user_id?: string;
 }
 
 const AddUserModal = (props: AddUserModalProps) => {
-    const [addUserModal, setAddUserModal] = useState({
+    const [addUserModal, setAddUserModal] = useState<{
+        user_information: NewUserInformation;
+    }>({
         user_information: { role: Role.Student }
     });
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
+    const applyFieldChange = (name: string, value: string) => {
+        if (!isNewUserField(name)) {
+            return;
+        }
         const user_information_temp = { ...addUserModal.user_information };
-        user_information_temp[e.target.name] = e.target.value;
+        user_information_temp[name] = value;
         setAddUserModal((prevState) => ({
             ...prevState,
             user_information: user_information_temp
         }));
     };
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        applyFieldChange(e.target.name, e.target.value);
+    };
+    const handleSelectChange = (e: SelectChangeEvent<string>) => {
+        e.preventDefault();
+        applyFieldChange(e.target.name, e.target.value);
+    };
     const AddUserSubmit = (
-        e: FormEvent<HTMLFormElement>,
-        user_information: { firstname: string; lastname: string; email: string }
+        e: SyntheticEvent,
+        user_information: NewUserInformation
     ) => {
         e.preventDefault();
         if (
@@ -122,9 +149,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                         label={i18next.t('Role')}
                         labelId="Role"
                         name="role"
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                            handleChange(e)
-                        }
+                        onChange={handleSelectChange}
                         value={
                             addUserModal.user_information?.role || Role.Student
                         }
@@ -153,9 +178,7 @@ const AddUserModal = (props: AddUserModalProps) => {
                             label={i18next.t('Application Count')}
                             labelId="Application Count"
                             name="applying_program_count"
-                            onChange={(e: SelectChangeEvent<string>) =>
-                                handleChange(e as ChangeEvent<HTMLInputElement>)
-                            }
+                            onChange={handleSelectChange}
                             value={
                                 addUserModal.user_information
                                     ?.applying_program_count || '0'

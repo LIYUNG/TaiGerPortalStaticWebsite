@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import type { TFunction } from 'i18next';
 
 import SurveyMissingFieldsAlerts from './components/SurveyMissingFieldsAlerts';
 
-const t = (key: string) => key;
+const t = ((key: string) => key) as unknown as TFunction;
 
 describe('SurveyMissingFieldsAlerts', () => {
     it('renders missing academic/application card when data is incomplete', () => {

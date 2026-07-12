@@ -11,7 +11,7 @@
  * application's documents plus the shared general documents (CV, Others,
  * Recommendation_Letter_A/B, Form_A/B) and pre-fills a subject + message.
  */
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Alert,
     Autocomplete,

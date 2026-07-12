@@ -15,7 +15,7 @@ const StudentOverviewPage = () => {
     const { data, isLoading } = useActiveStudents({ archiv: false });
 
     // Early exits AFTER declaring all hooks to keep hook order stable
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 

@@ -3,6 +3,7 @@ import { Tabs, Tab, Box, Typography, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { c1_mrt } from '@utils/contants';
+import type { MRT_ColumnDef } from 'material-react-table';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
@@ -14,9 +15,19 @@ export interface CVMLRLDashboardProps {
     user?: IUser | null;
 }
 
+// `c1_mrt` is typed against the private IDocRowData shape in @utils/contants,
+// which does not line up with the OpenTaskRow rows fed to the table (it types
+// `student_id` as a plain id string). Same normalization as
+// CVMLRLDashboardPaginated: hand MRT the generic row shape it actually needs.
+const asTableRows = (rows: OpenTaskRow[]): Record<string, unknown>[] =>
+    rows as unknown as Record<string, unknown>[];
+
 const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
     const { t } = useTranslation();
-    const memoizedColumnsMrt = useMemo(() => c1_mrt, []);
+    const memoizedColumnsMrt = useMemo(
+        () => c1_mrt as MRT_ColumnDef<Record<string, unknown>>[],
+        []
+    );
     const [cVMLRLDashboardState, setCVMLRLDashboardState] = useState({
         error: '',
         data: null,
@@ -116,7 +127,7 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 </Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
-                    data={cvmlrl_active_tasks}
+                    data={asTableRows(cvmlrl_active_tasks)}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
@@ -125,7 +136,7 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 </Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
-                    data={cvmlrl_idle_tasks}
+                    data={asTableRows(cvmlrl_idle_tasks)}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
@@ -138,14 +149,14 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 </Typography>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
-                    data={cvmlrl_closed_v2}
+                    data={asTableRows(cvmlrl_closed_v2)}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
                 <Alert severity="info">All tasks</Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
-                    data={cvmlrl_all_v2}
+                    data={asTableRows(cvmlrl_all_v2)}
                 />
             </CustomTabPanel>
         </>
