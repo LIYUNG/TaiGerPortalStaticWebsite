@@ -11,6 +11,7 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
+import { progressBarCounter } from './applicationChecklist';
 import type {
     DocumentThreadResponse,
     OpenTaskRow,
@@ -1248,138 +1249,8 @@ export const is_num_Program_Not_specified = (
     return !student.applying_program_count;
 };
 
-export const progressBarCounter = (
-    student: IUserWithId,
-    application: Application
-): number => {
-    const programId = application?.programId;
-
-    const all_points = [
-        student?.generaldocs_threads?.length || 0,
-        programId?.ielts || programId?.toefl ? 1 : 0,
-        programId?.testdaf ? (programId?.testdaf === '-' ? 0 : 1) : 0,
-        programId?.gre ? (application?.programId?.gre === '-' ? 0 : 1) : 0,
-        programId?.gmat ? (programId?.gmat === '-' ? 0 : 1) : 0,
-        programId?.application_portal_a || programId?.application_portal_b
-            ? 1
-            : 0,
-        application?.doc_modification_thread?.length || 0,
-        programId?.uni_assist?.includes('VPD') ? 1 : 0,
-        1
-    ];
-    const finished_pointes = [
-        student?.generaldocs_threads?.filter(
-            (thread) => thread.isFinalVersion === true
-        ).length,
-
-        (programId?.ielts || programId?.toefl) &&
-        student?.academic_background?.language?.english_isPassed === 'O' &&
-        isEnglishOK(programId, student)
-            ? 1
-            : 0,
-        programId?.testdaf &&
-        programId?.testdaf !== '-' &&
-        student?.academic_background?.language?.german_isPassed === 'O'
-            ? 1
-            : 0,
-        programId?.gre &&
-        programId?.gre !== '-' &&
-        student?.academic_background?.language?.gre_isPassed === 'O'
-            ? 1
-            : 0,
-        programId?.gmat &&
-        programId?.gmat !== '-' &&
-        student?.academic_background?.language?.gmat_isPassed === 'O'
-            ? 1
-            : 0,
-        (programId?.application_portal_a || programId?.application_portal_b) &&
-        ((programId?.application_portal_a &&
-            !application.credential_a_filled) ||
-            (programId?.application_portal_b &&
-                !application.credential_b_filled))
-            ? 0
-            : 1,
-        application?.doc_modification_thread?.filter(
-            (thread) => thread.isFinalVersion === true
-        ).length,
-        programId?.uni_assist?.includes('VPD')
-            ? application?.uni_assist?.status === DocumentStatusType.NotNeeded
-                ? 0
-                : 1
-            : 0,
-        isProgramSubmitted(application) ? 1 : 0
-    ];
-
-    const completedPoints =
-        finished_pointes.reduce((sum, value) => (sum ?? 0) + (value ?? 0), 0) ??
-        0;
-    const totalPoints = all_points.reduce((sum, value) => sum + value, 0);
-
-    const percentage = (completedPoints / totalPoints) * 100;
-    return Math.floor(percentage);
-};
-
-export const isEnglishOK = (
-    program: IProgramWithId,
-    student: IUserWithId
-): boolean => {
-    const lang = student?.academic_background?.language || {};
-    const {
-        english_certificate,
-        english_score,
-        english_score_reading,
-        english_score_listening,
-        english_score_writing,
-        english_score_speaking
-    } = lang;
-    // in case not number string
-    if (
-        ![
-            english_score,
-            english_score_reading,
-            english_score_listening,
-            english_score_writing,
-            english_score_speaking
-        ].every((score) => parseFloat(score ?? ''))
-    ) {
-        return false;
-    }
-
-    if (english_certificate === 'TOEFL') {
-        if (
-            parseFloat(program.toefl ?? '0') >
-                parseFloat(english_score ?? '') ||
-            (program.toefl_reading ?? 0) >
-                parseFloat(english_score_reading ?? '') ||
-            (program.toefl_listening ?? 0) >
-                parseFloat(english_score_listening ?? '') ||
-            (program.toefl_writing ?? 0) >
-                parseFloat(english_score_writing ?? '') ||
-            (program.toefl_speaking ?? 0) >
-                parseFloat(english_score_speaking ?? '')
-        ) {
-            return false;
-        }
-    }
-    if (english_certificate === 'IELTS') {
-        if (
-            parseFloat(program.ielts ?? '0') >
-                parseFloat(english_score ?? '') ||
-            (program.ielts_reading ?? 0) >
-                parseFloat(english_score_reading ?? '') ||
-            (program.ielts_listening ?? 0) >
-                parseFloat(english_score_listening ?? '') ||
-            (program.ielts_writing ?? 0) >
-                parseFloat(english_score_writing ?? '') ||
-            (program.ielts_speaking ?? 0) >
-                parseFloat(english_score_speaking ?? '')
-        ) {
-            return false;
-        }
-    }
-
-    return true;
-};
+// progressBarCounter, isEnglishOK and the checklist model live in
+// applicationChecklist.ts — import them from there, not through this module.
 
 // Sections of an English test (TOEFL/IELTS) mapped to the student-score field
 // and the program per-section minimum field for each certificate. The overall

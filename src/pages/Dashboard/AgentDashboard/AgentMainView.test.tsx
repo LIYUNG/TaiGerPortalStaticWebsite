@@ -59,7 +59,10 @@ vi.mock('../../Utils/util_functions', () => ({
     is_any_programs_ready_to_submit: vi.fn(() => false),
     is_any_vpd_missing_v2: vi.fn(() => false),
     open_tasks_v2: vi.fn(() => []),
-    programs_refactor_v2: vi.fn(() => []),
+    programs_refactor_v2: vi.fn(() => [])
+}));
+
+vi.mock('../../Utils/applicationChecklist', () => ({
     progressBarCounter: vi.fn(() => 0)
 }));
 

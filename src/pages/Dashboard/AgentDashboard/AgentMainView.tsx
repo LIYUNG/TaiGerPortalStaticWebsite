@@ -23,9 +23,9 @@ import {
     is_any_programs_ready_to_submit,
     is_any_vpd_missing_v2,
     open_tasks_v2,
-    programs_refactor_v2,
-    progressBarCounter
+    programs_refactor_v2
 } from '../../Utils/util_functions';
+import { progressBarCounter } from '../../Utils/applicationChecklist';
 import DEMO from '@store/constant';
 import ApplicationProgressCardBody from '@components/ApplicationProgressCard/ApplicationProgressCardBody';
 import ProgramReportCard from '../../Program/ProgramReportCard';

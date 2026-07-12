@@ -1,383 +1,85 @@
 import { Link as LinkDom } from 'react-router-dom';
-import { IconButton, Link, List, ListItem, Typography } from '@mui/material';
+import { Box, Link, List, ListItem, Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
-import { isProgramSubmitted } from '@taiger-common/core';
 
-import DEMO from '@store/constant';
-import { isEnglishOK } from '@pages/Utils/util_functions';
+import {
+    buildApplicationChecklist,
+    type ApplicationChecklistItem
+} from '@pages/Utils/applicationChecklist';
 import {
     FILE_MISSING_SYMBOL,
     FILE_OK_SYMBOL,
     convertDateUXFriendly
 } from '@utils/contants';
 import type { Application } from '@/api/types';
-import type {
-    IStudentResponse,
-    IDocumentthread,
-    IDocumentthreadWithId
-} from '@taiger-common/model';
+import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
 
 interface ApplicationProgressCardBodyProps {
     application: Application;
     student: IStudentResponse;
 }
 
-const DocumentOkIcon = () => FILE_OK_SYMBOL;
-const DocumentMissingIcon = () => FILE_MISSING_SYMBOL;
+/**
+ * The icon is wrapped in its own element on purpose: kept as a bare text node it
+ * would fuse with the row label (the symbols are plain strings), so "Submit"
+ * would no longer be findable as its own text.
+ */
+const StateIcon = ({ state }: { state: ApplicationChecklistItem['state'] }) => (
+    <Box component="span" sx={{ alignItems: 'center', display: 'inline-flex' }}>
+        {state === 'ok' ? FILE_OK_SYMBOL : null}
+        {state === 'missing' ? FILE_MISSING_SYMBOL : null}
+        {state === 'warning' ? (
+            <WarningIcon fontSize="small" sx={{ color: 'error.main' }} />
+        ) : null}
+    </Box>
+);
 
+/**
+ * The checklist behind an application's progress bar — one row per outstanding
+ * requirement. Rows come from buildApplicationChecklist, the same model the bar
+ * sums, so the two can't drift apart.
+ */
 export default function ApplicationProgressCardBody(
     props: ApplicationProgressCardBodyProps
 ) {
-    const application = props.application;
-    const student = props.student;
+    const items = buildApplicationChecklist(
+        props.student as unknown as IUserWithId,
+        props.application
+    );
 
     return (
         <List>
-            {student?.generaldocs_threads?.map((thread) => (
-                <ListItem
-                    key={(
-                        thread.doc_thread_id as IDocumentthreadWithId
-                    )._id.toString()}
-                >
-                    <Typography>
+            {items.map((item) => (
+                <ListItem key={item.id} title={item.title}>
+                    <Typography
+                        component="div"
+                        sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}
+                    >
                         <Link
                             color="inherit"
                             component={LinkDom}
-                            to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                (
-                                    thread.doc_thread_id as IDocumentthreadWithId
-                                )._id.toString()
-                            )}
+                            sx={{
+                                alignItems: 'center',
+                                display: 'inline-flex',
+                                gap: 0.5
+                            }}
+                            to={item.href}
                             underline="hover"
                         >
-                            {thread.isFinalVersion ? (
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>
-                            ) : (
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>
-                            )}{' '}
-                            {
-                                (thread.doc_thread_id as IDocumentthread)
-                                    ?.file_type
-                            }
+                            <StateIcon state={item.state} />
+                            {item.label}
                         </Link>
-                        {' - '}{' '}
-                        {convertDateUXFriendly(
-                            (thread.doc_thread_id as IDocumentthread)?.updatedAt
-                        )}
+                        {item.detail ? (
+                            <Box component="span">{` - ${item.detail}`}</Box>
+                        ) : null}
+                        {item.updatedAt ? (
+                            <Box component="span">
+                                {` - ${convertDateUXFriendly(item.updatedAt)}`}
+                            </Box>
+                        ) : null}
                     </Typography>
                 </ListItem>
             ))}
-            {application?.programId?.ielts || application?.programId?.toefl ? (
-                student?.academic_background?.language?.english_isPassed ===
-                'O' ? (
-                    isEnglishOK(application?.programId, props.student) ? (
-                        <ListItem>
-                            <Typography>
-                                <Link
-                                    color="inherit"
-                                    component={LinkDom}
-                                    to={`${DEMO.SURVEY_LINK}`}
-                                    underline="hover"
-                                >
-                                    <IconButton>
-                                        <DocumentOkIcon />
-                                    </IconButton>{' '}
-                                    English{' '}
-                                </Link>
-                                {' - '}
-                                {
-                                    student.academic_background?.language
-                                        ?.english_certificate
-                                }
-                                {' - '}
-                                {
-                                    student.academic_background?.language
-                                        ?.english_score
-                                }
-                            </Typography>
-                        </ListItem>
-                    ) : (
-                        <ListItem title="English Requirements not met with your input in Profile">
-                            <Typography>
-                                <Link
-                                    color="inherit"
-                                    component={LinkDom}
-                                    to={`${DEMO.SURVEY_LINK}`}
-                                    underline="hover"
-                                >
-                                    <IconButton>
-                                        <WarningIcon
-                                            fontSize="small"
-                                            sx={{ color: 'error.main' }}
-                                        />
-                                    </IconButton>{' '}
-                                    English
-                                </Link>
-                                {' - '}
-                                {
-                                    student.academic_background?.language
-                                        ?.english_certificate
-                                }
-                                {' - '}
-                                {
-                                    student.academic_background?.language
-                                        ?.english_score
-                                }
-                            </Typography>
-                        </ListItem>
-                    )
-                ) : (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>{' '}
-                                English
-                            </Link>
-                            {' - '}{' '}
-                            {
-                                student.academic_background?.language
-                                    ?.english_test_date
-                            }
-                        </Typography>
-                    </ListItem>
-                )
-            ) : null}
-            {application?.programId?.testdaf ? (
-                application?.programId?.testdaf === '-' ? null : student
-                      ?.academic_background?.language?.german_isPassed ===
-                  'O' ? (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>{' '}
-                                German
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                ) : (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>{' '}
-                                German
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                )
-            ) : null}
-            {application?.programId?.gre ? (
-                application?.programId?.gre === '-' ? null : student
-                      ?.academic_background?.language?.gre_isPassed === 'O' ? (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>
-                                GRE
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                ) : (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>{' '}
-                                GRE
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                )
-            ) : null}
-            {application?.programId?.gmat ? (
-                application?.programId?.gmat === '-' ? null : student
-                      ?.academic_background?.language?.gmat_isPassed === 'O' ? (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>{' '}
-                                GMAT
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                ) : (
-                    <ListItem>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.SURVEY_LINK}`}
-                                underline="hover"
-                            >
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>{' '}
-                                GMAT
-                            </Link>
-                        </Typography>
-                    </ListItem>
-                )
-            ) : null}
-            {application?.programId?.application_portal_a ||
-            application?.programId?.application_portal_b ? (
-                <ListItem>
-                    <Typography>
-                        <Link
-                            color="inherit"
-                            component={LinkDom}
-                            to={DEMO.PORTALS_MANAGEMENT_STUDENTID_LINK(
-                                student._id?.toString() ?? ''
-                            )}
-                            underline="hover"
-                        >
-                            {(application?.programId?.application_portal_a &&
-                                !application.credential_a_filled) ||
-                            (application?.programId?.application_portal_b &&
-                                !application.credential_b_filled) ? (
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>
-                            ) : (
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>
-                            )}{' '}
-                            Register University Portal
-                        </Link>
-                    </Typography>
-                </ListItem>
-            ) : null}
-            {application?.doc_modification_thread?.map((thread) => {
-                const docThread = thread.doc_thread_id as unknown as
-                    | IDocumentthreadWithId
-                    | undefined;
-                return (
-                    <ListItem key={docThread?._id?.toString() ?? ''}>
-                        <Typography>
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                    docThread?._id?.toString() ?? ''
-                                )}
-                                underline="hover"
-                            >
-                                {thread.isFinalVersion ? (
-                                    <IconButton>
-                                        <DocumentOkIcon />
-                                    </IconButton>
-                                ) : (
-                                    <IconButton>
-                                        <DocumentMissingIcon />
-                                    </IconButton>
-                                )}{' '}
-                                {docThread?.file_type?.replace(/_/g, ' ')}
-                            </Link>
-                            {' - '}
-                            {convertDateUXFriendly(docThread?.updatedAt)}
-                        </Typography>
-                    </ListItem>
-                );
-            })}
-
-            {(
-                application?.programId?.uni_assist as string[] | undefined
-            )?.includes('VPD') ? (
-                <ListItem>
-                    <Typography>
-                        <Link
-                            color="inherit"
-                            component={LinkDom}
-                            to={`${DEMO.UNI_ASSIST_LINK}`}
-                            underline="hover"
-                        >
-                            {application?.uni_assist?.status ===
-                            'notstarted' ? (
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>
-                            ) : (
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>
-                            )}{' '}
-                            Uni-Assist VPD
-                            {' - '}{' '}
-                            {convertDateUXFriendly(
-                                application?.uni_assist?.updatedAt
-                            )}
-                        </Link>
-                    </Typography>
-                </ListItem>
-            ) : null}
-
-            <ListItem>
-                <Typography>
-                    <Link
-                        color="inherit"
-                        component={LinkDom}
-                        to={DEMO.STUDENT_APPLICATIONS_ID_LINK(
-                            student._id?.toString() ?? ''
-                        )}
-                        underline="hover"
-                    >
-                        {isProgramSubmitted(application) ? (
-                            <IconButton>
-                                <DocumentOkIcon />
-                            </IconButton>
-                        ) : (
-                            <IconButton>
-                                <DocumentMissingIcon />
-                            </IconButton>
-                        )}
-                        Submit
-                    </Link>
-                </Typography>
-            </ListItem>
         </List>
     );
 }

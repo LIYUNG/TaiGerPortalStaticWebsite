@@ -1,4 +1,4 @@
-import { useState, MouseEvent, ChangeEvent } from 'react';
+import { useState, MouseEvent, ChangeEvent, type ReactNode } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
@@ -7,16 +7,18 @@ import BlockIcon from '@mui/icons-material/Block';
 import AddIcon from '@mui/icons-material/Add';
 import {
     Card,
+    CardActions,
     Collapse,
     CardContent,
     Typography,
     Box,
-    IconButton,
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Tooltip
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Button,
     Link,
@@ -41,10 +43,8 @@ import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockCon
 import { updateStudentApplicationResult } from '@/api';
 import type { Application } from '@/api/types';
 import DEMO from '@store/constant';
-import {
-    application_deadline_V2_calculator,
-    progressBarCounter
-} from '@pages/Utils/util_functions';
+import { application_deadline_V2_calculator } from '@pages/Utils/util_functions';
+import { progressBarCounter } from '@pages/Utils/applicationChecklist';
 import { BASE_URL } from '@/api';
 import {
     FILE_NOT_OK_SYMBOL,
@@ -55,7 +55,7 @@ import { appConfig } from '../../config';
 import { ConfirmationModal } from '../Modal/ConfirmationModal';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
-interface ProgramLinkProps {
+interface ProgramHeaderProps {
     program?: {
         _id?: { toString: () => string };
         country?: string;
@@ -64,6 +64,7 @@ interface ProgramLinkProps {
         program_name?: string;
         semester?: string;
     } | null;
+    lockControl?: ReactNode;
 }
 
 interface AdmissionLetterLinkProps {
@@ -83,29 +84,63 @@ const BorderLinearProgress = styled(LinearProgress)(() => ({
     }
 }));
 
-const ProgramLink = ({ program }: ProgramLinkProps) => {
+/**
+ * Card header: country flag, school (the link), then degree / program as a
+ * secondary line. `lockControl` sits on the school row, right-aligned, so the
+ * status chip reads as an attribute of the program rather than owning a row of
+ * its own. The semester lives on the status row next to the deadline — both
+ * answer "when", so they belong together.
+ */
+const ProgramHeader = ({ program, lockControl }: ProgramHeaderProps) => {
     if (!program) return null;
+    const subtitle = [program.degree, program.program_name]
+        .filter(Boolean)
+        .join(' · ');
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <img
-                alt="Logo"
-                src={`/assets/logo/country_logo/svg/${program.country}.svg`}
-                style={{ maxWidth: 24, maxHeight: 24 }}
-            />
-            &nbsp;
-            <Link
-                component={LinkDom}
-                onClick={(e) => e.stopPropagation()}
-                sx={{ display: 'flex', alignItems: 'center' }}
-                target="_blank"
-                to={DEMO.SINGLE_PROGRAM_LINK(program._id?.toString() ?? '')}
-                underline="hover"
+        <Box sx={{ mb: 1 }}>
+            {/* Row 1 — the flag is scoped to this row only, so it doesn't open a
+                column that indents everything below it. */}
+            <Box
+                sx={{ alignItems: 'center', display: 'flex', gap: 1, mb: 0.5 }}
             >
-                <strong>{program.school}</strong>
-                <IconButton>
-                    <LaunchIcon fontSize="small" />
-                </IconButton>
-            </Link>
+                <Box
+                    alt="Logo"
+                    component="img"
+                    src={`/assets/logo/country_logo/svg/${program.country}.svg`}
+                    sx={{ flexShrink: 0, maxHeight: 24, maxWidth: 24 }}
+                />
+                {/* minWidth: 0 lets a long school name wrap instead of pushing
+                    the lock chip out of the card. */}
+                <Link
+                    component={LinkDom}
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{
+                        alignItems: 'center',
+                        display: 'inline-flex',
+                        flex: 1,
+                        fontWeight: 700,
+                        minWidth: 0
+                    }}
+                    target="_blank"
+                    to={DEMO.SINGLE_PROGRAM_LINK(program._id?.toString() ?? '')}
+                    underline="hover"
+                    variant="subtitle2"
+                >
+                    {program.school}
+                    {/* Decorative: the whole label is already the link target, so
+                        a nested button here would just add a dead focus stop. */}
+                    <LaunchIcon fontSize="small" sx={{ ml: 0.5 }} />
+                </Link>
+                {lockControl ? (
+                    <Box sx={{ flexShrink: 0 }}>{lockControl}</Box>
+                ) : null}
+            </Box>
+            {/* Row 2 — full card width, no flag gutter to the left. */}
+            {subtitle ? (
+                <Typography color="text.primary" variant="body2">
+                    {subtitle}
+                </Typography>
+            ) : null}
         </Box>
     );
 };
@@ -152,6 +187,11 @@ export default function ApplicationProgressCard(
     const handleToggle = () => {
         setIsCollapse(!isCollapse);
     };
+
+    // Ties the toggle button to the region it opens for screen readers.
+    const checklistId = `application-checklist-${
+        application._id?.toString() ?? ''
+    }`;
 
     const openUndoModal = (e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -251,16 +291,24 @@ export default function ApplicationProgressCard(
     return (
         <>
             <Card>
-                <CardContent onClick={handleToggle}>
-                    <Typography color="text.secondary" gutterBottom>
+                <CardContent
+                    onClick={handleToggle}
+                    sx={{
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                >
+                    <Typography
+                        color="text.secondary"
+                        component="div"
+                        gutterBottom
+                        sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}
+                    >
                         {isProgramSubmitted(application) ? (
                             <>
                                 {application.admission === '-' ? (
                                     <>
-                                        <IconButton>
-                                            {FILE_OK_SYMBOL}
-                                        </IconButton>
-                                        &nbsp;
+                                        {FILE_OK_SYMBOL}
                                         {i18next.t('Submitted', {
                                             ns: 'common'
                                         })}
@@ -268,10 +316,7 @@ export default function ApplicationProgressCard(
                                 ) : null}
                                 {isProgramAdmitted(application) ? (
                                     <>
-                                        <IconButton>
-                                            {FILE_OK_SYMBOL}
-                                        </IconButton>
-                                        &nbsp;
+                                        {FILE_OK_SYMBOL}
                                         {i18next.t('Admitted', {
                                             ns: 'common'
                                         })}
@@ -279,10 +324,7 @@ export default function ApplicationProgressCard(
                                 ) : null}
                                 {isProgramRejected(application) ? (
                                     <>
-                                        <IconButton>
-                                            {FILE_NOT_OK_SYMBOL}
-                                        </IconButton>
-                                        &nbsp;
+                                        {FILE_NOT_OK_SYMBOL}
                                         {i18next.t('Rejected', {
                                             ns: 'common'
                                         })}
@@ -292,33 +334,51 @@ export default function ApplicationProgressCard(
                         ) : application_deadline_V2_calculator(application) ===
                           'WITHDRAW' ? (
                             <>
-                                <IconButton title="Withdraw">
-                                    <BlockIcon fontSize="small" />
-                                </IconButton>
+                                <BlockIcon
+                                    fontSize="small"
+                                    titleAccess="Withdraw"
+                                />
                                 {application_deadline_V2_calculator(
                                     application
                                 )}
                             </>
                         ) : (
                             <>
-                                <IconButton title="Pending">
-                                    <HourglassEmptyIcon fontSize="small" />
-                                </IconButton>
+                                <HourglassEmptyIcon
+                                    fontSize="small"
+                                    titleAccess="Pending"
+                                />
                                 {application_deadline_V2_calculator(
                                     application
                                 )}
                             </>
                         )}
+                        {/* Semester sits beside the deadline: both answer "when
+                            is this application for", so they read as one unit.
+                            ml: auto parks it at the end of whichever status
+                            variant rendered above. */}
+                        {application.programId?.semester ? (
+                            <Typography
+                                color="text.secondary"
+                                sx={{ ml: 'auto' }}
+                                variant="caption"
+                            >
+                                {application.programId.semester}
+                            </Typography>
+                        ) : null}
                     </Typography>
-                    <Box sx={{ my: 1 }}>
-                        <ApplicationLockControl application={application} />
-                    </Box>
-                    <ProgramLink program={application.programId} />
-                    <Typography fontWeight="bold" variant="body2">
-                        {application?.programId?.degree}{' '}
-                        {application?.programId?.program_name}{' '}
-                        {application?.programId?.semester}{' '}
-                    </Typography>
+                    <ProgramHeader
+                        lockControl={
+                            /* The lock control has its own buttons — clicking
+                               them shouldn't also collapse the card underneath. */
+                            <Box onClick={(e) => e.stopPropagation()}>
+                                <ApplicationLockControl
+                                    application={application}
+                                />
+                            </Box>
+                        }
+                        program={application.programId}
+                    />
                     <Typography variant="body2">
                         <AdmissionLetterLink application={application} />
                         {isProgramSubmitted(application) &&
@@ -536,7 +596,43 @@ export default function ApplicationProgressCard(
                         </span>
                     </Typography>
                 </CardContent>
-                <Collapse in={isCollapse}>
+                {/* The card body used to be reachable only by clicking the card
+                    with no visual hint. This row is the affordance: it names what
+                    is hidden, shows a chevron, and is keyboard reachable. */}
+                <CardActions sx={{ pt: 0 }}>
+                    {/* describeChild: without it the tooltip becomes the
+                        button's aria-label and hides its visible text from
+                        screen readers. */}
+                    <Tooltip
+                        describeChild
+                        title={i18next.t(
+                            'Documents and requirements for this application'
+                        )}
+                    >
+                        <Button
+                            aria-controls={checklistId}
+                            aria-expanded={isCollapse}
+                            endIcon={
+                                <ExpandMoreIcon
+                                    sx={{
+                                        transform: isCollapse
+                                            ? 'rotate(180deg)'
+                                            : 'rotate(0deg)',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                />
+                            }
+                            fullWidth
+                            onClick={handleToggle}
+                            size="small"
+                        >
+                            {isCollapse
+                                ? i18next.t('Hide checklist')
+                                : i18next.t('Show checklist')}
+                        </Button>
+                    </Tooltip>
+                </CardActions>
+                <Collapse id={checklistId} in={isCollapse}>
                     <ApplicationProgressCardBody
                         application={application}
                         student={props.student as unknown as IStudentResponse}

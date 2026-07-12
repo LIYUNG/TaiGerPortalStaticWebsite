@@ -2,6 +2,9 @@ import { describe, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
+import type { Application } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
+
 vi.mock('@taiger-common/core', () => ({
     isProgramSubmitted: vi.fn(() => false)
 }));
@@ -15,10 +18,6 @@ vi.mock('@store/constant', () => ({
             `/student/${id}/applications`,
         PORTALS_MANAGEMENT_STUDENTID_LINK: (id: string) => `/portals/${id}`
     }
-}));
-
-vi.mock('@pages/Utils/util_functions', () => ({
-    isEnglishOK: vi.fn(() => true)
 }));
 
 vi.mock('@utils/contants', () => ({
@@ -39,13 +38,13 @@ const mockApplication = {
     },
     doc_modification_thread: [],
     admission: '-'
-} as any;
+} as unknown as Application;
 
 const mockStudent = {
     _id: { toString: () => 'student1' },
     generaldocs_threads: [],
     applications: []
-} as any;
+} as unknown as IStudentResponse;
 
 describe('ApplicationProgressCardBody', () => {
     beforeEach(() => {
