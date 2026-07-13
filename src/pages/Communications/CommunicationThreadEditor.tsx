@@ -7,15 +7,19 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
+    Drawer,
     IconButton,
     Tooltip,
-    Typography
+    Typography,
+    useMediaQuery
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import CloseIcon from '@mui/icons-material/Close';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -69,6 +73,11 @@ export interface CommunicationThreadEditorProps {
 
 const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const { t } = useTranslation();
+    const appTheme = useTheme();
+    // Mobile gets a bottom sheet instead of an inline panel: the inline panel
+    // grows with the streamed markdown, which on a phone pushes the student's
+    // messages (and the Dismiss/Insert buttons) off-screen.
+    const isMobile = useMediaQuery(appTheme.breakpoints.down('sm'));
     const { studentId: routeStudentId } = useParams();
     // Prefer the prop; fall back to the route, then to the thread's student id —
     // so the draft (text + attachments) works in every view the editor renders.
@@ -118,6 +127,10 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         isGenerating: false
     });
     const [isSending, setIsSending] = useState(false);
+    // Mobile bottom-sheet visibility. Minimizing it keeps the suggestion alive
+    // as a slim inline pill, so the agent can read the student's messages again
+    // without losing the draft.
+    const [sheetOpen, setSheetOpen] = useState(true);
     // True once an AI-generated reply has been inserted into the composer and is
     // awaiting the agent's review/edit/send. Drives the "review before sending"
     // banner. Cleared on send. (The persisted draftSource covers reloads.)
@@ -406,6 +419,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         if (!studentId) return;
         setSensitive(false);
         setSensitiveAck(false);
+        setSheetOpen(true); // (re)open the mobile sheet for the new suggestion
         setStreamingData({ data: '', isGenerating: true });
         try {
             const response = await generateStudentReplyDraft(studentId);
@@ -503,10 +517,118 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
         setStreamingData({ data: '', isGenerating: false });
         setSensitive(false);
         setSensitiveAck(false);
+        setSheetOpen(true); // ready for the next suggestion
         // Drop the persisted suggestion too, so it doesn't reappear on reload.
         void clearPendingSuggestion().catch(() => undefined);
     }, [clearPendingSuggestion]);
     const sendDisabled = !hasContent || props.buttonDisabled || isSending;
+
+    // Is there anything to show in the AI assist surface at all?
+    const showSuggestion =
+        is_TaiGer_role(user as IUser) &&
+        (streamingData.isGenerating || Boolean(suggestionText));
+
+    // Long words / URLs / tables in the streamed markdown used to blow out the
+    // container width on a phone. Constrain everything to the panel.
+    const markdownSx = {
+        wordBreak: 'break-word',
+        overflowWrap: 'anywhere',
+        '& p': { my: 0.5 },
+        '& ul, & ol': { pl: 2.5, my: 0.5 },
+        '& img': { maxWidth: '100%', height: 'auto' },
+        '& pre': { overflowX: 'auto', maxWidth: '100%' },
+        '& code': { wordBreak: 'break-word' },
+        '& table': { display: 'block', overflowX: 'auto', maxWidth: '100%' },
+        '& > *:first-of-type': { mt: 0 },
+        '& > *:last-child': { mb: 0 },
+        // Slightly tighter type on a phone so more of the draft fits.
+        fontSize: { xs: '0.875rem', sm: 'inherit' }
+    } as const;
+
+    const statusLabel = (
+        <Box
+            sx={{
+                alignItems: 'center',
+                display: 'flex',
+                gap: 0.5,
+                minWidth: 0
+            }}
+        >
+            {streamingData.isGenerating ? <CircularProgress size={14} /> : null}
+            <Typography color="text.secondary" noWrap variant="caption">
+                {streamingData.isGenerating && !streamingData.data
+                    ? t('AI is drafting a reply…', {
+                          ns: 'common',
+                          defaultValue: 'AI is drafting a reply…'
+                      })
+                    : t('AI assist', {
+                          ns: 'common',
+                          defaultValue: 'AI assist'
+                      })}
+            </Typography>
+        </Box>
+    );
+
+    const sensitiveNote =
+        sensitive && suggestionText ? (
+            <Typography
+                color="warning.main"
+                sx={{ display: 'block', mt: 1 }}
+                variant="caption"
+            >
+                {t(
+                    'This student may be upset or in distress — please review this reply carefully and personalize it before sending.',
+                    {
+                        ns: 'common',
+                        defaultValue:
+                            'This student may be upset or in distress — please review this reply carefully and personalize it before sending.'
+                    }
+                )}
+            </Typography>
+        ) : null;
+
+    const insertLabel =
+        sensitive && !sensitiveAck
+            ? t('Review carefully — confirm insert', {
+                  ns: 'common',
+                  defaultValue: 'Review carefully — confirm insert'
+              })
+            : t('Insert into draft', {
+                  ns: 'common',
+                  defaultValue: 'Insert into draft'
+              });
+
+    // `stacked` = mobile sheet footer (full-width buttons that always fit).
+    const actionButtons = (stacked: boolean) =>
+        !streamingData.isGenerating && suggestionText ? (
+            <Box
+                sx={{
+                    display: 'flex',
+                    gap: 1,
+                    mt: stacked ? 0 : 1,
+                    justifyContent: 'flex-end'
+                }}
+            >
+                <Button
+                    onClick={dismissSuggestion}
+                    size="small"
+                    sx={stacked ? { flex: 1 } : undefined}
+                    variant={stacked ? 'outlined' : 'text'}
+                >
+                    {t('Dismiss', { ns: 'common', defaultValue: 'Dismiss' })}
+                </Button>
+                <Button
+                    color={sensitive ? 'warning' : 'primary'}
+                    onClick={insertSuggestion}
+                    size="small"
+                    startIcon={<AutoFixHighIcon fontSize="small" />}
+                    sx={stacked ? { flex: 2 } : undefined}
+                    variant="contained"
+                >
+                    {insertLabel}
+                </Button>
+            </Box>
+        ) : null;
 
     return (
         <>
@@ -537,6 +659,41 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     </Typography>
                 </Box>
             ) : null}
+
+            {/* Mobile: collapsed pill for a suggestion whose sheet is minimized.
+                Keeps the draft reachable while the student's messages stay
+                visible — the old inline panel covered them and couldn't be
+                closed without scrolling past the whole reply. */}
+            {isMobile && showSuggestion && !sheetOpen ? (
+                <Box
+                    sx={{
+                        alignItems: 'center',
+                        bgcolor: 'action.hover',
+                        borderRadius: 2,
+                        display: 'flex',
+                        gap: 0.5,
+                        mb: 0.5,
+                        px: 1,
+                        py: 0.5
+                    }}
+                >
+                    <AutoFixHighIcon color="primary" fontSize="small" />
+                    {statusLabel}
+                    <Box sx={{ flex: 1 }} />
+                    <Button onClick={() => setSheetOpen(true)} size="small">
+                        {t('View', { ns: 'common', defaultValue: 'View' })}
+                    </Button>
+                    <IconButton
+                        aria-label="dismiss ai suggestion"
+                        disabled={streamingData.isGenerating}
+                        onClick={dismissSuggestion}
+                        size="small"
+                    >
+                        <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                </Box>
+            ) : null}
+
             <Box
                 sx={{
                     border: '1px solid',
@@ -807,11 +964,15 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 </Box>
             </Box>
 
-            {/* AI streamed reply suggestion — shown to any staff who can trigger
-                it (same gate as the trigger button), with a live "drafting…"
-                state because the agentic call can take a while before tokens. */}
-            {is_TaiGer_role(user as IUser) &&
-            (streamingData.isGenerating || suggestionText) ? (
+            {/* ── AI streamed reply suggestion ──────────────────────────────
+                Shown to any staff who can trigger it (same gate as the trigger
+                button), with a live "drafting…" state because the agentic call
+                can take a while before tokens.
+
+                Desktop: inline panel below the composer, height-capped so a long
+                reply scrolls inside the panel instead of pushing the thread away.
+                Mobile: bottom sheet (below) — sticky header + footer, minimizable. */}
+            {showSuggestion && !isMobile ? (
                 <Box
                     sx={{
                         mt: 1,
@@ -828,83 +989,135 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                             mb: 0.5
                         }}
                     >
-                        {streamingData.isGenerating ? (
-                            <CircularProgress size={14} />
-                        ) : null}
-                        <Typography color="text.secondary" variant="caption">
-                            {streamingData.isGenerating && !streamingData.data
-                                ? t('AI is drafting a reply…', {
-                                      ns: 'common',
-                                      defaultValue: 'AI is drafting a reply…'
-                                  })
-                                : t('AI assist', {
-                                      ns: 'common',
-                                      defaultValue: 'AI assist'
-                                  })}
-                        </Typography>
+                        {statusLabel}
                     </Box>
                     {suggestionText ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {suggestionText}
-                        </ReactMarkdown>
-                    ) : null}
-                    {sensitive && suggestionText ? (
-                        <Typography
-                            color="warning.main"
-                            sx={{ display: 'block', mt: 1 }}
-                            variant="caption"
-                        >
-                            {t(
-                                'This student may be upset or in distress — please review this reply carefully and personalize it before sending.',
-                                {
-                                    ns: 'common',
-                                    defaultValue:
-                                        'This student may be upset or in distress — please review this reply carefully and personalize it before sending.'
-                                }
-                            )}
-                        </Typography>
-                    ) : null}
-                    {!streamingData.isGenerating && suggestionText ? (
                         <Box
                             sx={{
-                                display: 'flex',
-                                gap: 1,
-                                mt: 1,
-                                justifyContent: 'flex-end'
+                                ...markdownSx,
+                                maxHeight: 320,
+                                overflowY: 'auto'
                             }}
                         >
-                            <Button
-                                onClick={dismissSuggestion}
-                                size="small"
-                                variant="text"
-                            >
-                                {t('Dismiss', {
-                                    ns: 'common',
-                                    defaultValue: 'Dismiss'
-                                })}
-                            </Button>
-                            <Button
-                                color={sensitive ? 'warning' : 'primary'}
-                                onClick={insertSuggestion}
-                                size="small"
-                                startIcon={<AutoFixHighIcon fontSize="small" />}
-                                variant="contained"
-                            >
-                                {sensitive && !sensitiveAck
-                                    ? t('Review carefully — confirm insert', {
-                                          ns: 'common',
-                                          defaultValue:
-                                              'Review carefully — confirm insert'
-                                      })
-                                    : t('Insert into draft', {
-                                          ns: 'common',
-                                          defaultValue: 'Insert into draft'
-                                      })}
-                            </Button>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {suggestionText}
+                            </ReactMarkdown>
                         </Box>
                     ) : null}
+                    {sensitiveNote}
+                    {actionButtons(false)}
                 </Box>
             ) : null}
+
+            {/* Mobile: bottom sheet. Capped height keeps the thread visible
+                behind it, the body is the only scrolling region, and the
+                Dismiss / Insert actions are pinned to the footer so they can
+                never scroll out of reach. */}
+            <Drawer
+                PaperProps={{
+                    sx: {
+                        borderTopLeftRadius: 16,
+                        borderTopRightRadius: 16,
+                        maxHeight: '75vh',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }
+                }}
+                anchor="bottom"
+                onClose={() => setSheetOpen(false)}
+                open={isMobile && showSuggestion && sheetOpen}
+            >
+                {/* Grab handle — affords "tap/swipe down to minimize". */}
+                <Box
+                    onClick={() => setSheetOpen(false)}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        pt: 1,
+                        pb: 0.5,
+                        cursor: 'pointer',
+                        flexShrink: 0
+                    }}
+                >
+                    <Box
+                        sx={{
+                            width: 36,
+                            height: 4,
+                            borderRadius: 2,
+                            bgcolor: 'divider'
+                        }}
+                    />
+                </Box>
+
+                <Box
+                    sx={{
+                        alignItems: 'center',
+                        display: 'flex',
+                        gap: 0.5,
+                        px: 1.5,
+                        pb: 0.5,
+                        flexShrink: 0
+                    }}
+                >
+                    <AutoFixHighIcon color="primary" fontSize="small" />
+                    {statusLabel}
+                    <Box sx={{ flex: 1 }} />
+                    <IconButton
+                        aria-label="minimize ai suggestion"
+                        onClick={() => setSheetOpen(false)}
+                        size="small"
+                    >
+                        <KeyboardArrowDownIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                        aria-label="dismiss ai suggestion"
+                        disabled={streamingData.isGenerating}
+                        onClick={dismissSuggestion}
+                        size="small"
+                    >
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </Box>
+                <Divider />
+
+                <Box
+                    sx={{
+                        flex: 1,
+                        minHeight: 0,
+                        overflowY: 'auto',
+                        WebkitOverflowScrolling: 'touch',
+                        overscrollBehavior: 'contain',
+                        px: 1.5,
+                        py: 1
+                    }}
+                >
+                    {suggestionText ? (
+                        <Box sx={markdownSx}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {suggestionText}
+                            </ReactMarkdown>
+                        </Box>
+                    ) : null}
+                    {sensitiveNote}
+                </Box>
+
+                {!streamingData.isGenerating && suggestionText ? (
+                    <Box
+                        sx={{
+                            borderTop: '1px solid',
+                            borderColor: 'divider',
+                            px: 1.5,
+                            py: 1,
+                            // Clear the iOS home indicator.
+                            pb: 'calc(8px + env(safe-area-inset-bottom))',
+                            bgcolor: 'background.paper',
+                            flexShrink: 0
+                        }}
+                    >
+                        {actionButtons(true)}
+                    </Box>
+                ) : null}
+            </Drawer>
 
             {/* Preview a staged attachment before sending (same popup as
                 sent-message attachments). */}
