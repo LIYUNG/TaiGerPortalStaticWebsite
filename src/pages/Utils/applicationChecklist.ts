@@ -112,6 +112,33 @@ export const isEnglishOK = (
     return true;
 };
 
+/**
+ * Do this program's requirements call for the student's *general* recommendation
+ * letters?
+ *
+ * Two ways they don't: the program asks for no RLs at all (`rl_required` is a
+ * count string — "0", "1", "2" — so unset or "0" means none), or it wants
+ * program-specific letters (`is_rl_specific`), which live in the application's
+ * own doc_modification_thread rather than the student's general docs. Mirrors
+ * the `generalRLNotRequired` rule in GeneralRLRequirementsTab.
+ */
+export const isGeneralRLApplicable = (program?: IProgramWithId): boolean =>
+    Boolean(program?.rl_required) &&
+    program?.rl_required !== '0' &&
+    !program?.is_rl_specific;
+
+/**
+ * Matches on the `Recommendation_Letter_` prefix rather than listing A and B, so
+ * a third letter (Recommendation_Letter_C exists elsewhere in the app) is
+ * covered too.
+ */
+const isRecommendationLetterThread = (thread: {
+    doc_thread_id?: unknown;
+}): boolean => {
+    const docThread = thread.doc_thread_id as IDocumentthreadWithId | undefined;
+    return Boolean(docThread?.file_type?.startsWith('Recommendation_Letter_'));
+};
+
 /** Row for a document thread, used for both general and program-specific docs. */
 const threadItem = (
     idPrefix: string,
@@ -254,10 +281,20 @@ export const buildApplicationChecklist = (
     const language = student?.academic_background?.language;
     const studentId = student?._id?.toString() ?? '';
 
+    const generalRLApplicable = isGeneralRLApplicable(program);
+
     const items: (ApplicationChecklistItem | null)[] = [
-        ...(student?.generaldocs_threads ?? []).map((thread) =>
-            threadItem('general', thread, (fileType) => fileType)
-        ),
+        ...(student?.generaldocs_threads ?? [])
+            // A general RL is only this application's business when the program
+            // actually wants generic letters; otherwise it is noise on the
+            // checklist and a phantom point on the progress bar.
+            .filter(
+                (thread) =>
+                    generalRLApplicable || !isRecommendationLetterThread(thread)
+            )
+            .map((thread) =>
+                threadItem('general', thread, (fileType) => fileType)
+            ),
         englishItem(program, student),
         testItem(
             'german',

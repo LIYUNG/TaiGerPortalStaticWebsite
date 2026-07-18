@@ -1,5 +1,6 @@
 import {
     MouseEvent,
+    useMemo,
     useState,
     useEffect,
     ChangeEvent,
@@ -30,6 +31,7 @@ import {
     Typography
 } from '@mui/material';
 
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -37,7 +39,11 @@ import {
     is_TaiGer_Student,
     is_TaiGer_Admin
 } from '@taiger-common/core';
-import type { IUser, IStudentResponse } from '@taiger-common/model';
+import type {
+    IUser,
+    IStudentResponse,
+    IApplicationPopulated
+} from '@taiger-common/model';
 import type { Application } from '@/api/types';
 
 import {
@@ -48,6 +54,17 @@ import ApplicationTableRow, {
     type ApplicationTableRowStudent
 } from './components/ApplicationTableRow';
 import ApplicationsTableBanners from './components/ApplicationsTableBanners';
+import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
+import ApplicationsTableToolbar, {
+    type ApplicationStatusFilter
+} from './components/ApplicationsTableToolbar';
+import StudentApplicationCard from './components/StudentApplicationCard';
+import {
+    countApplicationStatuses,
+    getApplicationStage,
+    matchesApplicationSearch,
+    matchesApplicationStatus
+} from './components/applicationStatus';
 import { ConfirmDialog } from '@components/ConfirmDialog';
 import { APPLICATION_YEARS_FUTURE, programstatuslist } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -94,6 +111,13 @@ const StudentApplicationsTableTemplate = (
     const navigate = useNavigate();
 
     const [isMetaExpanded, setIsMetaExpanded] = useState(false);
+    const [statusFilter, setStatusFilter] =
+        useState<ApplicationStatusFilter>('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    // Side-by-side program comparison. Previously reachable only from the
+    // staff-facing SingleStudentPage; students need it to weigh their own
+    // options, so the toggle lives here for every role.
+    const [isDetailedView, setIsDetailedView] = useState(false);
     const {
         studentToShow,
         isSubmittingUpdate,
@@ -521,6 +545,39 @@ const StudentApplicationsTableTemplate = (
         showProgramCorrectnessReminderModal
     } = studentApplicationsTableTemplateState;
 
+    const allApplications = useMemo(
+        () => studentToShow.applications ?? [],
+        [studentToShow.applications]
+    );
+
+    const statusCounts = useMemo(
+        () => countApplicationStatuses(allApplications),
+        [allApplications]
+    );
+
+    // IMPORTANT: every handler resolves its target via
+    // `studentToShow.applications[application_idx]`, so the row must keep the
+    // index it has in the *unfiltered* array. Pairing them here means filtering
+    // can never make an edit land on the wrong application.
+    const visibleApplications = useMemo(
+        () =>
+            allApplications
+                .map((application, originalIndex) => ({
+                    application,
+                    originalIndex
+                }))
+                .filter(
+                    ({ application }) =>
+                        (statusFilter === 'all' ||
+                            matchesApplicationStatus(
+                                application,
+                                statusFilter
+                            )) &&
+                        matchesApplicationSearch(application, searchTerm)
+                ),
+        [allApplications, statusFilter, searchTerm]
+    );
+
     if (!isLoaded || !props.student) {
         return <Loading />;
     }
@@ -737,6 +794,31 @@ const StudentApplicationsTableTemplate = (
                                         {t('Add New Program')}
                                     </Button>
                                 ) : null}
+                                {/* Ungated on purpose — this stack's sibling
+                                    actions are staff-only, but comparison is
+                                    exactly what a student needs. */}
+                                {allApplications.length > 0 ? (
+                                    <Button
+                                        aria-pressed={isDetailedView}
+                                        color="secondary"
+                                        onClick={() =>
+                                            setIsDetailedView((prev) => !prev)
+                                        }
+                                        size="small"
+                                        startIcon={<CompareArrowsIcon />}
+                                        variant={
+                                            isDetailedView
+                                                ? 'contained'
+                                                : 'outlined'
+                                        }
+                                    >
+                                        {isDetailedView
+                                            ? t('Simple View', { ns: 'common' })
+                                            : t('Details View', {
+                                                  ns: 'common'
+                                              })}
+                                    </Button>
+                                ) : null}
                             </Stack>
                             {is_TaiGer_role(typedUser) ? (
                                 <Stack
@@ -757,105 +839,240 @@ const StudentApplicationsTableTemplate = (
                         </Stack>
                         <Box>
                             <ApplicationsTableBanners />
-                            <TableContainer style={{ overflowX: 'auto' }}>
-                                <Table size="small">
-                                    <TableHead>
-                                        <TableRow>
-                                            {!is_TaiGer_Student(typedUser) ? (
-                                                <TableCell>-</TableCell>
-                                            ) : null}
-                                            {programstatuslist.map(
-                                                (doc, index) => (
-                                                    <TableCell key={index}>
-                                                        <Typography>
-                                                            {t(doc.name, {
-                                                                ns: 'common'
-                                                            })}
-                                                        </Typography>
-                                                    </TableCell>
-                                                )
-                                            )}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {!studentToShow.applications ||
-                                        studentToShow.applications.length ===
-                                            0 ? (
+                            {allApplications.length > 0 ? (
+                                <ApplicationsTableToolbar
+                                    counts={statusCounts}
+                                    onSearchTermChange={setSearchTerm}
+                                    onStatusFilterChange={setStatusFilter}
+                                    searchTerm={searchTerm}
+                                    statusFilter={statusFilter}
+                                    total={allApplications.length}
+                                    visibleCount={visibleApplications.length}
+                                />
+                            ) : null}
+                            {isDetailedView && allApplications.length > 0 ? (
+                                visibleApplications.length === 0 ? (
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {t(
+                                            'No applications match the current filter.',
+                                            { ns: 'common' }
+                                        )}
+                                    </Typography>
+                                ) : (
+                                    // Fed the *filtered* list so the status
+                                    // chips keep working in this mode too.
+                                    <ProgramDetailsComparisonTable
+                                        applications={
+                                            visibleApplications.map(
+                                                ({ application }) => application
+                                            ) as unknown as IApplicationPopulated[]
+                                        }
+                                    />
+                                )
+                            ) : is_TaiGer_Student(typedUser) &&
+                              allApplications.length > 0 ? (
+                                // Students get one card per application: the
+                                // 11-column table answers "what is every field
+                                // set to", but a student needs "what do I still
+                                // have to do". Staff keep the table, which also
+                                // carries their delete/edit affordances.
+                                visibleApplications.length === 0 ? (
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 2 }}
+                                    >
+                                        {t(
+                                            'No applications match the current filter.',
+                                            { ns: 'common' }
+                                        )}
+                                    </Typography>
+                                ) : (
+                                    <Stack spacing={1.5} sx={{ mt: 1 }}>
+                                        {visibleApplications.map(
+                                            ({
+                                                application,
+                                                originalIndex
+                                            }) => (
+                                                <StudentApplicationCard
+                                                    application={application}
+                                                    application_idx={
+                                                        originalIndex
+                                                    }
+                                                    handleAdmissionResultChange={
+                                                        handleAdmissionResultChange
+                                                    }
+                                                    handleChange={handleChange}
+                                                    handleFinalEnrolmentChange={
+                                                        handleFinalEnrolmentChange
+                                                    }
+                                                    handleWithdraw={
+                                                        handleWithdraw
+                                                    }
+                                                    isSubmitting={
+                                                        isSubmittingUpdate
+                                                    }
+                                                    key={
+                                                        String(
+                                                            application._id
+                                                        ) || originalIndex
+                                                    }
+                                                    status={getApplicationStage(
+                                                        application
+                                                    )}
+                                                    student={
+                                                        studentToShow as unknown as IStudentResponse
+                                                    }
+                                                />
+                                            )
+                                        )}
+                                    </Stack>
+                                )
+                            ) : (
+                                <TableContainer
+                                    // Capped on desktop so the sticky header stays
+                                    // in view for a long list; uncapped on mobile,
+                                    // where a nested scroll region is unusable.
+                                    sx={{
+                                        overflowX: 'auto',
+                                        maxHeight: { xs: 'none', md: '70vh' }
+                                    }}
+                                >
+                                    <Table size="small" stickyHeader>
+                                        <TableHead>
                                             <TableRow>
                                                 {!is_TaiGer_Student(
                                                     typedUser
                                                 ) ? (
-                                                    <TableCell />
+                                                    <TableCell>-</TableCell>
                                                 ) : null}
-                                                <TableCell>
-                                                    <Typography>
-                                                        No University
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography>
-                                                        No Program
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography>
-                                                        No Date
-                                                    </Typography>
-                                                </TableCell>
-                                                {[...Array(10)].map((_, i) => (
-                                                    <TableCell key={i}>
+                                                {programstatuslist.map(
+                                                    (doc, index) => (
+                                                        <TableCell key={index}>
+                                                            <Typography>
+                                                                {t(doc.name, {
+                                                                    ns: 'common'
+                                                                })}
+                                                            </Typography>
+                                                        </TableCell>
+                                                    )
+                                                )}
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {!studentToShow.applications ||
+                                            studentToShow.applications
+                                                .length === 0 ? (
+                                                <TableRow>
+                                                    {!is_TaiGer_Student(
+                                                        typedUser
+                                                    ) ? (
+                                                        <TableCell />
+                                                    ) : null}
+                                                    <TableCell>
                                                         <Typography>
-                                                            {' '}
-                                                            -{' '}
+                                                            No University
                                                         </Typography>
                                                     </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ) : (
-                                            studentToShow.applications.map(
-                                                (
-                                                    application: Application,
-                                                    application_idx: number
-                                                ) => (
-                                                    <ApplicationTableRow
-                                                        key={application_idx}
-                                                        application={
-                                                            application
+                                                    <TableCell>
+                                                        <Typography>
+                                                            No Program
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography>
+                                                            No Date
+                                                        </Typography>
+                                                    </TableCell>
+                                                    {[...Array(10)].map(
+                                                        (_, i) => (
+                                                            <TableCell key={i}>
+                                                                <Typography>
+                                                                    {' '}
+                                                                    -{' '}
+                                                                </Typography>
+                                                            </TableCell>
+                                                        )
+                                                    )}
+                                                </TableRow>
+                                            ) : visibleApplications.length ===
+                                              0 ? (
+                                                <TableRow>
+                                                    <TableCell
+                                                        colSpan={
+                                                            programstatuslist.length +
+                                                            2
                                                         }
-                                                        application_idx={
-                                                            application_idx
-                                                        }
-                                                        handleChange={
-                                                            handleChange
-                                                        }
-                                                        handleDelete={
-                                                            handleDelete
-                                                        }
-                                                        handleEdit={handleEdit}
-                                                        handleAdmissionResultChange={
-                                                            handleAdmissionResultChange
-                                                        }
-                                                        handleFinalEnrolmentChange={
-                                                            handleFinalEnrolmentChange
-                                                        }
-                                                        isSubmitting={
-                                                            isSubmittingUpdate
-                                                        }
-                                                        handleWithdraw={
-                                                            handleWithdraw
-                                                        }
-                                                        studentToShow={
-                                                            studentToShow as ApplicationTableRowStudent
-                                                        }
-                                                        today={today}
-                                                        user={typedUser}
-                                                    />
+                                                    >
+                                                        <Typography
+                                                            color="text.secondary"
+                                                            sx={{ py: 1 }}
+                                                        >
+                                                            {t(
+                                                                'No applications match the current filter.',
+                                                                { ns: 'common' }
+                                                            )}
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                visibleApplications.map(
+                                                    ({
+                                                        application,
+                                                        originalIndex
+                                                    }: {
+                                                        application: Application;
+                                                        originalIndex: number;
+                                                    }) => (
+                                                        <ApplicationTableRow
+                                                            key={
+                                                                String(
+                                                                    application._id
+                                                                ) ||
+                                                                originalIndex
+                                                            }
+                                                            application={
+                                                                application
+                                                            }
+                                                            application_idx={
+                                                                originalIndex
+                                                            }
+                                                            handleChange={
+                                                                handleChange
+                                                            }
+                                                            handleDelete={
+                                                                handleDelete
+                                                            }
+                                                            handleEdit={
+                                                                handleEdit
+                                                            }
+                                                            handleAdmissionResultChange={
+                                                                handleAdmissionResultChange
+                                                            }
+                                                            handleFinalEnrolmentChange={
+                                                                handleFinalEnrolmentChange
+                                                            }
+                                                            isSubmitting={
+                                                                isSubmittingUpdate
+                                                            }
+                                                            handleWithdraw={
+                                                                handleWithdraw
+                                                            }
+                                                            studentToShow={
+                                                                studentToShow as ApplicationTableRowStudent
+                                                            }
+                                                            today={today}
+                                                            user={typedUser}
+                                                        />
+                                                    )
                                                 )
-                                            )
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            )}
                         </Box>
                     </Stack>
                 </Card>
