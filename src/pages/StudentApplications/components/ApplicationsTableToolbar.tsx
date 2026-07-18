@@ -45,8 +45,7 @@ const APPLICATION_STATUS_ICON: Record<ApplicationStatus, ReactElement> = {
 const APPLICATION_STATUS_HINT: Record<ApplicationStatus, string> = {
     pending: 'Programs not decided yet',
     decided: 'Decided programs, including submitted and finished ones',
-    inProgress:
-        'Decided but not submitted yet, excluding withdrawn — the ones still needing work',
+    inProgress: 'Decided but not submitted yet, excluding withdrawn',
     submitted: 'Submitted programs, including those with an offer result',
     admitted: 'Programs with an offer, including final enrolment',
     rejected: 'Programs rejected by the university',

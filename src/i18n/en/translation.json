@@ -384,5 +384,6 @@
         "timeMinutesAgo": "{{count}}m ago",
         "timeHoursAgo": "{{count}}h ago",
         "timeDaysAgo": "{{count}}d ago"
-    }
+    },
+    "Application Year": "Application Year"
 }

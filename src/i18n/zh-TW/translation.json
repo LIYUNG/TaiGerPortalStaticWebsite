@@ -419,5 +419,6 @@
         "timeMinutesAgo": "{{count}} 分鐘前",
         "timeHoursAgo": "{{count}} 小時前",
         "timeDaysAgo": "{{count}} 天前"
-    }
+    },
+    "Application Year": "申請年份"
 }
