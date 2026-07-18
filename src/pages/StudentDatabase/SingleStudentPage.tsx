@@ -427,8 +427,7 @@ export const SingleStudentPageMainContent = ({
                             )}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
-                                singleStudentPage.student.lastLoginAt ??
-                                    new Date()
+                                singleStudentPage.student.lastLoginAt || '-'
                             )}{' '}
                             <Button
                                 color="secondary"
