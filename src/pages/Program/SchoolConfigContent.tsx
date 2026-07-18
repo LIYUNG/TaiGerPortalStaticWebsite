@@ -2,6 +2,7 @@ import type { SelectChangeEvent } from '@mui/material';
 import {
     Box,
     Button,
+    CircularProgress,
     Drawer,
     FormControl,
     Grid,
@@ -41,9 +42,14 @@ export interface SchoolConfigEditCardProps {
 }
 
 const EditCard = (props: SchoolConfigEditCardProps) => {
+    // NOTE: this initialiser only runs on mount. The parent gives EditCard a
+    // `key` of the selected school so switching rows remounts it and this state
+    // is rebuilt from the new row — without that key React reuses the instance
+    // and the panel keeps showing the previously selected school.
     const [attributes, setAttributes] = useState<SchoolConfigEditCardData>(
         props.data
     );
+    const [isSaving, setIsSaving] = useState(false);
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<unknown>,
@@ -87,32 +93,45 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
         };
 
     const handleSave = async () => {
-        props.setDistinctSchoolsState((prevState) => {
-            // Check if the attributes object already exists in the state based on a unique key (e.g., id)
-            const index = prevState.findIndex(
-                (item) => item.school === attributes.school
-            );
-
-            if (index !== -1) {
-                // If found, update the existing object
-                return prevState.map((item, i) =>
-                    i === index ? { ...item, ...attributes } : item
+        setIsSaving(true);
+        try {
+            const resp = await updateSchoolAttributes(attributes);
+            const { success } = resp.data;
+            if (!success) {
+                setSeverity('error');
+                setMessage(
+                    resp.data?.message || 'An error occurred. Please try again.'
                 );
-            } else {
-                // If not found, add the new object to the array
-                return [...prevState, attributes];
+                setOpenSnackbar(true);
+                return;
             }
-        });
 
-        const resp = await updateSchoolAttributes(attributes);
-        const { success } = resp.data;
-        if (!success) {
-            setSeverity('error');
+            // Only mirror into the table once the write succeeded, so a failed
+            // save does not leave the row showing values the server rejected.
+            props.setDistinctSchoolsState((prevState) => {
+                const index = prevState.findIndex(
+                    (item) => item.school === attributes.school
+                );
+
+                if (index !== -1) {
+                    return prevState.map((item, i) =>
+                        i === index ? { ...item, ...attributes } : item
+                    );
+                }
+                return [...prevState, attributes];
+            });
+
+            setSeverity('success');
             setMessage(
-                resp.data?.message || 'An error occurred. Please try again.'
+                i18next.t('School configuration updated', { ns: 'common' })
             );
             setOpenSnackbar(true);
-            return;
+        } catch {
+            setSeverity('error');
+            setMessage('An error occurred. Please try again.');
+            setOpenSnackbar(true);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -133,18 +152,16 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     {String(attributes.count ?? '')}
                 </Typography>
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                    <InputLabel id="select-target-group">
+                    <InputLabel id="isPrivateSchool-label">
                         {i18next.t('Is Private School', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={String(
-                            attributes.isPrivateSchool ?? false
-                        )}
                         id="isPrivateSchool"
                         label={i18next.t('Is Private School', { ns: 'common' })}
-                        labelId="isPrivateSchool"
+                        labelId="isPrivateSchool-label"
                         name="isPrivateSchool"
                         onChange={(e) => handleChange(e, props.data.school)}
+                        value={String(attributes.isPrivateSchool ?? false)}
                     >
                         <MenuItem value="true">
                             {i18next.t('Yes', { ns: 'common' })}
@@ -155,18 +172,16 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     </Select>
                 </FormControl>
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                    <InputLabel id="select-target-group">
+                    <InputLabel id="isPartnerSchool-label">
                         {i18next.t('Is Partner School', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={String(
-                            attributes.isPartnerSchool ?? false
-                        )}
                         id="isPartnerSchool"
                         label={i18next.t('Is Partner School', { ns: 'common' })}
-                        labelId="isPartnerSchool"
+                        labelId="isPartnerSchool-label"
                         name="isPartnerSchool"
                         onChange={(e) => handleChange(e, props.data.school)}
+                        value={String(attributes.isPartnerSchool ?? false)}
                     >
                         <MenuItem value="true">
                             {i18next.t('Yes', { ns: 'common' })}
@@ -177,17 +192,23 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     </Select>
                 </FormControl>
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                    <InputLabel id="select-target-group">
+                    <InputLabel id="country-label">
                         {i18next.t('Country', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={attributes.country ?? '-'}
                         id="country"
                         label={i18next.t('Country', { ns: 'common' })}
-                        labelId="country"
+                        labelId="country-label"
                         name="country"
                         onChange={(e) => handleChange(e, props.data.school)}
+                        value={attributes.country ?? '-'}
                     >
+                        {/* Placeholder entry: schools with no country yet hold
+                            '-', which would otherwise be an out-of-range value
+                            for a controlled Select. */}
+                        <MenuItem value="-">
+                            {i18next.t('Please Select', { ns: 'common' })}
+                        </MenuItem>
                         {COUNTRIES_ARRAY_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
                                 {option.label}
@@ -196,16 +217,16 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     </Select>
                 </FormControl>
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                    <InputLabel id="select-target-group">
+                    <InputLabel id="schoolType-label">
                         {i18next.t('School Type', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={attributes.schoolType ?? '-'}
                         id="schoolType"
                         label={i18next.t('School Type', { ns: 'common' })}
-                        labelId="schoolType"
+                        labelId="schoolType-label"
                         name="schoolType"
                         onChange={(e) => handleChange(e, props.data.school)}
+                        value={attributes.schoolType ?? '-'}
                     >
                         <MenuItem value="-">
                             {i18next.t('Please Select', { ns: 'common' })}
@@ -230,7 +251,14 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     }
                 />
                 {/* Additional configuration details go here */}
-                <Button color="primary" type="submit" variant="contained">
+                <Button
+                    color="primary"
+                    disabled={isSaving}
+                    startIcon={isSaving ? <CircularProgress size={24} /> : null}
+                    sx={{ mt: 2 }}
+                    type="submit"
+                    variant="contained"
+                >
                     {i18next.t('Update', { ns: 'common' })}
                 </Button>
             </form>
@@ -242,114 +270,116 @@ interface SchoolConfigContentProps {
     data: SchoolConfigEditCardData[];
 }
 
-const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
-    const c1_mrt: Array<{
-        accessorKey: string;
-        filterVariant?: 'autocomplete';
-        filterFn?: string;
-        header: string;
-        size: number;
-        Cell?: (params: {
-            row: { original: SchoolConfigEditCardData };
-        }) => React.ReactNode;
-    }> = [
-        {
-            accessorKey: 'school',
-            filterVariant: 'autocomplete',
-            filterFn: 'contains',
-            header: 'School',
-            size: 240
-        },
-        {
-            accessorKey: 'count',
-            header: 'Count',
-            size: 150,
-            Cell: (params) => {
-                return (
-                    <Box
-                        sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {String(params.row.original?.count ?? '')}
-                    </Box>
-                );
-            }
-        },
-        {
-            accessorKey: 'schoolType',
-            header: 'School Type',
-            size: 150,
-            Cell: (params) => {
-                return (
-                    <Box
-                        sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {String(params.row.original?.schoolType ?? '')}
-                    </Box>
-                );
-            }
-        },
-        {
-            accessorKey: 'isPrivateSchool',
-            header: 'isPrivateSchool',
-            size: 150,
-            Cell: (params) => {
-                return (
-                    <Box
-                        sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {params.row.original?.isPrivateSchool ? 'Yes' : 'No'}
-                    </Box>
-                );
-            }
-        },
-        {
-            accessorKey: 'isPartnerSchool',
-            header: 'isPartnerSchool',
-            size: 150,
-            Cell: (params) => {
-                return (
-                    <Box
-                        sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {params.row.original?.isPartnerSchool ? 'Yes' : 'No'}
-                    </Box>
-                );
-            }
-        },
-        {
-            accessorKey: 'country',
-            header: 'Country',
-            size: 150,
-            Cell: (params) => {
-                return (
-                    <Box
-                        sx={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {String(params.row.original?.country ?? '')}
-                    </Box>
-                );
-            }
+// Column defs are static, so they live outside the component — building them
+// per render made the useMemo below a no-op (its dep changed every time).
+const c1_mrt: Array<{
+    accessorKey: string;
+    filterVariant?: 'autocomplete';
+    filterFn?: string;
+    header: string;
+    size: number;
+    Cell?: (params: {
+        row: { original: SchoolConfigEditCardData };
+    }) => React.ReactNode;
+}> = [
+    {
+        accessorKey: 'school',
+        filterVariant: 'autocomplete',
+        filterFn: 'contains',
+        header: 'School',
+        size: 240
+    },
+    {
+        accessorKey: 'count',
+        header: 'Count',
+        size: 150,
+        Cell: (params) => {
+            return (
+                <Box
+                    sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {String(params.row.original?.count ?? '')}
+                </Box>
+            );
         }
-    ];
+    },
+    {
+        accessorKey: 'schoolType',
+        header: 'School Type',
+        size: 150,
+        Cell: (params) => {
+            return (
+                <Box
+                    sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {String(params.row.original?.schoolType ?? '')}
+                </Box>
+            );
+        }
+    },
+    {
+        accessorKey: 'isPrivateSchool',
+        header: 'isPrivateSchool',
+        size: 150,
+        Cell: (params) => {
+            return (
+                <Box
+                    sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {params.row.original?.isPrivateSchool ? 'Yes' : 'No'}
+                </Box>
+            );
+        }
+    },
+    {
+        accessorKey: 'isPartnerSchool',
+        header: 'isPartnerSchool',
+        size: 150,
+        Cell: (params) => {
+            return (
+                <Box
+                    sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {params.row.original?.isPartnerSchool ? 'Yes' : 'No'}
+                </Box>
+            );
+        }
+    },
+    {
+        accessorKey: 'country',
+        header: 'Country',
+        size: 150,
+        Cell: (params) => {
+            return (
+                <Box
+                    sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {String(params.row.original?.country ?? '')}
+                </Box>
+            );
+        }
+    }
+];
 
+const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
     const [distinctSchoolsState, setDistinctSchoolsState] =
         useState<SchoolConfigEditCardData[]>(data);
-    const memoizedColumnsMrt = useMemo(() => c1_mrt, [c1_mrt]);
+    const memoizedColumnsMrt = useMemo(() => c1_mrt, []);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
         {}
@@ -359,6 +389,17 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
     const handleDrawerClose = () => {
         setDrawerOpen(false);
     };
+
+    // Resolve the selection to an actual row. Deselecting can leave a key
+    // mapped to `false`, so filter on the value rather than just taking
+    // Object.keys(...)[0], and tolerate an index that no longer exists.
+    const selectedSchool = useMemo(() => {
+        const selectedKey = Object.keys(rowSelection).find(
+            (key) => rowSelection[key]
+        );
+        if (selectedKey === undefined) return undefined;
+        return distinctSchoolsState[parseInt(selectedKey)];
+    }, [rowSelection, distinctSchoolsState]);
 
     const handleSchoolClick = (row: Record<string, boolean>) => {
         setRowSelection(row);
@@ -371,16 +412,7 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
         <>
             <Grid container spacing={2}>
                 {/* Left side: School list */}
-                <Grid
-                    item
-                    md={
-                        Object.keys(rowSelection) &&
-                        Object.keys(rowSelection)[0]
-                            ? 7
-                            : 12
-                    }
-                    xs={12}
-                >
+                <Grid item md={selectedSchool ? 7 : 12} xs={12}>
                     <ExampleWithLocalizationProvider
                         col={memoizedColumnsMrt}
                         data={distinctSchoolsState}
@@ -389,10 +421,21 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
                         muiTableBodyRowProps={(params) => {
                             const row = params.row as unknown as {
                                 getToggleSelectedHandler: () => () => void;
+                                getIsSelected: () => boolean;
                             };
+                            const isSelected = row.getIsSelected();
                             return {
                                 onClick: row.getToggleSelectedHandler(),
-                                sx: { cursor: 'pointer' }
+                                sx: {
+                                    cursor: 'pointer',
+                                    // Make the row the panel is describing
+                                    // obvious at a glance.
+                                    ...(isSelected
+                                        ? {
+                                              borderLeft: `3px solid ${theme.palette.primary.main}`
+                                          }
+                                        : {})
+                                }
                             };
                         }}
                         onRowSelectionChange={(updater) => {
@@ -407,25 +450,23 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
                 </Grid>
 
                 {/* Right side: Configuration panel */}
-                {!isSmallScreen ? (
+                {!isSmallScreen && selectedSchool ? (
                     <Grid item md={5} xs={12}>
-                        {Object.keys(rowSelection) &&
-                        Object.keys(rowSelection)[0] ? (
-                            <Paper style={{ padding: 16 }}>
-                                <EditCard
-                                    data={
-                                        distinctSchoolsState[
-                                            parseInt(
-                                                Object.keys(rowSelection)[0]
-                                            )
-                                        ]
-                                    }
-                                    setDistinctSchoolsState={
-                                        setDistinctSchoolsState
-                                    }
-                                />
-                            </Paper>
-                        ) : null}
+                        {/* `key` forces a remount when a different school is
+                            picked, resetting EditCard's local form state to the
+                            newly selected row. */}
+                        <Paper
+                            style={{ padding: 16 }}
+                            sx={{ position: 'sticky', top: 16 }}
+                        >
+                            <EditCard
+                                data={selectedSchool}
+                                key={String(selectedSchool.school)}
+                                setDistinctSchoolsState={
+                                    setDistinctSchoolsState
+                                }
+                            />
+                        </Paper>
                     </Grid>
                 ) : null}
             </Grid>
@@ -437,14 +478,10 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
                 open={drawerOpen}
             >
                 <div style={{ width: 300, padding: 16 }}>
-                    {Object.keys(rowSelection) &&
-                    Object.keys(rowSelection)[0] ? (
+                    {selectedSchool ? (
                         <EditCard
-                            data={
-                                distinctSchoolsState[
-                                    parseInt(Object.keys(rowSelection)[0])
-                                ]
-                            }
+                            data={selectedSchool}
+                            key={String(selectedSchool.school)}
                             setDistinctSchoolsState={setDistinctSchoolsState}
                         />
                     ) : (
