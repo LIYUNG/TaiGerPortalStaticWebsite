@@ -1,4 +1,5 @@
 import {
+    useMemo,
     useState,
     useEffect,
     type ComponentProps,
@@ -56,6 +57,14 @@ import UniAssistListCard from '../UniAssist/UniAssistListCard';
 import SurveyComponent from '../Survey/SurveyComponent';
 import CVProfileForm from '@components/CVProfileForm';
 import Notes from '../Notes/index';
+import ApplicationsTableToolbar, {
+    type ApplicationStatusFilter
+} from '@pages/StudentApplications/components/ApplicationsTableToolbar';
+import {
+    countApplicationStatuses,
+    matchesApplicationSearch,
+    matchesApplicationStatus
+} from '@pages/StudentApplications/components/applicationStatus';
 import ApplicationProgress from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress';
 import ApplicationProgressCards from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgressCards';
 import StudentDashboard from '@pages/Dashboard/StudentDashboard/StudentDashboard';
@@ -218,6 +227,50 @@ export const SingleStudentPageMainContent = ({
         const key = hash.replace('#', '') as keyof typeof SINGLE_STUDENT_TABS;
         return SINGLE_STUDENT_TABS[key] ?? 0;
     });
+
+    // Applications-tab filter, shared with the student-facing applications page
+    // so both read the same funnel. Everything on this tab is read-only, so
+    // filtering the list cannot misdirect an edit the way it could there.
+    const [applicationStatusFilter, setApplicationStatusFilter] =
+        useState<ApplicationStatusFilter>('all');
+    const [applicationSearchTerm, setApplicationSearchTerm] = useState('');
+    const isApplicationFiltered =
+        applicationStatusFilter !== 'all' ||
+        applicationSearchTerm.trim() !== '';
+
+    const allApplications = useMemo(
+        () => singleStudentPage.student?.applications ?? [],
+        [singleStudentPage.student?.applications]
+    );
+
+    const applicationStatusCounts = useMemo(
+        () => countApplicationStatuses(allApplications),
+        [allApplications]
+    );
+
+    const filteredApplications = useMemo(
+        () =>
+            allApplications.filter(
+                (application) =>
+                    (applicationStatusFilter === 'all' ||
+                        matchesApplicationStatus(
+                            application,
+                            applicationStatusFilter
+                        )) &&
+                    matchesApplicationSearch(application, applicationSearchTerm)
+            ),
+        [allApplications, applicationStatusFilter, applicationSearchTerm]
+    );
+
+    // The row/card views take a whole student, so hand them one whose
+    // applications are the filtered set.
+    const studentWithFilteredApplications = useMemo(
+        () => ({
+            ...singleStudentPage.student,
+            applications: filteredApplications
+        }),
+        [singleStudentPage.student, filteredApplications]
+    );
 
     // Keep tab in sync with URL hash (e.g. direct load with #portal or back/forward)
     useEffect(() => {
@@ -427,8 +480,7 @@ export const SingleStudentPageMainContent = ({
                             )}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
-                                singleStudentPage.student.lastLoginAt ??
-                                    new Date()
+                                singleStudentPage.student.lastLoginAt || '-'
                             )}{' '}
                             <Button
                                 color="secondary"
@@ -673,16 +725,46 @@ export const SingleStudentPageMainContent = ({
                                 />
                             </Stack>
                         </Box>
-                        {singleStudentPage.detailedView ? (
-                            <ProgramDetailsComparisonTable
-                                applications={
-                                    singleStudentPage.student?.applications ??
-                                    []
+                        {allApplications.length > 0 ? (
+                            <ApplicationsTableToolbar
+                                counts={applicationStatusCounts}
+                                onSearchTermChange={setApplicationSearchTerm}
+                                onStatusFilterChange={
+                                    setApplicationStatusFilter
                                 }
+                                searchTerm={applicationSearchTerm}
+                                statusFilter={applicationStatusFilter}
+                                total={allApplications.length}
+                                visibleCount={filteredApplications.length}
+                            />
+                        ) : null}
+                        {allApplications.length > 0 &&
+                        filteredApplications.length === 0 ? (
+                            <Typography color="text.secondary" sx={{ py: 2 }}>
+                                {t(
+                                    'No applications match the current filter.',
+                                    {
+                                        ns: 'common'
+                                    }
+                                )}
+                            </Typography>
+                        ) : singleStudentPage.detailedView ? (
+                            // Same treatment as the applications page: an
+                            // explicit filter overrides the 4-column default,
+                            // and the key remounts so previously picked columns
+                            // are not intersected with the new filter.
+                            <ProgramDetailsComparisonTable
+                                applications={filteredApplications}
+                                defaultVisibleCount={
+                                    isApplicationFiltered
+                                        ? filteredApplications.length
+                                        : undefined
+                                }
+                                key={`${applicationStatusFilter}-${applicationSearchTerm}`}
                             />
                         ) : isMobile ? (
                             <ApplicationProgressCards
-                                student={singleStudentPage.student}
+                                student={studentWithFilteredApplications}
                             />
                         ) : (
                             <TableContainer style={{ overflowX: 'auto' }}>
@@ -700,7 +782,9 @@ export const SingleStudentPageMainContent = ({
                                     </TableHead>
                                     <TableBody>
                                         <ApplicationProgress
-                                            student={singleStudentPage.student}
+                                            student={
+                                                studentWithFilteredApplications
+                                            }
                                         />
                                     </TableBody>
                                 </Table>

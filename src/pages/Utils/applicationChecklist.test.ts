@@ -67,6 +67,71 @@ describe('buildApplicationChecklist', () => {
         expect(items[2].label).toBe('ML essay');
     });
 
+    describe('general recommendation letters', () => {
+        const studentWithRLs = {
+            generaldocs_threads: [
+                thread('cv', true, 'CV'),
+                thread('rlA', false, 'Recommendation_Letter_A'),
+                thread('rlB', false, 'Recommendation_Letter_B')
+            ]
+        };
+
+        const idsFor = (programId: unknown) =>
+            build(studentWithRLs, { programId }).map((item) => item.id);
+
+        it('includes them when the program wants generic letters', () => {
+            expect(idsFor({ rl_required: '2', is_rl_specific: false })).toEqual(
+                ['general-cv', 'general-rlA', 'general-rlB', 'submit']
+            );
+        });
+
+        // The program wants letters tailored to it; those live on the
+        // application's own threads, so the generic ones are not this
+        // application's business.
+        it('excludes them when the program requires specific letters', () => {
+            expect(idsFor({ rl_required: '2', is_rl_specific: true })).toEqual([
+                'general-cv',
+                'submit'
+            ]);
+        });
+
+        it('excludes them when the program asks for no letters', () => {
+            expect(idsFor({ rl_required: '0', is_rl_specific: false })).toEqual(
+                ['general-cv', 'submit']
+            );
+            expect(idsFor({ is_rl_specific: false })).toEqual([
+                'general-cv',
+                'submit'
+            ]);
+        });
+
+        it('covers a third letter, not just A and B', () => {
+            const items = build(
+                {
+                    generaldocs_threads: [
+                        thread('rlC', false, 'Recommendation_Letter_C')
+                    ]
+                },
+                { programId: { rl_required: '1', is_rl_specific: true } }
+            );
+            expect(items.map((item) => item.id)).toEqual(['submit']);
+        });
+
+        it('keeps excluded letters out of the progress denominator', () => {
+            // CV done + Submit outstanding, with both RLs filtered away: the
+            // free portal point plus the CV point over 2 rows.
+            const specific = progress(studentWithRLs, {
+                programId: { rl_required: '2', is_rl_specific: true }
+            });
+            const generic = progress(studentWithRLs, {
+                programId: { rl_required: '2', is_rl_specific: false }
+            });
+            expect(specific).toBe(100);
+            // Same student, but two unfinished letters now count against them.
+            expect(generic).toBe(50);
+        });
+    });
+
     it('flags an English score that is below the program requirement', () => {
         const student = {
             academic_background: {

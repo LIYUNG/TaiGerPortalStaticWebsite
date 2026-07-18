@@ -34,6 +34,7 @@ import {
     application_deadline_V2_calculator
 } from '../../Utils/util_functions';
 import OverlayButton from '@components/Overlay/OverlayButton';
+import { getApplicationLocks } from './applicationLocks';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import type { IUser, IStudentResponse } from '@taiger-common/model';
@@ -103,10 +104,17 @@ const ApplicationTableRow = ({
     const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
     const isInteractionDisabled = isSubmitting || isSubmittingAdmission;
 
-    const canUpdateAdmission =
-        application.closed !== '-' &&
-        application.closed !== 'X' &&
-        !(application.finalEnrolment ?? false);
+    // Shared with the student card view so both honour the same one-way
+    // lifecycle; see applicationLocks.ts.
+    const locks = getApplicationLocks(application);
+    const { canUpdateAdmission, canUpdateSubmission } = locks;
+
+    const submissionLockReason = locks.submissionLockReason
+        ? t(locks.submissionLockReason, { ns: 'common' })
+        : '';
+    const admissionLockReason = locks.admissionLockReason
+        ? t(locks.admissionLockReason, { ns: 'common' })
+        : '';
 
     const admissionOptions: Array<{ value: AdmissionResult; label: string }> = [
         { value: '-', label: '-' },
@@ -276,26 +284,34 @@ const ApplicationTableRow = ({
                         ) &&
                         (!appConfig.vpdEnable ||
                             is_the_uni_assist_vpd_uploaded(application))) ? (
-                        <FormControl fullWidth>
-                            <Select
-                                id="closed"
-                                labelId="closed"
-                                name="closed"
-                                disabled={isInteractionDisabled}
-                                onChange={(e) =>
-                                    handleChange(e, application_idx)
-                                }
-                                size="small"
-                                value={application.closed}
-                            >
-                                <MenuItem value="-">
-                                    {t('Not Yet', { ns: 'common' })}
-                                </MenuItem>
-                                <MenuItem value="O">
-                                    {t('Submitted', { ns: 'common' })}
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
+                        <Tooltip arrow title={submissionLockReason}>
+                            <FormControl fullWidth>
+                                <Select
+                                    id="closed"
+                                    labelId="closed"
+                                    name="closed"
+                                    disabled={
+                                        !canUpdateSubmission ||
+                                        isInteractionDisabled
+                                    }
+                                    inputProps={{
+                                        'aria-label': 'submission status'
+                                    }}
+                                    onChange={(e) =>
+                                        handleChange(e, application_idx)
+                                    }
+                                    size="small"
+                                    value={application.closed}
+                                >
+                                    <MenuItem value="-">
+                                        {t('Not Yet', { ns: 'common' })}
+                                    </MenuItem>
+                                    <MenuItem value="O">
+                                        {t('Submitted', { ns: 'common' })}
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Tooltip>
                     ) : (
                         <OverlayButton
                             text={`Please make sure ${
@@ -330,34 +346,40 @@ const ApplicationTableRow = ({
             {isProgramDecided(application) &&
             isProgramSubmitted(application) ? (
                 <TableCell>
-                    <FormControl fullWidth>
-                        <Select
-                            disabled={
-                                !canUpdateAdmission || isInteractionDisabled
-                            }
-                            id="admission"
-                            labelId="admission"
-                            name="admission"
-                            inputProps={{ 'aria-label': 'admission result' }}
-                            onChange={(e) =>
-                                onClickAdmissionResult(
-                                    e.target.value as AdmissionResult
-                                )
-                            }
-                            size="small"
-                            value={currentAdmission}
-                        >
-                            {admissionOptions.map((option) => (
-                                <MenuItem
-                                    disabled={option.value === currentAdmission}
-                                    key={option.value}
-                                    value={option.value}
-                                >
-                                    {option.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Tooltip arrow title={admissionLockReason}>
+                        <FormControl fullWidth>
+                            <Select
+                                disabled={
+                                    !canUpdateAdmission || isInteractionDisabled
+                                }
+                                id="admission"
+                                labelId="admission"
+                                name="admission"
+                                inputProps={{
+                                    'aria-label': 'admission result'
+                                }}
+                                onChange={(e) =>
+                                    onClickAdmissionResult(
+                                        e.target.value as AdmissionResult
+                                    )
+                                }
+                                size="small"
+                                value={currentAdmission}
+                            >
+                                {admissionOptions.map((option) => (
+                                    <MenuItem
+                                        disabled={
+                                            option.value === currentAdmission
+                                        }
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Tooltip>
                 </TableCell>
             ) : (
                 <TableCell>-</TableCell>
@@ -372,6 +394,7 @@ const ApplicationTableRow = ({
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
+                            inputProps={{ 'aria-label': 'final enrolment' }}
                             disabled={isInteractionDisabled}
                             onChange={(e) =>
                                 handleFinalEnrolmentChange(

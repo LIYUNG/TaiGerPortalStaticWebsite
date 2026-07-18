@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@tanstack/react-query', async (orig) => ({
@@ -31,7 +31,13 @@ vi.mock('@taiger-common/core', () => ({
     is_TaiGer_Editor: vi.fn(() => false),
     is_TaiGer_Student: vi.fn(() => false),
     is_TaiGer_role: vi.fn(() => true),
-    isProgramDecided: vi.fn(() => false)
+    // Field-accurate (matching the real impls) so the applications-tab status
+    // filter derives real buckets rather than constants.
+    isProgramDecided: (a: { decided?: string }) => a?.decided === 'O',
+    isProgramSubmitted: (a: { closed?: string }) => a?.closed === 'O',
+    isProgramAdmitted: (a: { admission?: string }) => a?.admission === 'O',
+    isProgramRejected: (a: { admission?: string }) => a?.admission === 'X',
+    isProgramWithdraw: (a: { closed?: string }) => a?.closed === 'X'
 }));
 
 vi.mock('@contexts/use-snack-bar', () => ({
@@ -88,12 +94,24 @@ vi.mock('../Notes/index', () => ({
     default: () => <div data-testid="notes" />
 }));
 
+// Reports the programs it was handed so tests can assert the status filter
+// actually narrows the desktop table.
 vi.mock(
     '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress',
     () => ({
-        default: () => (
+        default: ({
+            student
+        }: {
+            student: {
+                applications?: { programId?: { program_name?: string } }[];
+            };
+        }) => (
             <tr data-testid="application-progress">
-                <td />
+                <td>
+                    {(student.applications ?? [])
+                        .map((a) => a.programId?.program_name)
+                        .join(',')}
+                </td>
             </tr>
         )
     })
@@ -134,7 +152,20 @@ vi.mock(
 );
 
 vi.mock('../Program/ProgramDetailsComparisonTable', () => ({
-    default: () => <div data-testid="program-details-comparison-table" />
+    default: ({
+        applications,
+        defaultVisibleCount
+    }: {
+        applications: { programId?: { program_name?: string } }[];
+        defaultVisibleCount?: number;
+    }) => (
+        <div
+            data-count={String(defaultVisibleCount)}
+            data-testid="program-details-comparison-table"
+        >
+            {applications.map((a) => a.programId?.program_name).join(',')}
+        </div>
+    )
 }));
 
 vi.mock('../Audit', () => ({
@@ -241,5 +272,95 @@ describe('SingleStudentPageMainContent', () => {
         expect(
             screen.getByTestId('program-language-not-matched-banner')
         ).toBeTruthy();
+    });
+
+    // Same funnel filter as the student-facing applications page. Everything on
+    // this tab is read-only, so narrowing the list cannot misdirect an edit.
+    describe('applications tab status filter', () => {
+        const program = (name: string) => ({
+            _id: `p-${name}`,
+            school: `${name} University`,
+            program_name: name,
+            degree: 'M. Sc.',
+            semester: 'WS'
+        });
+
+        // Alpha undecided, Beta decided-unsubmitted, Gamma admitted.
+        const applications = [
+            {
+                _id: 'a0',
+                decided: '-',
+                closed: '-',
+                admission: '-',
+                programId: program('Alpha')
+            },
+            {
+                _id: 'a1',
+                decided: 'O',
+                closed: '-',
+                admission: '-',
+                programId: program('Beta')
+            },
+            {
+                _id: 'a2',
+                decided: 'O',
+                closed: 'O',
+                admission: 'O',
+                programId: program('Gamma')
+            }
+        ];
+
+        const renderWithApplications = () =>
+            render(
+                <SingleStudentPageMainContent
+                    {...defaultProps}
+                    data={{ ...(mockStudent as object), applications } as never}
+                />,
+                { wrapper }
+            );
+
+        const chip = (name: string) => screen.getByRole('button', { name });
+        const progressRow = () => screen.getByTestId('application-progress');
+
+        it('offers a chip per occupied status bucket', () => {
+            renderWithApplications();
+            expect(chip('All 3')).toBeInTheDocument();
+            expect(chip('Not decided 1')).toBeInTheDocument();
+            // Cumulative: Beta and Gamma are both decided.
+            expect(chip('Decided 2')).toBeInTheDocument();
+            expect(chip('Admitted 1')).toBeInTheDocument();
+        });
+
+        it('narrows the desktop table to the selected status', () => {
+            renderWithApplications();
+            expect(progressRow()).toHaveTextContent('Alpha,Beta,Gamma');
+
+            fireEvent.click(chip('Admitted 1'));
+            expect(progressRow()).toHaveTextContent('Gamma');
+            expect(progressRow()).not.toHaveTextContent('Alpha');
+        });
+
+        it('explains an empty result rather than showing a blank table', () => {
+            renderWithApplications();
+            fireEvent.change(screen.getByLabelText('search applications'), {
+                target: { value: 'no-such-program' }
+            });
+
+            expect(
+                screen.queryByTestId('application-progress')
+            ).not.toBeInTheDocument();
+            expect(
+                screen.getByText('No applications match the current filter.')
+            ).toBeInTheDocument();
+        });
+
+        it('hides the toolbar when the student has no applications', () => {
+            render(<SingleStudentPageMainContent {...defaultProps} />, {
+                wrapper
+            });
+            expect(
+                screen.queryByRole('button', { name: /^All / })
+            ).not.toBeInTheDocument();
+        });
     });
 });

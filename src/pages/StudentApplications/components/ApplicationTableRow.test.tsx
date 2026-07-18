@@ -199,4 +199,121 @@ describe('ApplicationTableRow', () => {
             'O'
         );
     });
+
+    describe('lifecycle locks', () => {
+        // Reaching the submission/admission cells requires the row to consider
+        // the application decided and submitted.
+        const asDecidedAndSubmitted = async () => {
+            const { isProgramDecided, isProgramSubmitted, is_TaiGer_Student } =
+                await import('@taiger-common/core');
+            (is_TaiGer_Student as ReturnType<typeof vi.fn>).mockReturnValue(
+                false
+            );
+            (isProgramDecided as ReturnType<typeof vi.fn>).mockReturnValue(
+                true
+            );
+            (isProgramSubmitted as ReturnType<typeof vi.fn>).mockReturnValue(
+                true
+            );
+        };
+
+        const submissionSelect = () =>
+            screen.getByRole('combobox', { name: 'submission status' });
+        const admissionSelect = () =>
+            screen.getByRole('combobox', { name: 'admission result' });
+
+        it('allows submission changes while no offer result exists', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: '-'
+                }
+            });
+            // MUI omits aria-disabled entirely when the Select is enabled.
+            expect(submissionSelect()).not.toHaveAttribute(
+                'aria-disabled',
+                'true'
+            );
+        });
+
+        it('locks submission once the program is admitted', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: 'O'
+                }
+            });
+            expect(submissionSelect()).toHaveAttribute('aria-disabled', 'true');
+        });
+
+        it('locks submission once the program is rejected', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: 'X'
+                }
+            });
+            expect(submissionSelect()).toHaveAttribute('aria-disabled', 'true');
+        });
+
+        it('locks submission once final enrolment is confirmed', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: 'O',
+                    finalEnrolment: true
+                }
+            });
+            expect(submissionSelect()).toHaveAttribute('aria-disabled', 'true');
+        });
+
+        it('allows the offer result to change before final enrolment', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: 'O',
+                    finalEnrolment: false
+                }
+            });
+            expect(admissionSelect()).not.toHaveAttribute(
+                'aria-disabled',
+                'true'
+            );
+        });
+
+        it('locks the offer result once final enrolment is confirmed', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'O',
+                    admission: 'O',
+                    finalEnrolment: true
+                }
+            });
+            expect(admissionSelect()).toHaveAttribute('aria-disabled', 'true');
+        });
+
+        it('locks the offer result for a withdrawn program', async () => {
+            await asDecidedAndSubmitted();
+            renderRow({
+                application: {
+                    ...mockApplication,
+                    closed: 'X',
+                    admission: '-'
+                }
+            });
+            expect(admissionSelect()).toHaveAttribute('aria-disabled', 'true');
+        });
+    });
 });

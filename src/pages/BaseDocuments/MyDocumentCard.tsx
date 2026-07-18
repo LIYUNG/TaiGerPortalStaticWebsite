@@ -4,15 +4,22 @@ import {
     Box,
     Button,
     Checkbox,
+    Chip,
     CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
-    FormControlLabel,
+    Divider,
     Grid,
     IconButton,
+    LinearProgress,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Paper,
     Stack,
     TextField,
     Tooltip,
@@ -76,6 +83,148 @@ const StatusIcon = ({ st }: { st: string }) => {
     } else if (st === DocumentStatusType.Missing) {
         return FILE_MISSING_SYMBOL;
     }
+};
+
+interface DocumentChecklistPanelProps {
+    items: string[];
+    checkedIds: string[];
+    itemId: (index: number) => string;
+    onToggle: (id: string) => void;
+    onToggleAll: (checked: boolean) => void;
+}
+
+/**
+ * Review checklist shown beside the file preview. On desktop it is the right
+ * column and scrolls internally so the preview stays put; on mobile it stacks
+ * under the preview and renders in full — an inner scroll area nested in the
+ * dialog's own scroll is unusable on a small screen.
+ */
+const DocumentChecklistPanel = ({
+    items,
+    checkedIds,
+    itemId,
+    onToggle,
+    onToggleAll
+}: DocumentChecklistPanelProps) => {
+    const total = items.length;
+    const done = checkedIds.length;
+    const allChecked = total > 0 && done === total;
+
+    return (
+        <Paper
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                // Desktop: cap the height so the list scrolls inside the panel.
+                // Mobile: no cap, no inner scrollbar.
+                maxHeight: { xs: 'none', md: '70vh' }
+            }}
+            variant="outlined"
+        >
+            <Box sx={{ p: 2, pb: 1.5 }}>
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ mb: 1 }}
+                >
+                    <Typography fontWeight="bold" variant="subtitle1">
+                        {i18next.t('Checklist', { ns: 'common' })}
+                    </Typography>
+                    <Chip
+                        color={allChecked ? 'success' : 'default'}
+                        label={`${done} / ${total}`}
+                        size="small"
+                    />
+                </Stack>
+                <LinearProgress
+                    color={allChecked ? 'success' : 'primary'}
+                    sx={{ borderRadius: 1, height: 6 }}
+                    value={total === 0 ? 0 : (done / total) * 100}
+                    variant="determinate"
+                />
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ mt: 1 }}
+                >
+                    <Typography color="text.secondary" variant="caption">
+                        {allChecked
+                            ? i18next.t('All points confirmed', {
+                                  ns: 'common'
+                              })
+                            : i18next.t('Confirm every point to accept', {
+                                  ns: 'common'
+                              })}
+                    </Typography>
+                    <Button
+                        onClick={() => onToggleAll(!allChecked)}
+                        size="small"
+                    >
+                        {allChecked
+                            ? i18next.t('Clear all', { ns: 'common' })
+                            : i18next.t('Check all', { ns: 'common' })}
+                    </Button>
+                </Stack>
+            </Box>
+            <Divider />
+            <List
+                dense
+                sx={{
+                    py: 0,
+                    overflowY: { xs: 'visible', md: 'auto' },
+                    minHeight: 0
+                }}
+            >
+                {items.map((item, index) => {
+                    const id = itemId(index);
+                    const checked = checkedIds.includes(id);
+                    return (
+                        <ListItemButton
+                            divider={index < total - 1}
+                            key={id}
+                            // Whole row is the hit target, not just the box.
+                            onClick={() => onToggle(id)}
+                            sx={{
+                                alignItems: 'flex-start',
+                                py: 1,
+                                bgcolor: checked
+                                    ? 'action.selected'
+                                    : 'transparent'
+                            }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 36, mt: 0.25 }}>
+                                <Checkbox
+                                    checked={checked}
+                                    disableRipple
+                                    edge="start"
+                                    // Row click owns the toggle; readOnly keeps
+                                    // React from warning about a controlled
+                                    // input with no onChange.
+                                    inputProps={{
+                                        'aria-label': item,
+                                        readOnly: true
+                                    }}
+                                    size="small"
+                                    tabIndex={-1}
+                                />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={item}
+                                primaryTypographyProps={{
+                                    variant: 'body2',
+                                    color: checked
+                                        ? 'text.secondary'
+                                        : 'text.primary'
+                                }}
+                            />
+                        </ListItemButton>
+                    );
+                })}
+            </List>
+        </Paper>
+    );
 };
 
 interface SingleDocumentCardProps {
@@ -358,6 +507,11 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
             setRejectProfileFileModelOpen(false);
             setAcceptProfileFileModelOpen(false);
             setShowPreview(false);
+            // Keep the checklist in step with the dialog it belongs to.
+            setMyDocumentCardState((prevState) => ({
+                ...prevState,
+                checkedBoxes: []
+            }));
         }
     });
 
@@ -549,24 +703,46 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         });
     };
 
-    const onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const id = e.target.id;
-        const isChecked = e.target.checked;
-        const temp_checkedBoxes = [...MyDocumentCardState.checkedBoxes];
-        if (isChecked) {
-            // Add the ID to the list
-            temp_checkedBoxes.push(id);
-        } else {
-            // Remove the ID from the list
-            const index = temp_checkedBoxes.indexOf(id);
-            if (index > -1) {
-                temp_checkedBoxes.splice(index, 1);
-            }
-        }
+    const checklistItems =
+        (base_documents_checklist as Record<string, string[]>)[
+            props.category
+        ] ?? [];
 
+    // Index-based so two identically worded check items cannot collide on the
+    // same id (the old `${check_item}-${i}` was text-derived).
+    const checklistItemId = (index: number) =>
+        `${props.category}-check-${index}`;
+
+    const remainingCheckPoints =
+        MyDocumentCardState.num_points -
+        MyDocumentCardState.checkedBoxes.length;
+
+    const onToggleCheck = (id: string) => {
         setMyDocumentCardState((prevState) => ({
             ...prevState,
-            checkedBoxes: temp_checkedBoxes
+            checkedBoxes: prevState.checkedBoxes.includes(id)
+                ? prevState.checkedBoxes.filter((boxId) => boxId !== id)
+                : [...prevState.checkedBoxes, id]
+        }));
+    };
+
+    const onToggleAllChecks = (checked: boolean) => {
+        setMyDocumentCardState((prevState) => ({
+            ...prevState,
+            checkedBoxes: checked
+                ? checklistItems.map((_, index) => checklistItemId(index))
+                : []
+        }));
+    };
+
+    // The dialog unmounts its contents on close, so the checklist must be
+    // cleared alongside it — otherwise reopening shows empty checkboxes while
+    // `checkedBoxes` still holds the old ticks, leaving Accept wrongly enabled.
+    const closePreview = () => {
+        setShowPreview(false);
+        setMyDocumentCardState((prevState) => ({
+            ...prevState,
+            checkedBoxes: []
         }));
     };
 
@@ -717,110 +893,118 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                 aria-labelledby="contained-modal-title-vcenter2"
                 fullWidth={true}
                 maxWidth="xl"
-                onClose={() => setShowPreview(false)}
+                onClose={closePreview}
                 open={showPreview}
             >
                 <DialogTitle>{fileName}</DialogTitle>
-                <FilePreview
-                    apiFilePath={apiPath}
-                    path={`${MyDocumentCardState.student_id}/${fileName}`}
-                />
-                <DialogContent>
-                    {is_TaiGer_AdminAgent(user as IUserWithId) ? (
-                        <>
-                            <Typography fontWeight="bold" variant="body1">
-                                {(
-                                    base_documents_checklist as Record<
-                                        string,
-                                        string[]
-                                    >
-                                )[props.category] &&
-                                (
-                                    base_documents_checklist as Record<
-                                        string,
-                                        string[]
-                                    >
-                                )[props.category].length !== 0
-                                    ? 'Check list: Please check the following points so that you can flag this document as valid.'
-                                    : null}
-                            </Typography>
-                            {(
-                                base_documents_checklist as Record<
-                                    string,
-                                    string[]
+                <DialogContent dividers sx={{ p: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: { xs: 'column', md: 'row' },
+                            gap: 2,
+                            alignItems: 'flex-start'
+                        }}
+                    >
+                        {/* Left: the document itself. minWidth:0 stops a wide
+                            preview from pushing the checklist off-screen. */}
+                        <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
+                            <FilePreview
+                                apiFilePath={apiPath}
+                                path={`${MyDocumentCardState.student_id}/${fileName}`}
+                            />
+                            {fileName && fileName.split('.')[1] !== 'pdf' ? (
+                                <a
+                                    download
+                                    href={`${BASE_URL}${apiPath}`}
+                                    rel="noopener noreferrer"
+                                    target="_blank"
                                 >
-                            )[props.category]
-                                ? (
-                                      base_documents_checklist as Record<
-                                          string,
-                                          string[]
-                                      >
-                                  )[props.category].map(
-                                      (check_item: string, i: number) => (
-                                          <FormControlLabel
-                                              control={
-                                                  <Checkbox
-                                                      id={`${check_item}-${i}`}
-                                                      onChange={(e) =>
-                                                          onChecked(e)
-                                                      }
-                                                  />
-                                              }
-                                              key={i}
-                                              label={`${check_item}`}
-                                          />
-                                      )
-                                  )
-                                : t('No', { ns: 'common' })}
-                        </>
-                    ) : null}
-                    {fileName && fileName.split('.')[1] !== 'pdf' ? (
-                        <a
-                            download
-                            href={`${BASE_URL}${apiPath}`}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                        >
-                            <Button
-                                color="primary"
-                                size="small"
-                                startIcon={<FileDownloadIcon />}
-                                title="Download"
-                                variant="contained"
+                                    <Button
+                                        color="primary"
+                                        size="small"
+                                        startIcon={<FileDownloadIcon />}
+                                        sx={{ mt: 2 }}
+                                        title="Download"
+                                        variant="contained"
+                                    >
+                                        {t('Download', { ns: 'common' })}
+                                    </Button>
+                                </a>
+                            ) : null}
+                        </Box>
+
+                        {/* Right (desktop) / below (mobile): review checklist.
+                            Sticky so it stays beside the document while the
+                            agent scrolls a long preview. */}
+                        {is_TaiGer_AdminAgent(user as IUserWithId) &&
+                        checklistItems.length !== 0 ? (
+                            <Box
+                                sx={{
+                                    width: { xs: '100%', md: 380 },
+                                    flexShrink: 0,
+                                    position: { xs: 'static', md: 'sticky' },
+                                    top: 0
+                                }}
                             >
-                                {t('Download', { ns: 'common' })}
-                            </Button>
-                        </a>
-                    ) : null}
+                                <DocumentChecklistPanel
+                                    checkedIds={
+                                        MyDocumentCardState.checkedBoxes
+                                    }
+                                    itemId={checklistItemId}
+                                    items={checklistItems}
+                                    onToggle={onToggleCheck}
+                                    onToggleAll={onToggleAllChecks}
+                                />
+                            </Box>
+                        ) : null}
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     {is_TaiGer_AdminAgent(user as IUserWithId) ? (
                         <>
                             {status !== DocumentStatusType.Accepted ? (
-                                <Button
-                                    color="primary"
-                                    disabled={
-                                        !MyDocumentCardState.isLoaded ||
-                                        MyDocumentCardState.num_points !==
-                                            MyDocumentCardState.checkedBoxes
-                                                .length
+                                // Tooltip needs a real DOM node to hang off:
+                                // a disabled button fires no events, hence the
+                                // wrapping span.
+                                <Tooltip
+                                    title={
+                                        MyDocumentCardState.isLoaded &&
+                                        remainingCheckPoints > 0
+                                            ? `${remainingCheckPoints} ${t(
+                                                  'checklist point(s) left to confirm',
+                                                  { ns: 'common' }
+                                              )}`
+                                            : ''
                                     }
-                                    onClick={(e) =>
-                                        onUpdateProfileDocStatus(
-                                            e,
-                                            props.category,
-                                            MyDocumentCardState.student_id,
-                                            DocumentStatusType.Accepted
-                                        )
-                                    }
-                                    size="small"
-                                    startIcon={<CheckIcon />}
-                                    sx={{ mr: 2 }}
-                                    title="Mark as finished"
-                                    variant="contained"
                                 >
-                                    {t('Accept', { ns: 'common' })}
-                                </Button>
+                                    <span>
+                                        <Button
+                                            color="primary"
+                                            disabled={
+                                                !MyDocumentCardState.isLoaded ||
+                                                MyDocumentCardState.num_points !==
+                                                    MyDocumentCardState
+                                                        .checkedBoxes.length
+                                            }
+                                            onClick={(e) =>
+                                                onUpdateProfileDocStatus(
+                                                    e,
+                                                    props.category,
+                                                    MyDocumentCardState.student_id,
+                                                    DocumentStatusType.Accepted
+                                                )
+                                            }
+                                            size="small"
+                                            startIcon={<CheckIcon />}
+                                            sx={{ mr: 2 }}
+                                            title="Mark as finished"
+                                            variant="contained"
+                                        >
+                                            {t('Accept', { ns: 'common' })}
+                                        </Button>
+                                    </span>
+                                </Tooltip>
                             ) : null}
                             <Button
                                 color="secondary"
@@ -844,7 +1028,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                         </>
                     ) : null}
                     <Button
-                        onClick={() => setShowPreview(false)}
+                        onClick={closePreview}
                         size="small"
                         variant="outlined"
                     >
