@@ -53,11 +53,16 @@ vi.mock('./components/ApplicationsTableBanners', () => ({
 // view honours the active status/search filter.
 vi.mock('../Program/ProgramDetailsComparisonTable', () => ({
     default: ({
-        applications
+        applications,
+        defaultVisibleCount
     }: {
         applications: { programId?: { program_name?: string } }[];
+        defaultVisibleCount?: number;
     }) => (
-        <div data-testid="comparison-table">
+        <div
+            data-count={String(defaultVisibleCount)}
+            data-testid="comparison-table"
+        >
             {applications.map((a) => a.programId?.program_name).join(',')}
         </div>
     )
@@ -468,6 +473,43 @@ describe('StudentApplicationsTableTemplate', () => {
             expect(
                 screen.getByText('No applications match the current filter.')
             ).toBeInTheDocument();
+        });
+
+        // Regression: the comparison table caps itself at 4 preselected columns
+        // and remembers the user's picks, so a status filter could show fewer
+        // programs than the chip claimed. The parent now overrides the cap and
+        // remounts on filter change.
+        it('lets an active filter drive every comparison column', () => {
+            renderTemplate({
+                student: {
+                    ...mockStudent,
+                    applications: [
+                        ...applications,
+                        {
+                            _id: 'a2',
+                            decided: 'O',
+                            closed: 'O',
+                            admission: '-',
+                            programId: program('Gamma')
+                        }
+                    ]
+                }
+            });
+
+            fireEvent.click(toggle());
+            // Unfiltered: the component keeps its own 4-column default.
+            expect(screen.getByTestId('comparison-table')).toHaveAttribute(
+                'data-count',
+                'undefined'
+            );
+
+            // Decided is cumulative, so Beta (unsubmitted) and Gamma
+            // (submitted) both qualify — and both must get a column.
+            fireEvent.click(screen.getByRole('button', { name: 'Decided 2' }));
+            const table = screen.getByTestId('comparison-table');
+            expect(table).toHaveAttribute('data-count', '2');
+            expect(table).toHaveTextContent('Beta');
+            expect(table).toHaveTextContent('Gamma');
         });
 
         it('hides the toggle when the student has no applications', () => {

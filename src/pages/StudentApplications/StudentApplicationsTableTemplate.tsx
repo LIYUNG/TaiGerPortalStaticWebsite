@@ -118,6 +118,9 @@ const StudentApplicationsTableTemplate = (
     // staff-facing SingleStudentPage; students need it to weigh their own
     // options, so the toggle lives here for every role.
     const [isDetailedView, setIsDetailedView] = useState(false);
+    // Whether the user narrowed the list themselves, as opposed to seeing
+    // everything by default.
+    const isFiltered = statusFilter !== 'all' || searchTerm.trim() !== '';
     const {
         studentToShow,
         isSubmittingUpdate,
@@ -864,12 +867,28 @@ const StudentApplicationsTableTemplate = (
                                 ) : (
                                     // Fed the *filtered* list so the status
                                     // chips keep working in this mode too.
+                                    //
+                                    // `key` remounts on filter change: the
+                                    // comparison table remembers which programs
+                                    // the user picked as columns, and those
+                                    // stale picks would otherwise be intersected
+                                    // with the new filter, showing fewer
+                                    // programs than the chip implies (or none).
+                                    // `defaultVisibleCount` overrides its
+                                    // built-in 4-column cap so an explicit
+                                    // filter shows every program it selected.
                                     <ProgramDetailsComparisonTable
                                         applications={
                                             visibleApplications.map(
                                                 ({ application }) => application
                                             ) as unknown as IApplicationPopulated[]
                                         }
+                                        defaultVisibleCount={
+                                            isFiltered
+                                                ? visibleApplications.length
+                                                : undefined
+                                        }
+                                        key={`${statusFilter}-${searchTerm}`}
                                     />
                                 )
                             ) : is_TaiGer_Student(typedUser) &&

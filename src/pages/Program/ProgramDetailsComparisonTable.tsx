@@ -47,9 +47,18 @@ const getProgramLabel = (application: IApplicationPopulated) =>
         .join(' - ');
 
 const ProgramDetailsComparisonTable = ({
-    applications
+    applications,
+    defaultVisibleCount
 }: {
     applications: IApplicationPopulated[];
+    /**
+     * How many programs get a column before the user picks. Defaults to
+     * DEFAULT_VISIBLE_PROGRAMS so an unfiltered list does not explode into
+     * twenty columns. Callers that already narrowed the list themselves (e.g.
+     * a status filter) pass its length, so every program they selected is
+     * actually shown.
+     */
+    defaultVisibleCount?: number;
 }) => {
     const { t } = useTranslation();
     const [hideIdenticalRows, setHideIdenticalRows] = useState(false);
@@ -75,11 +84,14 @@ const ProgramDetailsComparisonTable = ({
             String(application._id)
         );
         if (pickedProgramIds === null) {
-            return availableIds.slice(0, DEFAULT_VISIBLE_PROGRAMS);
+            return availableIds.slice(
+                0,
+                defaultVisibleCount ?? DEFAULT_VISIBLE_PROGRAMS
+            );
         }
         // A program the student dropped shouldn't linger in the picker.
         return pickedProgramIds.filter((id) => availableIds.includes(id));
-    }, [applications, pickedProgramIds]);
+    }, [applications, pickedProgramIds, defaultVisibleCount]);
 
     const selectedApplications = useMemo(
         () =>
