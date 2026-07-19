@@ -42,12 +42,6 @@ vi.mock('@hooks/useApplicationStudent', () => ({
     }))
 }));
 
-vi.mock('@/api', () => ({
-    updateBanner: vi.fn(() =>
-        Promise.resolve({ data: { success: true }, status: 200 })
-    )
-}));
-
 vi.mock('../../Utils/util_functions', () => ({
     check_academic_background_filled: vi.fn(() => true),
     check_applications_to_decided: vi.fn(() => true),
@@ -105,20 +99,14 @@ vi.mock('@store/constant', () => ({
         BASE_DOCUMENTS_LINK: '/base-documents',
         CV_ML_RL_CENTER_LINK_TAB: vi.fn((tab: string) => `/cv-ml-rl/${tab}`),
         SINGLE_PROGRAM_LINK: vi.fn((id: string) => `/program/${id}`),
+        STUDENT_APPLICATIONS_ID_LINK: vi.fn(
+            (id: string) => `/student-applications/${id}`
+        ),
         EVENT_STUDENT_STUDENTID_LINK: vi.fn((id: string) => `/event/${id}`)
     }
 }));
 
 import StudentDashboard from './StudentDashboard';
-
-const mockStudent = {
-    _id: 'std1',
-    firstname: 'John',
-    lastname: 'Doe',
-    agents: [],
-    applications: [],
-    notification: {}
-} as unknown;
 
 const wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={['/dashboard/std1']}>
@@ -130,37 +118,19 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 describe('StudentDashboard', () => {
     it('renders without crashing', () => {
-        render(
-            <StudentDashboard
-                isCoursesFilled={true}
-                student={mockStudent as never}
-            />,
-            { wrapper }
-        );
+        render(<StudentDashboard isCoursesFilled={true} />, { wrapper });
         expect(
             screen.getByTestId('program-language-not-matched-banner')
         ).toBeTruthy();
     });
 
     it('renders the english cert expired banner', () => {
-        render(
-            <StudentDashboard
-                isCoursesFilled={true}
-                student={mockStudent as never}
-            />,
-            { wrapper }
-        );
+        render(<StudentDashboard isCoursesFilled={true} />, { wrapper });
         expect(screen.getByTestId('english-cert-expired-banner')).toBeTruthy();
     });
 
     it('renders the student task list', () => {
-        render(
-            <StudentDashboard
-                isCoursesFilled={true}
-                student={mockStudent as never}
-            />,
-            { wrapper }
-        );
+        render(<StudentDashboard isCoursesFilled={true} />, { wrapper });
         expect(screen.getByTestId('student-task-list')).toBeTruthy();
     });
 });

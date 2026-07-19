@@ -143,7 +143,6 @@ import {
     type GetStudentCoursesResponse,
     type UpdateStudentCoursesResponse,
     // Account
-    type UpdateBannerResponse,
     type UpdateAgentBannerResponse,
     type UpdateAcademicBackgroundResponse,
     type UpdateLanguageSkillResponse,
@@ -1802,12 +1801,6 @@ export const initApplicationMessageThread = (
     request.post<InitApplicationThreadResponse>(
         `/api/document-threads/init/application/${studentId}/${applicationId}/${document_catgory}`
     );
-
-// remove Banner/notification
-export const updateBanner = (notification_key: string) =>
-    request.post<UpdateBannerResponse>(`/api/account/student/notifications`, {
-        notification_key
-    });
 
 export const updateAgentBanner = (
     notification_key: string,

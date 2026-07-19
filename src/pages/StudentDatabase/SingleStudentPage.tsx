@@ -915,7 +915,6 @@ export const SingleStudentPageMainContent = ({
                         </Typography>
                     </Alert>
                     <StudentDashboard
-                        student={singleStudentPage.student}
                         isCoursesFilled={!!singleStudentPage.student.courses}
                     />
                 </>

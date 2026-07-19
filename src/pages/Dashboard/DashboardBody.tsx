@@ -70,7 +70,7 @@ const DashboardBody = () => {
                 // StudentDashboard re-fetches the signed-in student itself; the
                 // `student` prop only seeds unread state and `isCoursesFilled`
                 // was previously undefined (falsy) on this path.
-                <StudentDashboard isCoursesFilled={false} student={user} />
+                <StudentDashboard isCoursesFilled={false} />
             ) : null}
             {user !== null && is_TaiGer_Guest(user) ? <GuestDashboard /> : null}
         </Box>
