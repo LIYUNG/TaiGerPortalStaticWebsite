@@ -54,14 +54,10 @@ const StudentDashboard = ({ isCoursesFilled }: StudentDashboardProps) => {
     const studentId =
         user && is_TaiGer_Student(user as IUser) ? user._id : stdIdParam;
     const {
-        data: fetchedStudent,
+        data: student,
         archiv,
         isLoading: isLoadingApplications
     } = useApplicationStudent(studentId);
-    // The prop seeds the view: the hook owns the application data, but falling
-    // back to it keeps the panels rendering off the caller's copy if the query
-    // resolves empty rather than blanking the dashboard.
-    const student = fetchedStudent;
 
     if (isLoadingApplications) {
         return <Loading />;
