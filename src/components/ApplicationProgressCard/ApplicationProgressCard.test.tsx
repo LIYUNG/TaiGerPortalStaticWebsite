@@ -7,10 +7,14 @@ vi.mock('../AuthProvider', () => ({
     useAuth: () => ({ user: { _id: 'user1', role: 'Student' } })
 }));
 
+// Field-accurate: the status chip derives its stage from these, so constant
+// stubs would make every card read the same.
 vi.mock('@taiger-common/core', () => ({
-    isProgramAdmitted: vi.fn(() => false),
-    isProgramRejected: vi.fn(() => false),
-    isProgramSubmitted: vi.fn(() => false)
+    isProgramAdmitted: (a: { admission?: string }) => a?.admission === 'O',
+    isProgramRejected: (a: { admission?: string }) => a?.admission === 'X',
+    isProgramSubmitted: (a: { closed?: string }) => a?.closed === 'O',
+    isProgramDecided: (a: { decided?: string }) => a?.decided === 'O',
+    isProgramWithdraw: (a: { closed?: string }) => a?.closed === 'X'
 }));
 
 vi.mock('@store/constant', () => ({
@@ -80,6 +84,10 @@ const mockApplication = {
         program_name: 'Computer Science',
         semester: 'WS'
     },
+    // Decided by default: the checklist affordance only exists once the student
+    // has committed to the programme.
+    decided: 'O',
+    closed: '-',
     admission: '-',
     doc_modification_thread: []
 };
@@ -114,10 +122,26 @@ describe('ApplicationProgressCard', () => {
         expect(screen.getByText(/Computer Science/)).toBeDefined();
     });
 
-    it('renders the semester on the same row as the deadline', () => {
-        const semester = screen.getByText('WS');
+    // Semester answers "which intake", so it belongs with the programme
+    // identity rather than with the deadline it used to share a row with.
+    it('renders the semester alongside the degree and program name', () => {
+        expect(
+            screen.getByText('MSc · Computer Science · WS')
+        ).toBeInTheDocument();
+    });
+
+    // Three independent signals: lock (can I edit), deadline (when), status
+    // (where it got to). Folding them together meant the deadline vanished the
+    // moment an application was submitted.
+    it('renders lock, deadline and status as separate signals', () => {
+        const schoolRow = screen.getByRole('link', {
+            name: /TU Munich/
+        }).parentElement;
+
+        expect(schoolRow).toContainElement(screen.getByTestId('lock-control'));
         // '30 days' is the mocked application_deadline_V2_calculator output.
-        expect(semester.parentElement).toHaveTextContent('30 days');
+        expect(schoolRow).toHaveTextContent('30 days');
+        expect(schoolRow).toHaveTextContent('Decided');
     });
 
     it('links the school name to the program and keeps the lock chip on its row', () => {
@@ -170,5 +194,38 @@ describe('ApplicationProgressCard', () => {
         );
         expect(region).not.toBeNull();
         expect(region).toContainElement(screen.getByTestId('card-body'));
+    });
+});
+
+// Rendered separately: the shared beforeEach mounts a decided application.
+describe('ApplicationProgressCard — undecided programme', () => {
+    const renderUndecided = () =>
+        render(
+            <MemoryRouter>
+                <ApplicationProgressCard
+                    application={{ ...mockApplication, decided: '-' }}
+                    student={mockStudent}
+                />
+            </MemoryRouter>
+        );
+
+    // Tasks for a programme the student has not committed to are not owed yet,
+    // so the checklist is not merely collapsed — it is not offered at all.
+    it('hides the checklist control and body entirely', () => {
+        renderUndecided();
+
+        expect(
+            screen.queryByRole('button', { name: /Show checklist/ })
+        ).not.toBeInTheDocument();
+        expect(screen.queryByTestId('card-body')).not.toBeInTheDocument();
+    });
+
+    it('still shows the programme identity and status', () => {
+        renderUndecided();
+
+        expect(
+            screen.getByRole('link', { name: /TU Munich/ })
+        ).toBeInTheDocument();
+        expect(screen.getByText('Not decided')).toBeInTheDocument();
     });
 });

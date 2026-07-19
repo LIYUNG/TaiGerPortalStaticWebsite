@@ -1,4 +1,3 @@
-import { SyntheticEvent, useState } from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import EventIcon from '@mui/icons-material/Event';
@@ -11,28 +10,23 @@ import {
     IconButton,
     Link,
     ListItem,
+    Stack,
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
+import { is_TaiGer_Student } from '@taiger-common/core';
 import type { Application } from '@/api/types';
 import type { IUser } from '@taiger-common/model';
-import type { IStudentResponse } from '@taiger-common/model';
 
 import PendingEditorReplyCard from '../MainViewTab/RespondedThreads/PendingEditorReplyCard';
 import StudentTaskList from '../MainViewTab/StudentTasks/StudentTaskList';
 import {
-    check_academic_background_filled,
-    is_all_uni_assist_vpd_uploaded,
-    are_base_documents_missing,
-    isBaseDocumentsRejected,
     needGraduatedApplicantsButStudentNotGraduated,
     needGraduatedApplicantsPrograms
 } from '../../Utils/util_functions';
-import ErrorPage from '../../Utils/ErrorPage';
-import { updateBanner } from '@/api';
 import DEMO from '@store/constant';
-import ApplicationProgressCard from '@components/ApplicationProgressCard/ApplicationProgressCard';
+import MyApplicationsPanel from './MyApplicationsPanel';
+import UpcomingDeadlinesPanel from './UpcomingDeadlinesPanel';
 import { appConfig } from '../../../config';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
 import EnglishScoreBelowRequirementBanner from '@components/Banner/EnglishScoreBelowRequirementBanner';
@@ -41,86 +35,36 @@ import { useApplicationStudent } from '@hooks/useApplicationStudent';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 
+/**
+ * Shared row height on desktop. Fixing it is what lets the cards in a row line
+ * up and scroll internally, rather than the tallest one dictating how far down
+ * the page everything else gets pushed. Unset on mobile, where a single column
+ * should just flow.
+ */
+const PANEL_HEIGHT = 460;
+
 interface StudentDashboardProps {
-    student: IStudentResponse;
     isCoursesFilled: boolean;
 }
-const StudentDashboard = ({
-    student: std,
-    isCoursesFilled
-}: StudentDashboardProps) => {
+const StudentDashboard = ({ isCoursesFilled }: StudentDashboardProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [studentDashboardState, setStudentDashboardState] = useState<{
-        error: string;
-        student: IStudentResponse;
-        itemheight: number;
-        data: never[];
-        res_status: number;
-        success?: boolean;
-    }>({
-        error: '',
-        student: std,
-        itemheight: 20,
-        data: [],
-        res_status: 0
-    });
+
     const { studentId: stdIdParam } = useParams();
     const studentId =
         user && is_TaiGer_Student(user as IUser) ? user._id : stdIdParam;
     const {
-        data: student,
+        data: fetchedStudent,
         archiv,
         isLoading: isLoadingApplications
     } = useApplicationStudent(studentId);
-
-    const removeBanner = (e: SyntheticEvent, notification_key: string) => {
-        e.preventDefault();
-        const temp_student = student;
-        if (temp_student && temp_student.notification) {
-            (temp_student.notification as Record<string, boolean>)[
-                `${notification_key}`
-            ] = true;
-        }
-        setStudentDashboardState((prev) => ({
-            ...prev,
-            student: temp_student!
-        }));
-        updateBanner(notification_key).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setStudentDashboardState({
-                        ...studentDashboardState,
-                        success: success,
-                        res_status: status
-                    });
-                } else {
-                    setStudentDashboardState({
-                        ...studentDashboardState,
-                        res_status: status
-                    });
-                }
-            },
-            (error) => {
-                setStudentDashboardState({
-                    ...studentDashboardState,
-                    error,
-                    res_status: 500
-                });
-            }
-        );
-    };
+    // The prop seeds the view: the hook owns the application data, but falling
+    // back to it keeps the panels rendering off the caller's copy if the query
+    // resolves empty rather than blanking the dashboard.
+    const student = fetchedStudent;
 
     if (isLoadingApplications) {
         return <Loading />;
-    }
-
-    const { res_status } = studentDashboardState;
-
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
     }
 
     const hasUpcomingAppointment = false;
@@ -138,310 +82,170 @@ const StudentDashboard = ({
                     </Typography>
                 </Card>
             ) : null}
-            <Grid container spacing={1} sx={{ mt: 0 }}>
-                {student?.notification &&
-                !student.notification.isRead_survey_not_complete &&
-                !check_academic_background_filled(
-                    student.academic_background
-                ) ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_survey_not_complete')
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t(
-                                    'It looks like you did not finish survey. See',
-                                    {
-                                        ns: 'common'
-                                    }
-                                )}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.SURVEY_LINK}
-                                    underline="hover"
-                                >
-                                    {t('Survey')}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-
-                {student?.notification &&
-                !student?.notification.isRead_uni_assist_task_assigned &&
-                appConfig.vpdEnable &&
-                !is_all_uni_assist_vpd_uploaded(student) ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(
-                                    e,
-                                    'isRead_uni_assist_task_assigned'
-                                )
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t(
-                                    'Please go to Uni-Assist to apply or to get VPD'
-                                )}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.UNI_ASSIST_LINK}
-                                    underline="hover"
-                                >
-                                    {t('Uni-Assist')}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {student?.notification &&
-                !student.notification.isRead_base_documents_missing &&
-                are_base_documents_missing(student) ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(e, 'isRead_base_documents_missing')
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t('Some of Base Documents are still missing')}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.BASE_DOCUMENTS_LINK}
-                                    underline="hover"
-                                >
-                                    {t('My Documents', { ns: 'common' })}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-                {student?.notification &&
-                !student.notification.isRead_base_documents_rejected &&
-                isBaseDocumentsRejected(student) ? (
-                    <Grid item xs={12}>
-                        <Alert
-                            onClose={(e) =>
-                                removeBanner(
-                                    e,
-                                    'isRead_base_documents_rejected'
-                                )
-                            }
-                            severity="warning"
-                            sx={{ display: 'flex', alignItems: 'center' }}
-                        >
-                            <Typography sx={{ flexGrow: 1 }} variant="body2">
-                                {t('Some of Base Documents are rejected')}{' '}
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        ml: 1
-                                    }}
-                                    target="_blank"
-                                    to={DEMO.BASE_DOCUMENTS_LINK}
-                                    underline="hover"
-                                >
-                                    {t('My Documents', { ns: 'common' })}
-                                    <LaunchIcon
-                                        fontSize="small"
-                                        sx={{ ml: 0.5 }}
-                                    />
-                                </Link>
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                ) : null}
-                <Grid item md={12} xs={12}>
-                    {student &&
-                    needGraduatedApplicantsButStudentNotGraduated(student) ? (
-                        <Card sx={{ border: '4px solid red' }}>
-                            <Alert severity="warning">
-                                {t(
-                                    'Programs below are only for graduated applicants',
-                                    {
-                                        ns: 'common'
-                                    }
-                                )}
-                                &nbsp;:&nbsp;
-                            </Alert>
-                            {needGraduatedApplicantsPrograms(
-                                student.applications as Application[]
-                            )?.map((app) => (
-                                <ListItem key={app.programId?._id?.toString()}>
-                                    <Link
-                                        component={LinkDom}
-                                        target="_blank"
-                                        to={DEMO.SINGLE_PROGRAM_LINK(
-                                            app.programId?._id?.toString() ?? ''
-                                        )}
+            <Grid container spacing={1.5} sx={{ mt: 0 }}>
+                {/* Notices live in one bounded strip. Each dismissible alert
+                    used to own a full-width row, so a student with several of
+                    them pushed the actual dashboard below the fold. The cap
+                    scrolls rather than shrinks — alerts keep their normal
+                    padding, since a squashed alert nobody can read is worse
+                    than one that costs a little height. */}
+                <Grid item xs={12}>
+                    <Stack
+                        spacing={1}
+                        sx={{
+                            maxHeight: { xs: 'none', md: 200 },
+                            overflowY: { xs: 'visible', md: 'auto' },
+                            pr: 0.5
+                        }}
+                    >
+                        {student &&
+                        needGraduatedApplicantsButStudentNotGraduated(
+                            student
+                        ) ? (
+                            <Card sx={{ border: '2px solid red' }}>
+                                <Alert severity="warning">
+                                    {t(
+                                        'Programs below are only for graduated applicants',
+                                        { ns: 'common' }
+                                    )}
+                                </Alert>
+                                {needGraduatedApplicantsPrograms(
+                                    student.applications as Application[]
+                                )?.map((app) => (
+                                    <ListItem
+                                        key={app.programId?._id?.toString()}
                                     >
-                                        {app.programId?.school}{' '}
-                                        {app.programId?.program_name}{' '}
-                                        {app.programId?.degree}{' '}
-                                        {app.programId?.semester}
-                                    </Link>
-                                </ListItem>
-                            ))}
-                        </Card>
-                    ) : null}
+                                        <Link
+                                            component={LinkDom}
+                                            target="_blank"
+                                            to={DEMO.SINGLE_PROGRAM_LINK(
+                                                app.programId?._id?.toString() ??
+                                                    ''
+                                            )}
+                                        >
+                                            {app.programId?.school}{' '}
+                                            {app.programId?.program_name}{' '}
+                                            {app.programId?.degree}{' '}
+                                            {app.programId?.semester}
+                                        </Link>
+                                    </ListItem>
+                                ))}
+                            </Card>
+                        ) : null}
+                        <ProgramLanguageNotMatchedBanner student={student!} />
+                        <EnglishScoreBelowRequirementBanner
+                            student={student!}
+                        />
+                        <EnglishCertificateExpiredBeforeDeadlineBanner
+                            student={
+                                student as unknown as Record<string, unknown>
+                            }
+                        />
+                    </Stack>
                 </Grid>
-                <Grid item md={12} xs={12}>
-                    <ProgramLanguageNotMatchedBanner student={student!} />
+
+                {/* Applications and deadlines lead: they are what the student
+                    came for. Both rows fix their height on desktop so the cards
+                    align and each scrolls internally, instead of the page
+                    growing until everything is below the fold. */}
+                <Grid
+                    item
+                    md={8}
+                    sx={{ display: 'flex', height: { md: PANEL_HEIGHT } }}
+                    xs={12}
+                >
+                    <MyApplicationsPanel student={student!} />
                 </Grid>
-                <Grid item md={12} xs={12}>
-                    <EnglishScoreBelowRequirementBanner student={student!} />
-                </Grid>
-                <EnglishCertificateExpiredBeforeDeadlineBanner
-                    student={student as unknown as Record<string, unknown>}
-                />
-                <Grid item md={8} xs={12}>
-                    <StudentTaskList
-                        isCoursesFilled={isCoursesFilled}
-                        student={student!}
+                <Grid
+                    item
+                    md={4}
+                    sx={{ display: 'flex', height: { md: PANEL_HEIGHT } }}
+                    xs={12}
+                >
+                    <UpcomingDeadlinesPanel
+                        applications={
+                            (student?.applications ?? []) as Application[]
+                        }
+                        studentId={student?._id?.toString() ?? ''}
                     />
                 </Grid>
-                <Grid item md={4} xs={12}>
-                    <Box>
+
+                <Grid item md={8} sx={{ height: { md: PANEL_HEIGHT } }} xs={12}>
+                    {/* StudentTaskList owns its own Card, so the scroll cap
+                        goes on a wrapper rather than inside it. */}
+                    <Box sx={{ height: '100%', overflowY: 'auto', pr: 0.5 }}>
+                        <StudentTaskList
+                            isCoursesFilled={isCoursesFilled}
+                            student={student!}
+                        />
+                    </Box>
+                </Grid>
+                <Grid item md={4} sx={{ height: { md: PANEL_HEIGHT } }} xs={12}>
+                    <Box sx={{ height: '100%', overflowY: 'auto', pr: 0.5 }}>
                         {appConfig.meetingEnable ? (
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <Card sx={{ p: 2 }}>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12}>
-                                                <Typography
-                                                    sx={{ display: 'flex' }}
-                                                >
-                                                    <EventIcon /> 時段預約
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12}>
-                                                {hasUpcomingAppointment ? null : (
-                                                    <Typography>
-                                                        想要一次密集討論？
-                                                        可以預訂顧問 Office hour
-                                                        時段討論。
-                                                        <Link
-                                                            color="inherit"
-                                                            component={LinkDom}
-                                                            target="_blank"
-                                                            to="https://taigerconsultancy-portal.com/docs/search/64fe21bcbc729bc024d14738"
-                                                        >
-                                                            {t('Instructions')}
-                                                            <IconButton>
-                                                                <LaunchIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Link>
-                                                    </Typography>
-                                                )}
-                                            </Grid>
-                                            <Grid item xs={12}>
-                                                {student?.agents?.length !==
-                                                0 ? (
-                                                    <Link
-                                                        color="inherit"
-                                                        component={LinkDom}
-                                                        to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
-                                                            student?._id?.toString() ??
-                                                                ''
-                                                        )}?tab=timeslots`}
-                                                        underline="hover"
-                                                    >
-                                                        <Button
-                                                            color="primary"
-                                                            fullWidth
-                                                            size="small"
-                                                            variant="contained"
-                                                        >
-                                                            預約
-                                                        </Button>
-                                                    </Link>
-                                                ) : (
-                                                    <span className="text-light">
-                                                        {t('Wait for Agent', {
-                                                            ns: 'common'
-                                                        })}
-                                                    </span>
-                                                )}
-                                            </Grid>
-                                        </Grid>
-                                    </Card>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <PendingEditorReplyCard
-                                        student={student!}
-                                    />
-                                </Grid>
-                            </Grid>
+                            <Stack spacing={1.5}>
+                                <Card sx={{ p: 2 }}>
+                                    <Typography
+                                        sx={{
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                            gap: 0.5,
+                                            mb: 1
+                                        }}
+                                    >
+                                        <EventIcon /> 時段預約
+                                    </Typography>
+                                    {hasUpcomingAppointment ? null : (
+                                        <Typography
+                                            sx={{ mb: 1 }}
+                                            variant="body2"
+                                        >
+                                            想要一次密集討論？ 可以預訂顧問
+                                            Office hour 時段討論。
+                                            <Link
+                                                color="inherit"
+                                                component={LinkDom}
+                                                target="_blank"
+                                                to="https://taigerconsultancy-portal.com/docs/search/64fe21bcbc729bc024d14738"
+                                            >
+                                                {t('Instructions')}
+                                                <IconButton>
+                                                    <LaunchIcon fontSize="small" />
+                                                </IconButton>
+                                            </Link>
+                                        </Typography>
+                                    )}
+                                    {student?.agents?.length !== 0 ? (
+                                        <Link
+                                            color="inherit"
+                                            component={LinkDom}
+                                            to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
+                                                student?._id?.toString() ?? ''
+                                            )}?tab=timeslots`}
+                                            underline="hover"
+                                        >
+                                            <Button
+                                                color="primary"
+                                                fullWidth
+                                                size="small"
+                                                variant="contained"
+                                            >
+                                                預約
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <span className="text-light">
+                                            {t('Wait for Agent', {
+                                                ns: 'common'
+                                            })}
+                                        </span>
+                                    )}
+                                </Card>
+                                <PendingEditorReplyCard student={student!} />
+                            </Stack>
                         ) : null}
                     </Box>
                 </Grid>
-            </Grid>
-            <Grid container spacing={2} sx={{ mt: 0 }}>
-                {student?.applications
-                    ?.filter((app: Application) => isProgramDecided(app))
-                    .map((application, idx) => (
-                        <Grid item key={idx} lg={3} md={4} sm={6} xs={12}>
-                            <ApplicationProgressCard
-                                application={
-                                    application as unknown as Record<
-                                        string,
-                                        unknown
-                                    >
-                                }
-                                student={
-                                    student as unknown as Record<
-                                        string,
-                                        unknown
-                                    >
-                                }
-                            />
-                        </Grid>
-                    ))}
             </Grid>
         </>
     );
