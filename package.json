@@ -34,7 +34,7 @@
         "@tanstack/react-form": "^1.14.2",
         "@tanstack/react-query": "^5.62.8",
         "@tanstack/react-virtual": "^3.0.4",
-        "axios": "^1.17.0",
+        "axios": "^1.18.0",
         "date-fns": "^4.1.0",
         "diff": "^8.0.3",
         "editorjs-text-color-plugin": "^2.0.4",
