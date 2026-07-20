@@ -254,6 +254,9 @@ const UpcomingDeadlinesPanel = ({
                         sx={{ display: 'block', mt: 1.5 }}
                         variant="caption"
                     >
+                        {/* Lowercase 'more' is its own key, distinct from the
+                            standalone "More" label: this one is a sentence
+                            fragment ("+3 more"), not a button. */}
                         {`+${entries.length - MAX_ITEMS} ${t('more', { ns: 'common' })}`}
                     </Typography>
                 ) : null}

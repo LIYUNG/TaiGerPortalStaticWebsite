@@ -627,5 +627,10 @@
     "Final enrolment is confirmed for this program.": "此學程已確認最終入學。",
     "An offer result is already recorded for this program.": "此學程已記錄錄取結果。",
     "Edit Application Year": "編輯申請年份",
-    "The application deleted successfully!": "已成功刪除此申請！"
+    "The application deleted successfully!": "已成功刪除此申請！",
+    "Upcoming Deadlines": "近期截止日期",
+    "No deadlines coming up.": "近期沒有截止日期。",
+    "Overdue": "已逾期",
+    "View All": "查看全部",
+    "more": "更多"
 }

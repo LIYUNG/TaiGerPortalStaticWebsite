@@ -625,5 +625,10 @@
     "Final enrolment is confirmed for this program.": "Final enrolment is confirmed for this program.",
     "An offer result is already recorded for this program.": "An offer result is already recorded for this program.",
     "Edit Application Year": "Edit Application Year",
-    "The application deleted successfully!": "The application deleted successfully!"
+    "The application deleted successfully!": "The application deleted successfully!",
+    "Upcoming Deadlines": "Upcoming Deadlines",
+    "No deadlines coming up.": "No deadlines coming up.",
+    "Overdue": "Overdue",
+    "View All": "View All",
+    "more": "more"
 }
